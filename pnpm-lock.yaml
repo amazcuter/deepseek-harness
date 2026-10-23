@@ -15768,6 +15768,22 @@ importers:
         specifier: workspace:*
         version: link:../web
 
+  packages/workflow/project-store:
+    dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@metaworkflow/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@metaworkflow/home-paths':
+        specifier: workspace:*
+        version: link:../../util/home-paths
+
   packages/workflow/tool-workflow:
     dependencies:
       '@deepseek-ai/schemastery':

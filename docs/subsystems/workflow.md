@@ -135,6 +135,131 @@ The record protocol allows one start per run, positive unique member sequences, 
 
 Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
 
+<a id="ctxmwfprojectstore--workflowprojectstore"></a>
+
+### `ctx.mwfProjectStore` — `WorkflowProjectStore`
+
+The workflow project store service.
+
+The registry database opens on first use and every project database opens when its project is first touched; each connection stays open until the service is disposed or its project is removed from the registry. Writes are serialized per database, so concurrent callers never rely on `busy_timeout` to order them.
+
+```ts cordis-catalog
+/**
+ * Every registered project, newest first.
+ * @returns the registry records in registry order.
+ */
+async listProjects(): Promise<ProjectRecord[]>
+
+/**
+ * Register a new project and materialize its project database.
+ *
+ * The registry row is written first, so a directory already claimed by another
+ * project fails before any file is created; a project database that then fails
+ * to open removes the row it just wrote.
+ * @param request - title and optional project directory.
+ * @returns the registered project record.
+ * @throws {@link WorkflowProjectStoreError} `invalid-request` for an empty title,
+ * `project-path-in-use` when another project claims the directory, and
+ * `open-failed` when the project database cannot be created.
+ */
+async createProject(request: CreateProjectRequest): Promise<ProjectRecord>
+
+/**
+ * Open one project: resolve its registry row and materialize its database when
+ * the directory exists without one.
+ * @param projectId - registered project to open.
+ * @returns the registry record of the opened project.
+ * @throws {@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`,
+ * or the project database's open failure.
+ */
+async openProject(projectId: ProjectId): Promise<ProjectRecord>
+
+/**
+ * Remove one project from the registry.
+ *
+ * The project's connection is closed first; its directory keeps every file
+ * unless `deleteDirectory` asks for removal. The returned directory is what a
+ * caller shows the human before deciding.
+ * @param projectId - registered project to remove.
+ * @param options - whether to delete the project directory tree.
+ * @returns the absolute project directory that is no longer registered.
+ * @throws {@link WorkflowProjectStoreError} `invalid-project-id` or `project-not-found`.
+ */
+async removeProject(projectId: ProjectId, options: RemoveProjectOptions = {}): Promise<string>
+
+/**
+ * Read one definition revision, or the newest one.
+ * @param projectId - registered project to read.
+ * @param revision - revision to read; omitted reads the newest revision.
+ * @returns the stored definition, or `undefined` when the project has none.
+ * @throws {@link WorkflowProjectStoreError} `invalid-request` for a non-positive revision.
+ */
+async readDefinition(projectId: ProjectId, revision?: number): Promise<DefinitionRecord | undefined>
+
+/**
+ * Store a new definition revision and refresh the registry hint.
+ *
+ * The revision is computed and inserted inside one `BEGIN IMMEDIATE` batch, so
+ * concurrent writes get distinct consecutive revisions. The registry hint is
+ * refreshed afterwards: a registry failure surfaces to the caller even though
+ * the new revision is durable.
+ * @param projectId - registered project to write.
+ * @param document - complete definition document text.
+ * @returns the revision number the document was stored under.
+ * @throws {@link WorkflowProjectStoreError} `invalid-request` for an empty document.
+ */
+async writeDefinition(projectId: ProjectId, document: string): Promise<number>
+
+/**
+ * Every run recorded for one project, newest first.
+ * @param projectId - registered project to read.
+ * @returns the run records.
+ */
+async listRuns(projectId: ProjectId): Promise<RunRecord[]>
+
+/**
+ * Every outbox event of one attempt, in event order.
+ * @param projectId - registered project to read.
+ * @param attemptId - attempt whose events are read.
+ * @returns the stored events, acknowledged or not.
+ */
+async listOutbox(projectId: ProjectId, attemptId: AttemptId): Promise<OutboxRecord[]>
+
+/**
+ * Stage one outbox event for a later replay into a session log.
+ *
+ * `(attemptId, eventSeq)` is the idempotency key: repeating an append returns
+ * the row already stored, including a previous acknowledgement, instead of
+ * writing a duplicate.
+ * @param projectId - registered project to write.
+ * @param attemptId - attempt the event belongs to; it must be recorded first.
+ * @param eventSeq - per-attempt event sequence.
+ * @param payload - event payload text.
+ * @returns the stored event.
+ * @throws {@link WorkflowProjectStoreError} `invalid-request` for an empty payload
+ * or a negative sequence, and `unknown-attempt` when the attempt is not recorded.
+ */
+async appendOutbox( projectId: ProjectId, attemptId: AttemptId, eventSeq: number, payload: string, ): Promise<OutboxRecord>
+
+/**
+ * Acknowledge one staged outbox event.
+ * @param projectId - registered project to write.
+ * @param attemptId - attempt the event belongs to.
+ * @param eventSeq - per-attempt event sequence.
+ * @returns `true` when this call acknowledged the event, `false` when it was
+ * absent or already acknowledged.
+ */
+async markAcked(projectId: ProjectId, attemptId: AttemptId, eventSeq: number): Promise<boolean>
+
+/**
+ * Close every open connection and refuse further work. Idempotent.
+ * @returns resolution once every queued write settled and every handle closed.
+ */
+async close(): Promise<void>
+```
+
+Source: [`packages/workflow/project-store/src/index.ts`](../../packages/workflow/project-store/src/index.ts)
+
 <a id="ctxworkflowengine--workflowengine-abstract-seam"></a>
 
 ### `ctx.workflowEngine` — `WorkflowEngine` (abstract seam)

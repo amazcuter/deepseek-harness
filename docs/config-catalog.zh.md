@@ -4547,6 +4547,25 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@metaworkflow/webhook-github -->
 
+<!-- BEGIN GENERATED config-catalog:@metaworkflow/workflow-project-store -->
+<a id="metaworkflowworkflow-project-store"></a>
+
+## `@metaworkflow/workflow-project-store`
+
+- `source`: [`packages/workflow/project-store/src/index.ts:104`](../packages/workflow/project-store/src/index.ts)
+
+```ts config-catalog
+/** Plugin configuration. */
+export interface Config {
+  /**
+   * Harness home override. Omitted resolves `$MWF_HOME` and then `~/.mwf`
+   * through `@metaworkflow/home-paths`; the store never hard-codes a home.
+   */
+  readonly mwfHome?: string
+}
+```
+<!-- END GENERATED config-catalog:@metaworkflow/workflow-project-store -->
+
 <!-- BEGIN GENERATED config-catalog:@metaworkflow/workflow-ptc -->
 <a id="metaworkflowworkflow-ptc"></a>
 
@@ -4653,6 +4672,7 @@ export interface Config {
 | `@metaworkflow/client-ui-layout` | — | [`packages/client/ui-layout/src/index.ts`](../packages/client/ui-layout/src/index.ts) |
 | `@metaworkflow/client-ui-message-feedback` | — | [`packages/client/ui-message-feedback/src/index.ts`](../packages/client/ui-message-feedback/src/index.ts) |
 | `@metaworkflow/client-ui-model-selection` | — | [`packages/client/ui-model-selection/src/index.ts`](../packages/client/ui-model-selection/src/index.ts) |
+| `@metaworkflow/client-ui-mw-projects` | — | [`packages/client/ui-mw-projects/src/index.ts`](../packages/client/ui-mw-projects/src/index.ts) |
 | `@metaworkflow/client-ui-open-in-app` | — | [`packages/client/ui-open-in-app/src/index.ts`](../packages/client/ui-open-in-app/src/index.ts) |
 | `@metaworkflow/client-ui-permission-presets` | — | [`packages/client/ui-permission-presets/src/index.ts`](../packages/client/ui-permission-presets/src/index.ts) |
 | `@metaworkflow/client-ui-plan` | — | [`packages/client/ui-plan/src/index.ts`](../packages/client/ui-plan/src/index.ts) |

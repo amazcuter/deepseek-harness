@@ -874,6 +874,13 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'One engine per context, as in bash, with no named-provider registry; the general workflow and fixed Ralph consumers start runs whose agent() calls fan out through ctx.subagents.',
   },
   {
+    key: 'mwfProjectStore',
+    pkg: 'workflow-project-store',
+    title: 'Workflow project persistence',
+    mode: 'service',
+    note: 'Owns the global project registry and one database per project; no consumer is wired yet, so the runner and GUI stages attach their reads and writes here.',
+  },
+  {
     key: 'webhookRuntime',
     pkg: 'webhook',
     title: 'Webhook rule runtime',

@@ -1585,6 +1585,85 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'mwfProjectStore',
+    summary: 'The workflow project store service.',
+    description: 'The workflow project store service.\n\nThe registry database opens on first use and every project database opens when its project is first touched; each connection stays open until the service is disposed or its project is removed from the registry. Writes are serialized per database, so concurrent callers never rely on `busy_timeout` to order them.',
+    methods: [
+      {
+        signature: 'async listProjects(): Promise<ProjectRecord[]>',
+        description: 'Every registered project, newest first.',
+        parameters: [],
+        returns: 'the registry records in registry order.',
+      },
+      {
+        signature: 'async createProject(request: CreateProjectRequest): Promise<ProjectRecord>',
+        description: 'Register a new project and materialize its project database.\n\nThe registry row is written first, so a directory already claimed by another project fails before any file is created; a project database that then fails to open removes the row it just wrote.',
+        parameters: [{ name: 'request', description: 'title and optional project directory.' }],
+        returns: 'the registered project record.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-request` for an empty title, `project-path-in-use` when another project claims the directory, and `open-failed` when the project database cannot be created.'],
+      },
+      {
+        signature: 'async openProject(projectId: ProjectId): Promise<ProjectRecord>',
+        description: 'Open one project: resolve its registry row and materialize its database when the directory exists without one.',
+        parameters: [{ name: 'projectId', description: 'registered project to open.' }],
+        returns: 'the registry record of the opened project.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`, or the project database\'s open failure.'],
+      },
+      {
+        signature: 'async removeProject(projectId: ProjectId, options: RemoveProjectOptions = {}): Promise<string>',
+        description: 'Remove one project from the registry.\n\nThe project\'s connection is closed first; its directory keeps every file unless `deleteDirectory` asks for removal. The returned directory is what a caller shows the human before deciding.',
+        parameters: [{ name: 'projectId', description: 'registered project to remove.' }, { name: 'options', description: 'whether to delete the project directory tree.' }],
+        returns: 'the absolute project directory that is no longer registered.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-project-id` or `project-not-found`.'],
+      },
+      {
+        signature: 'async readDefinition(projectId: ProjectId, revision?: number): Promise<DefinitionRecord | undefined>',
+        description: 'Read one definition revision, or the newest one.',
+        parameters: [{ name: 'projectId', description: 'registered project to read.' }, { name: 'revision', description: 'revision to read; omitted reads the newest revision.' }],
+        returns: 'the stored definition, or `undefined` when the project has none.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-request` for a non-positive revision.'],
+      },
+      {
+        signature: 'async writeDefinition(projectId: ProjectId, document: string): Promise<number>',
+        description: 'Store a new definition revision and refresh the registry hint.\n\nThe revision is computed and inserted inside one `BEGIN IMMEDIATE` batch, so concurrent writes get distinct consecutive revisions. The registry hint is refreshed afterwards: a registry failure surfaces to the caller even though the new revision is durable.',
+        parameters: [{ name: 'projectId', description: 'registered project to write.' }, { name: 'document', description: 'complete definition document text.' }],
+        returns: 'the revision number the document was stored under.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-request` for an empty document.'],
+      },
+      {
+        signature: 'async listRuns(projectId: ProjectId): Promise<RunRecord[]>',
+        description: 'Every run recorded for one project, newest first.',
+        parameters: [{ name: 'projectId', description: 'registered project to read.' }],
+        returns: 'the run records.',
+      },
+      {
+        signature: 'async listOutbox(projectId: ProjectId, attemptId: AttemptId): Promise<OutboxRecord[]>',
+        description: 'Every outbox event of one attempt, in event order.',
+        parameters: [{ name: 'projectId', description: 'registered project to read.' }, { name: 'attemptId', description: 'attempt whose events are read.' }],
+        returns: 'the stored events, acknowledged or not.',
+      },
+      {
+        signature: 'async appendOutbox( projectId: ProjectId, attemptId: AttemptId, eventSeq: number, payload: string, ): Promise<OutboxRecord>',
+        description: 'Stage one outbox event for a later replay into a session log.\n\n`(attemptId, eventSeq)` is the idempotency key: repeating an append returns the row already stored, including a previous acknowledgement, instead of writing a duplicate.',
+        parameters: [{ name: 'projectId', description: 'registered project to write.' }, { name: 'attemptId', description: 'attempt the event belongs to; it must be recorded first.' }, { name: 'eventSeq', description: 'per-attempt event sequence.' }, { name: 'payload', description: 'event payload text.' }],
+        returns: 'the stored event.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-request` for an empty payload or a negative sequence, and `unknown-attempt` when the attempt is not recorded.'],
+      },
+      {
+        signature: 'async markAcked(projectId: ProjectId, attemptId: AttemptId, eventSeq: number): Promise<boolean>',
+        description: 'Acknowledge one staged outbox event.',
+        parameters: [{ name: 'projectId', description: 'registered project to write.' }, { name: 'attemptId', description: 'attempt the event belongs to.' }, { name: 'eventSeq', description: 'per-attempt event sequence.' }],
+        returns: '`true` when this call acknowledged the event, `false` when it was absent or already acknowledged.',
+      },
+      {
+        signature: 'async close(): Promise<void>',
+        description: 'Close every open connection and refuse further work. Idempotent.',
+        parameters: [],
+        returns: 'resolution once every queued write settled and every handle closed.',
+      },
+    ],
+  },
+  {
     key: 'officeToPdf',
     summary: 'A provider lifetime owns all converters, queued calls, and temporary files.',
     description: 'A provider lifetime owns all converters, queued calls, and temporary files.',
@@ -4898,6 +4977,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type AttachmentId = Branded<\'AttachmentId\'>;',
   },
   {
+    name: 'AttemptId',
+    declaration: 'export type AttemptId = Branded<\'AttemptId\'>;',
+  },
+  {
     name: 'AuthorizationEntry',
     declaration: 'export interface AuthorizationEntry {\n    key: CredentialKey;\n    label: string;\n    methods: readonly AuthorizationMethod[];\n    inFlight: boolean;\n}',
   },
@@ -5262,6 +5345,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface CreateGoalResult {\n    readonly ref: GoalRef;\n}',
   },
   {
+    name: 'CreateProjectRequest',
+    declaration: 'export interface CreateProjectRequest {\n    readonly title: string;\n    readonly path?: string;\n}',
+  },
+  {
     name: 'CreateSessionOptions',
     declaration: 'export interface CreateSessionOptions {\n    readonly seed?: readonly SessionEvent[];\n    readonly inheritedEventCount?: SessionLogOffset;\n    readonly meta?: {\n        readonly cwd?: string;\n        readonly parentSession?: SessionId;\n        readonly createdAt?: number;\n        readonly isSeeded?: boolean;\n        readonly origin?: \'subagent\';\n        readonly delegationDepth?: number;\n        readonly agentPreset?: string;\n    };\n}',
   },
@@ -5328,6 +5415,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'DeepSeekLlmApiJson',
     declaration: 'export type DeepSeekLlmApiJson = null | boolean | number | string | DeepSeekLlmApiJson[] | {\n    [key: string]: DeepSeekLlmApiJson;\n};',
+  },
+  {
+    name: 'DefinitionRecord',
+    declaration: 'export interface DefinitionRecord {\n    readonly revision: number;\n    readonly document: string;\n    readonly createdAt: number;\n}',
   },
   {
     name: 'DeliveryRetentionBounds',
@@ -6338,6 +6429,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type OTelEventScalar = string | number | boolean;',
   },
   {
+    name: 'OutboxRecord',
+    declaration: 'export interface OutboxRecord {\n    readonly attemptId: AttemptId;\n    readonly eventSeq: number;\n    readonly payload: string;\n    readonly ackedAt: number | null;\n}',
+  },
+  {
     name: 'PackageResult',
     declaration: 'export interface PackageResult {\n    exitCode: number;\n    output: string;\n    truncated: boolean;\n    logPath: string;\n    kind?: PluginInstallFailureKind;\n    timedOut?: boolean;\n    incompatible?: IncompatiblePlugin[];\n}',
   },
@@ -6540,6 +6635,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ProjectionSnapshot',
     declaration: 'export interface ProjectionSnapshot {\n    asOfSeq: SessionSeqCursor;\n    values: Partial<SessionProjectionMap>;\n}',
+  },
+  {
+    name: 'ProjectRecord',
+    declaration: 'export interface ProjectRecord {\n    readonly id: ProjectId;\n    readonly path: string;\n    readonly title: string;\n    readonly createdAt: number;\n    readonly updatedAt: number;\n    readonly definitionRevision: number;\n}',
   },
   {
     name: 'PromptAssembly',
@@ -6754,6 +6853,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface RemoteUplinkWindow {\n    readonly maxBytes: number;\n    readonly frameOverheadBytes: number;\n}',
   },
   {
+    name: 'RemoveProjectOptions',
+    declaration: 'export interface RemoveProjectOptions {\n    readonly deleteDirectory?: boolean;\n}',
+  },
+  {
     name: 'RenderedDocumentBytes',
     declaration: 'export interface RenderedDocumentBytes extends WorkspaceFileBytes {\n    readonly missingFonts: string[];\n    readonly generation: OfficeToPdfGeneration;\n}',
   },
@@ -6830,8 +6933,20 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type RpcId = Branded<\'rpc-id\'>;',
   },
   {
+    name: 'RunId',
+    declaration: 'export type RunId = Branded<\'RunId\'>;',
+  },
+  {
     name: 'RunnerFailureRule',
     declaration: 'export interface RunnerFailureRule {\n    allowedExitCodes?: readonly number[];\n    fatalSignatures: readonly string[];\n    informationalLines?: readonly string[];\n}',
+  },
+  {
+    name: 'RunRecord',
+    declaration: 'export interface RunRecord {\n    readonly runId: RunId;\n    readonly definitionRevision: number;\n    readonly status: RunStatus;\n    readonly createdAt: number;\n    readonly updatedAt: number;\n    readonly reason: string | null;\n}',
+  },
+  {
+    name: 'RunStatus',
+    declaration: 'export type RunStatus = \'pending\' | \'running\' | \'succeeded\' | \'failed\' | \'canceled\';',
   },
   {
     name: 'SandboxEnforcement',

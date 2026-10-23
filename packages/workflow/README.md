@@ -27,6 +27,7 @@ The workflow group lets an agent run orchestration scripts that delegate work to
 | [`workflow`](workflow/README.md) | Runs a model-written orchestration script that fans out subagents | `ctx.workflowEngine` |
 | [`workflow-ptc`](workflow-ptc/README.md) | Runs workflow scripts through the shared sandboxed PTC Node process runtime | registers on `ctx.workflowEngine` |
 | [`tool-workflow`](tool-workflow/README.md) | Gives the model the `workflow` tool for scripted multi-agent orchestration | registers on `ctx.tools` |
+| [`project-store`](project-store/README.md) | Persists workflow projects: a global registry plus one database per project | `ctx.mwfProjectStore` |
 
 -----
 
