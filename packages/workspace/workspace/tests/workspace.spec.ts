@@ -961,7 +961,7 @@ describe('registry-global session archive', () => {
     const dir = await makeDir('archive-active')
     const { registry, ctx } = await harness({ sessions: [header('busy', dir, 1)] })
     ctx.on('workspace/session-activity', async (_request, next) => [
-      { kind: 'job' as never, items: [{ id: 'job-1' }] },
+      { kind: 'job', items: [{ id: 'job-1' }] },
       ...await next(),
     ])
     const before = registry.archivedSessionIds

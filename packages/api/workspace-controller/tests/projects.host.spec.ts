@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { mkdirSync, mkdtempSync, realpathSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
@@ -125,7 +125,8 @@ describe('project Remote namespace', () => {
     // the Gateway's own namespace-service member of that name.
     await expect(projects.delete({ id: created.project.id })).resolves.toEqual({ deleted: true })
     expect(ctx.workspaceRegistry.list()).toEqual([])
-    expect(rmSync(dir, { recursive: true, force: true })).toBeUndefined()
+    rmSync(dir, { recursive: true, force: true })
+    expect(existsSync(dir)).toBe(false)
   })
 
   it('maps store failures onto the Remote vocabulary', async () => {
@@ -180,7 +181,7 @@ describe('project Remote namespace', () => {
     vi.spyOn(ctx.workspaceRegistry, 'createProject').mockRejectedValueOnce('plain string failure')
     await expect(projects.create({ title: 'String' })).rejects.toMatchObject({
       code: 'project/invalid-path',
-      message: expect.stringContaining('plain string failure'),
+      message: expect.stringContaining('plain string failure') as string,
     })
   })
 
