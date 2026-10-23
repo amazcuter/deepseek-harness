@@ -4589,6 +4589,33 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@metaworkflow/workflow-ptc -->
 
+<!-- BEGIN GENERATED config-catalog:@metaworkflow/workflow-python-runner -->
+<a id="metaworkflowworkflow-python-runner"></a>
+
+## `@metaworkflow/workflow-python-runner`
+
+- `source`: [`packages/workflow/python-runner/src/index.ts:59`](../packages/workflow/python-runner/src/index.ts)
+
+```ts config-catalog
+/** Plugin configuration. */
+export interface Config {
+  /**
+   * Interpreter path or launcher used when neither the caller nor an existing
+   * project `.venv` supplies one. Omitted probes the platform launchers.
+   */
+  readonly interpreterPath?: string
+  /** Default wall-clock deadline of one node run, in milliseconds. */
+  readonly timeoutMs?: number
+  /** Default cap for a run's stdout log, in bytes. */
+  readonly maxStdoutBytes?: number
+  /** Default cap for a run's stderr log, in bytes. */
+  readonly maxStderrBytes?: number
+  /** Deadline for one virtual-environment creation or pip installation, in milliseconds. */
+  readonly installTimeoutMs?: number
+}
+```
+<!-- END GENERATED config-catalog:@metaworkflow/workflow-python-runner -->
+
 <!-- BEGIN GENERATED config-catalog:@metaworkflow/working-directory -->
 <a id="metaworkflowworking-directory"></a>
 

@@ -248,6 +248,7 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/web/web-search-exa': { kind: 'indirect', reason: 'The provider backend delegates model rendering to mwf-tool-web.' },
   'packages/workflow/workflow': { kind: 'indirect', reason: 'The service delegates parent and child model rendering to its consumer and engine.' },
   'packages/workflow/project-store': { kind: 'none', reason: 'The store persists project, definition, run, and outbox records for host consumers and registers nothing model-facing.' },
+  'packages/workflow/python-runner': { kind: 'none', reason: 'The runner executes host Python for callers and registers no prompt, tool, or session event.' },
 }
 
 interface Failure {

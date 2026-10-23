@@ -15799,6 +15799,19 @@ importers:
         specifier: workspace:*
         version: link:../../util/home-paths
 
+  packages/workflow/python-runner:
+    dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@metaworkflow/subprocess':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess
+
   packages/workflow/tool-workflow:
     dependencies:
       '@deepseek-ai/schemastery':

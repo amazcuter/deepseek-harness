@@ -888,6 +888,13 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Owns the global project registry and one database per project; no consumer is wired yet, so the runner and GUI stages attach their reads and writes here.',
   },
   {
+    key: 'mwfPythonRunner',
+    pkg: 'workflow-python-runner',
+    title: 'Workflow Python node execution',
+    mode: 'service',
+    note: 'Owns interpreter resolution, the project .venv, and one isolated node run; no consumer is wired yet, so the scheduler stage attaches its runs here.',
+  },
+  {
     key: 'webhookRuntime',
     pkg: 'webhook',
     title: 'Webhook rule runtime',

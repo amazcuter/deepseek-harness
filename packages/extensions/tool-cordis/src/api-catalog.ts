@@ -1671,6 +1671,41 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'mwfPythonRunner',
+    summary: 'Runs node functions on a host Python interpreter.',
+    description: 'Runs node functions on a host Python interpreter.\n\nOne service instance owns the `.venv` serialization of every project it touches and the termination bindings of the platform it runs on; it holds no other state, so a disposed instance leaves nothing behind.',
+    methods: [
+      {
+        signature: 'async resolveInterpreter(request: ResolveInterpreterRequest = {}): Promise<InterpreterSpec>',
+        description: 'Resolve the interpreter one request runs with.\n\nThe caller\'s explicit path wins, then an existing project `.venv`, then the configured `interpreterPath`, then a probe of the platform launchers.',
+        parameters: [{ name: 'request', description: 'explicit path and project directory; both optional.' }],
+        returns: 'the validated interpreter.',
+        throws: ['{@link PythonRunnerError} `python/not-found`, `python/unsupported-version`, or `python/free-threaded`.'],
+      },
+      {
+        signature: 'async ensureVenv(projectDir: string): Promise<string>',
+        description: 'Ensure the project\'s `.venv` exists and return its interpreter.\n\nConcurrent calls for the same project serialize, so the second call observes the first creation instead of starting another one.',
+        parameters: [{ name: 'projectDir', description: 'project directory that owns the environment.' }],
+        returns: 'absolute path of the environment\'s interpreter.',
+        throws: ['{@link PythonRunnerError} `project/path-too-long`, `venv/create-failed`, or an interpreter failure.'],
+      },
+      {
+        signature: 'async installRequirements(projectDir: string, requirements: readonly string[]): Promise<InstallRequirementsResult>',
+        description: 'Install requirements into the project\'s `.venv`, creating it when missing.\n\nEvery installation is `--only-binary=:all:`, so a package that publishes no wheel for this platform fails here with pip\'s own diagnostic instead of failing later inside a node.',
+        parameters: [{ name: 'projectDir', description: 'project directory that owns the environment.' }, { name: 'requirements', description: 'requirement specifiers; an empty list installs nothing.' }],
+        returns: 'the pip exit facts, with `ok: false` and the pip tail on failure.',
+        throws: ['{@link PythonRunnerError} `project/path-too-long`, `venv/create-failed`, or an interpreter failure.'],
+      },
+      {
+        signature: 'async runNode(request: RunNodeRequest): Promise<RunNodeResult>',
+        description: 'Run one node function and return its JSON value or its structured failure.\n\nThe source is written to `nodes/<nodeId>/node_main.py` beside a generated wrapper, which the resolved interpreter starts with `-X utf8` in the node\'s own directory. Inputs arrive on stdin as UTF-8 JSON. On the deadline or an abort the whole process tree is terminated.',
+        parameters: [{ name: 'request', description: 'project, node, source, inputs, limits, environment, and abort signal.' }],
+        returns: 'the node\'s value or the failure, with captured logs and exit facts.',
+        throws: ['{@link PythonRunnerError} `project/path-too-long`, `node/invalid-id`, or an interpreter failure; an aborted run refuses with the signal\'s reason instead.'],
+      },
+    ],
+  },
+  {
     key: 'mwProjectController',
     summary: 'Host service backing the generated `ctx.remote.projects` namespace.',
     description: 'Host service backing the generated `ctx.remote.projects` namespace. It serves the dashboard: list what is registered, create, open, rename, and remove — never a directory-tree deletion.',
@@ -5859,12 +5894,24 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface InstallBundleOptions {\n    enabled?: boolean;\n    saveExact?: boolean;\n    requestId?: PluginInstallRequestId;\n    approvedBuilds?: string[];\n    registry?: Registry;\n}',
   },
   {
+    name: 'InstallRequirementsResult',
+    declaration: 'export interface InstallRequirementsResult {\n    readonly ok: boolean;\n    readonly error?: NodeRunFailure;\n    readonly stdout: string;\n    readonly stderr: string;\n    readonly exitCode: number | null;\n    readonly durationMs: number;\n}',
+  },
+  {
     name: 'InstallSpecKind',
     declaration: 'export type InstallSpecKind = \'registry\' | \'path\' | \'git\' | \'tarball\';',
   },
   {
     name: 'InternalScheduleError',
     declaration: 'export interface InternalScheduleError {\n    readonly code: \'internal_error\';\n    readonly message: string;\n}',
+  },
+  {
+    name: 'InterpreterSource',
+    declaration: 'export type InterpreterSource = \'explicit\' | \'project-venv\' | \'config\' | \'probe\';',
+  },
+  {
+    name: 'InterpreterSpec',
+    declaration: 'export interface InterpreterSpec {\n    readonly path: string;\n    readonly version: string;\n    readonly source: InterpreterSource;\n    readonly virtualEnv?: string;\n}',
   },
   {
     name: 'InvalidPromptError',
@@ -6435,6 +6482,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface NativeFileApplication {\n    readonly id: string;\n    readonly name: string;\n    readonly default: boolean;\n    readonly icon: string | null;\n}',
   },
   {
+    name: 'NodeRunFailure',
+    declaration: 'export interface NodeRunFailure {\n    readonly code: PythonRunnerErrorCode;\n    readonly message: string;\n}',
+  },
+  {
     name: 'NotFutureError',
     declaration: 'export interface NotFutureError {\n    readonly code: \'not_future\';\n    readonly message: string;\n}',
   },
@@ -6823,6 +6874,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface PtcRunSpec extends PtcRunRequest {\n    cwd: string;\n    timeoutMs: number | null;\n}',
   },
   {
+    name: 'PythonRunnerErrorCode',
+    declaration: 'export type PythonRunnerErrorCode = \'python/not-found\' | \'python/unsupported-version\' | \'python/free-threaded\' | \'venv/create-failed\' | \'install/failed\' | \'node/invalid-return\' | \'node/exception\' | \'node/timeout\' | \'node/output-too-large\' | \'node/invalid-id\' | \'project/path-too-long\';',
+  },
+  {
     name: 'QueueAction',
     declaration: 'export type QueueAction = {\n    readonly kind: \'edit\';\n    readonly content: readonly TextBlock[];\n} | {\n    readonly kind: \'remove\';\n} | {\n    readonly kind: \'steer\';\n};',
   },
@@ -7007,6 +7062,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ResolvedSubagentStartRequest extends SubagentStartRequest {\n    readonly cwd: string;\n}',
   },
   {
+    name: 'ResolveInterpreterRequest',
+    declaration: 'export interface ResolveInterpreterRequest {\n    readonly interpreterPath?: string;\n    readonly projectDir?: string;\n}',
+  },
+  {
     name: 'RestartReason',
     declaration: 'export type RestartReason = \'no-hmr\' | \'package-moved\' | \'host-module\' | \'unmanaged-plugin\' | \'module-comparison\';',
   },
@@ -7029,6 +7088,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'RunnerFailureRule',
     declaration: 'export interface RunnerFailureRule {\n    allowedExitCodes?: readonly number[];\n    fatalSignatures: readonly string[];\n    informationalLines?: readonly string[];\n}',
+  },
+  {
+    name: 'RunNodeRequest',
+    declaration: 'export interface RunNodeRequest {\n    readonly projectDir: string;\n    readonly nodeId: string;\n    readonly source: string;\n    readonly inputs?: unknown;\n    readonly timeoutMs?: number;\n    readonly env?: Readonly<Record<string, string | undefined>>;\n    readonly maxStdoutBytes?: number;\n    readonly maxStderrBytes?: number;\n    readonly signal?: AbortSignal;\n}',
+  },
+  {
+    name: 'RunNodeResult',
+    declaration: 'export interface RunNodeResult {\n    readonly ok: boolean;\n    readonly value?: unknown;\n    readonly error?: NodeRunFailure;\n    readonly stdout: string;\n    readonly stderr: string;\n    readonly exitCode: number | null;\n    readonly durationMs: number;\n    readonly timedOut: boolean;\n}',
   },
   {
     name: 'RunRecord',

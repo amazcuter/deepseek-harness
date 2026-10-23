@@ -28,6 +28,7 @@ workflow 组让 agent（智能体）可以运行编排脚本，将工作委派�
 | [`workflow-ptc`](workflow-ptc/README.zh.md) | 通过共享的沙箱化 PTC Node 进程运行时执行工作流脚本 | 注册到 `ctx.workflowEngine` |
 | [`tool-workflow`](tool-workflow/README.zh.md) | 把 `workflow` 工具交给模型，用于脚本化多 agent 编排 | 注册到 `ctx.tools` |
 | [`project-store`](project-store/README.zh.md) | 持久化工作流项目：一个全局注册库加上每个项目一个数据库 | `ctx.mwfProjectStore` |
+| [`python-runner`](python-runner/README.zh.md) | 在主机上运行一个由 AI 编写的 Python 节点函数并返回其 JSON 值 | `ctx.mwfPythonRunner` |
 
 -----
 

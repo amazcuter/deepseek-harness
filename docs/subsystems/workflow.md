@@ -281,6 +281,67 @@ async close(): Promise<void>
 
 Source: [`packages/workflow/project-store/src/index.ts`](../../packages/workflow/project-store/src/index.ts)
 
+<a id="ctxmwfpythonrunner--pythonrunner"></a>
+
+### `ctx.mwfPythonRunner` — `PythonRunner`
+
+Runs node functions on a host Python interpreter.
+
+One service instance owns the `.venv` serialization of every project it touches and the termination bindings of the platform it runs on; it holds no other state, so a disposed instance leaves nothing behind.
+
+```ts cordis-catalog
+/**
+ * Resolve the interpreter one request runs with.
+ *
+ * The caller's explicit path wins, then an existing project `.venv`, then the
+ * configured `interpreterPath`, then a probe of the platform launchers.
+ * @param request - explicit path and project directory; both optional.
+ * @returns the validated interpreter.
+ * @throws {@link PythonRunnerError} `python/not-found`, `python/unsupported-version`, or `python/free-threaded`.
+ */
+async resolveInterpreter(request: ResolveInterpreterRequest = {}): Promise<InterpreterSpec>
+
+/**
+ * Ensure the project's `.venv` exists and return its interpreter.
+ *
+ * Concurrent calls for the same project serialize, so the second call
+ * observes the first creation instead of starting another one.
+ * @param projectDir - project directory that owns the environment.
+ * @returns absolute path of the environment's interpreter.
+ * @throws {@link PythonRunnerError} `project/path-too-long`, `venv/create-failed`, or an interpreter failure.
+ */
+async ensureVenv(projectDir: string): Promise<string>
+
+/**
+ * Install requirements into the project's `.venv`, creating it when missing.
+ *
+ * Every installation is `--only-binary=:all:`, so a package that publishes no
+ * wheel for this platform fails here with pip's own diagnostic instead of
+ * failing later inside a node.
+ * @param projectDir - project directory that owns the environment.
+ * @param requirements - requirement specifiers; an empty list installs nothing.
+ * @returns the pip exit facts, with `ok: false` and the pip tail on failure.
+ * @throws {@link PythonRunnerError} `project/path-too-long`, `venv/create-failed`, or an interpreter failure.
+ */
+async installRequirements(projectDir: string, requirements: readonly string[]): Promise<InstallRequirementsResult>
+
+/**
+ * Run one node function and return its JSON value or its structured failure.
+ *
+ * The source is written to `nodes/<nodeId>/node_main.py` beside a generated
+ * wrapper, which the resolved interpreter starts with `-X utf8` in the node's
+ * own directory. Inputs arrive on stdin as UTF-8 JSON. On the deadline or an
+ * abort the whole process tree is terminated.
+ * @param request - project, node, source, inputs, limits, environment, and abort signal.
+ * @returns the node's value or the failure, with captured logs and exit facts.
+ * @throws {@link PythonRunnerError} `project/path-too-long`, `node/invalid-id`, or an interpreter failure;
+ * an aborted run refuses with the signal's reason instead.
+ */
+async runNode(request: RunNodeRequest): Promise<RunNodeResult>
+```
+
+Source: [`packages/workflow/python-runner/src/index.ts`](../../packages/workflow/python-runner/src/index.ts)
+
 <a id="ctxworkflowengine--workflowengine-abstract-seam"></a>
 
 ### `ctx.workflowEngine` — `WorkflowEngine` (abstract seam)

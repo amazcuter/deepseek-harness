@@ -1,0 +1,49 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/workflow/python-runner/README.md
+/:
+  en: d3f320c65b9c9f38
+  zh: c87231d8a848dc27
+/metaworkflow-workflow-python-runner:
+  en: d783b6cd81ffff85
+  zh: 4c95c6613e562c12
+/metaworkflow-workflow-python-runner/summary:
+  en: dbbfc9b9435a538f
+  zh: 11d8b77d424ba566
+/metaworkflow-workflow-python-runner/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: bda879a892f240f0
+/metaworkflow-workflow-python-runner/use-this-package:
+  en: 5465fd5325f01e20
+  zh: 88aba2f4ab6df7fd
+/metaworkflow-workflow-python-runner/use-this-package/when-to-choose-it:
+  en: 85f27d3a27c88d95
+  zh: 15bb9ad2cebc0e10
+/metaworkflow-workflow-python-runner/use-this-package/minimal-configuration:
+  en: 830fada6e30e3568
+  zh: 05ae43595d3e3e7c
+/metaworkflow-workflow-python-runner/use-this-package/service-api:
+  en: dad0b62438c98cf2
+  zh: a018d900c7117222
+/metaworkflow-workflow-python-runner/use-this-package/node-protocol:
+  en: 8101d2b361ec3244
+  zh: e37ebe655b6bdcef
+/metaworkflow-workflow-python-runner/understand-the-implementation:
+  en: c12bab40ac638d90
+  zh: 27d3da414c1ae6c0
+/metaworkflow-workflow-python-runner/further-exploration:
+  en: c2d1260e86163fc4
+  zh: 06d9473fe5c11b3b
+/metaworkflow-workflow-python-runner/model-experience:
+  en: eaa62707570dc80b
+  zh: 3f1c769201e0a54a
+/metaworkflow-workflow-python-runner/model-experience/kv-cache-effect:
+  en: 23681468205bc686
+  zh: 7f67f0c7e6e7abd0
+/metaworkflow-workflow-python-runner/known-limitations-and-deferred-work:
+  en: ccb42c97f4e7c586
+  zh: 84b16edde59baffa
+/metaworkflow-workflow-python-runner/known-limitations-and-deferred-work/dev-note:
+  en: cf5c394cebeca691
+  zh: a1ea4a16367e2d12

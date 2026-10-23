@@ -367,9 +367,10 @@
       "@metaworkflow/compaction-image-offload/projection": ["./packages/compaction/compaction-image-offload/src/projection.ts"],
       "@metaworkflow/session-format-catalog/message-projections": ["./packages/session/session-format-catalog/src/message-projections.ts"],
       "@metaworkflow/native-command/types": ["./packages/util/native-command/src/types.ts"],
-      // workflow/project-store carries the workflow- prefix its package name adds, so its
-      // alias cannot be generated from the directory name.
+      // workflow packages carry the workflow- prefix their package names add, so their
+      // aliases cannot be generated from the directory names.
       "@metaworkflow/workflow-project-store": ["./packages/workflow/project-store/src"],
+      "@metaworkflow/workflow-python-runner": ["./packages/workflow/python-runner/src"],
       // BEGIN generated package aliases — pnpm run gen-tsconfig-paths
       "@metaworkflow/acp": ["./packages/acp/acp/src"],
       "@metaworkflow/acp-app": ["./packages/bundle/acp-app/src"],
