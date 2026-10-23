@@ -272,6 +272,8 @@ class FakeDirectoryPicker {
 
 interface BenchOptions {
   readonly conversation?: boolean
+  /** Composition startup policy, provided before the service subscribes. */
+  readonly restoreLastSession?: boolean
   readonly configureWorkspaces?: (workspaces: FakeWorkspaces) => void
   readonly workspaces?: WorkspaceSnapshot
   readonly sessions?: SessionListState
@@ -302,6 +304,9 @@ function bench(options: BenchOptions = {}) {
   options.configureSessions?.(sessions)
   const view = createWorkspaceViewStore().create()
   const notify = vi.fn<(toast: RowToast) => void>()
+  if (options.restoreLastSession !== undefined) {
+    ctx.provide('sessionRestorePolicy', { restoreLastSession: options.restoreLastSession })
+  }
   const uiWorkspace = new UiWorkspaceService(
     ctx,
     directoryPicker.remote,
@@ -1032,6 +1037,32 @@ describe('UiWorkspaceService', () => {
       expect(b.sessions.retain).toHaveBeenCalledExactlyOnceWith(sid('created-a'), { source: 'mainView' })
     })
     expect(b.sessions.create).toHaveBeenCalledExactlyOnceWith({ workspaceId: wid('a') })
+  })
+
+  it('leaves the first screen to a composition home panel when restoration is suppressed', async () => {
+    persistSelection({ sessionId: sid('saved') })
+    const b = bench({
+      restoreLastSession: false,
+      sessions: sessionState([summary('saved')]),
+      workspaces: workspaceState([workspace('a', [sid('saved')])]),
+    })
+    await setImmediate()
+    expect(b.sessions.retain).not.toHaveBeenCalled()
+    expect(b.sessions.create).not.toHaveBeenCalled()
+    expect(b.workspaces.initializeDefault).not.toHaveBeenCalled()
+    expect(b.selectPanel).not.toHaveBeenCalled()
+  })
+
+  it('honors an explicit policy that keeps restoring the previous Session', async () => {
+    persistSelection({ sessionId: sid('saved') })
+    const b = bench({
+      restoreLastSession: true,
+      sessions: sessionState([summary('saved')]),
+      workspaces: workspaceState([workspace('a', [sid('saved')])]),
+    })
+    await vi.waitFor(() => {
+      expect(b.sessions.retain).toHaveBeenCalledExactlyOnceWith(sid('saved'), { source: 'mainView' })
+    })
   })
 
   it('restores a saved ungrouped blank directly', () => {

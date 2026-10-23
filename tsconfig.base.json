@@ -316,6 +316,7 @@
       "@metaworkflow/client-ui-user-questions": ["./packages/client/ui-user-questions/src"],
       "@metaworkflow/client-ui-trajectory": ["./packages/client/ui-trajectory/src"],
       "@metaworkflow/client-ui-workspace": ["./packages/client/ui-workspace/src"],
+      "@metaworkflow/client-ui-mw-projects": ["./packages/client/ui-mw-projects/src"],
       "@metaworkflow/client-ui-theme": ["./packages/client/ui-theme/src"],
       "@metaworkflow/client-ui-theme/brand-font.css": ["./packages/client/ui-theme/src/styles/brand-font.css"],
       "@metaworkflow/client-ui-settings": ["./packages/client/ui-settings/src"],

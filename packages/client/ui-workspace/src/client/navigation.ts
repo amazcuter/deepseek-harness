@@ -131,10 +131,29 @@ export interface UiWorkspace {
   createDirectory(path: string, name: string): Promise<string>
 }
 
+/**
+ * Startup navigation policy a product composition may publish. Absent, the
+ * shipped behavior applies: once the Workspace and Session baselines are
+ * ready, the previously selected Session (or the most recent Workspace)
+ * reopens on the first screen.
+ */
+export interface SessionRestorePolicy {
+  /**
+   * Whether startup may reopen the previously selected Session.
+   *
+   * `false` leaves the first screen to the global main panel the composition
+   * selected — a product home page — instead of retaining or creating a
+   * Session behind it.
+   */
+  readonly restoreLastSession: boolean
+}
+
 declare module '@deepseek-ai/cordis' {
   interface Context {
     /** Cross-Controller Workspace navigation and directory UI capability. */
     uiWorkspace: UiWorkspace
+    /** Optional composition policy for the first screen; absent restores the last Session. */
+    sessionRestorePolicy?: SessionRestorePolicy
   }
 }
 
@@ -415,6 +434,12 @@ class UiWorkspaceService extends Service implements UiWorkspace {
       const sessions = this.sessions.list.getSnapshot()
       if (workspace.phase !== 'ready' || sessions.phase !== 'ready') return
       if (this.mainReference !== undefined) {
+        initial = 'done'
+        return
+      }
+      // A composition that opens a global home panel owns the first screen:
+      // reopening the last Session would retain Session work behind it.
+      if (this.ctx.get('sessionRestorePolicy')?.restoreLastSession === false) {
         initial = 'done'
         return
       }

@@ -2674,6 +2674,9 @@ importers:
       '@metaworkflow/client-ui-model-selection':
         specifier: workspace:*
         version: link:../../client/ui-model-selection
+      '@metaworkflow/client-ui-mw-projects':
+        specifier: workspace:*
+        version: link:../../client/ui-mw-projects
       '@metaworkflow/client-ui-open-in-app':
         specifier: workspace:*
         version: link:../../client/ui-open-in-app
@@ -2809,6 +2812,9 @@ importers:
       '@metaworkflow/harness-dev-context':
         specifier: workspace:*
         version: link:../../context/harness-dev-context
+      '@metaworkflow/home-paths':
+        specifier: workspace:*
+        version: link:../../util/home-paths
       '@metaworkflow/host-directory-picker-auto':
         specifier: workspace:*
         version: link:../../host/directory-picker-auto
@@ -4835,6 +4841,54 @@ importers:
       '@metaworkflow/util-values':
         specifier: workspace:*
         version: link:../../util/values
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+
+  packages/client/ui-mw-projects:
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@metaworkflow/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@metaworkflow/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@metaworkflow/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@metaworkflow/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@metaworkflow/client-ui-layout':
+        specifier: workspace:*
+        version: link:../ui-layout
+      '@metaworkflow/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@metaworkflow/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@metaworkflow/client-ui-sidebar':
+        specifier: workspace:*
+        version: link:../ui-sidebar
+      '@metaworkflow/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@metaworkflow/client-ui-workspace':
+        specifier: workspace:*
+        version: link:../ui-workspace
+      '@testing-library/react':
+        specifier: ^16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1

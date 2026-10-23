@@ -1,0 +1,222 @@
+/* Project dashboard: one centred column, the empty state, or a project list
+   whose rows collapse to a labelled single column on narrow frames. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  height: 100%;
+  overflow: auto;
+  padding: 28px clamp(16px, 4vw, 48px) 48px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.page > * {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  margin-top: 24px;
+  padding: 48px 24px;
+  border: 1px solid var(--dsw-alias-settings-card-stroke);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-settings-card-fill);
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.emptyDescription {
+  max-width: 420px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.emptyActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.listHeader,
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) minmax(96px, auto) auto;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  padding: 10px 14px;
+}
+
+.listHeader {
+  padding-block: 4px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-caption);
+}
+
+.headerCell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row {
+  border: 1px solid var(--dsw-alias-settings-card-stroke);
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-settings-card-fill);
+}
+
+.rowOpened {
+  border-color: var(--dsw-alias-state-business-primary);
+}
+
+.nameCell {
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.purposeCell {
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statusCell {
+  display: flex;
+  align-items: center;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 999px;
+  corner-shape: round;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.statusDraft {
+  background: var(--dsw-alias-bg-skeleton);
+  color: var(--dsw-alias-label-secondary);
+}
+
+.statusActive {
+  background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 10%, transparent);
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.statusPaused {
+  background: var(--dsw-alias-state-warn-tertiary);
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+.statusDone {
+  background: var(--dsw-alias-bg-skeleton);
+  color: var(--dsw-alias-label-caption);
+}
+
+.actionCell {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Narrow frames read as one column: the header row is decorative, and each
+   cell names its own column from the localized data-label. */
+@media (max-width: 720px) {
+  .page {
+    padding-inline: 16px;
+  }
+
+  .listHeader {
+    display: none;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 6px;
+  }
+
+  .nameCell,
+  .purposeCell {
+    white-space: normal;
+  }
+
+  .nameCell::before,
+  .purposeCell::before,
+  .statusCell::before,
+  .actionCell::before {
+    display: block;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--dsw-alias-label-caption);
+    content: attr(data-label);
+  }
+
+  .actionCell {
+    justify-content: flex-start;
+  }
+}

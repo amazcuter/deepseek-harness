@@ -3,7 +3,9 @@
  * family (`--host`, `--port`, `--public-url`, `--trusted-host`, `--no-open`, TLS)
  * and its `--help` text, then provides the immutable values as
  * {@link WEB_STARTUP_SERVICE}. Ordinary rows inject that service before
- * reading it from lazy config.
+ * reading it from lazy config. The same action refuses a shared Harness home
+ * before any server binds, so the profile never runs on another surface's
+ * data directory.
  * @module @metaworkflow/app/startup
  */
 
@@ -11,6 +13,7 @@ import { Command } from 'commander'
 import type { Context } from '@deepseek-ai/cordis'
 import { parseCmdline } from '@metaworkflow/cmdline'
 import { isWildcardHost, type TlsConfig } from '@metaworkflow/host-webserver'
+import { assertIsolatedHome } from './home-guard.ts'
 import { parsePublicUrl } from './public-url.ts'
 
 /** Stable Cordis plugin name. */
@@ -91,6 +94,10 @@ Examples:
 export function apply(ctx: Context): void {
   const program = webCommand()
   program.action(() => {
+    // Refuse the shared Harness home before publishing webStartup: every
+    // server-bound row injects that service, so a rejection here leaves the
+    // tree's required entries inactive and the process never binds.
+    assertIsolatedHome()
     const options = program.opts<WebOptions>()
     if (options.host !== undefined && isWildcardHost(options.host)) {
       program.error(`error: --host ${options.host} is an unspecified (wildcard) address, which is not supported: binding every interface would expose remote code execution to the network; bind one concrete IPv4 or IPv6 address instead`)

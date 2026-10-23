@@ -35,6 +35,8 @@ mwf --profile metaworkflow
 mwf metaworkflow --no-open --port 8080
 ```
 
+启动守卫在 `MWF_HOME` 未设置或解析为共享 Harness home（`~/.mwf` 或重命名前的 `~/.dsh`）时拒绝启动。拒绝信息会指出问题 home，并打印修复命令：PowerShell 中的 `$env:MWF_HOME = "<repo>\.mwf-home"`，其中填入 checkout 的实际路径。任何其他显式 home 都会被接受。
+
 `mwf metaworkflow` 是 `mwf --profile metaworkflow` 的缩写。Web 的每个 flag 家族行为都与 [Web 表层](../web-app/README.zh.md#use-this-package)的说明完全一致：`--host` 绑定一个具体的本机地址，`--port` 选择监听端口，`--tls-cert`/`--tls-key` 直接提供 HTTPS，`--public-url` 与 `--trusted-host` 描述剥离前缀的代理部署，`--no-open` 抑制浏览器交接。启动 URL 行、token 交换、签名 cookie 与浏览器信任围栏都与 Web profile 相同。
 
 Agent 平面按会话从随发行版的 preset（`standard`、`ptc`、`minimal`、`cordis`）组合。设置 → 模型使用 `DEEPSEEK_API_KEY` 显示 **DeepSeek**；Agent presets 页面可以更改默认 preset 并编辑 preset 子插件，保存结果写入 `$MWF_HOME/profiles/metaworkflow/cordis.patch.yml`。
@@ -47,7 +49,7 @@ Agent 平面按会话从随发行版的 preset（`standard`、`ptc`、`minimal`�
 <details>
 <summary>实现内部细节——点击展开</summary>
 
-本组合包是 `mwf-base` 之上的一层 patch：`cordis.patch.yml` 重述表层相关的 base 取值，然后插入 Web 专属的 host 行、传输层、浏览器名册与 preset 注册表；每个 `presets/<id>.patch.yml` 插入一个随发行版交付的 preset 声明，按 `mwf.bundle.patch` 列出的顺序应用。[`src/index.ts`](src/index.ts) 是运行时粘合插件——解析前端 dist、公告应用 URL、注册 `MWF_WEB_URL` bash 变量、打印 URL 行、交接浏览器——[`src/startup.ts`](src/startup.ts) 提供 `webStartup` 服务，供 `--host`、`--port`、`--public-url`、`--trusted-host`、`--no-open` 与 TLS 各行注入。
+本组合包是 `mwf-base` 之上的一层 patch：`cordis.patch.yml` 重述表层相关的 base 取值，然后插入 Web 专属的 host 行、传输层、浏览器名册与 preset 注册表；每个 `presets/<id>.patch.yml` 插入一个随发行版交付的 preset 声明，按 `mwf.bundle.patch` 列出的顺序应用。[`src/index.ts`](src/index.ts) 是运行时粘合插件——解析前端 dist、公告应用 URL、注册 `MWF_WEB_URL` bash 变量、打印 URL 行、交接浏览器——[`src/startup.ts`](src/startup.ts) 提供 `webStartup` 服务，供 `--host`、`--port`、`--public-url`、`--trusted-host`、`--no-open` 与 TLS 各行注入。 启动 action 最先应用 [`src/home-guard.ts`](src/home-guard.ts)，因此被拒绝的 home 绝不会发布 `webStartup`，依赖它的服务端行会保持未激活。浏览器名册还会挂载 `@metaworkflow/client-ui-mw-projects`，即该 profile 打开时显示的[项目首页](../../client/ui-mw-projects/README.zh.md)。
 
 行 id、`webStartup` 服务、`webApp` 服务与插件包名只在产品不同处不同，因此针对 Web 组合编写的 `--patch` 覆盖层在这里同样适用。提交在此的配置行与 preset 声明是 Web 层的副本：修改共享行意味着同时修改两个组合包，且没有任何机制让二者保持同步。
 
@@ -58,6 +60,7 @@ Agent 平面按会话从随发行版的 preset（`standard`、`ptc`、`minimal`�
 | [`src/index.ts`](src/index.ts) | `metaworkflow-app` 粘合插件：dist 解析、公告应用 URL、bash 变量、URL 行、浏览器交接 |
 | [`src/public-url.ts`](src/public-url.ts) | 公告根校验与结尾斜杠规范化；供本地导入的叶子模块，不属包 API |
 | [`src/startup.ts`](src/startup.ts) | `web-startup` 提供者：`--host`、`--port`、`--tls-cert`、`--tls-key`、`--public-url`、`--trusted-host`、`--no-open`、`--help` |
+| [`src/home-guard.ts`](src/home-guard.ts) | home 隔离规则、修复命令文本，以及启动 action 在发布 `webStartup` 前使用的 checkout 查找 |
 | [`cordis.patch.yml`](cordis.patch.yml) | MetaWorkFlow patch：重述的 base 取值、host 行、浏览器名册、preset 注册表 |
 | [`presets/`](presets) | 每个随发行版交付的 preset（`standard`、`ptc`、`minimal`、`cordis`）一个 `@metaworkflow/agent-preset` 声明，各自一个 patch 文件 |
 
@@ -99,8 +102,8 @@ Agent 平面按会话从随发行版的 preset（`standard`、`ptc`、`minimal`�
 - **配置行是副本**——本组合包重述 Web 层而不是引用它，因此行变更必须手工同步到两个组合包；没有任何检查能发现漂移。
 - **随发行版的 preset 是副本**——`standard`、`ptc`、`minimal` 与 `cordis` 在本包下重述 Web 的声明，同样需要手工保持同步。
 - **前端必须已构建**——源码 checkout 需要先运行 `pnpm run build`；dist 缺失时启动会以构建提示停止，且没有从源码直接服务的回退路径。
-- **本包不带测试**——运行时粘合是 Web 版本的副本，其行为只通过 Web 包的测试验证。
-- **profile 拥有自己的 Harness home**——会话、设置、凭据与用户 patch 层都保存在启动器指向的 `MWF_HOME` 下；若启动时继承了默认 home，就会写入 `~/.mwf`。
+- **只有 home 守卫有本包测试**——运行时粘合仍是 Web 版本的副本，由 Web 包的测试覆盖；守卫与启动拒绝则有各自的 keyless 测试。
+- **profile 拥有自己的 Harness home**——会话、设置、凭据与用户 patch 层都保存在启动器指向的 `MWF_HOME` 下；启动会拒绝未设置、`~/.mwf` 与 `~/.dsh`，并接受任何其他显式路径。
 
 <a id="dev-note"></a>
 ### 开发备注

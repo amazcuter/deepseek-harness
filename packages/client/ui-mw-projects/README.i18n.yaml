@@ -1,0 +1,52 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-mw-projects/README.md
+/:
+  en: 7069fbee87cedac8
+  zh: 9488c28294d8edb0
+/metaworkflow-client-ui-mw-projects:
+  en: 38f7acb78e1df417
+  zh: 5f1a746b5bc4a090
+/metaworkflow-client-ui-mw-projects/summary:
+  en: b2f39a138b76261e
+  zh: 26efd60e85b19a2c
+/metaworkflow-client-ui-mw-projects/table-of-contents:
+  en: b563e4ec4727d0de
+  zh: 44ebe7ceeda3dff6
+/metaworkflow-client-ui-mw-projects/use-this-package:
+  en: f7124f92ed8b70e5
+  zh: f4a7fd9024f9e07c
+/metaworkflow-client-ui-mw-projects/use-this-package/empty-state:
+  en: 1ca204160e89d5ac
+  zh: 53d2ac778924f258
+/metaworkflow-client-ui-mw-projects/use-this-package/project-list:
+  en: 34db39c696d51647
+  zh: b1a274da9133b296
+/metaworkflow-client-ui-mw-projects/use-this-package/startup-policy:
+  en: 27baa0780ebe964b
+  zh: 43a781955d344061
+/metaworkflow-client-ui-mw-projects/understand-the-implementation:
+  en: 34c1ce2ad9fd004f
+  zh: d3598441ec021ec6
+/metaworkflow-client-ui-mw-projects/further-exploration:
+  en: 39fb08dc144dd294
+  zh: a263d68fe1a785fc
+/metaworkflow-client-ui-mw-projects/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/metaworkflow-client-ui-mw-projects/model-experience/project-dashboard-panel:
+  en: 5a5898e280dc1969
+  zh: 46ff2ec9c3051d49
+/metaworkflow-client-ui-mw-projects/model-experience/project-dashboard-panel/what-the-model-sees:
+  en: ff8bed75a02d668f
+  zh: 124fa55a20390306
+/metaworkflow-client-ui-mw-projects/model-experience/project-dashboard-panel/token-effect:
+  en: 5d704bdd9d55e2ef
+  zh: 0a6cc390e6768657
+/metaworkflow-client-ui-mw-projects/model-experience/project-dashboard-panel/kv-cache-effect:
+  en: 2fa5f851855cd894
+  zh: b8377e9afcb544c6
+/metaworkflow-client-ui-mw-projects/known-limitations-and-deferred-work:
+  en: 6fb6c66336d6c30f
+  zh: 2022066966914f61

@@ -363,6 +363,13 @@
     - id: ui-workspace
       name: '@metaworkflow/client-ui-workspace'
 
+    # The MetaWorkFlow home page: the project dashboard main panel and its
+    # sidebar entry. The plugin also publishes the composition's startup
+    # policy, so the first screen stays on the dashboard instead of reopening
+    # the previous Session (ui-workspace owns that policy contract).
+    - id: ui-mw-projects
+      name: '@metaworkflow/client-ui-mw-projects'
+
     # Durable workflow lifecycle as an independent Chat node after the
     # existing generic workflow tool row.
     - id: ui-workflow-run

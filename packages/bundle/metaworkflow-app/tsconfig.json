@@ -36,6 +36,9 @@
       "path": "../../util/launch-environment"
     },
     {
+      "path": "../../util/home-paths"
+    },
+    {
       "path": "../../shell/shell-env"
     },
     {
