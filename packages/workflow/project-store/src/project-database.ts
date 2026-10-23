@@ -1,7 +1,11 @@
 /**
- * One project database: `<project directory>/project.db`, holding the
- * definition revisions and the run, activation, attempt, artifact, decision,
- * and session-outbox records of exactly one project.
+ * One project database, holding the definition revisions and the run,
+ * activation, attempt, artifact, decision, and session-outbox records of
+ * exactly one project.
+ *
+ * The file lives in the store's own project directory, never in the project's
+ * working directory, so a working directory holds only the user's code and
+ * artifacts and can be moved or deleted without the database.
  *
  * The v1 layout is declared complete in one pass so later stages add behavior,
  * not migrations.
@@ -29,6 +33,13 @@ export const WORKFLOW_PROJECT_DATABASE_APPLICATION_ID = 0x4d57504a
 
 /** Stable `schema_meta` row naming this database's role and version. */
 const PROJECT_FORMAT = 'workflow-project/1'
+
+/**
+ * File name of one project database inside the store's own project directory.
+ * A library written before the database moved out of the working directory
+ * holds the same file name inside that directory.
+ */
+export const PROJECT_DATABASE_FILE_NAME = 'project.db'
 
 /** Run statuses the store accepts from the medium. */
 const RUN_STATUSES: ReadonlySet<string> = new Set<RunStatus>(['pending', 'running', 'succeeded', 'failed', 'canceled'])
@@ -69,7 +80,8 @@ const OUTBOX_COLUMNS = 'attempt_id, event_seq, payload, acked_at'
 
 /**
  * Open one project database, creating and materializing it when absent.
- * @param path - project database path inside the project directory.
+ * @param path - project database path in the store's own project directory, or the
+ * pre-migration location inside a working directory.
  * @param options - timing knobs of the open protocol.
  * @returns the open project connection.
  */

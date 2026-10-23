@@ -19,13 +19,17 @@ export type WorkflowProjectStoreErrorCode =
   | 'invalid-record'
   /** A request value violates the store's input rules. */
   | 'invalid-request'
-  /** A database could not be opened or switched to WAL. */
+  /** A database could not be opened, switched to WAL, or moved to its recorded location. */
   | 'open-failed'
   /** No registry row matches the project id. */
   | 'project-not-found'
+  /** The project's working directory is gone or is no longer a directory. */
+  | 'project-directory-missing'
   /** Another registry row already claims the requested project directory. */
   | 'project-path-in-use'
-  /** The durable layout version is neither absent nor current. */
+  /** An older project database could not be moved out of the working directory; the recorded location is unchanged. */
+  | 'relocation-failed'
+  /** The durable layout version is neither absent, current, nor reachable through a declared upgrade. */
   | 'version-mismatch'
   /** The outbox names an attempt the project database does not hold. */
   | 'unknown-attempt'

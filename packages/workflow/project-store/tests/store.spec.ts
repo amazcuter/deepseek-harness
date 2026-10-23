@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { existsSync } from 'node:fs'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { existsSync, readdirSync } from 'node:fs'
+import { copyFile, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
@@ -45,13 +45,41 @@ function ghostId(): ProjectId {
   return brandString<ProjectId>('0f0f0f0f-1111-4222-8333-444444444444')
 }
 
-function projectDatabase(record: ProjectRecord): string {
+/** Where a library written before the database moved keeps one project's database. */
+function legacyDatabase(record: ProjectRecord): string {
   return join(record.path, 'project.db')
+}
+
+/** How a v1 fixture treats the canonical database file. */
+type LegacyDatabase = 'move' | 'copy' | 'missing'
+
+/**
+ * Reach back into one project's library state, the way a build that kept the
+ * database inside the working directory left it: a registry stamped v1 without
+ * `db_path`, and, for `move`, the database file back inside the directory.
+ */
+async function downgradeToVersionOne(
+  home: string,
+  record: ProjectRecord,
+  database: LegacyDatabase = 'move',
+): Promise<void> {
+  const legacy = legacyDatabase(record)
+  if (database === 'move') await rename(record.dbPath, legacy)
+  if (database === 'copy') await copyFile(record.dbPath, legacy)
+  if (database === 'missing') await rm(record.dbPath, { force: true })
+  const registry = new DatabaseSync(join(home, 'mwf', 'projects.db'))
+  try {
+    registry.exec('ALTER TABLE projects DROP COLUMN db_path')
+    registry.exec('PRAGMA user_version = 1')
+    registry.prepare('UPDATE schema_meta SET value = ? WHERE key = ?').run('workflow-projects/1', 'format')
+  } finally {
+    registry.close()
+  }
 }
 
 /** Write rows through a second connection, the way another process would. */
 async function seed(record: ProjectRecord, statements: (db: DatabaseSync) => void): Promise<void> {
-  const db = new DatabaseSync(projectDatabase(record))
+  const db = new DatabaseSync(record.dbPath)
   try {
     db.exec('PRAGMA busy_timeout = 5000')
     db.exec('BEGIN IMMEDIATE')
@@ -76,19 +104,23 @@ async function seedAttempt(record: ProjectRecord, attemptId = 'attempt-1'): Prom
 }
 
 describe('project registry', () => {
-  it('registers a project under the harness home and materializes its database', async () => {
+  it('registers a project under the harness home and materializes its directory and database', async () => {
     const { store, home } = await openStore()
     const before = Date.now()
     const record = await store.createProject({ title: '  Release pipeline  ' })
 
     expect(record.title).toBe('Release pipeline')
     expect(record.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
-    expect(record.path).toBe(join(home, 'mwf', 'projects', record.id))
+    expect(record.path).toBe(join(home, 'mwf', 'projects', record.id, 'workspace'))
+    expect(record.dbPath).toBe(join(home, 'mwf', 'projects', record.id, 'project.db'))
     expect(record.definitionRevision).toBe(0)
     expect(record.createdAt).toBeGreaterThanOrEqual(before)
     expect(record.updatedAt).toBe(record.createdAt)
     expect(existsSync(join(home, 'mwf', 'projects.db'))).toBe(true)
-    expect(existsSync(projectDatabase(record))).toBe(true)
+    expect(existsSync(record.path)).toBe(true)
+    expect(existsSync(record.dbPath)).toBe(true)
+    // The working directory holds no store file, so it can be moved or deleted.
+    expect(readdirSync(record.path)).toEqual([])
 
     await expect(store.listProjects()).resolves.toEqual([record])
     await expect(store.openProject(record.id)).resolves.toEqual(record)
@@ -123,13 +155,15 @@ describe('project registry', () => {
     }
   })
 
-  it('registers a project at an explicit directory', async () => {
-    const { store } = await openStore()
+  it('registers a project at an explicit directory but keeps its database under the home', async () => {
+    const { store, home } = await openStore()
     const directory = await mkdtemp(join(tmpdir(), 'mwf-project-store-explicit-'))
     directories.push(directory)
     const record = await store.createProject({ title: 'explicit', path: directory })
     expect(record.path).toBe(directory)
-    expect(existsSync(join(directory, 'project.db'))).toBe(true)
+    expect(record.dbPath).toBe(join(home, 'mwf', 'projects', record.id, 'project.db'))
+    expect(existsSync(record.dbPath)).toBe(true)
+    expect(existsSync(join(directory, 'project.db'))).toBe(false)
   })
 
   it('refuses a directory another project already uses', async () => {
@@ -152,6 +186,23 @@ describe('project registry', () => {
     const occupied = join(home, 'occupied')
     await writeFile(occupied, 'not a directory')
     const error = await store.createProject({ title: 'broken', path: occupied }).catch((reason: unknown) => reason)
+    expect(error).toBeInstanceOf(WorkflowProjectStoreError)
+    expect(error).toMatchObject({ code: 'open-failed' })
+    await expect(store.listProjects()).resolves.toEqual([])
+  })
+
+  it('keeps a database failure typed and writes no registry row', async () => {
+    const home = await temporaryHome()
+    const directory = await mkdtemp(join(tmpdir(), 'mwf-project-store-store-root-'))
+    directories.push(directory)
+    // The store's own project root is unusable while the registry itself opens.
+    await mkdir(join(home, 'mwf'), { recursive: true })
+    await writeFile(join(home, 'mwf', 'projects'), 'not a directory')
+    const store = new Store(new Context(), { mwfHome: home })
+    stores.push(store)
+
+    const error = await store.createProject({ title: 'unusable root', path: directory })
+      .catch((reason: unknown) => reason)
     expect(error).toBeInstanceOf(WorkflowProjectStoreError)
     expect(error).toMatchObject({ code: 'open-failed' })
     await expect(store.listProjects()).resolves.toEqual([])
@@ -348,6 +399,155 @@ describe('project isolation', () => {
   })
 })
 
+describe('working directory isolation', () => {
+  it('keeps the registry row and the database when the working directory is deleted', async () => {
+    const { store, home } = await openStore()
+    const project = await store.createProject({ title: 'movable' })
+    await store.writeDefinition(project.id, 'graph TD; A')
+    await rm(project.path, { recursive: true, force: true })
+
+    const [listed] = await store.listProjects()
+    expect(listed).toMatchObject({ id: project.id, path: project.path, dbPath: project.dbPath, definitionRevision: 1 })
+    await expect(store.readDefinition(project.id)).resolves.toMatchObject({ document: 'graph TD; A' })
+    await expect(store.openProject(project.id)).rejects.toMatchObject({ code: 'project-directory-missing' })
+
+    // A later process reports the same diagnosable failure instead of crashing.
+    await store.close()
+    const reopened = new Store(new Context(), { mwfHome: home })
+    stores.push(reopened)
+    await expect(reopened.listProjects()).resolves.toHaveLength(1)
+    await expect(reopened.openProject(project.id)).rejects.toMatchObject({ code: 'project-directory-missing' })
+    await expect(reopened.readDefinition(project.id)).resolves.toMatchObject({ document: 'graph TD; A' })
+  })
+
+  it('reports a working directory that was replaced by a file', async () => {
+    const { store } = await openStore()
+    const project = await store.createProject({ title: 'replaced' })
+    await rm(project.path, { recursive: true, force: true })
+    await writeFile(project.path, 'not a directory')
+    try {
+      await expect(store.openProject(project.id)).rejects.toMatchObject({ code: 'project-directory-missing' })
+    } finally {
+      await rm(project.path, { force: true })
+    }
+  })
+})
+
+describe('database relocation', () => {
+  it('moves a v1 database out of the working directory on first open and keeps its content', async () => {
+    const { store, home } = await openStore()
+    const project = await store.createProject({ title: 'legacy' })
+    await store.writeDefinition(project.id, 'graph TD; legacy')
+    const [current] = await store.listProjects() as [ProjectRecord]
+    await store.close()
+    await downgradeToVersionOne(home, project)
+    expect(existsSync(legacyDatabase(project))).toBe(true)
+    expect(existsSync(project.dbPath)).toBe(false)
+
+    const reopened = new Store(new Context(), { mwfHome: home })
+    stores.push(reopened)
+    // The upgraded registry still names the file inside the working directory.
+    const [before] = await reopened.listProjects()
+    expect(before).toMatchObject({ path: project.path, dbPath: legacyDatabase(project), definitionRevision: 1 })
+    expect(before?.updatedAt).toBe(current.updatedAt)
+
+    await expect(reopened.openProject(project.id)).resolves.toEqual({ ...current, dbPath: project.dbPath })
+    expect(existsSync(project.dbPath)).toBe(true)
+    expect(existsSync(legacyDatabase(project))).toBe(false)
+    await expect(reopened.readDefinition(project.id)).resolves.toMatchObject({ document: 'graph TD; legacy' })
+
+    // Moving the file is bookkeeping: the row names the new path, its change
+    // stamp and every other column stay as the caller left them.
+    await expect(reopened.listProjects()).resolves.toEqual([{ ...current, dbPath: project.dbPath }])
+  })
+
+  it('repeats an open without copying anything twice', async () => {
+    const { store, home } = await openStore()
+    const project = await store.createProject({ title: 'idempotent' })
+    await store.writeDefinition(project.id, 'graph TD; once')
+    const [current] = await store.listProjects() as [ProjectRecord]
+    await store.close()
+    await downgradeToVersionOne(home, project)
+
+    const reopened = new Store(new Context(), { mwfHome: home })
+    stores.push(reopened)
+    await reopened.openProject(project.id)
+    await reopened.openProject(project.id)
+    await reopened.close()
+
+    const third = new Store(new Context(), { mwfHome: home })
+    stores.push(third)
+    await expect(third.openProject(project.id)).resolves.toEqual({ ...current, dbPath: project.dbPath })
+    await expect(third.readDefinition(project.id)).resolves.toMatchObject({ document: 'graph TD; once' })
+    expect(existsSync(legacyDatabase(project))).toBe(false)
+    const files = readdirSync(join(home, 'mwf', 'projects', project.id))
+    expect(files.filter(name => !name.startsWith('project.db-')).sort()).toEqual(['project.db', 'workspace'])
+  })
+
+  it('creates the database at the canonical path when the old location holds none', async () => {
+    const { store, home } = await openStore()
+    const project = await store.createProject({ title: 'no database' })
+    await store.close()
+    await downgradeToVersionOne(home, project, 'missing')
+
+    const reopened = new Store(new Context(), { mwfHome: home })
+    stores.push(reopened)
+    await expect(reopened.openProject(project.id)).resolves.toMatchObject({ dbPath: project.dbPath })
+    await expect(reopened.readDefinition(project.id)).resolves.toBeUndefined()
+    expect(existsSync(legacyDatabase(project))).toBe(false)
+    await expect(reopened.listProjects()).resolves.toEqual([{ ...project, dbPath: project.dbPath }])
+  })
+
+  it('keeps the recorded canonical database and warns about a stale copy', async () => {
+    const home = await temporaryHome()
+    const store = new Store(new Context(), { mwfHome: home })
+    stores.push(store)
+    const project = await store.createProject({ title: 'stale copy' })
+    await store.writeDefinition(project.id, 'graph TD; kept')
+    await store.close()
+    // A copy left behind by an interrupted move, with the canonical file intact.
+    await downgradeToVersionOne(home, project, 'copy')
+    const ctx = new Context()
+    const reopened = new Store(ctx, { mwfHome: home })
+    stores.push(reopened)
+    const warn = vi.spyOn(ctx.logger, 'warn')
+
+    await expect(reopened.openProject(project.id)).resolves.toMatchObject({ dbPath: project.dbPath })
+    await expect(reopened.readDefinition(project.id)).resolves.toMatchObject({ document: 'graph TD; kept' })
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('stale database copy'))
+    expect(existsSync(legacyDatabase(project))).toBe(true)
+  })
+
+  it('fails the open and keeps the old database when the move cannot complete', async () => {
+    const { store, home } = await openStore()
+    const workspace = await mkdtemp(join(tmpdir(), 'mwf-project-store-blocked-'))
+    directories.push(workspace)
+    const project = await store.createProject({ title: 'blocked', path: workspace })
+    await store.writeDefinition(project.id, 'graph TD; intact')
+    await store.close()
+    await downgradeToVersionOne(home, project)
+    const storeDirectory = join(home, 'mwf', 'projects', project.id)
+    await rm(storeDirectory, { recursive: true, force: true })
+    await writeFile(storeDirectory, 'not a directory')
+
+    const reopened = new Store(new Context(), { mwfHome: home })
+    stores.push(reopened)
+    const error = await reopened.openProject(project.id).catch((reason: unknown) => reason)
+    expect(error).toBeInstanceOf(WorkflowProjectStoreError)
+    expect(error).toMatchObject({ code: 'relocation-failed' })
+    expect((error as WorkflowProjectStoreError).message)
+      .toContain(`could not be moved to "${project.dbPath}"`)
+    expect(existsSync(legacyDatabase(project))).toBe(true)
+    const [pending] = await reopened.listProjects()
+    expect(pending?.dbPath).toBe(legacyDatabase(project))
+
+    // Rollback: clearing the obstacle lets the same row open and keep its content.
+    await rm(storeDirectory, { force: true })
+    await expect(reopened.openProject(project.id)).resolves.toMatchObject({ dbPath: project.dbPath })
+    await expect(reopened.readDefinition(project.id)).resolves.toMatchObject({ document: 'graph TD; intact' })
+  })
+})
+
 describe('removeProject', () => {
   it('removes the registry row and keeps the directory by default', async () => {
     const { store } = await openStore()
@@ -355,7 +555,8 @@ describe('removeProject', () => {
 
     await expect(store.removeProject(project.id)).resolves.toBe(project.path)
     await expect(store.listProjects()).resolves.toEqual([])
-    expect(existsSync(projectDatabase(project))).toBe(true)
+    expect(existsSync(project.path)).toBe(true)
+    expect(existsSync(project.dbPath)).toBe(true)
     await expect(store.openProject(project.id)).rejects.toMatchObject({ code: 'project-not-found' })
 
     const again = await store.createProject({ title: 're-registered', path: project.path })
@@ -363,12 +564,13 @@ describe('removeProject', () => {
     await expect(store.readDefinition(again.id)).resolves.toBeUndefined()
   })
 
-  it('deletes the project directory when asked', async () => {
-    const { store } = await openStore()
+  it('deletes the working directory and the project database when asked', async () => {
+    const { store, home } = await openStore()
     const project = await store.createProject({ title: 'deleted' })
     await store.writeDefinition(project.id, 'graph TD; A')
     await expect(store.removeProject(project.id, { deleteDirectory: true })).resolves.toBe(project.path)
     expect(existsSync(project.path)).toBe(false)
+    expect(existsSync(join(home, 'mwf', 'projects', project.id))).toBe(false)
     await expect(store.listProjects()).resolves.toEqual([])
   })
 
@@ -377,13 +579,14 @@ describe('removeProject', () => {
     await store.listProjects()
     const registry = new DatabaseSync(join(home, 'mwf', 'projects.db'))
     const id = ghostId()
+    const workspace = join(home, 'mwf', 'projects', id, 'workspace')
     try {
-      registry.prepare('INSERT INTO projects (id, path, title, created_at, updated_at, definition_revision) VALUES (?, ?, ?, ?, ?, ?)')
-        .run(id, join(home, 'mwf', 'projects', id), 'Seeded elsewhere', 1, 1, 0)
+      registry.prepare('INSERT INTO projects (id, path, db_path, title, created_at, updated_at, definition_revision) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .run(id, workspace, join(home, 'mwf', 'projects', id, 'project.db'), 'Seeded elsewhere', 1, 1, 0)
     } finally {
       registry.close()
     }
-    await expect(store.removeProject(id)).resolves.toBe(join(home, 'mwf', 'projects', id))
+    await expect(store.removeProject(id)).resolves.toBe(workspace)
     await expect(store.listProjects()).resolves.toEqual([])
   })
 })
@@ -393,13 +596,28 @@ describe('durable layout', () => {
     const { store, home } = await openStore()
     const project = await store.createProject({ title: 'stale project database' })
     await store.close()
-    const db = new DatabaseSync(projectDatabase(project))
+    const db = new DatabaseSync(project.dbPath)
     db.exec('PRAGMA user_version = 99')
     db.close()
 
     const reopened = new Store(new Context(), { mwfHome: home })
     stores.push(reopened)
     await expect(reopened.openProject(project.id)).rejects.toMatchObject({ code: 'version-mismatch' })
+  })
+
+  it('refuses a registry row that records no database path', async () => {
+    const { store, home } = await openStore()
+    await store.listProjects()
+    const registry = new DatabaseSync(join(home, 'mwf', 'projects.db'))
+    const id = ghostId()
+    try {
+      registry.prepare('INSERT INTO projects (id, path, db_path, title, created_at, updated_at, definition_revision) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .run(id, join(home, 'mwf', 'projects', id, 'workspace'), '', 'No database', 1, 1, 0)
+    } finally {
+      registry.close()
+    }
+    await expect(store.listProjects()).rejects.toMatchObject({ code: 'invalid-record' })
+    await expect(store.openProject(id)).rejects.toMatchObject({ code: 'invalid-record' })
   })
 
   it('refuses a registry database with another layout version', async () => {
@@ -458,11 +676,35 @@ describe('service lifetime', () => {
       const fiber = await ctx.plugin(Store, {})
       const store = ctx.mwfProjectStore
       const project = await store.createProject({ title: 'environment home' })
-      expect(project.path).toBe(join(home, 'mwf', 'projects', project.id))
+      expect(project.path).toBe(join(home, 'mwf', 'projects', project.id, 'workspace'))
       await fiber.dispose()
     } finally {
       if (previous === undefined) delete process.env.MWF_HOME
       else process.env.MWF_HOME = previous
     }
+  })
+})
+
+describe('project rename', () => {
+  it('replaces the title and stamps the change, keeping the directory key', async () => {
+    const { store, home } = await openStore()
+    const created = await store.createProject({ title: 'Before' })
+    const renamed = await store.renameProject(created.id, '  After  ')
+    expect(renamed).toMatchObject({ id: created.id, path: created.path, title: 'After' })
+    expect(renamed.updatedAt).toBeGreaterThanOrEqual(created.updatedAt)
+    expect((await store.listProjects())[0]).toMatchObject({ id: created.id, title: 'After' })
+    expect(created.path.startsWith(home)).toBe(true)
+    await expect(store.createProject({ title: 'Same directory', path: created.path }))
+      .rejects.toMatchObject({ code: 'project-path-in-use' })
+  })
+
+  it('refuses a blank title, an unknown project, and a non-canonical id', async () => {
+    const { store } = await openStore()
+    const created = await store.createProject({ title: 'Kept' })
+    await expect(store.renameProject(created.id, '   ')).rejects.toMatchObject({ code: 'invalid-request' })
+    await expect(store.renameProject(ghostId(), 'Title')).rejects.toMatchObject({ code: 'project-not-found' })
+    await expect(store.renameProject(brandString<ProjectId>('not-a-uuid'), 'Title'))
+      .rejects.toMatchObject({ code: 'invalid-project-id' })
+    expect((await store.listProjects())[0]!.title).toBe('Kept')
   })
 })

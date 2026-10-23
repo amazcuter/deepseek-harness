@@ -2,8 +2,9 @@
  * The open protocol every store database follows, in one fixed order:
  * create the directory and file owner-only, set `busy_timeout`, switch to WAL
  * (bounded retry while another writer holds the file), enable foreign keys,
- * validate the application identity and layout version, materialize the schema,
- * and stamp fresh media last.
+ * validate the application identity and layout version, upgrade an older
+ * declared version, materialize the schema, and stamp fresh or upgraded media
+ * last.
  *
  * @module @metaworkflow/workflow-project-store/open
  */
@@ -13,9 +14,10 @@ import { dirname, resolve } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { WorkflowProjectStoreError } from './errors.ts'
+import { runTransaction } from './transaction.ts'
 
 /** Owner-only mode for a created database directory; ignored where POSIX modes are unavailable. */
-const OWNER_ONLY_DIRECTORY_MODE = 0o700
+export const OWNER_ONLY_DIRECTORY_MODE = 0o700
 
 /** Owner-only mode for a created database file; ignored where POSIX modes are unavailable. */
 const OWNER_ONLY_FILE_MODE = 0o600
@@ -35,6 +37,21 @@ export const WORKFLOW_STORE_WAL_RETRY_ATTEMPTS = 5
 
 /** Base delay before retrying the WAL switch; multiplied by the attempt number. */
 export const WORKFLOW_STORE_WAL_RETRY_DELAY_MS = 20
+
+/**
+ * One explicit in-place layout upgrade of one database file. Steps are declared
+ * per starting version, so an older library is brought forward one declared
+ * version at a time instead of a current build guessing at unknown layouts.
+ */
+export interface WorkflowDatabaseUpgrade {
+  /** Layout version the step starts from; the step stamps `from + 1` when it returns. */
+  readonly from: number
+  /**
+   * Apply the step's statements.
+   * @param db - connection whose identity is already accepted and whose write lock is held.
+   */
+  readonly apply: (db: DatabaseSync) => void
+}
 
 /** Timing knobs of the open protocol; production opens use the defaults. */
 export interface WorkflowDatabaseOpenOptions {
@@ -56,6 +73,11 @@ export interface OpenWorkflowDatabaseOptions extends WorkflowDatabaseOpenOptions
   readonly applicationId: number
   /** Current `PRAGMA user_version` layout version this database file must carry. */
   readonly schemaVersion: number
+  /**
+   * Declared upgrade steps from older layout versions. A stored version with no
+   * step leading to {@link schemaVersion} is refused instead of migrated.
+   */
+  readonly upgrades?: readonly WorkflowDatabaseUpgrade[]
   /**
    * Schema statements run once the identity and version are accepted.
    * @param db - validated connection that the statements run on.
@@ -154,16 +176,17 @@ async function switchToWal(db: DatabaseSync, path: string, options: OpenWorkflow
 }
 
 /**
- * Validate the durable identity and layout version, then materialize and stamp.
+ * Validate the durable identity and layout version, then upgrade, materialize, and stamp.
  *
  * Validation order matters: a file that belongs to another application, or one
  * that holds tables without the store's identity, is refused before any schema
  * statement runs. A zero `user_version` is a fresh medium (or an interrupted
  * materialization under the store's own identity) and is stamped only after the
- * schema is complete.
+ * schema is complete. An older version is brought forward by the declared
+ * upgrade steps and, like a fresh medium, is stamped only after they commit.
  * @param db - connection whose pragmas are already applied.
  * @param path - database path used in diagnostics.
- * @param options - identity, version, and schema statements.
+ * @param options - identity, version, upgrade steps, and schema statements.
  * @returns resolution once the schema is materialized.
  */
 function materializeSchema(db: DatabaseSync, path: string, options: OpenWorkflowDatabaseOptions): void {
@@ -182,17 +205,47 @@ function materializeSchema(db: DatabaseSync, path: string, options: OpenWorkflow
       `workflow store database at "${path}" is neither empty nor a workflow store database (tables: ${userTables.join(', ')})`,
     )
   }
-  if (version !== 0 && version !== options.schemaVersion) {
-    throw new WorkflowProjectStoreError(
-      'version-mismatch',
-      `workflow store database at "${path}" has schema version ${String(version)}, incompatible with this build (${String(options.schemaVersion)})`,
-    )
-  }
+  if (version !== 0 && version !== options.schemaVersion) upgradeSchema(db, path, options, version)
   // The identity is stamped before the schema so an interrupted materialization
   // is recognized as the store's own unfinished medium on the next open.
   if (applicationId === 0) db.exec(`PRAGMA application_id = ${String(options.applicationId)}`)
   options.materialize(db)
   if (version === 0) db.exec(`PRAGMA user_version = ${String(options.schemaVersion)}`)
+}
+
+/**
+ * Bring one older database up to the current layout by walking the declared
+ * steps, each stamped inside the same batch, so an interruption leaves the
+ * database at the last version it completed.
+ * @param db - connection already accepted as this store's own.
+ * @param path - database path used in diagnostics.
+ * @param options - current version and declared upgrade steps.
+ * @param from - the version the file carries.
+ * @returns nothing; the file carries {@link OpenWorkflowDatabaseOptions.schemaVersion} once the batch commits.
+ * @throws {@link WorkflowProjectStoreError} `version-mismatch` when no declared step starts at the stored version.
+ */
+function upgradeSchema(
+  db: DatabaseSync,
+  path: string,
+  options: OpenWorkflowDatabaseOptions,
+  from: number,
+): void {
+  const upgrades = options.upgrades ?? []
+  runTransaction(db, () => {
+    let version = from
+    while (version !== options.schemaVersion) {
+      const step = upgrades.find(upgrade => upgrade.from === version)
+      if (step === undefined) {
+        throw new WorkflowProjectStoreError(
+          'version-mismatch',
+          `workflow store database at "${path}" has schema version ${String(from)}, incompatible with this build (${String(options.schemaVersion)})`,
+        )
+      }
+      step.apply(db)
+      version += 1
+      db.exec(`PRAGMA user_version = ${String(version)}`)
+    }
+  })
 }
 
 /**

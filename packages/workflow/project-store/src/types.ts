@@ -18,8 +18,19 @@ export type AttemptId = Branded<'AttemptId'>
 /** One workflow project as the global registry records it. */
 export interface ProjectRecord {
   readonly id: ProjectId
-  /** Absolute project directory; it also holds `project.db` and every generated artifact. */
+  /**
+   * Absolute working directory: the project's own code, artifacts, and
+   * environments. It holds no store file, so it can be moved or deleted without
+   * touching the project's durable records.
+   */
   readonly path: string
+  /**
+   * Absolute path of the project database the store keeps for this project. It
+   * lives in the store's own project directory, never in {@link path}; a
+   * library written before the database moved out records the old location here
+   * until the project is first opened.
+   */
+  readonly dbPath: string
   readonly title: string
   /** Epoch milliseconds at which the project was registered. */
   readonly createdAt: number
@@ -37,8 +48,9 @@ export interface ProjectRecord {
 export interface CreateProjectRequest {
   readonly title: string
   /**
-   * Absolute or `~`-prefixed project directory. Omitted creates
-   * `<home>/mwf/projects/<projectId>`.
+   * Absolute or `~`-prefixed working directory. Omitted creates
+   * `<home>/mwf/projects/<projectId>/workspace`. The project database is never
+   * placed in it.
    */
   readonly path?: string
 }

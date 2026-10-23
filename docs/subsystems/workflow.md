@@ -151,38 +151,59 @@ The registry database opens on first use and every project database opens when i
 async listProjects(): Promise<ProjectRecord[]>
 
 /**
- * Register a new project and materialize its project database.
+ * Register a new project and materialize its working directory and database.
  *
  * The registry row is written first, so a directory already claimed by another
- * project fails before any file is created; a project database that then fails
- * to open removes the row it just wrote.
- * @param request - title and optional project directory.
+ * project fails before any file is created; a working directory or database
+ * that then fails to materialize removes the row it just wrote. The database
+ * always lands in the store's own project directory, whatever directory the
+ * caller asked for, so the working directory never holds a store file.
+ * @param request - title and optional working directory.
  * @returns the registered project record.
  * @throws {@link WorkflowProjectStoreError} `invalid-request` for an empty title,
  * `project-path-in-use` when another project claims the directory, and
- * `open-failed` when the project database cannot be created.
+ * `open-failed` when the working directory or project database cannot be created.
  */
 async createProject(request: CreateProjectRequest): Promise<ProjectRecord>
 
 /**
- * Open one project: resolve its registry row and materialize its database when
- * the directory exists without one.
+ * Open one project: require its working directory, and materialize its
+ * database when the file is absent or still sits in an older library.
  * @param projectId - registered project to open.
  * @returns the registry record of the opened project.
  * @throws {@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`,
- * or the project database's open failure.
+ * `project-directory-missing` when the working directory is gone,
+ * `relocation-failed` when an older database cannot be moved out of it, or the
+ * project database's open failure.
  */
 async openProject(projectId: ProjectId): Promise<ProjectRecord>
 
 /**
+ * Replace one project's display title.
+ *
+ * The registry row is the title's only owner, so a renaming consumer never
+ * keeps a second title store. Titles may repeat across projects; the
+ * directory stays the registry's uniqueness key.
+ * @param projectId - registered project to rename.
+ * @param title - the new display title; surrounding whitespace is trimmed and
+ * an empty result is refused.
+ * @returns the updated registry record.
+ * @throws {@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`,
+ * or `invalid-request` for a blank title.
+ */
+async renameProject(projectId: ProjectId, title: string): Promise<ProjectRecord>
+
+/**
  * Remove one project from the registry.
  *
- * The project's connection is closed first; its directory keeps every file
- * unless `deleteDirectory` asks for removal. The returned directory is what a
- * caller shows the human before deciding.
+ * The project's connection is closed first; its working directory keeps every
+ * file unless `deleteDirectory` asks for removal. Removing the directory also
+ * removes the project's database, which the registration owns and nothing
+ * else references. The returned directory is what a caller shows the human
+ * before deciding.
  * @param projectId - registered project to remove.
- * @param options - whether to delete the project directory tree.
- * @returns the absolute project directory that is no longer registered.
+ * @param options - whether to delete the working directory and the project database.
+ * @returns the absolute working directory that is no longer registered.
  * @throws {@link WorkflowProjectStoreError} `invalid-project-id` or `project-not-found`.
  */
 async removeProject(projectId: ProjectId, options: RemoveProjectOptions = {}): Promise<string>

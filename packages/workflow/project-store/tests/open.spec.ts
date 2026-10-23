@@ -109,6 +109,79 @@ describe('openWorkflowDatabase', () => {
     expect((error as WorkflowProjectStoreError).message).toMatch(/schema version 99, incompatible with this build \(2\)/)
   })
 
+  it('brings an older database forward through every declared upgrade', async () => {
+    const directory = await temporaryDirectory()
+    const path = join(directory, 'store.db')
+    await createDatabase(path, [
+      'PRAGMA application_id = 9',
+      'PRAGMA user_version = 1',
+      'CREATE TABLE marker (value TEXT NOT NULL) STRICT',
+    ].join('; '))
+    const applied: number[] = []
+    const db = await openWorkflowDatabase({
+      path,
+      applicationId: 9,
+      schemaVersion: 3,
+      materialize: markerSchema,
+      upgrades: [
+        {
+          from: 1,
+          apply: (connection) => {
+            applied.push(1)
+            connection.exec('ALTER TABLE marker ADD COLUMN after_first TEXT')
+          },
+        },
+        {
+          from: 2,
+          apply: (connection) => {
+            applied.push(2)
+            connection.exec('ALTER TABLE marker ADD COLUMN after_second TEXT')
+          },
+        },
+      ],
+    })
+    try {
+      expect(applied).toEqual([1, 2])
+      expect(pragmaOf(db, 'user_version')).toEqual({ user_version: 3 })
+      expect(db.prepare('PRAGMA table_info(marker)').all().map(row => row.name))
+        .toEqual(['value', 'after_first', 'after_second'])
+    } finally {
+      db.close()
+    }
+  })
+
+  it('rolls a failed upgrade back and leaves the stored version', async () => {
+    const directory = await temporaryDirectory()
+    const path = join(directory, 'store.db')
+    await createDatabase(path, [
+      'PRAGMA application_id = 9',
+      'PRAGMA user_version = 1',
+      'CREATE TABLE marker (value TEXT NOT NULL) STRICT',
+    ].join('; '))
+    const error = await openWorkflowDatabase({
+      path,
+      applicationId: 9,
+      schemaVersion: 2,
+      materialize: markerSchema,
+      upgrades: [{
+        from: 1,
+        apply: (connection) => {
+          connection.exec('ALTER TABLE marker ADD COLUMN half_done TEXT')
+          throw new Error('upgrade interrupted')
+        },
+      }],
+    }).catch((reason: unknown) => reason)
+    expect(error).toMatchObject({ code: 'open-failed' })
+
+    const db = new DatabaseSync(path)
+    try {
+      expect(pragmaOf(db, 'user_version')).toEqual({ user_version: 1 })
+      expect(db.prepare('PRAGMA table_info(marker)').all().map(row => row.name)).toEqual(['value'])
+    } finally {
+      db.close()
+    }
+  })
+
   it('rejects a database that belongs to another application', async () => {
     const directory = await temporaryDirectory()
     const path = join(directory, 'store.db')
@@ -270,7 +343,7 @@ describe('store database identities', () => {
       expect(pragmaOf(projectDb, 'busy_timeout')).toEqual({ timeout: 1234 })
       expect(WORKFLOW_PROJECT_REGISTRY_APPLICATION_ID).not.toBe(WORKFLOW_PROJECT_DATABASE_APPLICATION_ID)
       expect(registryDb.prepare("SELECT value FROM schema_meta WHERE key = 'format'").get())
-        .toEqual({ value: 'workflow-projects/1' })
+        .toEqual({ value: 'workflow-projects/2' })
       expect(projectDb.prepare("SELECT value FROM schema_meta WHERE key = 'format'").get())
         .toEqual({ value: 'workflow-project/1' })
     } finally {

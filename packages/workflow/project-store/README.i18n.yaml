@@ -3,47 +3,50 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/workflow/project-store/README.md
 /:
-  en: 7c3bd88766f1d1ba
-  zh: 093b30292f2593df
+  en: 6829143831593241
+  zh: d47bb3459e5e5b9e
 /metaworkflow-workflow-project-store:
   en: 13bd92c29c813992
   zh: 231ac6c0ccf9c166
 /metaworkflow-workflow-project-store/summary:
-  en: 9cde691592d4ff86
-  zh: ed721edb197f9418
+  en: e119647cbb2404d9
+  zh: c89e9906763b3aa8
 /metaworkflow-workflow-project-store/table-of-contents:
-  en: d152484eb41ac6b4
-  zh: 09388d293f9be9cb
+  en: 304b10bd40f3f040
+  zh: f76623c498a82192
 /metaworkflow-workflow-project-store/use-this-package:
   en: fffaba38599b80c1
   zh: 74e7d617bc31b7ea
 /metaworkflow-workflow-project-store/use-this-package/when-to-choose-it:
-  en: 00034d5041a49136
-  zh: ad12a279095319be
+  en: 855547a93f224ec7
+  zh: 6b8250b649dd3bff
 /metaworkflow-workflow-project-store/use-this-package/minimal-configuration:
   en: 9e2f5c470fcc96ea
   zh: f797392f905436ce
 /metaworkflow-workflow-project-store/use-this-package/service-api:
-  en: 49f97be26240d639
-  zh: c1dcb4eebefbc28e
+  en: 87468834a6053fcd
+  zh: 2579effd288dc1f5
 /metaworkflow-workflow-project-store/use-this-package/layout:
-  en: 6ac26338074b662b
-  zh: 63c15832628df0ac
+  en: c3db30575e8c175e
+  zh: 06322b4332265a92
 /metaworkflow-workflow-project-store/understand-the-implementation:
   en: 42b15ac6321706aa
   zh: 4ed0861911abaf5d
 /metaworkflow-workflow-project-store/understand-the-implementation/design-concept:
-  en: c21ab1055c4e8a3b
-  zh: 52dfe900eea080c4
+  en: 1df8797b2d5b3d0f
+  zh: 83f03d7b715075fb
 /metaworkflow-workflow-project-store/understand-the-implementation/open-sequence:
-  en: cee0dfb48600bcaa
-  zh: b08cbcc0d8a999f8
+  en: 57c9b34d04fb4d7d
+  zh: 732eb31467ca63a6
 /metaworkflow-workflow-project-store/understand-the-implementation/schema:
-  en: be53080b25c24a8d
-  zh: 6ac7633ed74daa05
+  en: 25a117aa528d42be
+  zh: e2adf0a0c5f50d8e
 /metaworkflow-workflow-project-store/understand-the-implementation/source-map:
-  en: a4d2eea278065b23
-  zh: ff9072924d5c567c
+  en: 1d8a73170825d7b9
+  zh: 86d8ef1520fec5fa
+/metaworkflow-workflow-project-store/migrate-an-older-library:
+  en: 29561a64e7bc1ddf
+  zh: 7b6c6bec700cba65
 /metaworkflow-workflow-project-store/further-exploration:
   en: 6894d6bf294c9bcc
   zh: e3003a6f85008a02
@@ -54,8 +57,8 @@
   en: d86bbf8ac99075c2
   zh: ba827f76ef66ca3f
 /metaworkflow-workflow-project-store/known-limitations-and-deferred-work:
-  en: ce86ef41b0f6b675
-  zh: a6772ced2597e956
+  en: efa046da88c3fb7b
+  zh: cd159934ff184669
 /metaworkflow-workflow-project-store/known-limitations-and-deferred-work/dev-note:
   en: 33041bbf1299be07
   zh: e82d4e7fba72ac1e

@@ -2,11 +2,14 @@
  * Workflow project persistence (`ctx.mwfProjectStore`): one global registry
  * database plus one SQLite database per project.
  *
- * The registry holds a row per project — id, directory, title, timestamps, and
- * a definition-revision hint. Each project database lives inside the project
- * directory and owns the definition revisions and the run, activation, attempt,
- * artifact, decision, and session-outbox records of that project. Storage is
- * host-side only: the store contributes no prompt, tool, or session event.
+ * The registry holds a row per project — id, working directory, database path,
+ * title, timestamps, and a definition-revision hint. Each project database
+ * lives in the store's own `<home>/mwf/projects/<projectId>` directory and owns
+ * the definition revisions and the run, activation, attempt, artifact,
+ * decision, and session-outbox records of that project; the project's working
+ * directory holds the user's code and artifacts and no store file at all.
+ * Storage is host-side only: the store contributes no prompt, tool, or session
+ * event.
  *
  * Every database is opened under the fixed protocol in `open.ts`, held as one
  * `DatabaseSync` connection per process, and written through its own serial
@@ -17,7 +20,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { rm } from 'node:fs/promises'
+import { mkdir, rm, stat } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { Context, Service } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
@@ -25,6 +28,7 @@ import { brandString } from '@metaworkflow/brand'
 import { expandHomePath, resolveMwfHome } from '@metaworkflow/home-paths'
 import { DatabaseSlot } from './database.ts'
 import { WorkflowProjectStoreError } from './errors.ts'
+import { OWNER_ONLY_DIRECTORY_MODE } from './open.ts'
 import {
   openProjectDatabase,
   insertDefinition,
@@ -35,6 +39,7 @@ import {
   ackOutboxRow,
   stageOutboxRow,
   selectOutboxRows,
+  PROJECT_DATABASE_FILE_NAME,
 } from './project-database.ts'
 import {
   deleteRegistryProject,
@@ -43,8 +48,11 @@ import {
   selectRegistryProject,
   selectRegistryProjectByPath,
   selectRegistryProjects,
+  updateRegistryDatabasePath,
   updateRegistryDefinitionRevision,
+  updateRegistryTitle,
 } from './registry.ts'
+import { moveProjectDatabase } from './relocate.ts'
 import { runTransaction } from './transaction.ts'
 import type {
   AttemptId,
@@ -67,6 +75,7 @@ export {
   openWorkflowDatabase,
   type OpenWorkflowDatabaseOptions,
   type WorkflowDatabaseOpenOptions,
+  type WorkflowDatabaseUpgrade,
 } from './open.ts'
 export {
   WORKFLOW_PROJECT_REGISTRY_APPLICATION_ID,
@@ -74,10 +83,12 @@ export {
   openRegistryDatabase,
 } from './registry.ts'
 export {
+  PROJECT_DATABASE_FILE_NAME,
   WORKFLOW_PROJECT_DATABASE_APPLICATION_ID,
   WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION,
   openProjectDatabase,
 } from './project-database.ts'
+export { moveProjectDatabase } from './relocate.ts'
 export { runTransaction } from './transaction.ts'
 
 /** Canonical project ids are UUIDs; anything else would address files outside the layout. */
@@ -89,8 +100,8 @@ const REGISTRY_DATABASE_NAME = 'projects.db'
 /** Project directory name inside `<home>/mwf`. */
 const PROJECTS_DIRECTORY_NAME = 'projects'
 
-/** Project database file name inside one project directory. */
-const PROJECT_DATABASE_NAME = 'project.db'
+/** Working-directory name inside one project's store directory. */
+const WORKSPACE_DIRECTORY_NAME = 'workspace'
 
 declare module '@deepseek-ai/cordis' {
   interface Context {
@@ -131,12 +142,62 @@ function projectsRoot(home: string): string {
 }
 
 /**
- * Absolute database path inside one project directory.
- * @param directory - absolute project directory.
- * @returns `<directory>/project.db`.
+ * Store-owned directory of one project, holding its database.
+ * @param root - absolute `<home>/mwf/projects`.
+ * @param id - project id.
+ * @returns `<root>/<projectId>`.
  */
-function projectDatabasePath(directory: string): string {
-  return join(directory, PROJECT_DATABASE_NAME)
+function projectStoreDirectory(root: string, id: ProjectId): string {
+  return join(root, id)
+}
+
+/**
+ * Default working directory of one project.
+ * @param root - absolute `<home>/mwf/projects`.
+ * @param id - project id.
+ * @returns `<root>/<projectId>/workspace`.
+ */
+function defaultWorkspacePath(root: string, id: ProjectId): string {
+  return join(projectStoreDirectory(root, id), WORKSPACE_DIRECTORY_NAME)
+}
+
+/**
+ * Canonical project database path of one project.
+ * @param root - absolute `<home>/mwf/projects`.
+ * @param id - project id.
+ * @returns `<root>/<projectId>/project.db`.
+ */
+function projectDatabasePath(root: string, id: ProjectId): string {
+  return join(projectStoreDirectory(root, id), PROJECT_DATABASE_FILE_NAME)
+}
+
+/**
+ * Whether one path names an existing directory.
+ * @param path - absolute path to check.
+ * @returns `true` when the path resolves to a directory.
+ */
+async function directoryExists(path: string): Promise<boolean> {
+  try {
+    return (await stat(path)).isDirectory()
+  } catch {
+    // A missing, dangling, or unreadable path is not a usable directory.
+    return false
+  }
+}
+
+/**
+ * Whether one path names an existing file.
+ * @param path - absolute path to check.
+ * @returns `true` when the path resolves to a file or another existing entry.
+ */
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    await stat(path)
+    return true
+  } catch {
+    // A missing or unreadable path is not a file the store can move.
+    return false
+  }
 }
 
 /**
@@ -220,16 +281,18 @@ export default class WorkflowProjectStore extends Service {
   }
 
   /**
-   * Register a new project and materialize its project database.
+   * Register a new project and materialize its working directory and database.
    *
    * The registry row is written first, so a directory already claimed by another
-   * project fails before any file is created; a project database that then fails
-   * to open removes the row it just wrote.
-   * @param request - title and optional project directory.
+   * project fails before any file is created; a working directory or database
+   * that then fails to materialize removes the row it just wrote. The database
+   * always lands in the store's own project directory, whatever directory the
+   * caller asked for, so the working directory never holds a store file.
+   * @param request - title and optional working directory.
    * @returns the registered project record.
    * @throws {@link WorkflowProjectStoreError} `invalid-request` for an empty title,
    * `project-path-in-use` when another project claims the directory, and
-   * `open-failed` when the project database cannot be created.
+   * `open-failed` when the working directory or project database cannot be created.
    */
   async createProject(request: CreateProjectRequest): Promise<ProjectRecord> {
     this.assertOpen()
@@ -238,11 +301,14 @@ export default class WorkflowProjectStore extends Service {
       throw new WorkflowProjectStoreError('invalid-request', 'project title must not be empty')
     }
     const id = brandString<ProjectId>(randomUUID())
-    const directory = request.path === undefined ? join(this.projectsRoot, id) : resolve(expandHomePath(request.path))
+    const directory = request.path === undefined
+      ? defaultWorkspacePath(this.projectsRoot, id)
+      : resolve(expandHomePath(request.path))
     const now = Date.now()
     const record: ProjectRecord = {
       id,
       path: directory,
+      dbPath: projectDatabasePath(this.projectsRoot, id),
       title,
       createdAt: now,
       updatedAt: now,
@@ -261,6 +327,7 @@ export default class WorkflowProjectStore extends Service {
     }
     const slot = this.projectSlot(record)
     try {
+      await mkdir(directory, { recursive: true, mode: OWNER_ONLY_DIRECTORY_MODE })
       await slot.connection()
     } catch (error: unknown) {
       this.projectSlots.delete(id)
@@ -270,33 +337,82 @@ export default class WorkflowProjectStore extends Service {
           deleteRegistryProject(db, id)
         })
       })
-      throw error
+      if (error instanceof WorkflowProjectStoreError) throw error
+      throw new WorkflowProjectStoreError(
+        'open-failed',
+        `workflow project directory at "${directory}" could not be created: ${String(error)}`,
+        { cause: error },
+      )
     }
     return record
   }
 
   /**
-   * Open one project: resolve its registry row and materialize its database when
-   * the directory exists without one.
+   * Open one project: require its working directory, and materialize its
+   * database when the file is absent or still sits in an older library.
    * @param projectId - registered project to open.
    * @returns the registry record of the opened project.
    * @throws {@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`,
-   * or the project database's open failure.
+   * `project-directory-missing` when the working directory is gone,
+   * `relocation-failed` when an older database cannot be moved out of it, or the
+   * project database's open failure.
    */
   async openProject(projectId: ProjectId): Promise<ProjectRecord> {
-    const { record } = await this.projectSlotFor(projectId)
-    return record
+    this.assertOpen()
+    assertProjectId(projectId)
+    const record = await this.registryRecord(projectId)
+    if (!await directoryExists(record.path)) {
+      throw new WorkflowProjectStoreError(
+        'project-directory-missing',
+        `workflow project '${projectId}' has no working directory at "${record.path}"`,
+      )
+    }
+    const { record: opened } = await this.openSlot(record)
+    return opened
+  }
+
+  /**
+   * Replace one project's display title.
+   *
+   * The registry row is the title's only owner, so a renaming consumer never
+   * keeps a second title store. Titles may repeat across projects; the
+   * directory stays the registry's uniqueness key.
+   * @param projectId - registered project to rename.
+   * @param title - the new display title; surrounding whitespace is trimmed and
+   * an empty result is refused.
+   * @returns the updated registry record.
+   * @throws {@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`,
+   * or `invalid-request` for a blank title.
+   */
+  async renameProject(projectId: ProjectId, title: string): Promise<ProjectRecord> {
+    this.assertOpen()
+    assertProjectId(projectId)
+    const trimmed = title.trim()
+    if (trimmed.length === 0) {
+      throw new WorkflowProjectStoreError('invalid-request', 'project title must not be empty')
+    }
+    return this.registrySlot.queue.run(async () => {
+      const db = await this.registrySlot.connection()
+      const record = requireProjectRecord(projectId, selectRegistryProject(db, projectId))
+      const updatedAt = Date.now()
+      runTransaction(db, () => {
+        updateRegistryTitle(db, projectId, trimmed, updatedAt)
+      })
+      return { ...record, title: trimmed, updatedAt }
+    })
   }
 
   /**
    * Remove one project from the registry.
    *
-   * The project's connection is closed first; its directory keeps every file
-   * unless `deleteDirectory` asks for removal. The returned directory is what a
-   * caller shows the human before deciding.
+   * The project's connection is closed first; its working directory keeps every
+   * file unless `deleteDirectory` asks for removal. Removing the directory also
+   * removes the project's database, which the registration owns and nothing
+   * else references. The returned directory is what a caller shows the human
+   * before deciding.
    * @param projectId - registered project to remove.
-   * @param options - whether to delete the project directory tree.
-   * @returns the absolute project directory that is no longer registered.
+   * @param options - whether to delete the working directory and the project database.
+   * @returns the absolute working directory that is no longer registered.
    * @throws {@link WorkflowProjectStoreError} `invalid-project-id` or `project-not-found`.
    */
   async removeProject(projectId: ProjectId, options: RemoveProjectOptions = {}): Promise<string> {
@@ -315,6 +431,7 @@ export default class WorkflowProjectStore extends Service {
     })
     if (options.deleteDirectory === true) {
       await rm(record.path, { recursive: true, force: true, maxRetries: 3 })
+      await rm(projectStoreDirectory(this.projectsRoot, record.id), { recursive: true, force: true, maxRetries: 3 })
     }
     return record.path
   }
@@ -463,16 +580,91 @@ export default class WorkflowProjectStore extends Service {
   }
 
   /**
+   * One registry row by id.
+   * @param projectId - project the caller addressed.
+   * @returns the registry record.
+   * @throws {@link WorkflowProjectStoreError} `project-not-found` when the id is not registered.
+   */
+  private async registryRecord(projectId: ProjectId): Promise<ProjectRecord> {
+    const registry = await this.registrySlot.connection()
+    return requireProjectRecord(projectId, selectRegistryProject(registry, projectId))
+  }
+
+  /**
    * The slot holding one project's connection, created on first use.
-   * @param record - registry record naming the project directory.
+   * @param record - registry record naming the project database.
    * @returns the project's slot.
    */
   private projectSlot(record: ProjectRecord): DatabaseSlot {
     const existing = this.projectSlots.get(record.id)
     if (existing !== undefined) return existing
-    const slot = new DatabaseSlot(() => openProjectDatabase(projectDatabasePath(record.path)))
+    const slot = new DatabaseSlot(() => openProjectDatabase(record.dbPath))
     this.projectSlots.set(record.id, slot)
     return slot
+  }
+
+  /**
+   * Resolve one project and open its database connection.
+   * @param record - registry record of the project.
+   * @returns the record, with any relocation applied, and the slot that owns its connection.
+   */
+  private async openSlot(record: ProjectRecord): Promise<{ record: ProjectRecord; slot: DatabaseSlot }> {
+    const relocated = await this.relocateDatabase(record)
+    const slot = this.projectSlot(relocated)
+    await slot.connection()
+    return { record: relocated, slot }
+  }
+
+  /**
+   * Move one project's database out of its working directory into the store's
+   * own project directory.
+   *
+   * Idempotent in every resolved state: a record already naming the canonical
+   * path needs no work, a working directory that holds no database only needs
+   * the row repointed, and a canonical file that already exists stays
+   * authoritative because a completed move leaves both copies rather than an
+   * unverified one.
+   * @param record - registry record naming the recorded database path.
+   * @returns the record, updated when the row was repointed.
+   * @throws {@link WorkflowProjectStoreError} `relocation-failed` when the copy cannot
+   * complete; the source and the registry row are then unchanged.
+   */
+  private async relocateDatabase(record: ProjectRecord): Promise<ProjectRecord> {
+    const target = projectDatabasePath(this.projectsRoot, record.id)
+    if (record.dbPath === target) return record
+    if (!await fileExists(record.dbPath)) return this.recordDatabasePath(record, target)
+    if (await fileExists(target)) {
+      this.ctx.logger.warn(
+        `workflow project '${record.id}' keeps a stale database copy at "${record.dbPath}"; the store uses "${target}"`,
+      )
+      return this.recordDatabasePath(record, target)
+    }
+    try {
+      await moveProjectDatabase(record.dbPath, target)
+    } catch (error: unknown) {
+      throw new WorkflowProjectStoreError(
+        'relocation-failed',
+        `workflow project database at "${record.dbPath}" could not be moved to "${target}"; the recorded location is unchanged`,
+        { cause: error },
+      )
+    }
+    return this.recordDatabasePath(record, target)
+  }
+
+  /**
+   * Point one registry row at the database's new path.
+   * @param record - registry record to repoint.
+   * @param dbPath - absolute path the database now lives at.
+   * @returns the record with the new path.
+   */
+  private async recordDatabasePath(record: ProjectRecord, dbPath: string): Promise<ProjectRecord> {
+    await this.registrySlot.queue.run(async () => {
+      const db = await this.registrySlot.connection()
+      runTransaction(db, () => {
+        updateRegistryDatabasePath(db, record.id, dbPath)
+      })
+    })
+    return { ...record, dbPath }
   }
 
   /**
@@ -483,10 +675,6 @@ export default class WorkflowProjectStore extends Service {
   private async projectSlotFor(projectId: ProjectId): Promise<{ record: ProjectRecord; slot: DatabaseSlot }> {
     this.assertOpen()
     assertProjectId(projectId)
-    const registry = await this.registrySlot.connection()
-    const record = requireProjectRecord(projectId, selectRegistryProject(registry, projectId))
-    const slot = this.projectSlot(record)
-    await slot.connection()
-    return { record, slot }
+    return this.openSlot(await this.registryRecord(projectId))
   }
 }
