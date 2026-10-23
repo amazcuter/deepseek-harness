@@ -1,0 +1,55 @@
+# Bilingual-pair consistency record for 2026-10-23-metaworkflow-project-workflows.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-10-23-metaworkflow-project-workflows.md
+/agent-note-metaworkflow-project-workflows:
+  en: 5973eda00493da23
+  zh: debcb488237c7ede
+/agent-note-metaworkflow-project-workflows/problem:
+  en: aef60a76db45083e
+  zh: 5a8c7f700f695814
+/agent-note-metaworkflow-project-workflows/proposal:
+  en: 986dd8097aac4d3d
+  zh: ca258a5d37ffa6a0
+/agent-note-metaworkflow-project-workflows/proposal/confirmed-product-scope:
+  en: 26f083ac7d027282
+  zh: 3a5e7d3b751a74ab
+/agent-note-metaworkflow-project-workflows/proposal/web-pages-and-navigation:
+  en: c3be7a1cc7184cd1
+  zh: 1d1d14463ae07d0e
+/agent-note-metaworkflow-project-workflows/proposal/one-coordinator-per-project:
+  en: 847e0d03b27350b0
+  zh: c3a65db00d9368b9
+/agent-note-metaworkflow-project-workflows/proposal/per-node-tool-switches:
+  en: dad030aa62f6a792
+  zh: 9bac44202ed93ac7
+/agent-note-metaworkflow-project-workflows/proposal/node-input-and-completion:
+  en: a14f6dfcd4a3a2fb
+  zh: f17e80cb9a37b89c
+/agent-note-metaworkflow-project-workflows/proposal/edges-loops-and-parallel-joins:
+  en: 56d2efa9138f159d
+  zh: 99c081e4fdc6d6b7
+/agent-note-metaworkflow-project-workflows/proposal/files-persistence-and-recovery:
+  en: e003156d5b4b3bab
+  zh: d31128763268d3b1
+/agent-note-metaworkflow-project-workflows/proposal/apply-edits-to-an-active-run:
+  en: 061cdf185c0780e4
+  zh: 30ba56da3ac17e35
+/agent-note-metaworkflow-project-workflows/proposal/canvas-and-authoring:
+  en: c49d359ca35f1990
+  zh: a06c785b252a3fba
+/agent-note-metaworkflow-project-workflows/proposal/verified-constraints-and-design-decisions:
+  en: 14ba75dc025fbdea
+  zh: 2a064a6f4a71050e
+/agent-note-metaworkflow-project-workflows/proposal/integration-and-implementation-sequence:
+  en: 7ba846006986ffda
+  zh: d19665e4740d0319
+/agent-note-metaworkflow-project-workflows/alternatives-considered:
+  en: ac03504dee87698d
+  zh: 78ee4c56b2690bdd
+/agent-note-metaworkflow-project-workflows/acceptance-criteria:
+  en: 7363ff6d3124fc38
+  zh: 61db4451c448e369
+/agent-note-metaworkflow-project-workflows/risks:
+  en: 6a8829bf7ed9d51d
+  zh: c54c4bfd809dde59

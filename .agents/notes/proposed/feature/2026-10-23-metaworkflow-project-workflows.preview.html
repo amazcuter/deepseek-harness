@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MetaWorkFlow · 界面草图</title>
+<style>
+  body { margin: 24px; font: 15px/1.6 system-ui, sans-serif; color: #222; }
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; }
+  button, select { padding: 4px 10px; }
+  input, textarea { box-sizing: border-box; max-width: 100%; }
+  textarea { width: 100%; }
+  header, .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+  header { border-bottom: 1px solid #ccc; margin-bottom: 24px; }
+  header small { margin-left: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+  .workbench { display: grid; grid-template-columns: 165px minmax(380px, 1fr) 320px; gap: 24px; }
+  nav { border-right: 1px solid #ccc; padding-right: 16px; }
+  nav button { display: block; width: 100%; margin: 8px 0; text-align: left; }
+  .chat { border-left: 1px solid #ccc; padding-left: 20px; }
+  .flow { text-align: center; padding: 18px 0; border: 1px solid #ccc; margin: 16px 0; }
+  .flow button { min-width: 150px; }
+  .flow button[aria-pressed="true"] { outline: 2px solid #375ed8; }
+  .flow p { margin: 6px 0; }
+  .branches { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+  .branch { display: grid; gap: 4px; }
+  .detail-tabs { margin: 12px 0; }
+  fieldset { margin: 12px 0; }
+  .tool-list label { display: block; margin: 8px 0; }
+  .messages { max-height: 420px; overflow: auto; margin: 16px 0; }
+  .messages article { border-bottom: 1px solid #ddd; padding: 8px 0; }
+  .messages p { margin: 5px 0; white-space: pre-wrap; }
+  .muted { color: #555; }
+  [hidden] { display: none !important; }
+  @media (max-width: 1000px) { .workbench { grid-template-columns: 1fr; } nav, .chat { border: 0; padding: 0; } nav button { display: inline-block; width: auto; } }
+</style>
+
+<header>
+  <h2>MetaWorkFlow</h2>
+  <button id="home-button">项目管理</button>
+  <small>界面草图 · 示例数据 · 不执行真实任务</small>
+</header>
+
+<main id="dashboard">
+  <div class="toolbar"><h1>工作流项目</h1><button id="new-project">＋ 新建 / 导入 Mermaid</button></div>
+  <p>一个项目，一条独立工作流。进入项目后查看画布、与统筹对话、配置节点。</p>
+  <table>
+    <thead><tr><th>项目</th><th>用途</th><th>当前状态</th><th>操作</th></tr></thead>
+    <tbody id="project-list"></tbody>
+  </table>
+  <details>
+    <summary>应用设置</summary>
+    <p>模型连接、工具与技能、Python 环境等全局设置放在这里。</p>
+    <p>每个节点使用哪个模型、开启哪些工具，在项目内单独配置。</p>
+  </details>
+</main>
+
+<main id="project" hidden>
+  <div class="toolbar">
+    <h1 id="project-name"></h1><span id="run-state" role="status"></span>
+    <button id="run-button">暂停</button><button id="step-button">单步演示</button>
+  </div>
+  <div class="workbench">
+    <nav aria-label="项目导航">
+      <p>当前项目</p>
+      <button data-view="workflow">工作流画布</button>
+      <button data-view="artifacts">产物与文件</button>
+      <button data-view="history">运行历史</button>
+      <hr>
+      <p>切换项目</p><div id="project-navigation"></div>
+    </nav>
+
+    <section>
+      <div id="view-workflow">
+        <div class="toolbar"><h2>工作流画布</h2><span class="muted">点击节点查看详情</span></div>
+        <div class="flow" aria-label="示例工作流：准备、生成、并行审核、程序判断，不通过则返修，通过则交付">
+          <button data-node="prepare"></button><p>↓</p>
+          <button data-node="draft"></button><p>↓ 并行执行</p>
+          <div class="branches">
+            <div class="branch"><button data-node="reviewA"></button><span>↓</span></div>
+            <div class="branch"><button data-node="reviewB"></button><span>↓</span></div>
+          </div>
+          <button data-node="gate"></button>
+          <p>通过 ↓　｜　未通过 ↶ 返回生成节点</p>
+          <button data-node="publish"></button>
+        </div>
+        <section aria-label="节点详情">
+          <h2 id="node-title">节点详情</h2>
+          <div class="toolbar detail-tabs" aria-label="节点详情视图">
+            <button data-tab="configuration">配置</button><button data-tab="tools">工具开关</button><button data-tab="results">输入 / 输出 / 记录</button>
+          </div>
+          <div id="node-configuration">
+            <div id="agent-fields">
+              <p><label>模型 <select id="node-model"><option>DeepSeek（默认连接）</option><option>自定义模型连接 A</option></select></label></p>
+              <p><label>记忆 <select id="node-memory"><option>保留会话，自动压缩</option><option>每次执行新建会话</option></select></label></p>
+            </div>
+            <label id="prompt-label" for="node-prompt">节点提示词</label>
+            <textarea id="node-prompt" rows="5"></textarea>
+            <p><button id="save-node">保存节点配置</button> <span id="save-state" role="status"></span></p>
+          </div>
+          <div id="node-tools" hidden>
+            <p id="tools-caption"></p><div class="tool-list" id="tool-list"></div>
+          </div>
+          <div id="node-results" hidden>
+            <details open><summary>输入</summary><pre id="node-input"></pre></details>
+            <details open><summary>输出</summary><pre id="node-output"></pre></details>
+            <p id="node-log"></p>
+          </div>
+        </section>
+      </div>
+      <div id="view-artifacts" hidden><h2>产物与文件</h2><div id="artifact-list"></div><pre id="artifact-preview"></pre></div>
+      <div id="view-history" hidden><h2>运行历史</h2><p id="history-summary"></p><ol id="history-list"></ol></div>
+    </section>
+
+    <aside class="chat">
+      <h2>项目统筹</h2>
+      <p class="muted">设计与运行共用一个 Agent</p>
+      <div class="messages" id="messages" role="log" aria-live="polite"></div>
+      <form id="chat-form">
+        <label for="chat-input">与统筹对话</label>
+        <textarea id="chat-input" rows="4" placeholder="例如：把两个审核节点并行执行"></textarea>
+        <button type="submit">发送</button>
+      </form>
+      <details style="margin-top:16px"><summary>统筹配置</summary><p>模型：DeepSeek（默认连接）</p><p>记忆：项目持续会话</p><p>工作目录：当前项目文件夹</p></details>
+    </aside>
+  </div>
+</main>
+
+<dialog id="import-dialog">
+  <h2>新建工作流项目</h2>
+  <form id="import-form">
+    <p><label>项目名称 <input id="import-name" required value="我的工作流"></label></p>
+    <label for="mermaid-source">Mermaid 流程图</label>
+    <textarea id="mermaid-source" rows="8" cols="60">flowchart TD
+  A[准备输入] --> B[生成内容]
+  B --> C[质量审核]
+  B --> D[一致性审核]
+  C --> E[Python 判断]
+  D --> E
+  E -->|通过| F[整理交付]
+  E -->|返修| B</textarea>
+    <p class="muted">此草图只演示导入入口，创建后展示固定示例布局。</p>
+    <button type="submit">创建演示项目</button> <button type="button" id="cancel-import">取消</button>
+  </form>
+</dialog>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const toolNames = ['读取文件', '修改文件', '执行命令', '网络搜索', '请求统筹决策'];
+  const ids = ['prepare', 'draft', 'reviewA', 'reviewB', 'gate', 'publish'];
+  const stages = { prepare: 0, draft: 1, reviewA: 2, reviewB: 2, gate: 3, publish: 4 };
+  const python = 'import json\n\ndef nodemain_gate(inputs):\n    passed = all(r["passed"] for r in inputs["reviews"])\n    return json.dumps({"passed": passed}, ensure_ascii=False)';
+  function makeProject(name, purpose, labels, stage) {
+    return { name, purpose, stage, paused: false, selected: 'reviewA', tab: 'tools', view: 'workflow', events: [], messages: [
+      ['你', '按这个流程生成内容，两个审核并行，不合格就返修。'],
+      ['统筹', '流程已配置。两个审核节点会同时执行，Python 节点汇总结果并决定是否返修。'],
+      ['统筹', '当前正在审核。你可以点击节点查看配置，或单独开关它的工具。']
+    ], nodes: Object.fromEntries(ids.map((id, i) => [id, {
+      label: labels[i], type: id === 'gate' ? 'Python' : 'AI', model: 'DeepSeek（默认连接）', memory: '保留会话，自动压缩',
+      prompt: id === 'gate' ? python : `执行「${labels[i]}」任务。使用上游输入，通过任务完成工具提交符合节点定义的 JSON。`,
+      tools: [true, id === 'draft' || id === 'publish', false, id === 'prepare', true]
+    }])) };
+  }
+  const projects = [
+    makeProject('长夜航线 · 小说创作', '大纲 → 章节 → 双重审核 → 返修与交付', ['故事大纲', '生成章节', '文笔审核', '剧情一致性', '汇总审核结果', '整理章节'], 2),
+    makeProject('行业研究周报', '收集资料 → 撰写 → 核查 → 输出报告', ['收集资料', '撰写报告', '事实核查', '来源核查', '汇总核查结果', '输出周报'], 1)
+  ];
+  let current = 0;
+  const project = () => projects[current];
+  function status(p) { return p.stage >= 5 ? '已完成' : p.paused ? '已暂停' : '运行中'; }
+  function fillList() {
+    $('project-list').replaceChildren(); $('project-navigation').replaceChildren();
+    projects.forEach((p, i) => {
+      const row = document.createElement('tr');
+      [p.name, p.purpose, status(p)].forEach(value => { const cell = document.createElement('td'); cell.textContent = value; row.append(cell); });
+      const cell = document.createElement('td'); const button = document.createElement('button'); button.textContent = '打开项目'; button.onclick = () => openProject(i); cell.append(button); row.append(cell); $('project-list').append(row);
+      const nav = document.createElement('button'); nav.textContent = p.name; nav.onclick = () => openProject(i); $('project-navigation').append(nav);
+    });
+  }
+  function openProject(i) { current = i; $('dashboard').hidden = true; $('project').hidden = false; render(); }
+  function render() {
+    const p = project(); $('project-name').textContent = p.name;
+    const completed = ids.filter(id => stages[id] < p.stage).length;
+    $('run-state').textContent = `${status(p)} · ${completed} / 6 节点完成`;
+    $('run-button').textContent = p.stage >= 5 ? '重新演示' : p.paused ? '继续' : '暂停';
+    $('step-button').disabled = p.stage >= 5;
+    document.querySelectorAll('[data-node]').forEach(button => {
+      const id = button.dataset.node, s = stages[id];
+      const state = s < p.stage ? '✓ 完成' : s === p.stage ? (p.paused ? 'Ⅱ 暂停' : '● 执行中') : '○ 等待';
+      button.textContent = `${p.nodes[id].label} · ${p.nodes[id].type}\n${state}`;
+      button.style.whiteSpace = 'pre-line'; button.setAttribute('aria-pressed', String(p.selected === id));
+    });
+    ['workflow', 'artifacts', 'history'].forEach(view => { $('view-' + view).hidden = p.view !== view; });
+    renderNode(); renderMessages(); renderArtifacts();
+    $('history-summary').textContent = `当前演示运行：${status(p)}。两个审核节点在同一阶段并行执行。`;
+    $('history-list').replaceChildren();
+    ['准备项目输入', '开始工作流演示', ...p.events].forEach(text => { const item = document.createElement('li'); item.textContent = text; $('history-list').append(item); });
+    fillList();
+  }
+  function renderNode() {
+    const p = project(), node = p.nodes[p.selected];
+    $('node-title').textContent = `节点详情：${node.label}（${node.type}）`;
+    ['configuration', 'tools', 'results'].forEach(tab => { $('node-' + tab).hidden = p.tab !== tab; });
+    document.querySelectorAll('[data-tab]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.tab === p.tab)));
+    $('agent-fields').hidden = node.type === 'Python'; $('node-model').value = node.model; $('node-memory').value = node.memory;
+    $('prompt-label').textContent = node.type === 'Python' ? 'Python 函数' : '节点提示词'; $('node-prompt').value = node.prompt; $('save-state').textContent = '';
+    $('tool-list').replaceChildren();
+    $('tools-caption').textContent = node.type === 'Python' ? '这是程序节点，在“配置”中编辑 Python 函数。' : '逐项开关，仅对当前节点生效。';
+    if (node.type === 'AI') {
+      toolNames.forEach((name, index) => {
+        const label = document.createElement('label'), input = document.createElement('input');
+        input.type = 'checkbox'; input.checked = node.tools[index];
+        input.onchange = () => { node.tools[index] = input.checked; };
+        label.append(input, ' ' + name); $('tool-list').append(label);
+      });
+      const required = document.createElement('p'); required.textContent = '✓ 完成任务并输出 JSON（流程必需）'; $('tool-list').append(required);
+    }
+    $('node-input').textContent = JSON.stringify(p.selected === 'gate' ? { reviews: [{ passed: true }, { passed: false, issues: ['人物动机需要补充'] }] } : { task: node.label, source: '上游节点结果', files: ['draft.md'] }, null, 2);
+    $('node-output').textContent = stages[p.selected] < p.stage ? JSON.stringify(p.selected === 'gate' ? { passed: true } : { result: '示例任务完成', files: ['result.md'] }, null, 2) : '尚未提交完成结果';
+    $('node-log').textContent = '这里查看本节点的 DSH 会话、工具调用及执行记录。';
+  }
+  function renderMessages() {
+    $('messages').replaceChildren();
+    project().messages.forEach(([role, text]) => { const item = document.createElement('article'), title = document.createElement('strong'), body = document.createElement('p'); title.textContent = role; body.textContent = text; item.append(title, body); $('messages').append(item); });
+  }
+  function renderArtifacts() {
+    $('artifact-list').replaceChildren();
+    ['outline.md', 'draft.md', 'review.json'].forEach(name => { const line = document.createElement('p'), button = document.createElement('button'); button.textContent = name; button.onclick = () => { $('artifact-preview').textContent = `${name}\n\n这是「${project().name}」的示例产物预览。\n实际运行后，这里展示节点生成的内容。`; }; line.append(button); $('artifact-list').append(line); });
+    $('artifact-preview').textContent = '';
+  }
+  $('home-button').onclick = () => { $('dashboard').hidden = false; $('project').hidden = true; fillList(); };
+  document.querySelectorAll('[data-node]').forEach(button => { button.onclick = () => { project().selected = button.dataset.node; render(); }; });
+  document.querySelectorAll('[data-tab]').forEach(button => { button.onclick = () => { project().tab = button.dataset.tab; renderNode(); }; });
+  document.querySelectorAll('[data-view]').forEach(button => { button.onclick = () => { project().view = button.dataset.view; render(); }; });
+  $('run-button').onclick = () => {
+    const p = project(); if (p.stage >= 5) { p.stage = 0; p.paused = false; p.events.push('重新开始演示'); } else { p.paused = !p.paused; p.events.push(p.paused ? '暂停运行' : '继续运行'); } render();
+  };
+  $('step-button').onclick = () => { const p = project(); p.stage = Math.min(5, p.stage + 1); p.paused = true; p.events.push(`单步推进至阶段 ${p.stage + 1}`); render(); };
+  $('save-node').onclick = () => { const node = project().nodes[project().selected]; node.prompt = $('node-prompt').value; node.model = $('node-model').value; node.memory = $('node-memory').value; $('save-state').textContent = '已保存在本次页面演示中'; };
+  $('chat-form').onsubmit = event => {
+    event.preventDefault(); const text = $('chat-input').value.trim(); if (!text) return;
+    project().messages.push(['你', text], ['统筹 · 演示回复', '这条消息已加入当前项目对话。正式版本会由同一个统筹 Agent 理解要求并调整工作流；此页面不连接模型。']); $('chat-input').value = ''; renderMessages(); $('messages').scrollTop = $('messages').scrollHeight;
+  };
+  $('new-project').onclick = () => $('import-dialog').showModal(); $('cancel-import').onclick = () => $('import-dialog').close();
+  $('import-form').onsubmit = event => {
+    event.preventDefault(); const name = $('import-name').value.trim(); if (!name) return;
+    const p = makeProject(name, '导入的工作流 · 示例布局', ['准备输入', '生成内容', '质量审核', '一致性审核', 'Python 判断', '整理交付'], 0);
+    p.paused = true; p.messages = [['统筹 · 演示', '已创建演示项目。正式版本会读取你导入的 Mermaid 并补全节点；这里展示固定示例布局。']]; p.source = $('mermaid-source').value; projects.push(p); $('import-dialog').close(); openProject(projects.length - 1);
+  };
+  fillList();
+</script>
+</html>
