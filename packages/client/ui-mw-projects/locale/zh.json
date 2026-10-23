@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "项目首页",
-    "description": "MetaWorkFlow 首页：查看工作流项目、打开项目，或从新建 / 导入的 Mermaid 流程图创建项目。"
+    "description": "MetaWorkFlow 首页：查看 Host 已注册的工作流项目，新建、打开、重命名或删除项目；导入 Mermaid 流程图仍是占位。"
   }
 }

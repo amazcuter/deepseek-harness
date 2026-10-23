@@ -5,12 +5,11 @@
  *
  * The panel is the profile's home surface, so it selects itself once per
  * activation; the sidebar entry keeps it reachable after the user opens a
- * Session. The store is the temporary project list: the project service
- * replaces it when project storage lands, while the component contract
- * ({@link ProjectSummary}) stays the same.
+ * Session. The list it renders is the Host registry, read and mutated through
+ * the generated `projects` Remote namespace.
  */
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import { brandString } from '@metaworkflow/brand'
+import type {} from '@metaworkflow/api-remotes/client'
 import type {} from '@metaworkflow/client-locale/client'
 import type { MainPanelId } from '@metaworkflow/client-ui-layout/client'
 import type {} from '@metaworkflow/client-ui-renderer/client'
@@ -19,7 +18,7 @@ import type {} from '@metaworkflow/client-ui-workspace/client'
 import { en, zh, type ProjectsKey } from './locales.ts'
 import { ProjectsPage, type ProjectsPageInjected } from './ProjectsPage.tsx'
 import { ProjectsPanelIcon } from './ProjectsPanelIcon.tsx'
-import { createProjectsStore, type ProjectId, type ProjectSummary } from './projects.ts'
+import { ProjectsController } from './projects.ts'
 
 /** Dictionary namespace owned by this plugin. */
 export const NS = 'mw.projects'
@@ -35,7 +34,7 @@ declare module '@metaworkflow/client-ui-slots' {
 }
 
 /** Services required by the dashboard, its home selection, and its sidebar entry. */
-export const inject = ['slots', 'locale', 'layout']
+export const inject = ['slots', 'locale', 'layout', 'remote', 'remote.projects']
 
 /**
  * Contribute the project dashboard and its sidebar entry, and publish the
@@ -48,30 +47,23 @@ export function apply(ctx: ClientContext): void {
   ctx.provide('sessionRestorePolicy', { restoreLastSession: false })
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-mw-projects: dictionaries')
   const t = ctx.locale.bind(NS)
-  const handle = createProjectsStore()
-  const instance = handle.create()
-  const store: typeof handle = { ...handle, create: () => instance }
-  let sequence = 0
-  const nextProject = (name: string, purpose: string): ProjectSummary => {
-    sequence += 1
-    return {
-      id: brandString<ProjectId>(`project-${String(sequence)}`),
-      name,
-      purpose,
-      status: 'draft',
-    }
-  }
+  const controller = new ProjectsController(ctx.remote.projects)
+  // The panel is the home surface, so the first list load starts with the
+  // composition instead of waiting for the panel to mount.
+  void controller.load()
   let selectedHome = false
   ctx.slots.inject('main', () => {
     const dispose = ctx.slots.register({
       name: 'main',
       key: PROJECTS_PANEL_ID,
       locale: NS,
-      store,
       inject: (): ProjectsPageInjected => ({
-        createProject: () => { instance.actions.addProject(nextProject(t('project.untitled'), t('project.untitledPurpose'))) },
-        importMermaid: () => { instance.actions.addProject(nextProject(t('project.imported'), t('project.importedPurpose'))) },
-        openProject: (id) => { instance.actions.openProject(id) },
+        hooks: { projects: controller.list },
+        createProject: (title) => { void controller.create(title) },
+        openProject: (id) => { void controller.open(id) },
+        renameProject: (id, title) => { void controller.rename(id, title) },
+        removeProject: (id) => { void controller.remove(id) },
+        reloadProjects: () => { void controller.load() },
       }),
     }, ProjectsPage)
     if (!selectedHome) {

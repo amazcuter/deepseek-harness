@@ -1,5 +1,6 @@
-/* Project dashboard: one centred column, the empty state, or a project list
-   whose rows collapse to a labelled single column on narrow frames. */
+/* Project dashboard: one centred column of project cards. Each card keeps the
+   Host facts on the left and its actions on the right, and collapses to a
+   single column on narrow frames. */
 
 .page {
   display: flex;
@@ -39,11 +40,23 @@
   gap: 8px;
 }
 
-.description {
+.description,
+.hint {
   margin: 0;
   font-size: 13px;
   line-height: 20px;
   color: var(--dsw-alias-label-secondary);
+}
+
+.empty,
+.error,
+.workbench,
+.notice {
+  box-sizing: border-box;
+  padding: 16px 20px;
+  border: 1px solid var(--dsw-alias-settings-card-stroke);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-settings-card-fill);
 }
 
 .empty {
@@ -51,16 +64,14 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  box-sizing: border-box;
   margin-top: 24px;
   padding: 48px 24px;
-  border: 1px solid var(--dsw-alias-settings-card-stroke);
-  border-radius: var(--dsw-radius-md);
-  background: var(--dsw-alias-settings-card-fill);
   text-align: center;
 }
 
-.emptyTitle {
+.emptyTitle,
+.errorTitle,
+.workbenchTitle {
   margin: 0;
   font-size: 15px;
   font-weight: 500;
@@ -83,39 +94,63 @@
   margin-top: 8px;
 }
 
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 24px;
+  border-color: var(--dsw-alias-state-error-primary);
+}
+
+.errorMessage {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.errorDetail {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-caption);
+  overflow-wrap: anywhere;
+}
+
+.notice {
+  margin: 0;
+  border-color: var(--dsw-alias-state-warn-primary);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.workbench {
+  border-color: var(--dsw-alias-state-business-primary);
+}
+
+.workbenchSelected {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
 .list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.listHeader,
 .row {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) minmax(96px, auto) auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   box-sizing: border-box;
-  padding: 10px 14px;
-}
-
-.listHeader {
-  padding-block: 4px;
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--dsw-alias-label-caption);
-}
-
-.headerCell {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.row {
+  padding: 12px 16px;
   border: 1px solid var(--dsw-alias-settings-card-stroke);
   border-radius: var(--dsw-radius-sm);
   background: var(--dsw-alias-settings-card-fill);
@@ -125,7 +160,23 @@
   border-color: var(--dsw-alias-state-business-primary);
 }
 
-.nameCell {
+.rowMain {
+  display: flex;
+  flex: 1 1 320px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rowHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.rowTitle {
   overflow: hidden;
   font-size: 14px;
   line-height: 20px;
@@ -133,18 +184,19 @@
   white-space: nowrap;
 }
 
-.purposeCell {
+.rowPath {
   overflow: hidden;
-  font-size: 13px;
-  line-height: 20px;
+  font-size: 12px;
+  line-height: 18px;
   color: var(--dsw-alias-label-secondary);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.statusCell {
-  display: flex;
-  align-items: center;
+.rowMeta {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-caption);
 }
 
 .status {
@@ -158,65 +210,75 @@
   white-space: nowrap;
 }
 
-.statusDraft {
-  background: var(--dsw-alias-bg-skeleton);
-  color: var(--dsw-alias-label-secondary);
-}
-
-.statusActive {
+.statusOk {
   background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 10%, transparent);
   color: var(--dsw-alias-state-success-primary);
 }
 
-.statusPaused {
+.statusMissing {
   background: var(--dsw-alias-state-warn-tertiary);
   color: var(--dsw-alias-state-warn-primary);
 }
 
-.statusDone {
-  background: var(--dsw-alias-bg-skeleton);
+.rowActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.rowActions > span {
+  flex: 1 1 100%;
+}
+
+.danger {
+  color: var(--dsw-alias-state-error-primary);
+  border-color: var(--dsw-alias-state-error-primary);
+}
+
+.removeNote {
+  font-size: 12px;
+  line-height: 18px;
   color: var(--dsw-alias-label-caption);
 }
 
-.actionCell {
+.skeleton {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
 }
 
-/* Narrow frames read as one column: the header row is decorative, and each
-   cell names its own column from the localized data-label. */
+.skeletonRow {
+  display: block;
+  height: 68px;
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-skeleton);
+}
+
+/* Narrow frames stack each card: facts first, then the actions on their own
+   line, so nothing needs horizontal scrolling. */
 @media (max-width: 720px) {
   .page {
     padding-inline: 16px;
   }
 
-  .listHeader {
-    display: none;
-  }
-
   .row {
-    grid-template-columns: minmax(0, 1fr);
-    align-items: start;
-    gap: 6px;
+    align-items: flex-start;
+    gap: 10px;
   }
 
-  .nameCell,
-  .purposeCell {
+  .rowMain {
+    flex-basis: 100%;
+  }
+
+  .rowTitle,
+  .rowPath {
     white-space: normal;
   }
 
-  .nameCell::before,
-  .purposeCell::before,
-  .statusCell::before,
-  .actionCell::before {
-    display: block;
-    font-size: 12px;
-    line-height: 18px;
-    color: var(--dsw-alias-label-caption);
-    content: attr(data-label);
-  }
-
-  .actionCell {
+  .rowActions {
     justify-content: flex-start;
   }
 }

@@ -1,72 +1,230 @@
 /**
- * Project dashboard data and its declared store. The project list is the
- * placeholder shape the project service will publish: one row per independent
- * workflow. Until that service exists, the dashboard's in-memory store is the
- * only writer, so a browser reload starts from an empty list.
+ * Project dashboard data: the Host's registered-project rows and the
+ * React-free controller that turns `projects.*` Remote calls into one
+ * observable dashboard snapshot.
+ *
+ * The dashboard keeps no project data of its own. Every row, mutation echo,
+ * and failure comes from the Host namespace, so the panel shows what the
+ * registry holds rather than an optimistic local draft.
  */
-import type { Branded } from '@metaworkflow/brand'
-import { brandString } from '@metaworkflow/brand'
-import { defineStore, type EngineStoreHandle } from '@metaworkflow/client-store'
 
-/** Opaque identity of one workflow project. */
-export type ProjectId = Branded<'ProjectId'>
+import { createSnapshotStore, type SnapshotStore } from '@metaworkflow/client-store'
+import type { HostObservable } from '@metaworkflow/client-ui-slots'
+import type { ClientRemote, RemoteErrorCode, RemoteResult } from '@metaworkflow/api-remotes/client'
+import type { ProjectSummary, WorkspaceId } from '@metaworkflow/api-workspace-controller/types'
 
-/** Workflow lifecycle state shown in the dashboard's status column. */
-export type ProjectStatus = 'draft' | 'active' | 'paused' | 'done'
+/** Opaque identity of one registered project: the Host id of its Workspace. */
+export type ProjectId = WorkspaceId
 
-/** One workflow project row: the complete dashboard data contract. */
-export interface ProjectSummary {
-  /** Stable project identity, independent of its display name. */
-  readonly id: ProjectId
-  /** Human-readable project name. */
-  readonly name: string
-  /** What the workflow does, in the user's words. */
-  readonly purpose: string
-  /** Lifecycle state the status column renders. */
-  readonly status: ProjectStatus
+/** Live state of a project's directory, as the Host reports it. */
+export type ProjectStatus = ProjectSummary['status']
+
+/** One dashboard row: the Host's registered-project projection, unchanged. */
+export type { ProjectSummary }
+
+/** Complete generated `ctx.remote.projects` namespace. */
+export type ProjectsRemote = ClientRemote['projects']
+
+/** Which list state the panel renders. */
+export type ProjectsView =
+  | { readonly status: 'loading' }
+  | { readonly status: 'ready' }
+  | { readonly status: 'error'; readonly failure: ProjectFailure }
+
+/** Immutable dashboard state. */
+export interface ProjectsSnapshot {
+  /** The list state the panel renders, with the failure when it has one. */
+  readonly view: ProjectsView
+  /** Every registered project in Host display order. */
+  readonly projects: readonly ProjectSummary[]
+  /** The row whose Open action succeeded, or null before any open. */
+  readonly openedProjectId: ProjectId | null
+  /** Failure of the most recent mutation, cleared when the next one starts. */
+  readonly mutationError: ProjectFailure | null
+  /** A mutation is in flight, so its controls stay disabled. */
+  readonly busy: boolean
 }
 
-/** Dashboard state: the project list plus the row the user last opened. */
-export interface ProjectsState {
-  /** Every project the dashboard lists, in creation order. */
-  projects: ProjectSummary[]
-  /** The row whose Open action ran, or null before any open. */
-  openedProjectId: ProjectId | null
+/** One failed Remote call, reduced to what the dashboard renders. */
+export interface ProjectFailure {
+  /** Stable failure code; the component maps it onto localized copy. */
+  readonly code: RemoteErrorCode
+  /** Host diagnostic, shown verbatim below the localized message. */
+  readonly message: string
 }
 
-/** Write set of the dashboard store. */
-type ProjectsActions = {
-  /** Append one project; later Host refreshes replace this in-memory list. */
-  addProject: (draft: ProjectsState, project: ProjectSummary) => void
-  /** Record the row whose Open action ran. */
-  openProject: (draft: ProjectsState, id: ProjectId) => void
+/** One settled Remote call: the Host value or the failure the panel renders. */
+type ProjectOutcome<Value> =
+  | { readonly ok: true; readonly value: Value }
+  | { readonly ok: false; readonly failure: ProjectFailure }
+
+/**
+ * Read and mutate the Host project registry for the dashboard.
+ *
+ * Every method settles after publishing its own result and never rejects: a
+ * carrier or assembly failure becomes the view's failure or the
+ * `mutationError`, which the panel renders with a retry.
+ */
+export class ProjectsController {
+  private readonly store: SnapshotStore<ProjectsSnapshot>
+  private inFlight = 0
+  /**
+   * Dashboard snapshot source, bound as the panel's `useProjects` hook.
+   */
+  readonly list: HostObservable<ProjectsSnapshot>
+
+  /** @param remote - generated `ctx.remote.projects` namespace. */
+  constructor(private readonly remote: ProjectsRemote) {
+    this.store = createSnapshotStore<ProjectsSnapshot>({
+      view: { status: 'loading' },
+      projects: [],
+      openedProjectId: null,
+      mutationError: null,
+      busy: false,
+    })
+    this.list = {
+      getSnapshot: () => this.store.getSnapshot(),
+      subscribe: listener => this.store.subscribe(listener),
+    }
+  }
+
+  /**
+   * Replace the dashboard list with the Host registry.
+   * @returns a promise settled once the list or its failure is published.
+   */
+  async load(): Promise<void> {
+    this.patch({ view: { status: 'loading' } })
+    const outcome = await this.settle(() => this.remote.list())
+    this.patch(outcome.ok
+      ? { view: { status: 'ready' }, projects: [...outcome.value.items] }
+      : { view: { status: 'error', failure: outcome.failure } })
+  }
+
+  /**
+   * Register a project and place its row, appending when the registry is new to it.
+   * @param title - project title; the Host rejects a blank one.
+   * @returns a promise settled once the row or the failure is published.
+   */
+  async create(title: string): Promise<void> {
+    await this.mutate(() => this.remote.create({ title }), (value) => {
+      this.patch({ projects: upsertProject(this.current().projects, value.project) })
+    })
+  }
+
+  /**
+   * Open one project on the Host and mark its row selected.
+   * @param id - project to open.
+   * @returns a promise settled once the selection or the failure is published.
+   */
+  async open(id: ProjectId): Promise<void> {
+    await this.mutate(() => this.remote.open({ id }), (value) => {
+      this.patch({
+        projects: upsertProject(this.current().projects, value.project),
+        openedProjectId: value.project.id,
+      })
+    })
+  }
+
+  /**
+   * Rename one project and patch its row with the Host's echo.
+   * @param id - project to rename.
+   * @param title - proposed title; the Host rejects a blank one.
+   * @returns a promise settled once the row or the failure is published.
+   */
+  async rename(id: ProjectId, title: string): Promise<void> {
+    await this.mutate(() => this.remote.rename({ id, title }), (value) => {
+      this.patch({ projects: upsertProject(this.current().projects, value.project) })
+    })
+  }
+
+  /**
+   * Remove one project registration. The directory and its Sessions stay.
+   * @param id - project to deregister.
+   * @returns a promise settled once the row is gone or the failure is published.
+   */
+  async remove(id: ProjectId): Promise<void> {
+    // `projects/delete` is the Host verb: a Remote method named `remove` would
+    // collide with the Gateway namespace service's own member of that name.
+    await this.mutate(() => this.remote.delete({ id }), () => {
+      const { projects, openedProjectId } = this.current()
+      this.patch({
+        projects: projects.filter(project => project.id !== id),
+        openedProjectId: openedProjectId === id ? null : openedProjectId,
+      })
+    })
+  }
+
+  /** @returns the published snapshot. */
+  private current(): ProjectsSnapshot {
+    return this.store.getSnapshot()
+  }
+
+  /** Publish one changed slice over the current snapshot. */
+  private patch(next: Partial<ProjectsSnapshot>): void {
+    this.store.set({ ...this.current(), ...next })
+  }
+
+  /** Run one mutation, publishing its in-flight state and its echo. */
+  private async mutate<Value>(
+    call: () => Promise<RemoteResult<Value>>,
+    accept: (value: Value) => void,
+  ): Promise<void> {
+    this.inFlight += 1
+    this.patch({ busy: true, mutationError: null })
+    const outcome = await this.settle(call)
+    this.inFlight -= 1
+    this.patch({ busy: this.inFlight > 0 })
+    if (!outcome.ok) {
+      this.patch({ mutationError: outcome.failure })
+      return
+    }
+    accept(outcome.value)
+  }
+
+  /**
+   * Call one Remote method, folding both failure forms into one outcome: the
+   * generated envelope's error branch and the assembly faults that still
+   * reject.
+   */
+  private async settle<Value>(call: () => Promise<RemoteResult<Value>>): Promise<ProjectOutcome<Value>> {
+    try {
+      const result = await call()
+      return result.ok
+        ? { ok: true, value: result.value }
+        : { ok: false, failure: failureOf(result.error) }
+    } catch (error: unknown) {
+      return { ok: false, failure: { code: 'gateway/internal', message: messageOf(error) } }
+    }
+  }
 }
 
 /**
- * Mint one placeholder project id.
- * @param sequence - invocation-local counter, so ids stay unique per dashboard session.
- * @returns the branded project identity.
+ * Replace the row with `project`'s id, or append it when the list has none.
+ * @param projects - current rows.
+ * @param project - Host echo to place.
+ * @returns the updated rows.
  */
-export function projectId(sequence: number): ProjectId {
-  return brandString<ProjectId>(`project-${String(sequence)}`)
+function upsertProject(
+  projects: readonly ProjectSummary[],
+  project: ProjectSummary,
+): ProjectSummary[] {
+  return projects.some(row => row.id === project.id)
+    ? projects.map(row => (row.id === project.id ? project : row))
+    : [...projects, project]
 }
 
 /**
- * Create the dashboard store handle. Seed data is a test and preview input;
- * production starts empty until the project service publishes its list.
- * @param seed - initial project rows, empty for the shipped dashboard.
- * @returns the store handle consumed by the registration and by store tests.
+ * @param failure - the Remote envelope's failure branch.
+ * @returns the dashboard's copy-facing failure.
  */
-export function createProjectsStore(seed: readonly ProjectSummary[] = []): EngineStoreHandle<ProjectsState, ProjectsActions> {
-  return defineStore({
-    init: (): ProjectsState => ({ projects: [...seed], openedProjectId: null }),
-    actions: {
-      addProject: (draft, project) => {
-        draft.projects.push(project)
-      },
-      openProject: (draft, id) => {
-        draft.openedProjectId = id
-      },
-    },
-  })
+function failureOf(failure: { readonly code: RemoteErrorCode; readonly message: string }): ProjectFailure {
+  return { code: failure.code, message: failure.message }
+}
+
+/**
+ * @param error - a rejected assembly or carrier call.
+ * @returns its message, or the stringified value for a non-`Error` rejection.
+ */
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
 }

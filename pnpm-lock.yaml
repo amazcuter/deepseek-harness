@@ -4865,9 +4865,12 @@ importers:
       '@deepseek-ai/cordis':
         specifier: workspace:~
         version: link:../../../vendor/cordis
-      '@metaworkflow/brand':
+      '@metaworkflow/api-remotes':
         specifier: workspace:*
-        version: link:../../util/brand
+        version: link:../../api/remotes
+      '@metaworkflow/api-workspace-controller':
+        specifier: workspace:*
+        version: link:../../api/workspace-controller
       '@metaworkflow/client-locale':
         specifier: workspace:*
         version: link:../locale
@@ -4895,6 +4898,9 @@ importers:
       '@metaworkflow/client-ui-workspace':
         specifier: workspace:*
         version: link:../ui-workspace
+      '@metaworkflow/remote-mock':
+        specifier: workspace:*
+        version: link:../../test-support/remote-mock
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

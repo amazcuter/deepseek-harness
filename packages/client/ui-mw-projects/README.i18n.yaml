@@ -3,35 +3,38 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-mw-projects/README.md
 /:
-  en: 7069fbee87cedac8
-  zh: 9488c28294d8edb0
+  en: 54453b2c880ca0ad
+  zh: 2d0b5317ab2589b5
 /metaworkflow-client-ui-mw-projects:
   en: 38f7acb78e1df417
   zh: 5f1a746b5bc4a090
 /metaworkflow-client-ui-mw-projects/summary:
-  en: b2f39a138b76261e
-  zh: 26efd60e85b19a2c
+  en: bb5987bbbf62c717
+  zh: 4b2e392ce0ce2623
 /metaworkflow-client-ui-mw-projects/table-of-contents:
-  en: b563e4ec4727d0de
-  zh: 44ebe7ceeda3dff6
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
 /metaworkflow-client-ui-mw-projects/use-this-package:
-  en: f7124f92ed8b70e5
-  zh: f4a7fd9024f9e07c
-/metaworkflow-client-ui-mw-projects/use-this-package/empty-state:
-  en: 1ca204160e89d5ac
-  zh: 53d2ac778924f258
-/metaworkflow-client-ui-mw-projects/use-this-package/project-list:
-  en: 34db39c696d51647
-  zh: b1a274da9133b296
+  en: e78444f1fdd56553
+  zh: 69f22684b584fdeb
+/metaworkflow-client-ui-mw-projects/use-this-package/loading-empty-and-failure-states:
+  en: ca24c28a41abaca9
+  zh: 54b7b5125f8680c3
+/metaworkflow-client-ui-mw-projects/use-this-package/creating-a-project:
+  en: f4ea4e1b00c24ce4
+  zh: bb042a000c3b70fe
+/metaworkflow-client-ui-mw-projects/use-this-package/project-rows:
+  en: 4cff4189a2a2f342
+  zh: 350a520950e5c88f
 /metaworkflow-client-ui-mw-projects/use-this-package/startup-policy:
   en: 27baa0780ebe964b
   zh: 43a781955d344061
 /metaworkflow-client-ui-mw-projects/understand-the-implementation:
-  en: 34c1ce2ad9fd004f
-  zh: d3598441ec021ec6
+  en: bef4838dd58281ff
+  zh: e9411f4e5396338e
 /metaworkflow-client-ui-mw-projects/further-exploration:
-  en: 39fb08dc144dd294
-  zh: a263d68fe1a785fc
+  en: eb8b6a40928395fa
+  zh: 6cd30b73d67cfc9c
 /metaworkflow-client-ui-mw-projects/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -48,5 +51,8 @@
   en: 2fa5f851855cd894
   zh: b8377e9afcb544c6
 /metaworkflow-client-ui-mw-projects/known-limitations-and-deferred-work:
-  en: 6fb6c66336d6c30f
-  zh: 2022066966914f61
+  en: ea748d9002404edb
+  zh: 9fa1299b140c6f00
+/metaworkflow-client-ui-mw-projects/known-limitations-and-deferred-work/dev-note:
+  en: 66b12bacbc279210
+  zh: 41168156dabc2208
