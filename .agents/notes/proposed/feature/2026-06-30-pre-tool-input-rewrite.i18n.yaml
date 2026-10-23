@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-06-30-pre-tool-input-rewrite.md
 /agent-note-pre-tool-input-rewrite-a-consistent-design:
-  en: 28be5a60d0f8f70d
-  zh: 2ade899f45347755
+  en: 0f3b7ed671014215
+  zh: 5812653b70b64fe6
 /agent-note-pre-tool-input-rewrite-a-consistent-design/problem:
-  en: edd34e93748ea618
-  zh: 182f02dffa0d654f
+  en: bcf60ba4bab85202
+  zh: 78479f2bf3301ee6
 /agent-note-pre-tool-input-rewrite-a-consistent-design/the-problem-three-readers-of-pre-execution-arguments:
-  en: bdc0958b87dbd888
-  zh: 0364cad8a5727306
+  en: e6fb79951117e768
+  zh: 86c8cd27918075ac
 /agent-note-pre-tool-input-rewrite-a-consistent-design/proposal:
   en: b08ad378beb60572
   zh: cb6797c7a0021e9d

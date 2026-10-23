@@ -1,5 +1,5 @@
 /** Sequential paragraph translation for one expanded reasoning disclosure. */
-import type { TranslationRequest } from '@deepseek-ai/dsh-experimental-translator/types'
+import type { TranslationRequest } from '@metaworkflow/experimental-translator/types'
 
 /** One source fragment and its untranslated separator. */
 interface Fragment { text: string; suffix: string; complete: boolean }

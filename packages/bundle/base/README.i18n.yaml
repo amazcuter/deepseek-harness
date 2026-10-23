@@ -3,56 +3,56 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/bundle/base/README.md
 /:
-  en: 21c1b63e74134d34
-  zh: 78c69828d5930a86
-/deepseek-ai-dsh-base:
-  en: 501b1b61d4739d2a
-  zh: 5faba14f2480be3b
-/deepseek-ai-dsh-base/summary:
-  en: 5c15f68a65aadc7d
-  zh: 7ac9ace622e161ae
-/deepseek-ai-dsh-base/table-of-contents:
+  en: bc81706117b0957c
+  zh: 134adb8ec6623662
+/metaworkflow-base:
+  en: 645897db5a6a7918
+  zh: 916cf7af45a3694c
+/metaworkflow-base/summary:
+  en: 3cdc286fda844889
+  zh: a6c59090f5c1097b
+/metaworkflow-base/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-base/use-this-package:
-  en: 4c0d7045f95ff79c
-  zh: 456bb24bd1d35db1
-/deepseek-ai-dsh-base/use-this-package/a-minimal-custom-profile:
-  en: 0f971f7ac7c09139
-  zh: ceb866da681c709c
-/deepseek-ai-dsh-base/use-this-package/what-you-get:
-  en: 5bfb7755e987862c
-  zh: 1f0e9ea7a826a509
-/deepseek-ai-dsh-base/use-this-package/shell-tools-per-platform:
+/metaworkflow-base/use-this-package:
+  en: aa2dfd64afb7517f
+  zh: 372de95a199d5ca4
+/metaworkflow-base/use-this-package/a-minimal-custom-profile:
+  en: 3c138b947bbf38fa
+  zh: c847a01475452ce5
+/metaworkflow-base/use-this-package/what-you-get:
+  en: 5d6a17c533d1919b
+  zh: b6c0f0038fbe3794
+/metaworkflow-base/use-this-package/shell-tools-per-platform:
   en: 2dce12f82d6ee955
   zh: d4599eb899a3cd88
-/deepseek-ai-dsh-base/use-this-package/changing-the-defaults:
+/metaworkflow-base/use-this-package/changing-the-defaults:
   en: 96a55abd5f7007dd
   zh: d94f020708c38a17
-/deepseek-ai-dsh-base/understand-the-implementation:
+/metaworkflow-base/understand-the-implementation:
   en: 094cfca8e26a0042
   zh: de435e3e38420c01
-/deepseek-ai-dsh-base/understand-the-implementation/composition-mechanics:
+/metaworkflow-base/understand-the-implementation/composition-mechanics:
   en: fd37bc66e39ac5e7
   zh: 1a039afb8bf2d517
-/deepseek-ai-dsh-base/understand-the-implementation/platform-gating:
-  en: 8c2444fa7b237783
-  zh: 82002a8b9ddf5942
-/deepseek-ai-dsh-base/understand-the-implementation/source-map:
+/metaworkflow-base/understand-the-implementation/platform-gating:
+  en: 27df5078b0615395
+  zh: 65a692eea6be2528
+/metaworkflow-base/understand-the-implementation/source-map:
   en: a8efda71d444155e
   zh: c8221593709fbb99
-/deepseek-ai-dsh-base/further-exploration:
-  en: 39701b25b209fb67
-  zh: 2b7ce98365f1ecfc
-/deepseek-ai-dsh-base/model-experience:
+/metaworkflow-base/further-exploration:
+  en: 2c9346d5105bb267
+  zh: be620fb4f6f3aa58
+/metaworkflow-base/model-experience:
   en: f6c4d2609b5f4bb6
   zh: 869a9565a133fb01
-/deepseek-ai-dsh-base/model-experience/kv-cache-effect:
+/metaworkflow-base/model-experience/kv-cache-effect:
   en: e6e907c99df7cd0a
   zh: f19f2f84a5f95177
-/deepseek-ai-dsh-base/known-limitations-and-deferred-work:
-  en: ce8558ab18184bf2
-  zh: 3b3fb98cf1bd4652
-/deepseek-ai-dsh-base/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-base/known-limitations-and-deferred-work:
+  en: d95a6d478ff85106
+  zh: ac35a209306a4833
+/metaworkflow-base/known-limitations-and-deferred-work/dev-note:
   en: ca037cb236aa841a
   zh: e06f3899be43b572

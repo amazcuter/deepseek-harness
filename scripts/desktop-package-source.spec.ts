@@ -26,11 +26,11 @@ it.each(['macos', 'windows'])('%s packaging accepts test branches but preserves 
     git('add', '.')
     git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture')
     const sha = git('rev-parse', 'HEAD')
-    git('tag', 'dsh-v1.0.0')
-    git('tag', 'dsh-v2.0.0')
+    git('tag', 'mwf-v1.0.0')
+    git('tag', 'mwf-v2.0.0')
     const run = (preset: string, ref: string) => {
       const result = spawnSync(process.execPath, ['-e', script], {
-        cwd: root, encoding: 'utf8', env: { ...env, DSH_PACKAGING_PRESET: preset, PACKAGE_SOURCE_REF: ref },
+        cwd: root, encoding: 'utf8', env: { ...env, MWF_PACKAGING_PRESET: preset, PACKAGE_SOURCE_REF: ref },
       })
       expect(result.error).toBeUndefined()
       expect(result.signal).toBeNull()
@@ -49,9 +49,9 @@ it.each(['macos', 'windows'])('%s packaging accepts test branches but preserves 
       expect(result.status).not.toBe(0)
       expect(result.stderr).toContain('Select a branch in this repository, not a SHA or PR ref')
     }
-    for (const preset of ['test', 'production']) expect(run(preset, 'dsh-v1.0.0').status).toBe(0)
-    expect(run('test', 'dsh-v2.0.0').status).not.toBe(0)
+    for (const preset of ['test', 'production']) expect(run(preset, 'mwf-v1.0.0').status).toBe(0)
+    expect(run('test', 'mwf-v2.0.0').status).not.toBe(0)
     writeFileSync(join(root, 'apps/desktop/scripts/desktop-ci-version.mjs'), 'old adapter')
-    expect(run('test', 'dsh-v1.0.0').status).not.toBe(0)
+    expect(run('test', 'mwf-v1.0.0').status).not.toBe(0)
   } finally { rmSync(root, { recursive: true, force: true, maxRetries: 3 }) }
 })

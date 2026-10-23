@@ -43,7 +43,7 @@ const OTHER_PACKAGE_SID = 'S-1-15-2-4-3-2-1'
 const CAPABILITY_SID = 'S-1-15-3-1-2-3-4'
 const REMOVED_SWITCHES = ['-Fix', '-GrantFullControl', '-Compact']
 // Process creation and Add-Type compilation share the Windows coverage budget.
-const timeout = Math.max(90_000, Number(process.env.DSH_COVERAGE_TEST_TIMEOUT_MS ?? 0))
+const timeout = Math.max(90_000, Number(process.env.MWF_COVERAGE_TEST_TIMEOUT_MS ?? 0))
 
 // Vitest's asymmetric factories return any; expected matchers are opaque values.
 const containingObject = (value: Record<string, unknown>): unknown => expect.objectContaining(value)
@@ -135,7 +135,7 @@ describe.skipIf(!isWin32 || !pwshAvailable())('diagnose-windows-sandbox-acl scri
 
   function newScratch(): string {
     // Windows runners may expose TEMP through an 8.3 alias; PowerShell reports long paths.
-    return realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-acl-diagnose-')))
+    return realpathSync.native(mkdtempSync(join(tmpdir(), 'mwf-acl-diagnose-')))
   }
 
   function makeDir(root: string, name: string): string {

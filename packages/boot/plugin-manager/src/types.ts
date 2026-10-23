@@ -1,19 +1,19 @@
 /** Public plugin management records shared with clients. */
-import type { Branded } from '@deepseek-ai/dsh-brand'
-import type { PluginLocalizedMeta } from '@deepseek-ai/dsh-package-manifest'
-import type { PluginInventoryEntry } from '@deepseek-ai/dsh-host-plugin-inventory/types'
-export type { PluginEntryId } from '@deepseek-ai/dsh-host-plugin-inventory/types'
-import type { PluginEntryId } from '@deepseek-ai/dsh-host-plugin-inventory/types'
+import type { Branded } from '@metaworkflow/brand'
+import type { PluginLocalizedMeta } from '@metaworkflow/package-manifest'
+import type { PluginInventoryEntry } from '@metaworkflow/host-plugin-inventory/types'
+export type { PluginEntryId } from '@metaworkflow/host-plugin-inventory/types'
+import type { PluginEntryId } from '@metaworkflow/host-plugin-inventory/types'
 
 /** Reasons a profile control cannot modify its target. */
 export type ReadOnlyReason = 'management-required' | 'unaddressable'
 
-/** A package whose declared DSH requirements reject the running DSH version, without an exemption for the exact pair. */
+/** A package whose declared MWF requirements reject the running MWF version, without an exemption for the exact pair. */
 export interface IncompatiblePlugin {
   name: string
   version: string
   runtimeVersion: string
-  /** Only the requirements the running version does not satisfy, keyed `engines.dsh` or by DSH peer package name. */
+  /** Only the requirements the running version does not satisfy, keyed `engines.mwf` or by MWF peer package name. */
   requirements: Record<string, string>
 }
 
@@ -21,13 +21,13 @@ export interface IncompatiblePlugin {
 export interface ManagementError {
   code: ReadOnlyReason | 'unknown-plugin' | 'invalid-spec' | 'already-installed' | 'ambiguous-install' | 'not-bundle' | 'not-removable' | 'stop-profile' | 'bundle-in-use' | 'stale-approval' | 'incompatible-version' | 'operation-error'
   diagnostic?: string
-  /** Present with `incompatible-version`: the packages the running DSH version rejects. */
+  /** Present with `incompatible-version`: the packages the running MWF version rejects. */
   incompatible?: IncompatiblePlugin[]
 }
 
 /**
  * Why a change waits for the next start: `no-hmr` profiles apply changes only at startup; `package-moved` changes map an
- * installed package to another directory without removing it first, or change or locally override a package the DSH
+ * installed package to another directory without removing it first, or change or locally override a package the MWF
  * installation provides; `host-module` changes reach
  * modules the running process itself imports; `unmanaged-plugin` changes reach a plugin running outside a Loader entry;
  * `module-comparison` means loaded modules could not be compared with disk.
@@ -123,7 +123,7 @@ export interface PackageResult {
   kind?: PluginInstallFailureKind
   /** The manager terminated the run after it printed nothing for its silence bound; `exitCode` still reports how it ended. */
   timedOut?: boolean
-  /** Present when a compatibility check refused the run: the packages the running DSH version rejects. */
+  /** Present when a compatibility check refused the run: the packages the running MWF version rejects. */
   incompatible?: IncompatiblePlugin[]
 }
 

@@ -25,7 +25,7 @@ function git(root: string, ...args: string[]): void {
 }
 
 function fixture(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-unknown-casts-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-unknown-casts-'))
   roots.push(root)
   git(root, 'init', '--quiet')
   for (const area of ['packages', 'apps', 'scripts', 'website']) {

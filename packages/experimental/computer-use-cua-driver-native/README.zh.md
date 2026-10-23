@@ -3,13 +3,13 @@ description: "通过原生 npm SDK 运行 Cua Driver 的电脑操作工具，持
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-computer-use-cua-driver-native
+# @metaworkflow/experimental-computer-use-cua-driver-native
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 Cua Driver 检查和操作桌面窗口，无需安装其独立 CLI 或应用。原生 npm 依赖在 DSH 主机进程内运行，提供 Cua Driver 自己的工具。截图通过持久化附件传给支持图像的模型。此实验性软件包会发布到 npm，需要启动主机的桌面权限，并且必须在组合配置中显式启用。
+使用 Cua Driver 检查和操作桌面窗口，无需安装其独立 CLI 或应用。原生 npm 依赖在 MWF 主机进程内运行，提供 Cua Driver 自己的工具。截图通过持久化附件传给支持图像的模型。此实验性软件包会发布到 npm，需要启动主机的桌面权限，并且必须在组合配置中显式启用。
 
 ## 目录
 
@@ -30,8 +30,8 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@deepseek-ai/dsh-computer-use'
-- name: '@deepseek-ai/dsh-experimental-computer-use-cua-driver-native'
+- name: '@metaworkflow/computer-use'
+- name: '@metaworkflow/experimental-computer-use-cua-driver-native'
 ```
 
 此提供者没有配置字段。它加载 [package.json](package.json) 声明的确切 Cua Driver npm 版本，并采用其进程内默认配置。原生模块导入、运行时初始化、目录格式、工具重名或电脑操作注册冲突会使激活失败，并回滚所拥有的资源。注册的提供者名称为 `cua-driver-native`。
@@ -40,14 +40,14 @@ kind: "package-reference"
 
 ### 主机要求
 
-原生依赖通过 npm 可选依赖提供各平台二进制文件，因此必须保留可选依赖安装。请向启动 DSH 的应用授予桌面权限；此提供者既不安装独立持有权限的应用，也不更改操作系统授权。原生运行时与主机共享进程，因此原生崩溃可能终止该进程。如果需要由独立的 Cua Driver 应用持有权限并执行操作，请使用[已安装的 MCP 提供者](../computer-use-cua-driver-mcp/README.zh.md)。
+原生依赖通过 npm 可选依赖提供各平台二进制文件，因此必须保留可选依赖安装。请向启动 MWF 的应用授予桌面权限；此提供者既不安装独立持有权限的应用，也不更改操作系统授权。原生运行时与主机共享进程，因此原生崩溃可能终止该进程。如果需要由独立的 Cua Driver 应用持有权限并执行操作，请使用[已安装的 MCP 提供者](../computer-use-cua-driver-mcp/README.zh.md)。
 
 ### 验证已安装的 SDK
 
 在仓库根目录运行这项显式启用的检查，验证已安装的原生依赖。它发现工具、通过 `prompt: false` 读取权限状态，并验证卸载；它不截图、不发送输入，也不请求操作系统权限。清除 `NODE_USE_ENV_PROXY` 可防止 Node 在测试初始化之前采用启动 shell 的代理设置。
 
 ```sh
-env -u NODE_USE_ENV_PROXY DSH_COMPUTER_USE_NATIVE_E2E=1 node node_modules/vitest/vitest.mjs run --config vitest.e2e.config.ts packages/experimental/computer-use-cua-driver-native/tests/native.e2e.ts
+env -u NODE_USE_ENV_PROXY MWF_COMPUTER_USE_NATIVE_E2E=1 node node_modules/vitest/vitest.mjs run --config vitest.e2e.config.ts packages/experimental/computer-use-cua-driver-native/tests/native.e2e.ts
 ```
 
 -----
@@ -131,7 +131,7 @@ On macOS, cursor-overlay operations may return facility_unavailable even when sc
 - **共享桌面**——此提供者不为某个 Session 预留窗口或完整工作流。其他调用方和应用可以在两次调用之间更改同一桌面。
 - **取消**——被取消的调用可能已经传入输入；重试前必须检查新状态。卸载时提供者等待 SDK 关闭，但不承诺回滚原生操作。
 - **关闭失败**——如果原生关闭失败，注册名额保持占用。挂载其他电脑操作提供者之前必须重启主机。
-- **实验性发布**——工具 schema 跟随锁定的上游 SDK，不作 DSH 稳定性承诺。
+- **实验性发布**——工具 schema 跟随锁定的上游 SDK，不作 MWF 稳定性承诺。
 
 <a id="dev-note"></a>
 ### 开发备注

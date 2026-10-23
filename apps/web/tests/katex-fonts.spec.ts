@@ -26,7 +26,7 @@ async function bundleStyle(source: { path: string } | { package: string; css: st
   if (!loaded) throw new Error('Expected the Web build configuration')
   // The product isolation check requires the full application's HTML entry.
   const plugins = (loaded.config.plugins ?? []).flat().filter(plugin => !(plugin && typeof plugin === 'object'
-    && 'name' in plugin && plugin.name === 'dsh-product-web-bundle-isolation'))
+    && 'name' in plugin && plugin.name === 'mwf-product-web-bundle-isolation'))
   const result = await build({
     ...loaded.config, configFile: false, plugins,
     root, logLevel: 'silent',

@@ -3,56 +3,56 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-theme/README.md
 /:
-  en: e9c14ae3732deb3a
-  zh: fee230def9844d2d
-/deepseek-ai-dsh-client-ui-theme:
-  en: 06c7d7624947a72a
-  zh: ac4ca82984564825
-/deepseek-ai-dsh-client-ui-theme/summary:
-  en: d9832b31c4cb3ca4
-  zh: f2ec42bb5ae66188
-/deepseek-ai-dsh-client-ui-theme/table-of-contents:
+  en: 280f6fa9ac27b754
+  zh: 7758b506e0ab0565
+/metaworkflow-client-ui-theme:
+  en: 7770d2f88db01759
+  zh: 20a13b16d306c04b
+/metaworkflow-client-ui-theme/summary:
+  en: e73c7b46cf5a64f5
+  zh: 5a3feb99ee3e3678
+/metaworkflow-client-ui-theme/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-client-ui-theme/use-this-package:
+/metaworkflow-client-ui-theme/use-this-package:
   en: 5a279269e31713c1
   zh: dcd5c31fbdfd63e2
-/deepseek-ai-dsh-client-ui-theme/use-this-package/appearance-and-font-size:
+/metaworkflow-client-ui-theme/use-this-package/appearance-and-font-size:
   en: cbfc02f8b3b02e0d
   zh: 5a8f4d9d688d113c
-/deepseek-ai-dsh-client-ui-theme/use-this-package/fonts:
+/metaworkflow-client-ui-theme/use-this-package/fonts:
   en: b45d5b48ca799c3a
   zh: af65514b3759204f
-/deepseek-ai-dsh-client-ui-theme/use-this-package/registering-a-theme:
+/metaworkflow-client-ui-theme/use-this-package/registering-a-theme:
   en: 2cd32ccaba33b3e9
   zh: 53ea78d19929ea02
-/deepseek-ai-dsh-client-ui-theme/use-this-package/pre-plugin-palette:
-  en: 203523ddd7927c34
-  zh: 31dd89da78f9ab4f
-/deepseek-ai-dsh-client-ui-theme/understand-the-implementation:
-  en: 3eb9b0e3365b2db3
-  zh: c73acc55dd897266
-/deepseek-ai-dsh-client-ui-theme/understand-the-implementation/stylesheets:
-  en: 2da5b2af3a965090
-  zh: 883c91afc6bf105d
-/deepseek-ai-dsh-client-ui-theme/understand-the-implementation/scrollbar-rebinding:
-  en: bf76e7c34a331595
-  zh: 5accd0260ef7c61e
-/deepseek-ai-dsh-client-ui-theme/understand-the-implementation/preference-persistence:
-  en: b1f0b0bce5e53bae
-  zh: 26ded298f85834ae
-/deepseek-ai-dsh-client-ui-theme/further-exploration:
-  en: 7d5b953aaeeaf591
-  zh: ff4bccb0f196f2b9
-/deepseek-ai-dsh-client-ui-theme/model-experience:
+/metaworkflow-client-ui-theme/use-this-package/pre-plugin-palette:
+  en: 2f91cdab473f42f4
+  zh: 53bd273b0fd339b8
+/metaworkflow-client-ui-theme/understand-the-implementation:
+  en: 4ba1aa4b0e1a7db5
+  zh: ba4641cd6f4786bb
+/metaworkflow-client-ui-theme/understand-the-implementation/stylesheets:
+  en: a833b2a2bfb3e613
+  zh: da13ff1071f8bb50
+/metaworkflow-client-ui-theme/understand-the-implementation/scrollbar-rebinding:
+  en: 4e35862a31793abe
+  zh: 648eff638446b0a9
+/metaworkflow-client-ui-theme/understand-the-implementation/preference-persistence:
+  en: 090e3ff320349f96
+  zh: 4562774574d59c94
+/metaworkflow-client-ui-theme/further-exploration:
+  en: 906721cd2fa203da
+  zh: 7b36cba9f36a36c3
+/metaworkflow-client-ui-theme/model-experience:
   en: 3120df665299c634
   zh: 1d9f365d091d0d2a
-/deepseek-ai-dsh-client-ui-theme/model-experience/kv-cache-effect:
+/metaworkflow-client-ui-theme/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/deepseek-ai-dsh-client-ui-theme/known-limitations-and-deferred-work:
+/metaworkflow-client-ui-theme/known-limitations-and-deferred-work:
   en: 0d328dbced31a041
   zh: 2951de356ba6bb82
-/deepseek-ai-dsh-client-ui-theme/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-client-ui-theme/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

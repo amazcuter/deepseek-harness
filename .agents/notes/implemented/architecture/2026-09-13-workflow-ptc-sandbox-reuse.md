@@ -10,7 +10,7 @@ Dynamic workflows evaluate model-written JavaScript and start subagents. A worke
 
 ## Decision
 
-`dsh-workflow-ptc` implements `WorkflowEngine` through the shared Node `PtcRuntime`. Each run keeps the existing VM and workflow helpers inside one PTC process. Host bindings connect the guest to the configured subagent provider and workflow observers; the host supplies the calling Agent and resolves its Session's standing file policy and cwd.
+`mwf-workflow-ptc` implements `WorkflowEngine` through the shared Node `PtcRuntime`. Each run keeps the existing VM and workflow helpers inside one PTC process. Host bindings connect the guest to the configured subagent provider and workflow observers; the host supplies the calling Agent and resolves its Session's standing file policy and cwd.
 
 The VM defines the helper API and cooperative concurrency, total-agent and item caps. It is not a security boundary, and those counters are not host-enforced security quotas. File enforcement, V8 heap limits, output and control limits, and managed process cleanup remain owned by PTC and its sandbox/subprocess providers. Network access and provider-specific containment limits remain the same as PTC.
 

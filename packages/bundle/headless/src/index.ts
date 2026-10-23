@@ -1,35 +1,35 @@
 /**
- * @deepseek-ai/dsh-headless — one-shot direct Agent driver. The bundle patch
- * rides over dsh-base without Host, HTTP, or browser plugins; this runner
+ * @metaworkflow/headless — one-shot direct Agent driver. The bundle patch
+ * rides over mwf-base without Host, HTTP, or browser plugins; this runner
  * creates one Agent through the core registry (or adopts the exact Session a
  * `--session-id` names), drives the task to quiescence, streams provider
  * reasoning to stderr, flushes its Session, prints the final assistant text to
  * stdout, and exits. With `--json` it projects the run as newline-delimited
  * events instead of the final text.
  *
- * @module @deepseek-ai/dsh-headless
+ * @module @metaworkflow/headless
  */
 
 import { randomUUID } from 'node:crypto'
 import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { installModelSelection } from '@deepseek-ai/dsh-agent'
-import type { Agent, ModelSelectionRef } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent-default-model'
-import type {} from '@deepseek-ai/dsh-fs'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
-import { SessionSeq } from '@deepseek-ai/dsh-session'
-import type { Session, SessionEvent, SessionId, SessionLogOffset } from '@deepseek-ai/dsh-session'
-import { SessionQueryError } from '@deepseek-ai/dsh-session-query'
+import { brandString } from '@metaworkflow/brand'
+import { installModelSelection } from '@metaworkflow/agent'
+import type { Agent, ModelSelectionRef } from '@metaworkflow/agent'
+import type {} from '@metaworkflow/agent-default-model'
+import type {} from '@metaworkflow/fs'
+import { createUserMessage } from '@metaworkflow/llm'
+import { assertNever } from '@metaworkflow/util-values'
+import { SessionSeq } from '@metaworkflow/session'
+import type { Session, SessionEvent, SessionId, SessionLogOffset } from '@metaworkflow/session'
+import { SessionQueryError } from '@metaworkflow/session-query'
 // Empty type imports carry the loader Context merge for the settlement await,
 // the cmdline Context merge for the appExit host value, and the sessionQuery
 // Context merge for exact Session adoption.
 import type {} from '@deepseek-ai/cordis-plugin-loader'
-import type {} from '@deepseek-ai/dsh-cmdline'
-import type {} from '@deepseek-ai/dsh-session-query'
-import type {} from '@deepseek-ai/dsh-subagent'
+import type {} from '@metaworkflow/cmdline'
+import type {} from '@metaworkflow/session-query'
+import type {} from '@metaworkflow/subagent'
 import { internals } from './runner-internals.ts'
 import { projectJsonRun, boundJsonLine } from './json-stream.ts'
 
@@ -134,7 +134,7 @@ function streamReasoning(
       case 'reasoning-delta':
         if (chunk.text === '') return
         if (!open) {
-          stderr.write('dsh: reasoning:\n')
+          stderr.write('mwf: reasoning:\n')
           open = true
         }
         stderr.write(chunk.text)
@@ -193,7 +193,7 @@ function* liveEvents(session: Session): Generator<SessionEvent> {
 function currentPreset(header: AdoptableHeader, events: Iterable<SessionEvent>, sessionId: SessionId): string | undefined {
   let preset = header.agentPreset
   for (const event of events) {
-    // Owned by dsh-agent-preset-registry, which this bundle does not compose, so the
+    // Owned by mwf-agent-preset-registry, which this bundle does not compose, so the
     // event is read structurally rather than through its module augmentation.
     const candidate = event as unknown as { type: string; data?: { agentPreset?: unknown } }
     if (candidate.type !== 'agent-preset/selected') continue
@@ -261,7 +261,7 @@ async function resolveAgent(
   // query service, so every --session-id run requires it.
   const query = ctx.get('sessionQuery')
   if (query === undefined) {
-    throw new Error('headless --session-id requires the sessionQuery service; dsh-base provides it')
+    throw new Error('headless --session-id requires the sessionQuery service; mwf-base provides it')
   }
   const live = agents.get(sessionId)
   if (live !== undefined) {
@@ -297,7 +297,7 @@ async function resolveAgent(
 function fail(io: HeadlessIo, error: unknown, json: boolean): void {
   const message = error instanceof Error ? error.message : String(error)
   if (json) io.stdout.write(`${boundJsonLine({ type: 'error', message })}\n`)
-  io.stderr.write(`dsh: ${message}\n`)
+  io.stderr.write(`mwf: ${message}\n`)
   io.exit(1)
 }
 
@@ -328,7 +328,7 @@ async function run(ctx: Context, config: Config, io: HeadlessIo): Promise<void> 
     ? await internals.readStdin()
     : config.task
   if (task.trim() === '') {
-    throw new Error('a task is required, for example: dsh --profile headless "run the tests"')
+    throw new Error('a task is required, for example: mwf --profile headless "run the tests"')
   }
 
   const selection = defaultModel.currentSelection()
@@ -336,7 +336,7 @@ async function run(ctx: Context, config: Config, io: HeadlessIo): Promise<void> 
   // This bundle composes no preset roster, so the model-facing rows sit in the
   // host plane and the agent reads them from the global layer. A deployment
   // that DOES configure one has to join it here first
-  // (@deepseek-ai/dsh-agent-preset-registry README, "Composing a child agent").
+  // (@metaworkflow/agent-preset-registry README, "Composing a child agent").
   const setup = (agentCtx: Context): void => {
     const selected: ModelSelectionRef = { current: selection, assembled: undefined }
     installModelSelection(agentCtx, selected)
@@ -393,7 +393,7 @@ async function run(ctx: Context, config: Config, io: HeadlessIo): Promise<void> 
     if (projection === undefined) io.stdout.write(outcome.text + '\n')
     else projection.finish(outcome.text)
     if (outcome.reason?.kind === 'error') {
-      io.stderr.write(`dsh: ${outcome.reason.error.code}: ${outcome.reason.error.message}\n`)
+      io.stderr.write(`mwf: ${outcome.reason.error.code}: ${outcome.reason.error.message}\n`)
     }
     io.exit(outcome.reason?.kind === 'completed' ? 0 : 1)
   } finally {

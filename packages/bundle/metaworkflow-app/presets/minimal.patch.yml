@@ -1,21 +1,21 @@
-# Agent preset minimal: one `@deepseek-ai/dsh-agent-preset` declaration inserted
+# Agent preset minimal: one `@metaworkflow/agent-preset` declaration inserted
 # after the web patch. Edits saved from the Web editor override this row's
 # `config.plugins` by id from the profile patch.
 - insert:
     - id: preset-minimal
-      name: '@deepseek-ai/dsh-agent-preset'
+      name: '@metaworkflow/agent-preset'
       config:
         id: minimal
         order: 3
         plugins:
           - id: persona
-            name: '@deepseek-ai/dsh-persona'
+            name: '@metaworkflow/persona'
             config:
               prefix: You are a helpful software engineer assistant.
               complete: true
               includeRuntimeContext: false
           - id: tool-fs
-            name: '@deepseek-ai/dsh-tool-fs'
+            name: '@metaworkflow/tool-fs'
             config:
               read: false
               readImage: true
@@ -28,9 +28,9 @@
               compaction: true
             config:
               - id: compaction-basic
-                name: '@deepseek-ai/dsh-compaction-basic'
+                name: '@metaworkflow/compaction-basic'
               - id: command-compact
-                name: '@deepseek-ai/dsh-command-compact'
+                name: '@metaworkflow/command-compact'
           - id: persistent-shell
             name: cordis:group
             group: true
@@ -38,14 +38,14 @@
               terminals: true
             config:
               - id: pty
-                name: '@deepseek-ai/dsh-terminal'
+                name: '@metaworkflow/terminal'
               - id: terminal-bash
-                name: '@deepseek-ai/dsh-terminal-bash'
+                name: '@metaworkflow/terminal-bash'
                 disabled: !!js process.platform === 'win32'
                 config:
                   timeoutMs: 300000
               - id: persistent-bash
-                name: '@deepseek-ai/dsh-tool-bash-persistent'
+                name: '@metaworkflow/tool-bash-persistent'
                 disabled: !!js process.platform === 'win32'
                 config:
                   timeoutMs: 300000
@@ -58,13 +58,13 @@
                     * Please avoid commands that may produce a very large amount of output.
                     * Please run long lived commands in the background, e.g. 'sleep 10 &' or start a server in the background.
               - id: terminal-pwsh
-                name: '@deepseek-ai/dsh-terminal-bash'
+                name: '@metaworkflow/terminal-bash'
                 disabled: !!js process.platform !== 'win32'
                 config:
                   shellDialect: pwsh
                   timeoutMs: 300000
               - id: persistent-pwsh
-                name: '@deepseek-ai/dsh-tool-pwsh-persistent'
+                name: '@metaworkflow/tool-pwsh-persistent'
                 disabled: !!js process.platform !== 'win32'
                 config:
                   timeoutMs: 300000

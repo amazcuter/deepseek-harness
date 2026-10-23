@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { createAssistantMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, ImageBlock } from '@deepseek-ai/dsh-llm'
-import { deriveEventMessage, foldSurface, Session, SessionId, SessionLogOffset, SessionSeq } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionEventMap } from '@deepseek-ai/dsh-session'
+import { createAssistantMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@metaworkflow/llm'
+import type { ContentBlock, ImageBlock } from '@metaworkflow/llm'
+import { deriveEventMessage, foldSurface, Session, SessionId, SessionLogOffset, SessionSeq } from '@metaworkflow/session'
+import type { SessionEvent, SessionEventMap } from '@metaworkflow/session'
 import { imageOffloadProjection } from '../src/projection.ts'
 
 function createSession(...args: Parameters<typeof Session.create>): Session {

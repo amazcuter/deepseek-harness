@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-tool-lsp",
+  "name": "@metaworkflow/tool-lsp",
   "description": "Model-facing lsp tool over the DeepSeek Harness LSP capability seam (ctx.lsp) \u2014 one read-only tool with goToDefinition/findReferences/goToImplementation/hover operations, one-based UTF-16 cursor coordinates, bounded location rendering, and hover normalization",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -28,31 +28,31 @@
   "license": "MIT",
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-lsp": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-working-directory": "workspace:*"
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/lsp": "workspace:*",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/timeout": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/working-directory": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-util-values": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*",
     "@deepseek-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-fs-local": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-lsp": "workspace:*",
-    "@deepseek-ai/dsh-lsp-stdio": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-subprocess-local": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/dsh-tool-call-timeout-policy": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-working-directory": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*"
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/fs-local": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/lsp": "workspace:*",
+    "@metaworkflow/lsp-stdio": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/subprocess-local": "workspace:*",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/timeout": "workspace:*",
+    "@metaworkflow/tool-call-timeout-policy": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/working-directory": "workspace:*",
+    "@metaworkflow/agent-loop-testkit": "workspace:*"
   }
 }

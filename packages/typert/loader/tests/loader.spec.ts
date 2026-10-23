@@ -6,12 +6,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import { PluginPackages } from '@deepseek-ai/dsh-app-boot'
-import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
-import * as typertLoader from '@deepseek-ai/dsh-typert-loader'
-import { validateTypertManifest } from '@deepseek-ai/dsh-typert-loader'
-import { isTypertRemoteMethod } from '@deepseek-ai/dsh-typert-protocol/remote-info'
-import type { TypertRemoteInfo } from '@deepseek-ai/dsh-typert-protocol'
+import { PluginPackages } from '@metaworkflow/app-boot'
+import TypertRegistry from '@metaworkflow/typert-registry'
+import * as typertLoader from '@metaworkflow/typert-loader'
+import { validateTypertManifest } from '@metaworkflow/typert-loader'
+import { isTypertRemoteMethod } from '@metaworkflow/typert-protocol/remote-info'
+import type { TypertRemoteInfo } from '@metaworkflow/typert-protocol'
 import ts from 'typescript'
 import { z } from 'zod'
 
@@ -21,7 +21,7 @@ let context: Context | undefined
 afterEach(async () => {
   await context?.fiber.dispose()
   context = undefined
-  Reflect.deleteProperty(globalThis, '__dshTypertLoaderGate')
+  Reflect.deleteProperty(globalThis, '__mwfTypertLoaderGate')
   if (root !== undefined) await rm(root, { recursive: true, force: true })
   root = undefined
 })
@@ -160,7 +160,7 @@ const LOADER_TEST_TIMEOUT = { timeout: 60_000 }
 
 describe('typert loader', () => {
   it('registers an explicit package without a Loader entry and withdraws it with the loader', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     await writePackage(root, '@fixture/nested', { typertSource: typertSource('@fixture/nested', 'Nested') })
     const ctx = await boot()
@@ -174,7 +174,7 @@ describe('typert loader', () => {
   })
 
   it('retains generated flat MethodInfo through native artifact import and loader disposal', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     const factoryUrl = await writeRemoteInfoRuntime(root)
     await writePackage(root, '@fixture/invocation', {
@@ -214,7 +214,7 @@ describe('typert loader', () => {
   })
 
   it('fails loud when an explicit package is absent or has no Typert export', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await writePackage(root, '@fixture/plain')
     const ctx = await boot()
 
@@ -233,7 +233,7 @@ describe('typert loader', () => {
   })
 
   it('auto-registers a mounted package exporting ./typert and withdraws it on unmount', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     await writePackage(root, '@fixture/with-typert', { typertSource: typertSource('@fixture/with-typert', 'Thing') })
     await writePackage(root, '@fixture/plain')
@@ -277,7 +277,7 @@ describe('typert loader', () => {
   })
 
   it('skips package-subpath rows and validates npm aliases against the manifest owner', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     await writePackage(root, '@fixture/subpath', {
       pluginSubpath: './plugin',
@@ -299,7 +299,7 @@ describe('typert loader', () => {
   })
 
   it('follows entries mounted after activation', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     await writePackage(root, '@fixture/late', { typertSource: typertSource('@fixture/late', 'Late') })
     const ctx = await boot()
@@ -315,21 +315,21 @@ describe('typert loader', () => {
   })
 
   it('drops an in-flight manifest when the loader is disposed before import settles', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     let markStarted: (() => void) | undefined
     const started = new Promise<void>((resolve) => { markStarted = resolve })
     let releaseImport: (() => void) | undefined
     const wait = new Promise<void>((resolve) => { releaseImport = resolve })
-    Reflect.set(globalThis, '__dshTypertLoaderGate', {
+    Reflect.set(globalThis, '__mwfTypertLoaderGate', {
       started: (): void => { markStarted?.() },
       wait,
     })
     await writePackage(root, '@fixture/pending', {
       typertSource: [
         'import { z } from \'zod\'',
-        'globalThis.__dshTypertLoaderGate.started()',
-        'await globalThis.__dshTypertLoaderGate.wait',
+        'globalThis.__mwfTypertLoaderGate.started()',
+        'await globalThis.__mwfTypertLoaderGate.wait',
         'export const Pending = () => z.object({ id: z.string() })',
         'export const TYPERT = {',
         '  package: \'@fixture/pending\',',
@@ -367,7 +367,7 @@ describe('typert loader', () => {
   })
 
   it('fails activation loud when an already-mounted contributor is malformed', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     await writePackage(root, '@fixture/broken', {
       typertSource: 'export const TYPERT = { package: \'@fixture/broken\', face: \'host\', schemas: [{ name: \'\', create: {} }], model: { services: [], events: [], objects: [] }, invocations: [] }\n',
@@ -380,7 +380,7 @@ describe('typert loader', () => {
   })
 
   it('fails loud when the declared typert module cannot be imported', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     await writePackage(root, '@fixture/no-module', {
       typertSource: 'import { missing } from \'./nope.js\'\nexport const TYPERT = missing\n',
@@ -393,7 +393,7 @@ describe('typert loader', () => {
   })
 
   it('accepts conditional artifact exports and skips packages with no exports field', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     await writePackage(root, '@fixture/conditional', {
       typertSource: typertSource('@fixture/conditional', 'Conditional'),
@@ -412,7 +412,7 @@ describe('typert loader', () => {
   })
 
   it('aggregates unsupported package export shapes during activation', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     await writePackage(root, '@fixture/export-shape', {
       typertSource: typertSource('@fixture/export-shape', 'Shape'),
@@ -431,7 +431,7 @@ describe('typert loader', () => {
   })
 
   it('caches a negative verdict for loader entries without a package root', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     const ctx = await boot()
     ctx.loader.internal = {
       version: 'v2',
@@ -457,7 +457,7 @@ describe('typert loader', () => {
   })
 
   it('contains steady-state registration failures and normalizes non-Error throws', LOADER_TEST_TIMEOUT, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-typert-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-typert-loader-'))
     await linkZod(root)
     await writePackage(root, '@fixture/steady-failure', {
       typertSource: typertSource('@fixture/steady-failure', 'Steady'),

@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import ts from 'typescript'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { assertSupportedJsonSchema, validateJsonSchemaValue } from '@deepseek-ai/dsh-tools'
+import { assertSupportedJsonSchema, validateJsonSchemaValue } from '@metaworkflow/tools'
 import { WorkspaceTypertGenerator } from '../src/workspace.ts'
 import { executableRemoteModule } from './remote-module.ts'
 
@@ -51,7 +51,7 @@ function editFile(root: string, path: string, edit: (source: string) => string):
 }
 
 function fixture(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-remote-metadata-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-remote-metadata-'))
   roots.push(root)
   cpSync(resolve(import.meta.dirname, 'fixtures/remote-model'), root, { recursive: true })
   editFile(root, 'packages/remote/src/index.ts', source => source.replace('  @Remote\n', `  /**
@@ -227,7 +227,7 @@ declare module '@fixture/remote/types' {
         if (!ts.isStringLiteral(statement.moduleSpecifier)) throw new Error('nonliteral import')
         return statement.moduleSpecifier.text
       })
-      expect(imports.sort()).toEqual(['@deepseek-ai/dsh-typert-protocol/remote-info', 'zod'])
+      expect(imports.sort()).toEqual(['@metaworkflow/typert-protocol/remote-info', 'zod'])
       const parameterSpecs: ts.ObjectLiteralExpression[] = []
       const collectParameters = (node: ts.Node): void => {
         if (ts.isPropertyAssignment(node) && node.name.getText(tree) === 'parameters') {
@@ -382,7 +382,7 @@ declare module '@fixture/remote/types' {
 
   it('typechecks ordinary declarations for named invocation, Context exclusion, uplink, and decoded bytes', () => {
     const root = fixture()
-    editFile(root, 'packages/remote/src/index.ts', source => `import type { RemoteStream } from '@deepseek-ai/dsh-typert-protocol'\n${source.replace('  constructor() {', `  @Remote
+    editFile(root, 'packages/remote/src/index.ts', source => `import type { RemoteStream } from '@metaworkflow/typert-protocol'\n${source.replace('  constructor() {', `  @Remote
   bytes(): Uint8Array { return new Uint8Array([255]) }
 
   @Remote({ mode: 'stream' })
@@ -391,7 +391,7 @@ declare module '@fixture/remote/types' {
   constructor() {`)}`)
     const [artifact] = new WorkspaceTypertGenerator(root).generate()
     assertConsumerTypechecks(root, artifact!.remote!.dts, `import { TYPERT_REMOTE } from '@fixture/remote/remote'
-import type { InvocationDescriptor, TypertClientRemote, TypertRemoteInfo, TypertRemoteInputOptions, TypertRemoteMethod, TypertRemoteValue, RemoteResult, RemoteStreamHandle, TypertRemoteScopeMap } from '@deepseek-ai/dsh-typert-protocol'
+import type { InvocationDescriptor, TypertClientRemote, TypertRemoteInfo, TypertRemoteInputOptions, TypertRemoteMethod, TypertRemoteValue, RemoteResult, RemoteStreamHandle, TypertRemoteScopeMap } from '@metaworkflow/typert-protocol'
 import type { CreateGoalRequest, CreateGoalResult } from '@fixture/remote/types'
 declare const remote: TypertClientRemote
 const info: TypertRemoteInfo = TYPERT_REMOTE
@@ -529,7 +529,7 @@ void [strictParsed, normalInput, wrongInput, output, value, wrongResult, wrongOu
 
   it('supplies Zod to parameterless Host and Remote artifacts without exported schemas', async () => {
     const root = fixture()
-    editFile(root, 'packages/remote/src/index.ts', () => `import { TypertRemoteService, Remote } from '@deepseek-ai/dsh-typert-protocol'
+    editFile(root, 'packages/remote/src/index.ts', () => `import { TypertRemoteService, Remote } from '@metaworkflow/typert-protocol'
 export class GoalService extends TypertRemoteService {
   constructor() { super(undefined, 'goals') }
   @Remote
@@ -592,7 +592,7 @@ export class GoalService extends TypertRemoteService {
     await labelled.invoke({ goals: { labelled: callLabelled } }, { id: 'goal' })
     expect(callLabelled).toHaveBeenCalledWith('goal', undefined)
     assertConsumerTypechecks(root, artifact!.remote!.dts, `import { TYPERT_REMOTE } from '@fixture/remote/remote'
-import type { TypertClientRemote, RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import type { TypertClientRemote, RemoteResult } from '@metaworkflow/typert-protocol'
 declare const remote: TypertClientRemote
 const ready: Promise<RemoteResult<boolean>> = TYPERT_REMOTE.methods['goals/ready'].invoke(remote, {})
 TYPERT_REMOTE.methods['goals/labelled'].invoke(remote, { id: 'goal' })
@@ -646,7 +646,7 @@ void ready
     const root = fixture()
     const directory = join(root, 'packages/json-values-fixture')
     mkdirSync(join(directory, 'src'), { recursive: true })
-    writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: '@deepseek-ai/dsh-util-values', exports: { '.': './src/index.ts' } }))
+    writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: '@metaworkflow/util-values', exports: { '.': './src/index.ts' } }))
     writeFileSync(join(directory, 'tsconfig.json'), readFileSync(join(root, 'packages/domain/tsconfig.json'), 'utf8'))
     writeFileSync(join(directory, 'src/index.ts'), 'export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue }\n')
     editFile(root, 'tsconfig.host.json', (source) => {
@@ -656,10 +656,10 @@ void ready
     })
     editFile(root, 'tsconfig.base.json', (source) => {
       const config = JSON.parse(source) as { compilerOptions: { paths: Record<string, string[]> } }
-      config.compilerOptions.paths['@deepseek-ai/dsh-util-values'] = ['./packages/json-values-fixture/src/index.ts']
+      config.compilerOptions.paths['@metaworkflow/util-values'] = ['./packages/json-values-fixture/src/index.ts']
       return JSON.stringify(config)
     })
-    editFile(root, 'packages/remote/src/types.ts', source => "import type { JsonValue } from '@deepseek-ai/dsh-util-values'\n" + source
+    editFile(root, 'packages/remote/src/types.ts', source => "import type { JsonValue } from '@metaworkflow/util-values'\n" + source
       .replace('readonly title: string', 'readonly title: string\n  readonly payload: JsonValue\n  readonly labels?: Record<string, JsonValue>'))
     const [artifact] = new WorkspaceTypertGenerator(root).generate()
     const generated = await executable(artifact!.remote!.js)
@@ -896,10 +896,10 @@ void ready
     })
     editFile(root, 'tsconfig.base.json', (source) => {
       const config = JSON.parse(source) as { compilerOptions: { paths: Record<string, string[]> } }
-      config.compilerOptions.paths['@deepseek-ai/dsh-brand'] = ['./packages/util/brand/src/index.ts']
+      config.compilerOptions.paths['@metaworkflow/brand'] = ['./packages/util/brand/src/index.ts']
       return JSON.stringify(config)
     })
-    editFile(root, 'packages/domain/src/types.ts', () => `import type { Branded } from '@deepseek-ai/dsh-brand'
+    editFile(root, 'packages/domain/src/types.ts', () => `import type { Branded } from '@metaworkflow/brand'
 /** Stable nominal Agent identity. */
 export type AgentId = Branded<'AgentId'>
 `)

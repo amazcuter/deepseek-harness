@@ -10,7 +10,7 @@ An installed update replaces application files and exits the process that observ
 
 ## Decision
 
-The Desktop main entry accepts an opt-in absolute `DSH_DESKTOP_UPDATE_JOURNAL_DIR`. Qualification packages must retain the same external directory across versions. Each process exclusively creates a separate JSONL file and flushes whitelisted state and action records before continuing. The installed version, PID, sequence, and UTC time identify records. Integer progress changes limit repeated writes; raw errors, URLs, request headers, and chat content are omitted. Known error tokens produce fixed classifications instead of copied diagnostics.
+The Desktop main entry accepts an opt-in absolute `MWF_DESKTOP_UPDATE_JOURNAL_DIR`. Qualification packages must retain the same external directory across versions. Each process exclusively creates a separate JSONL file and flushes whitelisted state and action records before continuing. The installed version, PID, sequence, and UTC time identify records. Integer progress changes limit repeated writes; raw errors, URLs, request headers, and chat content are omitted. Known error tokens produce fixed classifications instead of copied diagnostics.
 
 Without the variable, the journal is disabled. Explicit qualification storage failures propagate rather than silently claiming complete evidence. Startup and workspace readiness are observations, not proof of installer success or preserved user data. The [local qualification decision](2026-09-10-desktop-local-updater-qualification.md) remains active: this journal does not supersede its isolation, intercepted-installation limits, or hardware restrictions.
 

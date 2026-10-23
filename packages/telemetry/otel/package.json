@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-otel",
+  "name": "@metaworkflow/otel",
   "description": "Cordis service for independent ordinary-event and byte-bounded Session-log OTLP channels",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -40,10 +40,10 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-session": "workspace:*"
+    "@metaworkflow/session": "workspace:*"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-session": "workspace:*"
+    "@metaworkflow/session": "workspace:*"
   }
 }

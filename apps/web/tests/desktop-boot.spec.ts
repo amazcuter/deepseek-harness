@@ -5,7 +5,7 @@ const boot = vi.hoisted(() => ({
   run: vi.fn(),
   applyIndexInjections: vi.fn(async () => {}),
 }))
-vi.mock('@deepseek-ai/dsh-client-web', () => ({
+vi.mock('@metaworkflow/client-web', () => ({
   AppWebEntry: class { run = boot.run },
   applyIndexInjections: boot.applyIndexInjections,
 }))
@@ -21,9 +21,9 @@ it('forwards client initialization failures to native recovery', async () => {
   document.body.innerHTML = '<div id="root"></div>'
   const gate = Promise.withResolvers<undefined>()
   const failed = vi.fn(async () => {})
-  vi.stubGlobal('__DSH_BOOT_READY__', gate)
-  vi.stubGlobal('dshDesktopBoot', { ready: async () => ({ injections: [], streamBaseUrl: 'http://127.0.0.1:3080' }), failed })
-  vi.stubGlobal('__DSH_TRANSPORT__', undefined)
+  vi.stubGlobal('__MWF_BOOT_READY__', gate)
+  vi.stubGlobal('mwfDesktopBoot', { ready: async () => ({ injections: [], streamBaseUrl: 'http://127.0.0.1:3080' }), failed })
+  vi.stubGlobal('__MWF_TRANSPORT__', undefined)
   await import('../src/main.ts')
   await gate.promise
   expect(boot.applyIndexInjections).toHaveBeenCalledWith([], expect.any(Function))
@@ -37,8 +37,8 @@ it('rejects the shared boot wait when the Desktop Host cannot start', async () =
   const gate = Promise.withResolvers<undefined>()
   const failure = new Error('Host failed')
   const rejected = expect(gate.promise).rejects.toBe(failure)
-  vi.stubGlobal('__DSH_BOOT_READY__', gate)
-  vi.stubGlobal('dshDesktopBoot', { ready: async () => { throw failure }, failed: vi.fn() })
+  vi.stubGlobal('__MWF_BOOT_READY__', gate)
+  vi.stubGlobal('mwfDesktopBoot', { ready: async () => { throw failure }, failed: vi.fn() })
   await import('../src/main.ts')
   await rejected
   expect(boot.applyIndexInjections).not.toHaveBeenCalled()
@@ -47,7 +47,7 @@ it('rejects the shared boot wait when the Desktop Host cannot start', async () =
 
 it('leaves browser failure presentation with the Web boot kernel', async () => {
   document.body.innerHTML = '<div id="root"></div>'
-  vi.stubGlobal('dshDesktopBoot', undefined)
+  vi.stubGlobal('mwfDesktopBoot', undefined)
   await import('../src/main.ts')
   expect(boot.run).toHaveBeenCalledWith(undefined)
 })
@@ -55,8 +55,8 @@ it('leaves browser failure presentation with the Web boot kernel', async () => {
 it.each(['root', 'readiness'])('reports missing %s before client plugin startup', async (missing) => {
   if (missing !== 'root') document.body.innerHTML = '<div id="root"></div>'
   const failed = vi.fn(async () => {})
-  vi.stubGlobal('dshDesktopBoot', { ready: vi.fn(), failed })
-  vi.stubGlobal('__DSH_BOOT_READY__', undefined)
+  vi.stubGlobal('mwfDesktopBoot', { ready: vi.fn(), failed })
+  vi.stubGlobal('__MWF_BOOT_READY__', undefined)
   await import('../src/main.ts')
   expect(failed).toHaveBeenCalledWith(missing === 'root'
     ? 'web app: missing #root' : 'desktop web: boot readiness is missing')

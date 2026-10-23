@@ -3,13 +3,13 @@ description: "Workspace-authorized model-facing session history tools for agent 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tool-session-query
+# @metaworkflow/tool-session-query
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Use the experimental `dsh-tool-session-query` tools to let a model search earlier sessions, inspect event matches, trace session or event relationships, and read exact event data. Its five read-only tools return cursor-free text and authorize cross-session access only when the target session's `cwd` exactly matches the caller's; callers without a `cwd` can inspect only themselves. Search excludes the caller session and asks the model to narrow its query when the deployment result cap is reached. The package is opt-in, and enabling it adds fixed guidance plus five tool schemas to every model request.
+Use the experimental `mwf-tool-session-query` tools to let a model search earlier sessions, inspect event matches, trace session or event relationships, and read exact event data. Its five read-only tools return cursor-free text and authorize cross-session access only when the target session's `cwd` exactly matches the caller's; callers without a `cwd` can inspect only themselves. Search excludes the caller session and asks the model to narrow its query when the deployment result cap is reached. The package is opt-in, and enabling it adds fixed guidance plus five tool schemas to every model request.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ Use the experimental `dsh-tool-session-query` tools to let a model search earlie
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this package when the agent should be able to search its own prior sessions and inspect their relationships and events. The common path is explicit: mount the plugin over `ctx.sessionQuery` (backed by `dsh-session-query-sqlite`), then let the model call the tools.
+Mount this package when the agent should be able to search its own prior sessions and inspect their relationships and events. The common path is explicit: mount the plugin over `ctx.sessionQuery` (backed by `mwf-session-query-sqlite`), then let the model call the tools.
 
 ### When to choose it
 
@@ -38,7 +38,7 @@ Choose it when a deployment wants model-driven retrieval of prior work — for e
 | `maxSearchResults` | `100` | Maximum authorized hits returned by one search call |
 | `searchTimeoutMs` | `30000` | Cooperative deadline attached to both full-text search tools |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-session-query) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowtool-session-query) is the exhaustive source for every accepted field and its JSDoc.
 
 ### What the model can do
 
@@ -54,7 +54,7 @@ Workspace authority is conservative: cross-session access requires exact `cwd` e
 
 ### Failures and recovery
 
-Every trusted query-service call crosses one error sanitizer: caller cancellation is preserved exactly, corpus and provider diagnostics go to the internal log, and unsafe or unprintable failures fall back to the fixed `SESSION_QUERY_TOOL_FAILED` code and message. Local argument-validation and authorization errors keep their precise tool-owned messages (`SESSION_QUERY_TOOL_UNAUTHORIZED` for a target outside the caller workspace). The package performs no byte or character truncation and does not import a spill backend; deployments that need bounded inline output mount `@deepseek-ai/dsh-spill-policy`, which can replace oversized rendered text while retaining the complete result.
+Every trusted query-service call crosses one error sanitizer: caller cancellation is preserved exactly, corpus and provider diagnostics go to the internal log, and unsafe or unprintable failures fall back to the fixed `SESSION_QUERY_TOOL_FAILED` code and message. Local argument-validation and authorization errors keep their precise tool-owned messages (`SESSION_QUERY_TOOL_UNAUTHORIZED` for a target outside the caller workspace). The package performs no byte or character truncation and does not import a spill backend; deployments that need bounded inline output mount `@metaworkflow/spill-policy`, which can replace oversized rendered text while retaining the complete result.
 
 -----
 
@@ -101,9 +101,9 @@ Each executor derives the caller, normalizes the model's arguments into service 
 
 Read these pages when the package-level contract is not enough. They move from the tool surface to the underlying service, the schema catalog, and the design evidence.
 
-- [Generated tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-tool-session-query) — the five tool schemas as the model sees them.
-- [dsh-session-query](../../session-query/session-query/README.md) — the service these tools call.
-- [dsh-session-query-sqlite](../../session-query/session-query-sqlite/README.md) — the full-text backend behind the two search tools.
+- [Generated tool catalog](../../../docs/tool-catalog.md#metaworkflowtool-session-query) — the five tool schemas as the model sees them.
+- [mwf-session-query](../../session-query/session-query/README.md) — the service these tools call.
+- [mwf-session-query-sqlite](../../session-query/session-query-sqlite/README.md) — the full-text backend behind the two search tools.
 - [Session Query subsystem reference](../../../docs/subsystems/session-query.md) — the type-level contract under the tools.
 - [Model-facing session query tools](../../../.agents/notes/archived/feature/2026-07-24-model-facing-session-query-tools.md) — workspace authority, cursor-free results, and spill decisions.
 
@@ -136,7 +136,7 @@ Prefix-stable while the plugin and guidance text are unchanged.
 
 #### What the model sees
 
-The model sees the generated [`session_search`, `session_event_search`, `session_trace`, `session_event_trace`, and `session_event_read` schemas](../../../docs/tool-catalog.md#deepseek-aidsh-tool-session-query). Search filters add fixed schema tokens, while cursors, workspace paths, output pagination, and model-controlled result limits remain absent.
+The model sees the generated [`session_search`, `session_event_search`, `session_trace`, `session_event_trace`, and `session_event_read` schemas](../../../docs/tool-catalog.md#metaworkflowtool-session-query). Search filters add fixed schema tokens, while cursors, workspace paths, output pagination, and model-controlled result limits remain absent.
 
 #### Token effect
 

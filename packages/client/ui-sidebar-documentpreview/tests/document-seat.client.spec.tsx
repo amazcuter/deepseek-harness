@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 /** Document extension registration and dispatch through the production Sidebar and Slot renderer. */
 import { byteResult } from './fixtures.client.ts'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { createSnapshotStore } from '@metaworkflow/client-store'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
-import { SlotTestRuntime } from '@deepseek-ai/dsh-client-test-runtime'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { absoluteFileAddress, sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
-import { apply as resourcesApply, inject as resourcesInject } from '@deepseek-ai/dsh-client-resources/src/client/index.ts'
-import { apply as sidebarApply, inject as sidebarInject } from '@deepseek-ai/dsh-client-ui-sidebar-right/src/client/index.ts'
+import { SlotTestRuntime } from '@metaworkflow/client-test-runtime'
+import { LocaleRuntime } from '@metaworkflow/client-locale/client'
+import type { SessionId } from '@metaworkflow/session/types'
+import { absoluteFileAddress, sessionFileAddress } from '@metaworkflow/util-workspace-path'
+import { apply as resourcesApply, inject as resourcesInject } from '@metaworkflow/client-resources/src/client/index.ts'
+import { apply as sidebarApply, inject as sidebarInject } from '@metaworkflow/client-ui-sidebar-right/src/client/index.ts'
 import { apply, inject } from '../src/client/index.ts'
 import type { DocumentPreviewProps } from '../src/client/document/contract.ts'
 import type { DocumentLoadMode } from '../src/client/document/registry.ts'
@@ -68,7 +68,7 @@ async function boot() {
   await rt.mount({ inject: [...inject], apply })
   const view = rt.renderSlot('rightbar', { width: 600, viewportWidth: 1440, canShow: true })
   const open = (name: string): void => {
-    act(() => { rt.ctx.sidebarRight.openResource('dsh-resource://file/session/documents/' + name) })
+    act(() => { rt.ctx.sidebarRight.openResource('mwf-resource://file/session/documents/' + name) })
   }
   const register = (id: string, loading: DocumentLoadMode, priority: 'builtin' | 'extension') => rt.ctx.effect(() => {
     const removeDefinition = rt.ctx.documentPreviews.register({ id, extensions: ['md'], priority, title: () => id, loading, wrap: loading === 'text-pages' })

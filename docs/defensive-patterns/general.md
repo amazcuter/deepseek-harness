@@ -116,7 +116,7 @@ const sessions = ctx.get('sessions')   // one owner, lifetime tied to the servic
 ```
 
 ```ts ignore-check
-globalThis.__dshCache = new Map()   // shared across instances, reclaimed never
+globalThis.__mwfCache = new Map()   // shared across instances, reclaimed never
 ```
 
 The wrong form lets instances overwrite each other, makes reclamation timing unknowable, and leaks state between tests.

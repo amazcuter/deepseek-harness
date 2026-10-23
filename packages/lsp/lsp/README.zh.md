@@ -3,13 +3,13 @@ description: "LSP 能力 seam（ctx.lsp）：按文件扩展名选择提供方�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-lsp
+# @metaworkflow/lsp
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `dsh-lsp` 为 agent（智能体）提供语言服务器导航，包括定义、引用、实现与悬停文档。查询按文件扩展名选择已配置的提供方，并返回规范化结果与结构化错误，因此更换后端不会改变导航请求或模型可见的响应。导航只读，并刻意排除通用 JSON-RPC 访问、重命名、格式化、诊断与符号列表。本包必须与 `dsh-lsp-stdio` 等提供方及面向模型的 `dsh-tool-lsp` 组合；单独使用时不提供导航。
+使用 `mwf-lsp` 为 agent（智能体）提供语言服务器导航，包括定义、引用、实现与悬停文档。查询按文件扩展名选择已配置的提供方，并返回规范化结果与结构化错误，因此更换后端不会改变导航请求或模型可见的响应。导航只读，并刻意排除通用 JSON-RPC 访问、重命名、格式化、诊断与符号列表。本包必须与 `mwf-lsp-stdio` 等提供方及面向模型的 `mwf-tool-lsp` 组合；单独使用时不提供导航。
 
 ## 目录
 
@@ -36,14 +36,14 @@ kind: "package-reference"
 seam 需要提供方与消费方才能发挥作用。最小组合挂载服务、stdio 提供方与工具：
 
 ```yaml
-- name: '@deepseek-ai/dsh-fs-local'
-- name: '@deepseek-ai/dsh-subprocess-local'
-- name: '@deepseek-ai/dsh-lsp'
-- name: '@deepseek-ai/dsh-lsp-stdio'
-- name: '@deepseek-ai/dsh-tool-lsp'
+- name: '@metaworkflow/fs-local'
+- name: '@metaworkflow/subprocess-local'
+- name: '@metaworkflow/lsp'
+- name: '@metaworkflow/lsp-stdio'
+- name: '@metaworkflow/tool-lsp'
 ```
 
-服务器命令、扩展名映射与文件系统／子进程配对在提供方与工具包中配置；见 [dsh-lsp-stdio](../lsp-stdio/README.zh.md) 与 [dsh-tool-lsp](../tool-lsp/README.zh.md)。
+服务器命令、扩展名映射与文件系统／子进程配对在提供方与工具包中配置；见 [mwf-lsp-stdio](../lsp-stdio/README.zh.md) 与 [mwf-tool-lsp](../tool-lsp/README.zh.md)。
 
 ### 四种操作
 
@@ -74,7 +74,7 @@ seam 需要提供方与消费方才能发挥作用。最小组合挂载服务、
 
 ### 设计理念
 
-- **能力 seam，Service Definition 角色。** 本包拥有 `ctx.lsp` 与提供方注册表；提供方注册的是能力而非工具，`dsh-tool-lsp` 是面向模型表层的唯一 owner。
+- **能力 seam，Service Definition 角色。** 本包拥有 `ctx.lsp` 与提供方注册表；提供方注册的是能力而非工具，`mwf-tool-lsp` 是面向模型表层的唯一 owner。
 - **原子注册。** `registerProvider()` 在变更前验证并检查全部冲突：无效或冲突的注册不会发布任何内容，其 disposer 会一并释放 id 与全部扩展名保留。
 - **与顺序无关的选择。** `query()` 按文件的最终扩展名（规范化为小写、以点开头的形式）路由；注册与 HMR（热模块替换）顺序绝不会改变路由。language id 只用于同步临时文档，绝不参与选择。
 - **封闭的词汇。** 四种操作的联合是封闭的——新增操作是跨 seam、提供方与工具的编译期强制变更。没有 JSON-RPC 逃生口，且每个请求字段都必填，因此不存在 `resolve()` 步骤。
@@ -102,8 +102,8 @@ seam 需要提供方与消费方才能发挥作用。最小组合挂载服务、
 当包级约定不够用时阅读以下页面。它们从共享的导航模型逐步进入提供方与工具。
 
 - [LSP 导航子系统](../../../docs/subsystems/lsp.zh.md)——操作、坐标、请求与结果，以及 `LspError` code。
-- [dsh-lsp-stdio](../lsp-stdio/README.zh.md)——注册到该 seam 的 stdio 提供方。
-- [dsh-tool-lsp](../tool-lsp/README.zh.md)——基于该 seam 的面向模型工具。
+- [mwf-lsp-stdio](../lsp-stdio/README.zh.md)——注册到该 seam 的 stdio 提供方。
+- [mwf-tool-lsp](../tool-lsp/README.zh.md)——基于该 seam 的面向模型工具。
 - [lsp 组地图](../README.zh.md)——三个包的家族及其相关文档。
 
 -----
@@ -111,11 +111,11 @@ seam 需要提供方与消费方才能发挥作用。最小组合挂载服务、
 <a id="model-experience"></a>
 ## 模型体验
 
-通过 `dsh-tool-lsp` 间接影响；该工具拥有面向模型的 `lsp` schema、提示词指引与渲染结果，本注册表自身不贡献提示词或 schema。
+通过 `mwf-tool-lsp` 间接影响；该工具拥有面向模型的 `lsp` schema、提示词指引与渲染结果，本注册表自身不贡献提示词或 schema。
 
 #### KV Cache 影响
 
-不会直接失效；请求前缀变更由 `dsh-tool-lsp` 负责。
+不会直接失效；请求前缀变更由 `mwf-tool-lsp` 负责。
 
 ## 已知限制与延期工作
 

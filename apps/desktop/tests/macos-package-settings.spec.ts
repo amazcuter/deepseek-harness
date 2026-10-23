@@ -3,21 +3,21 @@ import { macOSDownloadEnvironment, resolveMacOSPackageSettings } from '../script
 
 it('defaults to four workers and keeps download and Apple proxies independent', () => {
   expect(resolveMacOSPackageSettings({})).toEqual({ packConcurrency: 4 })
-  expect(resolveMacOSPackageSettings({ DSH_DESKTOP_MACOS_PACK_CONCURRENCY: '2',
-    DSH_DESKTOP_MACOS_DOWNLOAD_PROXY: 'https://download.example:8080',
-    DSH_DESKTOP_MACOS_NOTARIZATION_PROXY: 'http://apple.example:8081',
+  expect(resolveMacOSPackageSettings({ MWF_DESKTOP_MACOS_PACK_CONCURRENCY: '2',
+    MWF_DESKTOP_MACOS_DOWNLOAD_PROXY: 'https://download.example:8080',
+    MWF_DESKTOP_MACOS_NOTARIZATION_PROXY: 'http://apple.example:8081',
   })).toEqual({ packConcurrency: 2, downloadProxy: 'https://download.example:8080', notarizationProxy: 'http://apple.example:8081' })
-  expect(resolveMacOSPackageSettings({ DSH_DESKTOP_MACOS_DOWNLOAD_PROXY: ' ', DSH_DESKTOP_MACOS_NOTARIZATION_PROXY: '' })).toEqual({ packConcurrency: 4 })
+  expect(resolveMacOSPackageSettings({ MWF_DESKTOP_MACOS_DOWNLOAD_PROXY: ' ', MWF_DESKTOP_MACOS_NOTARIZATION_PROXY: '' })).toEqual({ packConcurrency: 4 })
 })
 
 it.each(['', '0', '-1', '1.5', '1e2', 'Infinity', '9007199254740992'])('rejects invalid concurrency %j', (value) => {
-  expect(() => resolveMacOSPackageSettings({ DSH_DESKTOP_MACOS_PACK_CONCURRENCY: value })).toThrow('PACK_CONCURRENCY')
+  expect(() => resolveMacOSPackageSettings({ MWF_DESKTOP_MACOS_PACK_CONCURRENCY: value })).toThrow('PACK_CONCURRENCY')
 })
 
 it.each(['socks5://host:8080', 'http://user:secret@host', 'http://host/path', 'http://host?query', 'http://host#fragment', 'invalid'])
 ('rejects unsupported proxy input without echoing it: %s', (value) => {
-  expect(() => resolveMacOSPackageSettings({ DSH_DESKTOP_MACOS_NOTARIZATION_PROXY: value })).toThrow('NOTARIZATION_PROXY')
-  expect(() => resolveMacOSPackageSettings({ DSH_DESKTOP_MACOS_NOTARIZATION_PROXY: value })).not.toThrow(value)
+  expect(() => resolveMacOSPackageSettings({ MWF_DESKTOP_MACOS_NOTARIZATION_PROXY: value })).toThrow('NOTARIZATION_PROXY')
+  expect(() => resolveMacOSPackageSettings({ MWF_DESKTOP_MACOS_NOTARIZATION_PROXY: value })).not.toThrow(value)
 })
 
 it('overrides conflicting child proxy variables while preserving the parent and unrelated settings', () => {

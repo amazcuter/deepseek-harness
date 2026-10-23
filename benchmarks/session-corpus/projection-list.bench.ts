@@ -9,7 +9,7 @@ import { ciTimeBudget, PERFORMANCE_BUDGET_HEADROOM } from '../support/calibratio
 import { recordTimings } from '../support/scaling-report.ts'
 import type { ProjectionListReport } from './projection-list.worker.ts'
 
-const WORKER = join(import.meta.dirname, '..', '.dsh-build', 'session-corpus', 'projection-list.worker.js')
+const WORKER = join(import.meta.dirname, '..', '.mwf-build', 'session-corpus', 'projection-list.worker.js')
 const ATTEMPTS = 3
 const WORKER_TIMEOUT_MS = 120_000
 /** Coarse reference-machine throughput allowances, before CI scaling and variance headroom. */
@@ -28,7 +28,7 @@ function median(values: readonly number[]): number {
 }
 
 async function run(workload: ProjectionListReport['workload']): Promise<ProjectionListReport> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-projection-list-bench-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-projection-list-bench-'))
   try {
     const outcome = await runBuiltBenchmarkWorker<ProjectionListReport>({
       worker: WORKER, args: [root, workload], timeoutMs: WORKER_TIMEOUT_MS, exposeGc: true,

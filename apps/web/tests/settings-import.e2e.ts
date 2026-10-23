@@ -11,7 +11,7 @@ import { WELCOME_NOTICE_VERSION, launchWebScaffold, watchConsole } from './scaff
 import { ZH_BROWSER_LOCALE } from './support.ts'
 
 it('imports settings.yaml into the profile once and applies the imported values', async () => {
-  const harnessHome = mkdtempSync(join(tmpdir(), 'dsh-settings-import-'))
+  const harnessHome = mkdtempSync(join(tmpdir(), 'mwf-settings-import-'))
   writeFileSync(join(harnessHome, 'settings.yaml'), [
     'ui-theme:', '  fontSize: 16',
     'ui-developer-tools:', '  enabled: false',
@@ -35,7 +35,7 @@ it('imports settings.yaml into the profile once and applies the imported values'
     const tripwire = watchConsole(page)
     await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
     await page.waitForSelector('[class*="frame"]', { timeout: 30_000 })
-    await expect.poll(() => page.evaluate(() => document.body.style.getPropertyValue('--dsh-content-font-size')), { timeout: 10_000 }).toBe('16px')
+    await expect.poll(() => page.evaluate(() => document.body.style.getPropertyValue('--mwf-content-font-size')), { timeout: 10_000 }).toBe('16px')
     expect(tripwire.pageErrors).toEqual([])
   } finally {
     await browser.close()

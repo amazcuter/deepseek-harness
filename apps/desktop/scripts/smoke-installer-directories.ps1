@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 $Makensis = [System.IO.Path]::GetFullPath($Makensis)
 $SevenZip = [System.IO.Path]::GetFullPath($SevenZip)
 if ($FrameLibrary) { $FrameLibrary = [System.IO.Path]::GetFullPath($FrameLibrary) }
-$scratch = [System.IO.Directory]::CreateTempSubdirectory('dsh-directory-smoke-').FullName
+$scratch = [System.IO.Directory]::CreateTempSubdirectory('mwf-directory-smoke-').FullName
 $fixture = Join-Path $PSScriptRoot '../tests/fixtures/installer-directory-smoke.nsi'
 
 function Invoke-Checked([string]$Executable, [string[]]$Arguments) {
@@ -44,7 +44,7 @@ try {
     $probe = Join-Path $caseRoot 'probe.exe'
     $caseArchive = if ($mode -eq 'broken') { $brokenArchive } else { $archive }
     $reportDir = Join-Path $caseRoot 'installer-logs'
-    $compileArgs = @('/V2', "/DOUTPUT_FILE=$probe", "/DPAYLOAD_FILE=$caseArchive", "/DTARGET_DIR=$target", "/DDSH_SEVENZIP_PATH=$SevenZip")
+    $compileArgs = @('/V2', "/DOUTPUT_FILE=$probe", "/DPAYLOAD_FILE=$caseArchive", "/DTARGET_DIR=$target", "/DMWF_SEVENZIP_PATH=$SevenZip")
     if ($FrameLibrary) { $compileArgs += @("/DSOURCE_DLL=$FrameLibrary", "/DREPORT_DIR=$reportDir") }
     if ($mode -eq 'missing-stage') { $compileArgs += '/DMISSING_STAGE' }
     if ($mode -eq 'locked-stage') { $compileArgs += '/DLOCKED_STAGE' }

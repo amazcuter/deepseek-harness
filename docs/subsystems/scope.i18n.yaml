@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/scope.md
 /scoped-registration:
-  en: b786b68190a93d3f
-  zh: d487dc4263d61a53
+  en: 4502f5c76fc9c284
+  zh: 227adcc2e85a610c
 /scoped-registration/identity-and-dispatch-carrier:
   en: f4e1bdd96c43a845
   zh: c74409f7f81bd0e0

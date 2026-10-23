@@ -9,7 +9,7 @@ import Loader, { ModuleLoader, type Entry } from '@deepseek-ai/cordis-plugin-loa
 import {
   boot, initProfile, ProfileRuntimeResolution, readProfileManifest, readProfilePatches, reconcileProfilePatches, ResolutionRestartRequired,
   type PluginPackages, type ProfileContext, type RuntimeResolution,
-} from '@deepseek-ai/dsh-app-boot'
+} from '@metaworkflow/app-boot'
 import Timer from '@deepseek-ai/cordis-plugin-timer'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import Hmr from '../src/index.ts'
@@ -49,7 +49,7 @@ export function apply(ctx, config = {}) {
 function addon(dir: string, version: string, source = plugin(version), mode?: string): void {
   const root = join(dir, 'node_modules', 'addon')
   file(join(root, 'package.json'), JSON.stringify({
-    name: 'addon', version, type: 'module', exports: './index.mjs', dsh: { bundle: { patch: './cordis.patch.yml' } },
+    name: 'addon', version, type: 'module', exports: './index.mjs', mwf: { bundle: { patch: './cordis.patch.yml' } },
   }))
   file(join(root, 'index.mjs'), source)
   file(join(root, 'cordis.patch.yml'), `- insert:\n    - id: addon\n      name: addon\n${mode === undefined ? '' : `      config: { mode: ${mode} }\n`}`)
@@ -64,7 +64,7 @@ function shared(dir: string, value: number): void {
 function other(dir: string): void {
   const root = join(dir, 'node_modules', 'other')
   file(join(root, 'package.json'), JSON.stringify({
-    name: 'other', version: '1.0.0', type: 'module', exports: './index.mjs', dsh: { bundle: { patch: './cordis.patch.yml' } },
+    name: 'other', version: '1.0.0', type: 'module', exports: './index.mjs', mwf: { bundle: { patch: './cordis.patch.yml' } },
   }))
   file(join(root, 'index.mjs'), `export function apply(ctx) {
   ctx.get('reloadTrace').push('start:other')
@@ -77,7 +77,7 @@ function other(dir: string): void {
 function commonjs(dir: string, value: number): void {
   const root = join(dir, 'node_modules', 'cjs-addon')
   file(join(root, 'package.json'), JSON.stringify({
-    name: 'cjs-addon', version: '1.0.0', main: './index.cjs', dsh: { bundle: { patch: './cordis.patch.yml' } },
+    name: 'cjs-addon', version: '1.0.0', main: './index.cjs', mwf: { bundle: { patch: './cordis.patch.yml' } },
   }))
   file(join(root, 'index.cjs'), `const { value } = require('./helper.cjs')
 exports.apply = (ctx) => {
@@ -100,7 +100,7 @@ function age(dir: string): void {
 function linked(home: string, dir: string, value: number): string {
   const target = join(home, 'work', 'linked')
   file(join(target, 'package.json'), JSON.stringify({
-    name: '@local/linked', version: '1.0.0', type: 'module', exports: './index.mjs', dsh: { bundle: { patch: './cordis.patch.yml' } },
+    name: '@local/linked', version: '1.0.0', type: 'module', exports: './index.mjs', mwf: { bundle: { patch: './cordis.patch.yml' } },
   }))
   file(join(target, 'index.mjs'), `export function apply(ctx) {
   ctx.get('reloadTrace').push('start:linked:${String(value)}')
@@ -151,7 +151,7 @@ async function fixture(bundles = ['addon', 'other'], before?: (home: string, dir
   const reconcile = () => ctx.hmr.runExclusive(() => ctx.hmr.reconcileProfile())
   const select = (bundles: string[]) => {
     const manifest = readProfileManifest('test', dir)
-    manifest.dsh = { profile: { bundles } }
+    manifest.mwf = { profile: { bundles } }
     writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
   }
   /** Deliver a change of the profile patch file to HMR's own watch and wait for its recomposition. */
@@ -336,7 +336,7 @@ it('logs a stopped plugin that does not start again after the publication fails'
   await f.ctx.loader.create({ name: 'late-plugin' })
   await f.ctx.loader.await()
   await expect(f.reconcile()).rejects.toThrow('resolution unreadable')
-  expect(warn).toHaveBeenCalledWith(expect.stringMatching(/^dsh: addon \(addon\): .*addon cannot start/su))
+  expect(warn).toHaveBeenCalledWith(expect.stringMatching(/^mwf: addon \(addon\): .*addon cannot start/su))
   expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('late-plugin'))
 })
 
@@ -545,7 +545,7 @@ it.each(['link', 'missing'] as const)('finds the host module graph through a pro
     const main = join(dir, 'main.mjs')
     file(main, "import './node_modules/shared-lib/index.mjs'\n")
     await ModuleLoader.fromInternal()!.import(pathToFileURL(main).href, import.meta.url, {})
-    const entry = join(home, 'bin-dsh')
+    const entry = join(home, 'bin-mwf')
     if (kind === 'link') symlinkSync(main, entry)
     process.argv = [argv[0]!, entry]
   })
@@ -1202,7 +1202,7 @@ it.each(['disabled', 'removed', 'incompatible', 'dynamic'] as const)('never eval
   if (kind === 'incompatible') {
     const path = join(f.dir, 'node_modules', 'addon', 'package.json')
     file(path, JSON.stringify({ name: 'addon', version: '2.0.0', type: 'module', exports: './index.mjs',
-      peerDependencies: { '@deepseek-ai/dsh': '<0.0.0' }, dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+      peerDependencies: { '@metaworkflow/cli': '<0.0.0' }, mwf: { bundle: { patch: './cordis.patch.yml' } } }))
   } else if (kind === 'removed') {
     f.select(['other'])
   } else {
@@ -1223,7 +1223,7 @@ it('restarts both CommonJS requirers of a changed shared child', async () => {
   const f = await fixture(['cjs-addon'], async (_home, dir) => {
     const root = join(dir, 'node_modules', 'other')
     file(join(root, 'package.json'), JSON.stringify({ name: 'other', version: '1.0.0', main: './index.cjs',
-      dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+      mwf: { bundle: { patch: './cordis.patch.yml' } } }))
     file(join(root, 'index.cjs'), `const helper = require('../cjs-addon/helper.cjs')
 exports.apply = ctx => {
   ctx.get('reloadTrace').push('start:second:' + helper.value)

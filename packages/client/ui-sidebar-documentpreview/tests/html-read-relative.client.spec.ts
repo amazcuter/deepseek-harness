@@ -1,11 +1,11 @@
 /** HTML URL decoding stays local; workspace reads leave path resolution and authorization to the Host. */
 import { describe, expect, it, vi } from 'vitest'
-import { RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
-import { sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
+import { RemoteError } from '@metaworkflow/client-test-runtime'
+import { sessionFileAddress } from '@metaworkflow/util-workspace-path'
 import { createReadHtmlRelative } from '../src/client/html/read-relative.ts'
 import type { ReadHtmlRelated } from '../src/client/html/read-relative.ts'
 
-const ADDRESS = 'dsh-resource://file/session/html/sub/index.html'
+const ADDRESS = 'mwf-resource://file/session/html/sub/index.html'
 
 describe('HTML relative file reader', () => {
   it('decodes a relative URL once and preserves the returned bytes', async () => {

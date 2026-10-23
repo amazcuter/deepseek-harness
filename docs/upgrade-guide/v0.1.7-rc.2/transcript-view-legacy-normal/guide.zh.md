@@ -14,7 +14,7 @@ Host 设置 `ui-chat.transcriptView` 对应设置 → 通用设置 → 工作步
 从下一版本起：
 
 - 保存的 `normal` 在 Desktop 和 Web 中均按 `detailed` 展示，磁盘中的保存值不会被改写。
-- 设置缺失、为 `null` 或无效时，非 Desktop Web（npm 安装的 `dsh web`）按 `detailed` 展示；Desktop 仍使用 `standard`。
+- 设置缺失、为 `null` 或无效时，非 Desktop Web（npm 安装的 `mwf web`）按 `detailed` 展示；Desktop 仍使用 `standard`。
 - 已保存的 `compact`、`standard`、`detailed` 和 `verbose` 保持不变。
 
 依赖旧读取方式的用户会看到运行中轮次的过程组正文直接展开，而不是收起的摘要。

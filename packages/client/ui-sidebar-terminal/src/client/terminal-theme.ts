@@ -1,11 +1,11 @@
-/** DSH defaults and application OSC colors for one xterm screen. */
+/** MWF defaults and application OSC colors for one xterm screen. */
 import type { IDisposable, ITheme, Terminal } from '@xterm/xterm'
 
-/* oxlint-disable typescript/no-non-null-assertion -- OSC widths/indices are checked; DSH defaults precede cursor reads. */
+/* oxlint-disable typescript/no-non-null-assertion -- OSC widths/indices are checked; MWF defaults precede cursor reads. */
 const ansiKeys = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white', 'brightBlack', 'brightRed', 'brightGreen', 'brightYellow', 'brightBlue', 'brightMagenta', 'brightCyan', 'brightWhite'] as const
 const specialKeys = ['foreground', 'background', 'cursor'] as const
 
-/** Keep program color overrides separate from the DSH defaults used by OSC resets. */
+/** Keep program color overrides separate from the MWF defaults used by OSC resets. */
 export class TerminalTheme implements IDisposable {
   private defaults: ITheme = {}
   private readonly indexed = new Map<number, string>()
@@ -50,9 +50,9 @@ export class TerminalTheme implements IDisposable {
   }
 
   /**
-   * Apply changed DSH colors without replacing application-defined palette entries.
-   * @param background - resolved opaque DSH background.
-   * @param foreground - resolved DSH text color.
+   * Apply changed MWF colors without replacing application-defined palette entries.
+   * @param background - resolved opaque MWF background.
+   * @param foreground - resolved MWF text color.
    */
   update(background: string, foreground: string): void {
     if (this.defaults.background === background && this.defaults.foreground === foreground) return
@@ -63,7 +63,7 @@ export class TerminalTheme implements IDisposable {
     this.apply()
   }
 
-  /** Preferred cursor color after the initial DSH update, including OSC 12 overrides. */
+  /** Preferred cursor color after the initial MWF update, including OSC 12 overrides. */
   get cursor(): string { return this.special.get('cursor') ?? this.defaults.cursor! }
 
   /** Remove parser observers before the emulator is disposed. */

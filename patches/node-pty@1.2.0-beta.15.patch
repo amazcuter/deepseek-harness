@@ -11,7 +11,7 @@ index af2d24c39deb60e77ad16e6b864f37a7ef58881c..2ece2590445dc1ecce167b8ba4710c31
 -helperPath = helperPath.replace('app.asar', 'app.asar.unpacked');
 -helperPath = helperPath.replace('node_modules.asar', 'node_modules.asar.unpacked');
 +// A current external embedded-runtime consumer supplies a non-sibling helper.
-+var helperPath = process.env.DSH_NODE_PTY_SPAWN_HELPER;
++var helperPath = process.env.MWF_NODE_PTY_SPAWN_HELPER;
 +if (helperPath) {
 +    helperPath = path.resolve(helperPath);
 +}

@@ -1,5 +1,5 @@
 /**
- * `defineMod`: wrap a Claude Code mod's `register(on, options)` as a DSH
+ * `defineMod`: wrap a Claude Code mod's `register(on, options)` as a MWF
  * plugin. Mounting the plugin registers the mod with the bridge service
  * (`ctx.claudeCodeMods`); unmounting it removes the mod's hooks, timers, and
  * registrations. Mods load in composition order, which is their chain order.
@@ -25,7 +25,7 @@ export interface ModSpec {
   readonly register: ModRegister
 }
 
-/** A mod wrapped as a DSH plugin; its config is the mod's `options`. */
+/** A mod wrapped as a MWF plugin; its config is the mod's `options`. */
 export interface ModPlugin {
   readonly name: string
   readonly inject: readonly string[]
@@ -38,7 +38,7 @@ export interface ModPlugin {
 const optionValue = z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])
 
 /**
- * Wrap one mod as a DSH plugin.
+ * Wrap one mod as a MWF plugin.
  * @param spec - the mod's identity, `userConfig` defaults, and `register`.
  * @returns a plugin object for `cordis.yml` or `ctx.plugin`; its `config` overlays `userConfig` as `register`'s `options`.
  */

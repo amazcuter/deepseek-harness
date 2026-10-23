@@ -2,7 +2,7 @@
 import { mkdir, mkdtemp, open } from 'node:fs/promises'
 import { join } from 'node:path'
 import { execa } from 'execa'
-import { scrubbedParentEnv } from '@deepseek-ai/dsh-subprocess'
+import { scrubbedParentEnv } from '@metaworkflow/subprocess'
 import { classifyInstallFailure } from './install-failure.ts'
 import type { ParsedInstallSpec } from './install-spec.ts'
 import type { PackageResult } from './types.ts'
@@ -52,7 +52,7 @@ export async function checkGithubConnection(
       timeout: options.timeoutMs, cancelSignal: options.signal, killDescendants: true, killSignal: 'SIGKILL',
     })
     if (!result.failed) return undefined
-    if (result.timedOut) await log.write(`dsh: connection to ${spec.host} timed out after ${String(options.timeoutMs)}ms\n`)
+    if (result.timedOut) await log.write(`mwf: connection to ${spec.host} timed out after ${String(options.timeoutMs)}ms\n`)
     if ((await log.stat()).size === 0) await log.write(result.shortMessage ?? 'GitHub connection check failed')
     const { size } = await log.stat()
     const bytes = Buffer.alloc(Math.min(size, options.outputBytes))

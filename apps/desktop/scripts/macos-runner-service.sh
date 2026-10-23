@@ -20,7 +20,7 @@ case "$action" in
     launchctl print "gui/$(id -u)" >/dev/null || { echo 'Log into the macOS desktop as this user first' >&2; exit 1; }
     bash "$source_dir/start-macos-packaging-runner.sh" "$runner_root" "$config_root" "$node_bin" --check
     umask 077
-    service_dir="$runner_root/dsh-service"
+    service_dir="$runner_root/mwf-service"
     mkdir -p "$service_dir"
     cp "$source_dir/start-macos-packaging-runner.sh" "$service_dir/start.sh"
     # runsvc.sh reloads .path; replace the interactive PATH saved by registration.

@@ -13,8 +13,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { type SessionEvent } from '@deepseek-ai/dsh-session'
-import { runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
+import { type SessionEvent } from '@metaworkflow/session'
+import { runLoaderSmoke } from '@metaworkflow/loader-smoke'
 
 const fixtureDir = new URL('./fixtures/loader/', import.meta.url)
 const driver = fileURLToPath(new URL('driver.ts', fixtureDir))
@@ -56,16 +56,16 @@ async function childLaunch(failure = false): Promise<{
   childHome: string
   env: Record<string, string>
 }> {
-  const childHome = await mkdtemp(join(tmpdir(), 'dsh-sdk-subagent-home-'))
+  const childHome = await mkdtemp(join(tmpdir(), 'mwf-sdk-subagent-home-'))
   const childPatch = join(childHome, 'child.patch.yml')
   await writeFile(childPatch, (await readFile(childConfigPath, 'utf8'))
     .replace("'./child-mock-llm.ts'", JSON.stringify(pathToFileURL(childMockPath).href)))
   return {
     childHome,
     env: {
-      DSH_TEST_CHILD_PATCHES: JSON.stringify([childPatch]),
-      DSH_TEST_CHILD_HOME: childHome,
-      ...(failure ? { DSH_TEST_CHILD_FAILURE: '1' } : {}),
+      MWF_TEST_CHILD_PATCHES: JSON.stringify([childPatch]),
+      MWF_TEST_CHILD_HOME: childHome,
+      ...(failure ? { MWF_TEST_CHILD_FAILURE: '1' } : {}),
     },
   }
 }
@@ -79,8 +79,8 @@ describe('SDK subagent routing and diagnostics through the production profile', 
     let workspace = ''
     try {
       const { stderr } = await runLoaderSmoke({
-        label: 'dsh-sdk-subagent cwd composition smoke',
-        tempDirPrefix: 'dsh-sdk-subagent-cwd-e2e-',
+        label: 'mwf-sdk-subagent cwd composition smoke',
+        tempDirPrefix: 'mwf-sdk-subagent-cwd-e2e-',
         binScript: driver,
         libBinScript: driver,
         configPath,
@@ -91,8 +91,8 @@ describe('SDK subagent routing and diagnostics through the production profile', 
         processTimeoutMs: 120_000,
         env: {
           ...child.env,
-          DSH_TEST_CHILD_DEFAULT_ROUTE: '1',
-          DSH_TEST_PARENT_MODEL_RECORD: '.parent-model-routes',
+          MWF_TEST_CHILD_DEFAULT_ROUTE: '1',
+          MWF_TEST_PARENT_MODEL_RECORD: '.parent-model-routes',
         },
         inspect: async (cwd) => {
           // The child reports realpaths; canonicalize the temp workspace to match.
@@ -142,8 +142,8 @@ describe('SDK subagent routing and diagnostics through the production profile', 
     let events: SessionEvent[] = []
     try {
       const { stderr } = await runLoaderSmoke({
-        label: 'dsh-sdk-subagent diagnostic composition smoke',
-        tempDirPrefix: 'dsh-sdk-subagent-diagnostic-e2e-',
+        label: 'mwf-sdk-subagent diagnostic composition smoke',
+        tempDirPrefix: 'mwf-sdk-subagent-diagnostic-e2e-',
         binScript: driver,
         libBinScript: driver,
         configPath,
@@ -160,7 +160,7 @@ describe('SDK subagent routing and diagnostics through the production profile', 
       expect(settlementText(events)).toEqual([
         'Its closing message:',
         'partial child loader answer',
-        'Subagent failure (provider: DSH SDK; stage: session-run; category: child-error)',
+        'Subagent failure (provider: MWF SDK; stage: session-run; category: child-error)',
       ])
     } finally {
       await rm(child.childHome, { recursive: true, force: true })

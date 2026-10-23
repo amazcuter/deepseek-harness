@@ -13,17 +13,17 @@ A compatibility layer for Pi plugins is not worth building today, for two reason
 - **The API is unpublished and unstable.** The plugin stack runs only with `PI_EXPERIMENTAL=1`. The `./experimental/plugin` export of `@earendil-works/pi-coding-agent` has only a `source` condition, and the npm tarball excludes its build output. Chord's plan says it "is not a stable public API contract yet" ([PLANNING.md](https://github.com/earendil-works/pi/blob/v1.0.0/packages/chord/PLANNING.md)), and pi-durable, which the Session worker runs on, says its "API changes without notice between releases" ([README](https://github.com/earendil-works/pi/blob/v1.0.0/packages/durable/README.md)). The [services README](https://github.com/earendil-works/pi/blob/v1.0.0/packages/coding-agent/src/experimental/services/README.md) lists `AgentController.navigate()`, `nextRun()`, and `resume()` as dropped.
 - **A plugin can do less than an extension.** The Session worker builds its tool, hook, and prompt registry itself and does not expose it as a service, so a facet cannot register a model tool, intercept a tool call, or change the prompt. Pi ships one example plugin.
 
-Deferring the work without a record loses two results of the investigation: the mapping from Pi's plugin services onto DSH services, which decides what each increment of support costs, and the DSH runtime properties that differ from Chord's, which matter to DSH independently of Pi.
+Deferring the work without a record loses two results of the investigation: the mapping from Pi's plugin services onto MWF services, which decides what each increment of support costs, and the MWF runtime properties that differ from Chord's, which matter to MWF independently of Pi.
 
 ## Proposal
 
-Treat Pi-plugin compatibility as six levels. Each level names what a plugin author gets, the upstream change that makes it worth building, and the DSH work it needs. DSH stays at level 0 until the trigger of a higher level occurs. A level includes the levels below it, except that level 4 replaces the Host-side presentation of level 2.
+Treat Pi-plugin compatibility as six levels. Each level names what a plugin author gets, the upstream change that makes it worth building, and the MWF work it needs. MWF stays at level 0 until the trigger of a higher level occurs. A level includes the levels below it, except that level 4 replaces the Host-side presentation of level 2.
 
-| Level | Support | Upstream trigger | DSH work |
+| Level | Support | Upstream trigger | MWF work |
 |---|---|---|---|
 | 0 | None. This note is the only artifact. | — | Re-read the upstream status when Pi releases. |
-| 1 | `session` facets run in one Chord host per DSH Session. `AgentController`, `Models`, and `SessionPlugins` are served over DSH services. | Pi ships the plugin API in its npm package, or removes the `PI_EXPERIMENTAL` requirement. | One experimental Host package. No core change. |
-| 2 | `tui` facets run on the Host. Their slash commands become DSH commands, `select` becomes a user question, and `showStatus` a status line. Pi's example plugin runs unmodified. | Same as level 1. | Adapters, plus the Web status display of the Pi extensions bridge. |
+| 1 | `session` facets run in one Chord host per MWF Session. `AgentController`, `Models`, and `SessionPlugins` are served over MWF services. | Pi ships the plugin API in its npm package, or removes the `PI_EXPERIMENTAL` requirement. | One experimental Host package. No core change. |
+| 2 | `tui` facets run on the Host. Their slash commands become MWF commands, `select` becomes a user question, and `showStatus` a status line. Pi's example plugin runs unmodified. | Same as level 1. | Adapters, plus the Web status display of the Pi extensions bridge. |
 | 3 | `Transcript` is served, and a Session's plugin selection is stored with the Session. | A plugin that consumes `Transcript` exists, or pi-durable declares `ConversationView` stable. | A projection from the Session log to `ConversationView`, and a per-Session selection record. |
 | 4 | `tui` facets run in the browser and reach Session services through a generic Chord bridge. | Chord commits to browser support, and Pi defines a presentation facet that is not terminal-specific. | One generic JSON Remote endpoint, a browser facet loader, and argument text for Client commands. |
 | 5 | Parity: one worker per Session, and plugins register model tools and hooks. | Pi exposes its tool and hook registry to facets. | Per-Session process isolation, and the tool and hook mappings of the Pi extensions bridge. |
@@ -58,14 +58,14 @@ The loader resolves two externals itself. `@earendil-works/chord` resolves to th
 
 The package creates one Chord host per Agent in `agent/created` and disposes it with the Agent's context. Built-in facets serve Pi's Session services:
 
-| Pi member | DSH mechanism | Difference |
+| Pi member | MWF mechanism | Difference |
 |---|---|---|
 | `AgentController.prompt` | `agent.followup()` | Refusal with `busy` is derived from `agent.status`. |
 | `steer`, `followUp` | `agent.steer()`, `agent.followup()` | None. |
 | `cancelQueued` | `agent.inbox.remove()` | Telling `already_consumed` from `not_found` reads the Session log. |
 | `abort` | `agent.cancel()` | None. |
-| `compact` | `ctx.compaction.compactNow()` | Non-null `customInstructions` is refused; DSH compaction takes none. |
-| `waitForPrompt` | A fold over Session events from the queued message to its `turn/end` | DSH does not link a prompt to its answer; the fold does. |
+| `compact` | `ctx.compaction.compactNow()` | Non-null `customInstructions` is refused; MWF compaction takes none. |
+| `waitForPrompt` | A fold over Session events from the queued message to its `turn/end` | MWF does not link a prompt to its answer; the fold does. |
 | `Models` | The model catalog and model selection of `session-controller` | Reasoning-effort identifiers stand in for Pi's thinking levels. |
 | `SessionPlugins.reload` | Rebuild, `FacetHost.reload()`, then dispose the retired generation | None. |
 
@@ -73,37 +73,37 @@ The package creates one Chord host per Agent in `agent/created` and disposes it 
 
 ## Level 2: presentation facets on the Host
 
-Pi's `tui` facets use no terminal API. They consume `SlashCommands`, `PresentationUI`, and Session services, so they can run in a second Chord host per Agent on the DSH Host, bound in-process to the Session host.
+Pi's `tui` facets use no terminal API. They consume `SlashCommands`, `PresentationUI`, and Session services, so they can run in a second Chord host per Agent on the MWF Host, bound in-process to the Session host.
 
-A registered slash command becomes an Agent-scoped `ctx.commands` registration whose handler passes the raw input as `args`. A command run on the Host is logged as `command/run` and `command/done`; Pi does not log presentation commands. `getArgumentCompletions` has no DSH counterpart and is not called. `PresentationUI.select` maps to `ctx.userQuestions.ask()` and needs a connected Web Client; `showStatus` maps to the status display the Pi extensions bridge adds to the Web Client.
+A registered slash command becomes an Agent-scoped `ctx.commands` registration whose handler passes the raw input as `args`. A command run on the Host is logged as `command/run` and `command/done`; Pi does not log presentation commands. `getArgumentCompletions` has no MWF counterpart and is not called. `PresentationUI.select` maps to `ctx.userQuestions.ask()` and needs a connected Web Client; `showStatus` maps to the status display the Pi extensions bridge adds to the Web Client.
 
 ## Level 3: transcript and stored selection
 
-`Transcript` requires a projection from DSH Session events to pi-durable's `ConversationView`: entries in pi-durable's entry kinds plus its live, inbox, agent, and usage documents. The projection is lossy where DSH records events Pi has no entry for, and it binds DSH to a type pi-durable declares unstable.
+`Transcript` requires a projection from MWF Session events to pi-durable's `ConversationView`: entries in pi-durable's entry kinds plus its live, inbox, agent, and usage documents. The projection is lossy where MWF records events Pi has no entry for, and it binds MWF to a type pi-durable declares unstable.
 
 A Session's plugin selection is stored as a `plugin:`-prefixed ignorable Session record, the mechanism the Pi extensions bridge uses for extension state, and a live Agent's selection is fixed, as in Pi.
 
 ## Level 4: presentation facets in the browser
 
-Running `tui` facets in the page matches Pi's placement of presentation code. It needs three additions. A browser loader evaluates the CommonJS artifact, because Chord's artifact loader uses the filesystem and `node:vm`. One generic Remote endpoint carries Chord's service calls, snapshots, and updates as JSON between the page and the Host, because DSH generates Remote methods at build time and the Client does not discover Host services at runtime. Client commands accept argument text, which `ui-commands` actions do not receive today.
+Running `tui` facets in the page matches Pi's placement of presentation code. It needs three additions. A browser loader evaluates the CommonJS artifact, because Chord's artifact loader uses the filesystem and `node:vm`. One generic Remote endpoint carries Chord's service calls, snapshots, and updates as JSON between the page and the Host, because MWF generates Remote methods at build time and the Client does not discover Host services at runtime. Client commands accept argument text, which `ui-commands` actions do not receive today.
 
 ## Level 5: parity
 
-Pi isolates each Session in a worker process and plans to give plugins tools and hooks through its registry. Matching that needs a DSH Session to run in its own process or worker thread with Chord's service protocol across the process boundary, and, once Pi exposes the registry, the tool, hook, and prompt mappings that the Pi extensions bridge already defines.
+Pi isolates each Session in a worker process and plans to give plugins tools and hooks through its registry. Matching that needs a MWF Session to run in its own process or worker thread with Chord's service protocol across the process boundary, and, once Pi exposes the registry, the tool, hook, and prompt mappings that the Pi extensions bridge already defines.
 
 ## Runtime differences the plugin model exposes
 
-| Property | Chord and Pi | DSH | Levels affected |
+| Property | Chord and Pi | MWF | Levels affected |
 |---|---|---|---|
-| Provider replacement | A consumer holds a handle that resolves the current provider on each access; a reload swaps the implementation behind it. | A fiber whose injected service changes is unloaded and re-run. | 1: the Chord host keeps Chord's behavior for services between facets; a DSH service mapped into Chord still restarts its adapter. |
+| Provider replacement | A consumer holds a handle that resolves the current provider on each access; a reload swaps the implementation behind it. | A fiber whose injected service changes is unloaded and re-run. | 1: the Chord host keeps Chord's behavior for services between facets; a MWF service mapped into Chord still restarts its adapter. |
 | Fault isolation | One worker process per Session. | All Sessions share the Host process, and an uncaught exception or unhandled rejection disposes the application ([app-boot](../../../../packages/boot/app-boot/README.md)). | 1–4 run plugin code in the Host; 5 removes the difference. |
 | Remote declaration | A host publishes a service's remote members from the object it was given at runtime. | Remote methods are generated at build time, and the Client does not discover Host services at runtime ([remotes](../../../../packages/api/remotes/README.md)). | 4 |
 | Shared state | Replicated JSON state with operation batches, hydration, and gap recovery, read through one API locally and remotely. | Each domain defines its own snapshot and delta types, or publishes complete projection values. | 3, 4 |
 | Runtime loading | One bundle per facet, loaded outside the module cache after an integrity check. | Packages are built ahead of time; a built installation does not transpile TypeScript. | 1 adds Chord's bundler as a dependency of the plugin package. |
 
-## Chord mechanisms to evaluate for DSH
+## Chord mechanisms to evaluate for MWF
 
-Four Chord mechanisms address limits DSH has independently of Pi. Each needs its own proposal; this note only records them.
+Four Chord mechanisms address limits MWF has independently of Pi. Each needs its own proposal; this note only records them.
 
 - **Stable service handles.** A consumer keeps its handle while a provider is replaced, so a plugin reload does not restart its dependents and lose their state.
 - **Declaration before activation.** Setup declares every dependency synchronously, and the host rejects a missing provider, a duplicate provider, or a cycle before any facet activates. Cordis resolves dependencies as services appear, so a fiber with a missing provider stays pending until an audit after startup reports it.
@@ -114,7 +114,7 @@ Four Chord mechanisms address limits DSH has independently of Pi. Each needs its
 
 **Build levels 1 and 2 now as a prototype.** The API is unpublished, has one example plugin, and its services README already lists three `AgentController` methods as dropped. A prototype would need maintenance against each Pi release without a user. The service mapping above keeps the design result without that cost.
 
-**Skip the record and decide when Pi stabilizes.** The service mapping and the runtime comparison took a full reading of Chord and Pi's experimental server, worker, and client. The runtime differences also apply to DSH work that has nothing to do with Pi.
+**Skip the record and decide when Pi stabilizes.** The service mapping and the runtime comparison took a full reading of Chord and Pi's experimental server, worker, and client. The runtime differences also apply to MWF work that has nothing to do with Pi.
 
 **Implement Pi's plugin services on Cordis without Chord.** A facet calls Chord's API directly: `env.use`, `env.provide`, and `replicatedState`. Serving that API without Chord means reimplementing graph validation, stable handles, keyed services, and replicated state. Chord is MIT-licensed, has one runtime dependency, and is the runtime plugins are compiled against.
 

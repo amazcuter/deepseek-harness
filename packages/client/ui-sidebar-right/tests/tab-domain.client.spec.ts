@@ -7,9 +7,9 @@
  * records are left alone, and a tab's own actions name the tab's session and land where the tab is now.
  */
 import { describe, expect, it, vi } from 'vitest'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { LayoutState, TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
-import { DockController, getPane } from '@deepseek-ai/dsh-client-ui-dockkit'
+import type { SessionId } from '@metaworkflow/session/types'
+import type { LayoutState, TabId } from '@metaworkflow/client-ui-dockkit'
+import { DockController, getPane } from '@metaworkflow/client-ui-dockkit'
 import { TabDomain } from '../src/client/tab-domain.ts'
 import type { SidebarRightNavigator } from '../src/client/tab-domain.ts'
 
@@ -52,10 +52,10 @@ function recordOf(state: LayoutState, tabId: TabId) {
 describe('TabDomain — occurrences follow records', () => {
   it('pins a record\'s address when it first appears, with the occurrence\'s signal', () => {
     const { domain, pin, controller, current } = harness()
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     domain.sync(SESSION, current())
     const occurrence = domain.occurrence(SESSION, recordOf(current(), tabId))
-    expect(pin).toHaveBeenCalledWith('dsh-resource://file/session/s-one/a.txt', occurrence.signal)
+    expect(pin).toHaveBeenCalledWith('mwf-resource://file/session/s-one/a.txt', occurrence.signal)
     expect(occurrence.signal.aborted).toBe(false)
     // Seeded records are occurrences too; the guide is pinned like anything else.
     expect(pin).toHaveBeenCalledWith('sidebar://guide', expect.any(AbortSignal))
@@ -64,7 +64,7 @@ describe('TabDomain — occurrences follow records', () => {
 
   it('pins once per occurrence, however many times the layout commits', () => {
     const { domain, pin, controller, current } = harness()
-    controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     domain.sync(SESSION, current())
     controller.setExpanded(true)
     domain.sync(SESSION, current())
@@ -73,7 +73,7 @@ describe('TabDomain — occurrences follow records', () => {
 
   it('aborts the occurrence when its record vanishes, and builds a new one when undo restores it', () => {
     const { domain, pin, controller, current } = harness()
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     domain.sync(SESSION, current())
     const first = domain.occurrence(SESSION, recordOf(current(), tabId))
     controller.closeTab(tabId)
@@ -84,13 +84,13 @@ describe('TabDomain — occurrences follow records', () => {
     const second = domain.occurrence(SESSION, recordOf(current(), tabId))
     expect(second).not.toBe(first)
     expect(second.signal.aborted).toBe(false)
-    expect(second.navigation.getSnapshot()).toEqual({ address: 'dsh-resource://file/session/s-one/a.txt', params: undefined, revision: 0 })
-    expect(pin.mock.calls.filter(([address]) => address === 'dsh-resource://file/session/s-one/a.txt')).toHaveLength(2)
+    expect(second.navigation.getSnapshot()).toEqual({ address: 'mwf-resource://file/session/s-one/a.txt', params: undefined, revision: 0 })
+    expect(pin.mock.calls.filter(([address]) => address === 'mwf-resource://file/session/s-one/a.txt')).toHaveLength(2)
   })
 
   it('leaves another session\'s occurrences alone when a session is synced', () => {
     const { domain, controller, current } = harness()
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     domain.sync(SESSION, current())
     const held = domain.occurrence(SESSION, recordOf(current(), tabId))
     const other = layouts()
@@ -100,7 +100,7 @@ describe('TabDomain — occurrences follow records', () => {
 
   it('aborts every occurrence of every session on dispose', () => {
     const { domain, controller, current } = harness()
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     domain.sync(SESSION, current())
     domain.sync(OTHER, layouts().current())
     const held = domain.occurrence(SESSION, recordOf(current(), tabId))
@@ -112,38 +112,38 @@ describe('TabDomain — occurrences follow records', () => {
 describe('TabDomain — navigation', () => {
   it('creates the occurrence for a tab the seat has not shown yet, at revision 1, and pins it on the next sync', () => {
     const { domain, pin, controller, current } = harness()
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
-    domain.navigate(SESSION, tabId, { address: 'dsh-resource://file/session/s-one/a.txt', params: { line: 7 } })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
+    domain.navigate(SESSION, tabId, { address: 'mwf-resource://file/session/s-one/a.txt', params: { line: 7 } })
     expect(pin).not.toHaveBeenCalled()
     const occurrence = domain.occurrence(SESSION, recordOf(current(), tabId))
-    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'dsh-resource://file/session/s-one/a.txt', params: { line: 7 }, revision: 1 })
+    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'mwf-resource://file/session/s-one/a.txt', params: { line: 7 }, revision: 1 })
     domain.sync(SESSION, current())
     expect(domain.occurrence(SESSION, recordOf(current(), tabId))).toBe(occurrence)
-    expect(pin).toHaveBeenCalledWith('dsh-resource://file/session/s-one/a.txt', occurrence.signal)
+    expect(pin).toHaveBeenCalledWith('mwf-resource://file/session/s-one/a.txt', occurrence.signal)
   })
 
   it('steps the revision on every navigation, params changed or not, and notifies', () => {
     const { domain, controller, current } = harness()
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     domain.sync(SESSION, current())
     const occurrence = domain.occurrence(SESSION, recordOf(current(), tabId))
     const seen = vi.fn()
     occurrence.navigation.subscribe(seen)
-    domain.navigate(SESSION, tabId, { address: 'dsh-resource://file/session/s-one/a.txt', params: { line: 3 } })
-    domain.navigate(SESSION, tabId, { address: 'dsh-resource://file/session/s-one/a.txt', params: { line: 3 } })
-    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'dsh-resource://file/session/s-one/a.txt', params: { line: 3 }, revision: 2 })
+    domain.navigate(SESSION, tabId, { address: 'mwf-resource://file/session/s-one/a.txt', params: { line: 3 } })
+    domain.navigate(SESSION, tabId, { address: 'mwf-resource://file/session/s-one/a.txt', params: { line: 3 } })
+    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'mwf-resource://file/session/s-one/a.txt', params: { line: 3 }, revision: 2 })
     expect(seen).toHaveBeenCalledTimes(2)
   })
 
   it('refuses an uncommitted occurrence without creating it during a read', () => {
     const { domain, pin, controller, current } = harness()
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     expect(() => domain.occurrence(SESSION, { id: tabId })).toThrow('has no committed occurrence')
     expect(pin).not.toHaveBeenCalled()
     domain.sync(SESSION, current())
     const occurrence = domain.occurrence(SESSION, { id: tabId })
     expect(domain.occurrence(SESSION, { id: tabId })).toBe(occurrence)
-    expect(pin).toHaveBeenCalledWith('dsh-resource://file/session/s-one/a.txt', occurrence.signal)
+    expect(pin).toHaveBeenCalledWith('mwf-resource://file/session/s-one/a.txt', occurrence.signal)
     controller.closeTab(tabId)
     domain.sync(SESSION, current())
     expect(() => domain.occurrence(SESSION, { id: tabId })).toThrow('has no committed occurrence')
@@ -154,7 +154,7 @@ describe('TabDomain — a tab\'s own actions', () => {
   it('opens into the pane holding the tab at call time, including after it was moved', () => {
     const { domain, navigator, controller, current } = harness()
     controller.setExpanded(true)
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     controller.splitPane()
     domain.sync(SESSION, current())
     const occurrence = domain.occurrence(SESSION, recordOf(current(), tabId))
@@ -164,29 +164,29 @@ describe('TabDomain — a tab\'s own actions', () => {
     if (left === undefined || right === undefined) throw new Error('expected two panes')
     const leftPane = getPane(current(), left).id
     const rightPane = getPane(current(), right).id
-    occurrence.tabActions.openResource('dsh-resource://file/session/s-one/b.txt')
-    expect(navigator.openResourceIn).toHaveBeenLastCalledWith(SESSION, 'dsh-resource://file/session/s-one/b.txt', { paneId: leftPane })
+    occurrence.tabActions.openResource('mwf-resource://file/session/s-one/b.txt')
+    expect(navigator.openResourceIn).toHaveBeenLastCalledWith(SESSION, 'mwf-resource://file/session/s-one/b.txt', { paneId: leftPane })
     controller.placeTab(tabId, rightPane, 0)
     domain.sync(SESSION, current())
-    occurrence.tabActions.openResource('dsh-resource://file/session/s-one/b.txt', { params: { line: 1 } })
-    expect(navigator.openResourceIn).toHaveBeenLastCalledWith(SESSION, 'dsh-resource://file/session/s-one/b.txt', { paneId: rightPane, params: { line: 1 } })
+    occurrence.tabActions.openResource('mwf-resource://file/session/s-one/b.txt', { params: { line: 1 } })
+    expect(navigator.openResourceIn).toHaveBeenLastCalledWith(SESSION, 'mwf-resource://file/session/s-one/b.txt', { paneId: rightPane, params: { line: 1 } })
     // The caller's pane wins over the default.
-    occurrence.tabActions.openResource('dsh-resource://file/session/s-one/b.txt', { paneId: leftPane })
-    expect(navigator.openResourceIn).toHaveBeenLastCalledWith(SESSION, 'dsh-resource://file/session/s-one/b.txt', { paneId: leftPane })
+    occurrence.tabActions.openResource('mwf-resource://file/session/s-one/b.txt', { paneId: leftPane })
+    expect(navigator.openResourceIn).toHaveBeenLastCalledWith(SESSION, 'mwf-resource://file/session/s-one/b.txt', { paneId: leftPane })
   })
 
   it('opens unplaced from a floating tab, since a floating pane holds one tab', () => {
     const { domain, navigator, controller, current } = harness()
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     controller.floatTab(tabId)
     domain.sync(SESSION, current())
-    domain.occurrence(SESSION, recordOf(current(), tabId)).tabActions.openResource('dsh-resource://file/session/s-one/b.txt')
-    expect(navigator.openResourceIn).toHaveBeenLastCalledWith(SESSION, 'dsh-resource://file/session/s-one/b.txt', {})
+    domain.occurrence(SESSION, recordOf(current(), tabId)).tabActions.openResource('mwf-resource://file/session/s-one/b.txt')
+    expect(navigator.openResourceIn).toHaveBeenLastCalledWith(SESSION, 'mwf-resource://file/session/s-one/b.txt', {})
   })
 
   it('replaces itself and closes itself through the navigator', () => {
     const { domain, navigator, controller, current } = harness()
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     domain.sync(SESSION, current())
     const { tabActions } = domain.occurrence(SESSION, recordOf(current(), tabId))
     tabActions.openTab('files', { replaceTab: true })
@@ -197,16 +197,16 @@ describe('TabDomain — a tab\'s own actions', () => {
 
   it('passes placement options through, so a tab may prefer a new pane and open a second copy', () => {
     const { domain, navigator, controller, current } = harness()
-    const tabId = controller.openContent({ kind: 'text', contentId: 'dsh-resource://file/session/s-one/a.txt', title: 'a' })
+    const tabId = controller.openContent({ kind: 'text', contentId: 'mwf-resource://file/session/s-one/a.txt', title: 'a' })
     domain.sync(SESSION, current())
     const { tabActions } = domain.occurrence(SESSION, recordOf(current(), tabId))
-    tabActions.openResource('dsh-resource://file/session/s-one/a.txt', {
+    tabActions.openResource('mwf-resource://file/session/s-one/a.txt', {
       preferNewPane: true,
       revealIfOpened: false,
     })
     expect(navigator.openResourceIn).toHaveBeenLastCalledWith(
       SESSION,
-      'dsh-resource://file/session/s-one/a.txt',
+      'mwf-resource://file/session/s-one/a.txt',
       { paneId: current().rootId, preferNewPane: true, revealIfOpened: false },
     )
   })

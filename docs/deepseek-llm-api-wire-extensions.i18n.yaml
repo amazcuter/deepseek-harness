@@ -3,32 +3,32 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/deepseek-llm-api-wire-extensions.md
 /official-deepseek-llm-api-wire-extensions:
-  en: 39729b071744e94b
-  zh: f3a1913295e78b5f
+  en: da20fdb35a925568
+  zh: e3fd87f15f23ba33
 /official-deepseek-llm-api-wire-extensions/wire-namespaces-and-versioning:
-  en: 1da81051addc4b47
-  zh: 3e8d7cd3f8c1cdba
+  en: ef91fcfbf85d02b2
+  zh: d3703fb8d2736d18
 /official-deepseek-llm-api-wire-extensions/request-headers:
   en: 740e92e903ecb594
   zh: f934d3c9e5c56bfe
 /official-deepseek-llm-api-wire-extensions/body-extension-transaction:
   en: 48001cfd1281a23b
   zh: d410530ae8aa2823
-/official-deepseek-llm-api-wire-extensions/dsh-plugin-packages:
-  en: f89059050613f3e8
-  zh: da5cf2a4eeb81b75
-/official-deepseek-llm-api-wire-extensions/dsh-session-log:
-  en: de1a3f2c377d74e3
-  zh: 7c803345f71117c5
-/official-deepseek-llm-api-wire-extensions/dsh-session-log/wire-session-header:
-  en: ccd8fcd773df21c4
-  zh: 7ea020068ad093ae
-/official-deepseek-llm-api-wire-extensions/dsh-session-log/canonical-event-envelopes:
+/official-deepseek-llm-api-wire-extensions/mwf-plugin-packages:
+  en: 19b04ea5629960ba
+  zh: de5f5d682dc7baf5
+/official-deepseek-llm-api-wire-extensions/mwf-session-log:
+  en: 53445ce3eac002c5
+  zh: 48b92612040c2aac
+/official-deepseek-llm-api-wire-extensions/mwf-session-log/wire-session-header:
+  en: 0ebc1bb3e56beb3c
+  zh: 716fd724e524228e
+/official-deepseek-llm-api-wire-extensions/mwf-session-log/canonical-event-envelopes:
   en: 008a21df5e314154
   zh: 8855710a37542ec5
-/official-deepseek-llm-api-wire-extensions/dsh-session-log/acceptance-watermark-and-at-least-once-delivery:
+/official-deepseek-llm-api-wire-extensions/mwf-session-log/acceptance-watermark-and-at-least-once-delivery:
   en: 4d84cb1e61f9cf58
   zh: 8a63ce3069e2f0b3
 /official-deepseek-llm-api-wire-extensions/exposure-and-receiver-requirements:
-  en: ae93d9a44245b12f
-  zh: 8b95fc66c6e653c2
+  en: fbf3fe47d5511365
+  zh: 98d20642122ebf32

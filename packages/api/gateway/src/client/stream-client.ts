@@ -1,6 +1,6 @@
 /** Client owner for the Gateway multiplexed Remote stream socket. */
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import type { ConnectionWebSocket } from '@deepseek-ai/dsh-client-connection/client'
+import { RemoteError } from '@metaworkflow/typert-protocol'
+import type { ConnectionWebSocket } from '@metaworkflow/client-connection/client'
 
 import {
   parseRemoteStreamServerMessage,
@@ -8,8 +8,8 @@ import {
   type RemoteStreamClientMessage,
   type RemoteStreamServerMessage,
 } from '../stream-protocol.ts'
-import { Deque } from '@deepseek-ai/dsh-deque'
-import { randomUUID } from '@deepseek-ai/dsh-util-crypto'
+import { Deque } from '@metaworkflow/deque'
+import { randomUUID } from '@metaworkflow/util-crypto'
 
 /** Physical Remote stream socket failure that may be retried by a domain transport. */
 export class RemoteStreamCarrierError extends Error {
@@ -503,8 +503,8 @@ function remoteStreamUrl(): string {
   // The mux route is registered absolute; a page resolves its document-relative
   // form against its own document base. A shell-owned Host on another origin
   // supplies that base through the transport.
-  const globals = globalThis as { __DSH_TRANSPORT__?: { streamBaseUrl?: string } }
-  const url = new URL(REMOTE_STREAM_MUX_PATH.slice(1), globals.__DSH_TRANSPORT__?.streamBaseUrl ?? document.baseURI)
+  const globals = globalThis as { __MWF_TRANSPORT__?: { streamBaseUrl?: string } }
+  const url = new URL(REMOTE_STREAM_MUX_PATH.slice(1), globals.__MWF_TRANSPORT__?.streamBaseUrl ?? document.baseURI)
   url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
   return url.href
 }

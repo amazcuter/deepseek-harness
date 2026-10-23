@@ -3,13 +3,13 @@ description: "面向与 SSH 子进程共享文件的消费方，说明远端文�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-fs-ssh
+# @metaworkflow/fs-ssh
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-fs-ssh` 在 SSH 辅助进程的文件系统中提供 `ctx.fs`。文件工具读写的文件与远端 Bash、终端、语言服务器和 Node 程序看到的文件一致。远端路径规范化、版本保护及原子修改使用辅助程序旁安装的本地文件系统实现。
+`mwf-fs-ssh` 在 SSH 辅助进程的文件系统中提供 `ctx.fs`。文件工具读写的文件与远端 Bash、终端、语言服务器和 Node 程序看到的文件一致。远端路径规范化、版本保护及原子修改使用辅助程序旁安装的本地文件系统实现。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-将本提供方与 [`dsh-ssh`](../ssh/README.zh.md) 及 `sandboxPolicy` 一同挂载，并使用配套 SSH 子进程与沙箱提供方执行程序。本提供方没有配置字段：连接身份和默认工作区属于 `dsh-ssh`，文件效果模式属于 `sandboxPolicy`。
+将本提供方与 [`mwf-ssh`](../ssh/README.zh.md) 及 `sandboxPolicy` 一同挂载，并使用配套 SSH 子进程与沙箱提供方执行程序。本提供方没有配置字段：连接身份和默认工作区属于 `mwf-ssh`，文件效果模式属于 `sandboxPolicy`。
 
 `resolve()` 在远端主机上规范化路径。`processPath()` 与 `fileUrl()` 在同一个远端命名空间中标识文件，并不授予主机侧访问能力。文件 URL 对字面的百分号、反斜杠和换行进行编码，保留原文件名。`processPathFromHostPath()` 返回 `undefined`，因此需要已安装可执行文件或引导程序的消费方必须显式提供远端产物。
 

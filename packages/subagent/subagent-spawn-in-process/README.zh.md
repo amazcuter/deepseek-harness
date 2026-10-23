@@ -3,13 +3,13 @@ description: "面向用户与维护者的进程内 spawn subagent 后端说明�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-subagent-spawn-in-process
+# @metaworkflow/subagent-spawn-in-process
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-subagent-spawn-in-process` 是一个进程内 subagent 后端：它在当前进程中运行每个委派任务，子 agent（智能体）是一个全新子 `Agent`，复用宿主的 agent 工厂及 LLM（大语言模型）/工具服务。子 agent 以空对话开始，因此任务提示词必须自足；除非 `request.agentOptions` 覆盖，否则它继承父 agent 的工作目录、会话谱系、提供方、模型、推理强度与输出 token 上限。委派工具或 API 调用以 `spawn` 提供方名称找到它。需要成本最低的委派传输时选择它；需要子 agent 建立在父级已完成对话轮次之上时，请选择 fork 后端。
+`mwf-subagent-spawn-in-process` 是一个进程内 subagent 后端：它在当前进程中运行每个委派任务，子 agent（智能体）是一个全新子 `Agent`，复用宿主的 agent 工厂及 LLM（大语言模型）/工具服务。子 agent 以空对话开始，因此任务提示词必须自足；除非 `request.agentOptions` 覆盖，否则它继承父 agent 的工作目录、会话谱系、提供方、模型、推理强度与输出 token 上限。委派工具或 API 调用以 `spawn` 提供方名称找到它。需要成本最低的委派传输时选择它；需要子 agent 建立在父级已完成对话轮次之上时，请选择 fork 后端。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在需要把工作委派给全新进程内子 agent 的组合中挂载此后端。常用配置路径很明确：加载 subagent 服务与本后端，再把 `dsh-tool-subagent` 之类的委派工具指向 `spawn` 提供方。
+在需要把工作委派给全新进程内子 agent 的组合中挂载此后端。常用配置路径很明确：加载 subagent 服务与本后端，再把 `mwf-tool-subagent` 之类的委派工具指向 `spawn` 提供方。
 
 ### 何时选择
 
@@ -36,9 +36,9 @@ kind: "package-reference"
 先加载 subagent 服务与本后端，再为每个目标配置一个委派工具。这是暴露由 spawn 支撑的 `subagent` 工具的最小组合：
 
 ```yaml
-- name: '@deepseek-ai/dsh-subagent'
-- name: '@deepseek-ai/dsh-subagent-spawn-in-process'
-- name: '@deepseek-ai/dsh-tool-subagent'
+- name: '@metaworkflow/subagent'
+- name: '@metaworkflow/subagent-spawn-in-process'
+- name: '@metaworkflow/tool-subagent'
   config:
     provider: spawn
 ```
@@ -47,7 +47,7 @@ kind: "package-reference"
 |---|---|---|
 | `providerName` | `spawn` | 注册到 `ctx.subagents` 的提供方名称 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-subagent-spawn-in-process)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#metaworkflowsubagent-spawn-in-process)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 一次委派会做什么
 
@@ -67,7 +67,7 @@ kind: "package-reference"
 
 ### 设计理念
 
-本后端注册提供方并准备全新子会话。`dsh-subagent` 拥有 activation 的深度检查、子 agent 创建、preset 组装、结构化输出、结果收集及资源释放；发布前的调用方信号取消创建，发布后的句柄通过 `dispose()` 取消并等待完全停稳。
+本后端注册提供方并准备全新子会话。`mwf-subagent` 拥有 activation 的深度检查、子 agent 创建、preset 组装、结构化输出、结果收集及资源释放；发布前的调用方信号取消创建，发布后的句柄通过 `dispose()` 取消并等待完全停稳。
 
 ### 源码地图
 
@@ -93,9 +93,9 @@ kind: "package-reference"
 当包级约定不够用时阅读以下页面；它们从共享 subagent 模型进入兄弟后端与穷尽式配置。
 
 - [Subagent 子系统](../../../docs/subsystems/subagent.zh.md)——启动请求、结果、实时运行与提供方约定。
-- [dsh-subagent-fork-in-process](../subagent-fork-in-process/README.zh.md)——以已完成父级轮次作初始内容的兄弟后端。
-- [dsh-tool-subagent](../tool-subagent/README.zh.md)——指向该提供方的面向模型委派工具。
-- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-subagent-spawn-in-process)——每个受支持配置字段及其源声明。
+- [mwf-subagent-fork-in-process](../subagent-fork-in-process/README.zh.md)——以已完成父级轮次作初始内容的兄弟后端。
+- [mwf-tool-subagent](../tool-subagent/README.zh.md)——指向该提供方的面向模型委派工具。
+- [生成配置目录](../../../docs/config-catalog.zh.md#metaworkflowsubagent-spawn-in-process)——每个受支持配置字段及其源声明。
 
 -----
 
@@ -120,7 +120,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-通过 `dsh-tool-subagent`，父级先收到子会话 ID，随后收到包含最终答案的完成通知。子级自行编写的消息通过 `send_message` 到达。子级内部工具调用保留在子会话中。
+通过 `mwf-tool-subagent`，父级先收到子会话 ID，随后收到包含最终答案的完成通知。子级自行编写的消息通过 `send_message` 到达。子级内部工具调用保留在子会话中。
 
 #### Token 影响
 

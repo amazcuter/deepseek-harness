@@ -3,13 +3,13 @@ description: "In-process spawn subagent backend for users and maintainers choosi
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-subagent-spawn-in-process
+# @metaworkflow/subagent-spawn-in-process
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-subagent-spawn-in-process` is an in-process subagent backend: it runs each delegated task in a fresh child agent that shares this process and its agent factory, LLM, and tool services. The child starts with an empty conversation, so a task prompt must stand alone; it inherits the parent's working directory, session lineage, provider, model, reasoning effort, and output-token limit unless `request.agentOptions` overrides them. A delegation tool or API call reaches it under the `spawn` provider name. Choose it for the cheapest delegation transport; choose the fork backend when the child must build on the parent's completed conversation turns.
+`mwf-subagent-spawn-in-process` is an in-process subagent backend: it runs each delegated task in a fresh child agent that shares this process and its agent factory, LLM, and tool services. The child starts with an empty conversation, so a task prompt must stand alone; it inherits the parent's working directory, session lineage, provider, model, reasoning effort, and output-token limit unless `request.agentOptions` overrides them. A delegation tool or API call reaches it under the `spawn` provider name. Choose it for the cheapest delegation transport; choose the fork backend when the child must build on the parent's completed conversation turns.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this backend in a composition that delegates work to fresh in-process children. The common path is explicit: load the subagent service and this backend, then point a delegation tool such as `dsh-tool-subagent` at the `spawn` provider.
+Mount this backend in a composition that delegates work to fresh in-process children. The common path is explicit: load the subagent service and this backend, then point a delegation tool such as `mwf-tool-subagent` at the `spawn` provider.
 
 ### When to choose it
 
@@ -36,9 +36,9 @@ Choose the spawn backend when the child needs no parent conversation and running
 Load the subagent service and this backend, then configure one delegation tool per target. This is the smallest composition that exposes a `subagent` tool backed by spawn:
 
 ```yaml
-- name: '@deepseek-ai/dsh-subagent'
-- name: '@deepseek-ai/dsh-subagent-spawn-in-process'
-- name: '@deepseek-ai/dsh-tool-subagent'
+- name: '@metaworkflow/subagent'
+- name: '@metaworkflow/subagent-spawn-in-process'
+- name: '@metaworkflow/tool-subagent'
   config:
     provider: spawn
 ```
@@ -47,7 +47,7 @@ Load the subagent service and this backend, then configure one delegation tool p
 |---|---|---|
 | `providerName` | `spawn` | Provider name registered on `ctx.subagents` |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-subagent-spawn-in-process) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowsubagent-spawn-in-process) is the exhaustive source for every accepted field and its JSDoc.
 
 ### What a delegation does
 
@@ -67,7 +67,7 @@ This section explains provider preparation and the activation lifecycle owned by
 
 ### Design concept
 
-This backend registers the provider and prepares a fresh child session. `dsh-subagent` owns activation depth checks, child creation, preset composition, structured output, result collection, and disposal. The caller signal cancels unpublished creation; the published handle cancels and reaches quiescence through `dispose()`.
+This backend registers the provider and prepares a fresh child session. `mwf-subagent` owns activation depth checks, child creation, preset composition, structured output, result collection, and disposal. The caller signal cancels unpublished creation; the published handle cancels and reaches quiescence through `dispose()`.
 
 ### Source map
 
@@ -93,9 +93,9 @@ The child has its own registration scope below the inherited or independently se
 Read these pages when the package-level contract is not enough; they move from the shared subagent model to the sibling backends and exhaustive configuration.
 
 - [Subagent subsystem](../../../docs/subsystems/subagent.md) — start requests, results, live runs, and the provider contract.
-- [dsh-subagent-fork-in-process](../subagent-fork-in-process/README.md) — the sibling backend that seeds completed parent turns.
-- [dsh-tool-subagent](../tool-subagent/README.md) — the model-facing delegation tool that reaches this provider.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-subagent-spawn-in-process) — every accepted config field and its source declaration.
+- [mwf-subagent-fork-in-process](../subagent-fork-in-process/README.md) — the sibling backend that seeds completed parent turns.
+- [mwf-tool-subagent](../tool-subagent/README.md) — the model-facing delegation tool that reaches this provider.
+- [Generated configuration catalog](../../../docs/config-catalog.md#metaworkflowsubagent-spawn-in-process) — every accepted config field and its source declaration.
 
 -----
 
@@ -120,7 +120,7 @@ The child's request cache is independent of the parent's. Child history grows ap
 
 #### What the model sees
 
-Through `dsh-tool-subagent`, the parent first receives the child session id, then a completion notice with its final answer. Child-authored messages arrive through `send_message`. Internal child tool calls remain in the child session.
+Through `mwf-tool-subagent`, the parent first receives the child session id, then a completion notice with its final answer. Child-authored messages arrive through `send_message`. Internal child tool calls remain in the child session.
 
 #### Token effect
 

@@ -1,7 +1,7 @@
 /** Whitespace is ordinary Text-producing matching, including scheduling and Facts invalidation. */
 import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, expectTypeOf, it, onTestFinished, vi } from 'vitest'
-import type { UserTextFacts, UserTextNode, UserTextRule } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextFacts, UserTextNode, UserTextRule } from '@metaworkflow/client-ui-conversation/client'
 import { UserTextRegistry } from '../src/client/conversation/user-text-registry.ts'
 import { collapseWhitespaceRule, trimWhitespaceRule } from '../src/client/user-text/whitespace-rules.ts'
 import { sessionReferenceRule } from '../src/client/user-text/session-reference-rule.ts'
@@ -107,7 +107,7 @@ describe('ordinary whitespace matchers', () => {
   it('keeps reference whitespace atomic through earlier-start competition, not a processing phase', () => {
     const reference = vi.fn(sessionReferenceRule.match)
     const k = setup([{ ...sessionReferenceRule, order: 100_000, match: reference }])
-    const wire = '@[two  words](dsh-session:x)'
+    const wire = '@[two  words](mwf-session:x)'
     const text = ` \t🙂甲\n ${wire} \r\n乙 \t`
     const original = k.evaluate({ text, facts: {} })
     reference.mockClear()
@@ -155,10 +155,10 @@ describe('ordinary whitespace matchers', () => {
   })
 
   it.each([
-    [' \n@[a](dsh-session:x) \t @[b](dsh-session:y) \t', '[session] \t [session]'],
-    ['@[a](dsh-session:x) \t 甲 \n @[b](dsh-session:y)', '[session] \t 甲 \n [session]'],
-    ['@[a](dsh-session:x) \t 甲 \n', '[session] \t 甲'],
-    [' \t 甲 \n @[b](dsh-session:y)', '甲 \n [session]'],
+    [' \n@[a](mwf-session:x) \t @[b](mwf-session:y) \t', '[session] \t [session]'],
+    ['@[a](mwf-session:x) \t 甲 \n @[b](mwf-session:y)', '[session] \t 甲 \n [session]'],
+    ['@[a](mwf-session:x) \t 甲 \n', '[session] \t 甲'],
+    [' \t 甲 \n @[b](mwf-session:y)', '甲 \n [session]'],
   ])('does not trim through references or delete internal spacing in %s', (text, expected) => {
     const k = setup([sessionReferenceRule])
     const nodes = k.evaluate({ text, facts: { trimWhitespace: true } })

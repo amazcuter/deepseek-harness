@@ -9,7 +9,7 @@ enum SharedHelperProxy {
         let digest = SHA256.hash(data: try Data(contentsOf: URL(fileURLWithPath: executable), options: .mappedIfSafe))
             .map { String(format: "%02x", $0) }.joined()
         let options = try SharedHelperOptions(arguments: ["--ensure-shared", "--runtime-key", digest,
-            "--runtime-directory", "/tmp/dsh-cua-\(getuid())", "--startup-timeout-ms", String(configuration.timeoutSeconds * 1000)])
+            "--runtime-directory", "/tmp/mwf-cua-\(getuid())", "--startup-timeout-ms", String(configuration.timeoutSeconds * 1000)])
         let channel = try connect(options)
         defer { channel.shutdown() }
         let hello = JSONValue.object(["type": .string("hello"), "protocol": .number(1), "runtimeKey": .string(digest), "config": .object([

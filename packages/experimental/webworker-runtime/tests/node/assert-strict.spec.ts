@@ -54,10 +54,10 @@ describe('Worker strict assertions', () => {
 
   it.each(['node:assert/strict', 'assert/strict'])('resolves and executes a lowered default import from %s', (specifier) => {
     const vfs = new MemoryVfs()
-    vfs.seedDirectory('/dsh')
-    const loader = new WorkerModuleLoader({ vfs, root: '/dsh', staticModules: createNodeBuiltins() })
+    vfs.seedDirectory('/mwf')
+    const loader = new WorkerModuleLoader({ vfs, root: '/mwf', staticModules: createNodeBuiltins() })
     const transformed = lowerModuleSource({
-      filename: '/dsh/probe.js',
+      filename: '/mwf/probe.js',
       source: `import assert, { ok } from '${specifier}';
         assert({ getNamespace() {} }, 'HMR pending module is missing');
         ok(true);
@@ -65,11 +65,11 @@ describe('Worker strict assertions', () => {
         export function reject() { assert(undefined, 'HMR pending module is missing'); }`,
     })
     expect(transformed.moduleRequests).toContain(specifier)
-    expect(loader.resolve(specifier, '/dsh')).toMatchObject({ kind: 'static' })
+    expect(loader.resolve(specifier, '/mwf')).toMatchObject({ kind: 'static' })
     expect(isBuiltin(specifier)).toBe(true)
     expect(MODULE_PROXIES[specifier]).toBe('./node/builtin_modules/implemented/assert/strict.ts')
-    vfs.writeFileSync('/dsh/probe.js', transformed.code)
-    const require = loader.createRequire('/dsh/')
+    vfs.writeFileSync('/mwf/probe.js', transformed.code)
+    const require = loader.createRequire('/mwf/')
     expect(require('assert/strict')).toBe(require('node:assert/strict'))
     const probe = require('./probe.js') as { same: boolean; reject: () => void }
     expect(probe.same).toBe(true)

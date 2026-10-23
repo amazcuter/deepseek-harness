@@ -1,5 +1,5 @@
 /** Unfinished close requests survive reload independently of the removed sidebar tabs. */
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { SessionId } from '@metaworkflow/session/types'
 import type { WebTerminalId } from '../types.ts'
 
 /** An explicit cleanup request; no process or open-tab metadata is mirrored here. */
@@ -9,7 +9,7 @@ export interface TerminalCloseRequest {
   readonly title: string
 }
 
-const PREFIX = 'dsh.terminal.close.v1.'
+const PREFIX = 'mwf.terminal.close.v1.'
 
 /** Each request has its own storage key, so other browser windows cannot overwrite its cleanup. */
 export class TerminalCloseRequests {

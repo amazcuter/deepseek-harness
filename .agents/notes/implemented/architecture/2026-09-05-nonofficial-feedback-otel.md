@@ -22,7 +22,7 @@ The [canonical-feedback decision](2026-09-05-canonical-feedback-log.md) owns sto
 
 **Filter by provider or endpoint hostname.** Feedback authorizes the same bounded context for every user; a provider choice, gateway, or missing header does not change that authorization.
 
-**Use only later DeepSeek requests.** Other providers do not carry `dsh_session_log`, and final feedback may have no subsequent request. The existing OTel pipeline sends independently without a custom uploader or model call.
+**Use only later DeepSeek requests.** Other providers do not carry `mwf_session_log`, and final feedback may have no subsequent request. The existing OTel pipeline sends independently without a custom uploader or model call.
 
 **Keep continuous capture or replay stored feedback on lifecycle events.** Deployment configuration and old feedback do not authorize new capture. Only a new explicit submission does. Parent feedback likewise cannot authorize a child upload.
 

@@ -3,25 +3,25 @@
  * tools through nested executions scheduled under the native concurrency
  * contract; each sub-dispatch is logged for reconstruction, while only the
  * outer curated result enters model history.
- * @module @deepseek-ai/dsh-tools/src/ptc
+ * @module @metaworkflow/tools/src/ptc
  */
 
 import { symbols, type Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { createUserMessage, HarnessError } from '@deepseek-ai/dsh-llm'
-declare module '@deepseek-ai/dsh-llm' {
+import { brandString } from '@metaworkflow/brand'
+import { createUserMessage, HarnessError } from '@metaworkflow/llm'
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     /** Images deferred from a successful PTC subcall's final result. */
     'ptc-mode': { kind: 'ptc-mode' }
   }
 }
 
-import type { ContentBlock, ToolCallId, ToolSchema } from '@deepseek-ai/dsh-llm'
-import type { PtcBindingFunction, PtcRunResult, PtcRunSandbox, PtcRuntime } from '@deepseek-ai/dsh-ptc-runtime'
-import { approveEscalation, ESCALATION_TARGETS, validateEscalationArgs } from '@deepseek-ai/dsh-sandbox'
-import type { SandboxExecutionPolicy } from '@deepseek-ai/dsh-sandbox'
-import type { ApprovalService } from '@deepseek-ai/dsh-user-approval'
-import { deepFreeze, snapshotJsonValue, type JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { ContentBlock, ToolCallId, ToolSchema } from '@metaworkflow/llm'
+import type { PtcBindingFunction, PtcRunResult, PtcRunSandbox, PtcRuntime } from '@metaworkflow/ptc-runtime'
+import { approveEscalation, ESCALATION_TARGETS, validateEscalationArgs } from '@metaworkflow/sandbox'
+import type { SandboxExecutionPolicy } from '@metaworkflow/sandbox'
+import type { ApprovalService } from '@metaworkflow/user-approval'
+import { deepFreeze, snapshotJsonValue, type JsonValue } from '@metaworkflow/util-values'
 import { defineTool, parameterSchemaSpecToJsonSchema } from './schema.ts'
 import { PtcCalls } from './ptc-calls.ts'
 import { TOOL_RUNTIME_SCHEDULER } from './index.ts'
@@ -152,7 +152,7 @@ function resolveFlavor(peekRuntime: () => PtcRuntime | undefined): RunCodeFlavor
   const flavor = RUN_CODE_FLAVORS[runtime.language]
   if (!Object.hasOwn(RUN_CODE_FLAVORS, runtime.language) || flavor === undefined) {
     const known = Object.keys(RUN_CODE_FLAVORS).map(name => JSON.stringify(name)).join(', ')
-    throw new Error(`dsh-tools: no run_code schema flavor registered for runtime language ${JSON.stringify(runtime.language)} (known: ${known})`)
+    throw new Error(`mwf-tools: no run_code schema flavor registered for runtime language ${JSON.stringify(runtime.language)} (known: ${known})`)
   }
   return runtime.language === 'typescript' && runtime.programFormat === 'function-body'
     ? TYPESCRIPT_FUNCTION_FLAVOR : flavor

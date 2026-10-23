@@ -1,7 +1,7 @@
 /** Compile-time calls to the public plugin-record writer; excluded from production declarations. */
-import { appendPluginRecord, pluginRecordOf } from '@deepseek-ai/dsh-session'
-import type { Session, SessionEvent } from '@deepseek-ai/dsh-session'
-import type { LlmCallConfig, RequestUserInput } from '@deepseek-ai/dsh-llm'
+import { appendPluginRecord, pluginRecordOf } from '@metaworkflow/session'
+import type { Session, SessionEvent } from '@metaworkflow/session'
+import type { LlmCallConfig, RequestUserInput } from '@metaworkflow/llm'
 
 /** An independent request with domain interfaces and immutable message arrays. */
 export interface PluginRequestFixture {
@@ -9,7 +9,7 @@ export interface PluginRequestFixture {
   readonly messages: readonly RequestUserInput[]
 }
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@metaworkflow/session/types' {
   interface PluginRecordMap {
     'plugin:test/state': { count: number }
     'plugin:test/echo': Record<string, never>

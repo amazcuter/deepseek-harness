@@ -1,9 +1,9 @@
 ---
-description: "dsh Web 客户端插件页上的 Agent 循环设置页：agent-loop 命名空间的并行工具调用上限。"
+description: "mwf Web 客户端插件页上的 Agent 循环设置页：agent-loop 命名空间的并行工具调用上限。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-settings-agent-loop
+# @metaworkflow/client-ui-settings-agent-loop
 
 [English](README.md) | 中文
 

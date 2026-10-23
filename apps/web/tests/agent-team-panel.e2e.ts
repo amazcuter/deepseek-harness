@@ -8,8 +8,8 @@ import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, onTestFinished, vi } from 'vitest'
 import * as yaml from 'js-yaml'
 import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
-import type {} from '@deepseek-ai/dsh-experimental-agent-team'
-import { createMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import type {} from '@metaworkflow/experimental-agent-team'
+import { createMessage, createUserMessage } from '@metaworkflow/llm'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,

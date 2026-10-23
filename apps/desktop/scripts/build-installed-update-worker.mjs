@@ -10,7 +10,7 @@ try {
   const [manifest, version, ...extra] = process.argv.slice(2)
   if (!manifest || !version || extra.length !== 0) throw new Error('invalid worker arguments')
   const run = await readInstalledUpdateRun(manifest)
-  const record = await realpath(process.env.DSH_DESKTOP_PACKAGING_RUN_DIR ?? '')
+  const record = await realpath(process.env.MWF_DESKTOP_PACKAGING_RUN_DIR ?? '')
   if (dirname(record) !== await realpath(join(run.root, version, 'packaging'))) throw new Error('wrong packaging record directory')
   const metadata = JSON.parse(await readFile(join(record, 'run.json'), 'utf8'))
   if (metadata.mode !== 'operator-authorized-single-version' || metadata.id !== run.id

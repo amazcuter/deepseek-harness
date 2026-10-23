@@ -1,4 +1,4 @@
-import type { AccountView } from '@deepseek-ai/dsh-deepseek-account/types'
+import type { AccountView } from '@metaworkflow/deepseek-account/types'
 import { WINDOWS_TITLEBAR_HEIGHT } from '../src/windows-layout.ts'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import type { IpcMainInvokeEvent } from 'electron'
@@ -58,7 +58,7 @@ const harness = await vi.hoisted(async () => {
   let platformCloseDeferred: ReturnType<typeof deferred> | undefined
   const platformCloseAndWait = vi.fn(() => platformCloseDeferred?.promise ?? Promise.resolve())
   const readLoginShell = async (base: NodeJS.ProcessEnv) => ({
-    environment: { ...base, DSH_TEST_LOGIN_SHELL: 'login' }, failures: [{ shell: '/account/shell', reason: 'timeout' }],
+    environment: { ...base, MWF_TEST_LOGIN_SHELL: 'login' }, failures: [{ shell: '/account/shell', reason: 'timeout' }],
   })
   const loginShell = vi.fn((base: NodeJS.ProcessEnv, _config: unknown, _options: { signal?: AbortSignal }) => readLoginShell(base))
   const updateCheck = vi.fn(async (_manual?: boolean): Promise<DesktopUpdateState> => updateState)
@@ -84,7 +84,7 @@ const harness = await vi.hoisted(async () => {
       focus: vi.fn(),
       sendInputEvent: vi.fn(),
       send: vi.fn((channel: string, state: { policy?: { blocking: boolean } }) => {
-        if (channel === 'dsh-desktop:mandatory-state' && state.policy?.blocking) policyBlocked.resolve()
+        if (channel === 'mwf-desktop:mandatory-state' && state.policy?.blocking) policyBlocked.resolve()
       }),
     })
     readonly shown = deferred()
@@ -115,7 +115,7 @@ const harness = await vi.hoisted(async () => {
     async loadURL(url: string) {
       this.urls.push(url)
       this.webContents.mainFrame.url = url
-      if (url === 'dsh-app://app/') navigated.resolve()
+      if (url === 'mwf-app://app/') navigated.resolve()
     }
     static getAllWindows() { return windows.filter(window => !window.destroyed) }
     setMenu() {}
@@ -307,7 +307,7 @@ vi.mock('node:fs/promises', async (importOriginal) => {
   const original = await importOriginal<typeof import('node:fs/promises')>()
   return { ...original, readFile: vi.fn((path: Parameters<typeof original.readFile>[0], encoding?: 'utf8') => {
     if (path === join('desktop-test-app', 'package.json')) {
-      return Promise.resolve(JSON.stringify({ dshDesktopAppId: 'com.deepseek.dsh', dshMandatoryUpdatePolicy: harness.embeddedPolicy }))
+      return Promise.resolve(JSON.stringify({ mwfDesktopAppId: 'com.deepseek.mwf', mwfMandatoryUpdatePolicy: harness.embeddedPolicy }))
     }
     return encoding === undefined ? original.readFile(path) : original.readFile(path, encoding)
   }) }
@@ -384,7 +384,7 @@ function invoke(channel: string, origin = channel === DESKTOP_IPC.boot ? 'app' :
     const sender = harness.windows[0]!.webContents
     return handler({ sender, senderFrame: sender.mainFrame }, ...args)
   }
-  return handler({ senderFrame: { url: `dsh-app://${origin}/index.html` } }, ...args)
+  return handler({ senderFrame: { url: `mwf-app://${origin}/index.html` } }, ...args)
 }
 
 function applicationMenuItems(): MenuItemConstructorOptions[] {
@@ -404,7 +404,7 @@ beforeEach(() => {
   testAuth.login.mockResolvedValue('cancelled')
   vi.useFakeTimers()
   harness.reset()
-  const userData = mkdtempSync(join(tmpdir(), 'dsh-main-user-data-'))
+  const userData = mkdtempSync(join(tmpdir(), 'mwf-main-user-data-'))
   onTestFinished(() => { rmSync(userData, { recursive: true, force: true }) })
   harness.app.getPath.mockImplementation(name => name === 'userData' ? userData : `desktop-test-${name}`)
   harness.dialog.showMessageBox.mockImplementation((options: { title?: string }) => {
@@ -415,15 +415,15 @@ beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => {})
   vi.spyOn(console, 'info').mockImplementation(() => {})
   vi.spyOn(console, 'warn').mockImplementation(() => {})
-  vi.stubEnv('DSH_DESKTOP_PNPM_ENTRY', 'test-pnpm')
-  vi.stubEnv('DSH_DESKTOP_DSH_DIR', 'test-runtime')
-  vi.stubEnv('DSH_DESKTOP_PRIMARY_RUNTIME_DIR', 'test-primary-runtime')
+  vi.stubEnv('MWF_DESKTOP_PNPM_ENTRY', 'test-pnpm')
+  vi.stubEnv('MWF_DESKTOP_MWF_DIR', 'test-runtime')
+  vi.stubEnv('MWF_DESKTOP_PRIMARY_RUNTIME_DIR', 'test-primary-runtime')
   vi.stubGlobal('process', { ...process, platform: 'win32', arch: 'x64', resourcesPath: 'desktop-test-resources' })
-  vi.stubEnv('DSH_DESKTOP_HOST_INSPECT_PORT', undefined)
-  vi.stubEnv('DSH_DESKTOP_DEV_PROJECT_DIR', undefined)
-  vi.stubEnv('DSH_DESKTOP_MANDATORY_UPDATE_CONFIG', undefined)
-  vi.stubEnv('DSH_DESKTOP_UPDATE_JOURNAL_DIR', undefined)
-  vi.stubEnv('DSH_CLIENT_VERSION', '1.2.3')
+  vi.stubEnv('MWF_DESKTOP_HOST_INSPECT_PORT', undefined)
+  vi.stubEnv('MWF_DESKTOP_DEV_PROJECT_DIR', undefined)
+  vi.stubEnv('MWF_DESKTOP_MANDATORY_UPDATE_CONFIG', undefined)
+  vi.stubEnv('MWF_DESKTOP_UPDATE_JOURNAL_DIR', undefined)
+  vi.stubEnv('MWF_CLIENT_VERSION', '1.2.3')
   harness.analyticsEnabled = true
 })
 
@@ -487,19 +487,19 @@ describe('desktop main startup', () => {
         ['mandatory-update.html', 'text/html'], ['mandatory-update.css', 'text/css'], ['mandatory-update.js', 'text/javascript'],
         ['update-close.svg', 'image/svg+xml'],
       ] as const) {
-        const response = await handler(new Request(`dsh-app://shell/${name}`))
+        const response = await handler(new Request(`mwf-app://shell/${name}`))
         expect(response.status).toBe(200)
         expect(response.headers.get('content-type')).toContain(mime)
         expect(await response.text()).toBe(readFileSync(join(root, 'renderer', name), 'utf8'))
       }
-      const head = await handler(new Request('dsh-app://shell/update-dialog.html', { method: 'HEAD' }))
+      const head = await handler(new Request('mwf-app://shell/update-dialog.html', { method: 'HEAD' }))
       expect(head.status).toBe(200)
       expect(await head.text()).toBe('')
-      expect((await handler(new Request('dsh-app://shell/update-dialog.html', { method: 'POST' }))).status).toBe(405)
-      expect((await handler(new Request('dsh-app://shell/%'))).status).toBe(400)
-      expect((await handler(new Request('dsh-app://shell/%2e%2e%2fpackage.json'))).status).toBe(403)
-      expect((await handler(new Request('dsh-app://shell/missing.html'))).status).toBe(404)
-      expect((await handler(new Request('dsh-app://other/update-dialog.html'))).status).toBe(404)
+      expect((await handler(new Request('mwf-app://shell/update-dialog.html', { method: 'POST' }))).status).toBe(405)
+      expect((await handler(new Request('mwf-app://shell/%'))).status).toBe(400)
+      expect((await handler(new Request('mwf-app://shell/%2e%2e%2fpackage.json'))).status).toBe(403)
+      expect((await handler(new Request('mwf-app://shell/missing.html'))).status).toBe(404)
+      expect((await handler(new Request('mwf-app://other/update-dialog.html'))).status).toBe(404)
     } finally {
       vi.mocked(web.serveWebDocument).mockReset()
     }
@@ -510,12 +510,12 @@ describe('desktop main startup', () => {
     const { serveWebDocument, forwardWebRequest } = await import('../src/web-document.ts')
     const handler = harness.protocolHandle.mock.calls[0]![1]
     for (const file of ['update-dialog.html', 'update-dialog.js', 'update-dialog.css', 'update-close.svg', 'mandatory-update.html']) {
-      const request = new Request(`dsh-app://shell/${file}`)
+      const request = new Request(`mwf-app://shell/${file}`)
       await handler(request)
       expect(serveWebDocument).toHaveBeenLastCalledWith(request, join('desktop-test-app', 'renderer'))
     }
     expect(forwardWebRequest).not.toHaveBeenCalled()
-    expect((await handler(new Request('dsh-app://unknown/update-dialog.html'))).status).toBe(404)
+    expect((await handler(new Request('mwf-app://unknown/update-dialog.html'))).status).toBe(404)
   })
 
   it('installs hidden native DevTools shortcuts in the macOS application menu', async () => {
@@ -778,9 +778,9 @@ describe('desktop main startup', () => {
   })
 
   it('persists opt-in update evidence from the real main entry without private diagnostics', async () => {
-    const directory = mkdtempSync(join(tmpdir(), 'dsh-main-update-journal-'))
+    const directory = mkdtempSync(join(tmpdir(), 'mwf-main-update-journal-'))
     try {
-      vi.stubEnv('DSH_DESKTOP_UPDATE_JOURNAL_DIR', directory)
+      vi.stubEnv('MWF_DESKTOP_UPDATE_JOURNAL_DIR', directory)
       await readyForUpdate()
       harness.publishUpdate({ phase: 'error', failedOperation: 'download', version: '1.2.3', message: 'ENOSPC secret-url' })
       const checkUpdates = applicationMenuItems().find(item => item.label === en.checkUpdatesMenu)!.click as () => void
@@ -826,7 +826,7 @@ describe('desktop main startup', () => {
     await import('../src/main.ts')
     await harness.preparing.promise
     const window = harness.windows[0]!
-    expect(window.urls).toEqual(['dsh-app://app/'])
+    expect(window.urls).toEqual(['mwf-app://app/'])
     if (platform === 'darwin') {
       expect(window.options).toMatchObject({ titleBarStyle: 'hiddenInset', vibrancy: 'sidebar', backgroundColor: '#00000000' })
     } else if (platform === 'win32') {
@@ -849,10 +849,10 @@ describe('desktop main startup', () => {
     await import('../src/main.ts')
     await harness.preparing.promise
     const handler = harness.protocolHandle.mock.calls[0]![1]
-    const request = new Request('dsh-app://shell/update-dialog.html')
+    const request = new Request('mwf-app://shell/update-dialog.html')
     expect(await (await handler(request)).text()).toBe('shell document')
     expect(serveWebDocument).toHaveBeenCalledWith(request, join('desktop-test-app', 'renderer'))
-    expect((await handler(new Request('dsh-app://foreign/index.html'))).status).toBe(404)
+    expect((await handler(new Request('mwf-app://foreign/index.html'))).status).toBe(404)
   })
 
   it.each(['darwin', 'win32'] as const)('relays the %s fullscreen state on transitions and after each load', async (platform) => {
@@ -937,7 +937,7 @@ describe('desktop main startup', () => {
     const window = harness.windows[0]!
     const listener = harness.ipcOn.mock.calls.find(([channel]) => channel === DESKTOP_IPC.windowsAppearance)![1]
     const event = { sender: window.webContents, senderFrame: window.webContents.mainFrame }
-    listener({ ...event, senderFrame: { url: 'dsh-app://app/' } }, 'zh-CN', '#ffffff', '#000000')
+    listener({ ...event, senderFrame: { url: 'mwf-app://app/' } }, 'zh-CN', '#ffffff', '#000000')
     expect(window.setTitleBarOverlay).not.toHaveBeenCalled()
     listener(event, 'zh-CN', 'rgb(249, 250, 251)', '#0f1115')
     expect(window.setTitleBarOverlay).toHaveBeenCalledWith({ color: 'rgb(249, 250, 251)', symbolColor: '#0f1115' })
@@ -952,7 +952,7 @@ describe('desktop main startup', () => {
     listener(event, {}, '#fff', '#000')
     expect(window.setTitleBarOverlay).toHaveBeenLastCalledWith({ color: '#fff', symbolColor: '#000' })
     window.setTitleBarOverlay.mockClear()
-    window.webContents.mainFrame.url = 'dsh-app://unowned/index.html'
+    window.webContents.mainFrame.url = 'mwf-app://unowned/index.html'
     listener(event, 'zh-CN', '#fff', '#000')
     expect(window.setTitleBarOverlay).not.toHaveBeenCalled()
     expect(harness.menu.setApplicationMenu).toHaveBeenCalledOnce()
@@ -973,7 +973,7 @@ describe('desktop main startup', () => {
     expect(() => handler(event, 'application', NaN, 34)).toThrow('invalid popup request')
     const application = handler(event, 'application', 48, 34)
     expect(harness.menu.buildFromTemplate.mock.lastCall![0].map(item => item.label ?? item.type)).toEqual([
-      '关于 DeepSeek Harness', 'separator', '检查更新…', '管理 dsh 命令…', 'separator', '退出',
+      '关于 DeepSeek Harness', 'separator', '检查更新…', '管理 mwf 命令…', 'separator', '退出',
     ])
     expect(harness.popup.mock.lastCall![0]).toMatchObject({ window, x: 48, y: 34 })
     expect(harness.popup.mock.lastCall![0].callback).toBeTypeOf('function')
@@ -1020,7 +1020,7 @@ describe('desktop main startup', () => {
     vi.spyOn(harness.app, 'getLocale').mockReturnValue(locale)
     vi.spyOn(harness.app, 'getPreferredSystemLanguages').mockReturnValue([locale])
     const originalName = harness.app.name
-    harness.app.name = '@deepseek-ai/dsh-desktop'
+    harness.app.name = '@metaworkflow/desktop'
     try {
       await import('../src/main.ts')
       await harness.preparing.promise
@@ -1030,7 +1030,7 @@ describe('desktop main startup', () => {
         || item.label === en.cliCommandMenu || item.label === zh.cliCommandMenu)
       await expect(JSON.stringify(commands, null, 2) + '\n')
         .toMatchFileSnapshot(`./expected/application-menu-${locale}.json`)
-      expect(harness.app.name).toBe('@deepseek-ai/dsh-desktop')
+      expect(harness.app.name).toBe('@metaworkflow/desktop')
     } finally { harness.app.name = originalName }
   })
 
@@ -1048,7 +1048,7 @@ describe('desktop main startup', () => {
     ) => void
     const callback = vi.fn()
     const socketProtocol = protocol === 'https:' ? 'wss:' : 'ws:'
-    const details = { url: `${socketProtocol}//127.0.0.1:3080/api/remote.mux`, webContentsId: 42, requestHeaders: { Origin: 'dsh-app://app' } }
+    const details = { url: `${socketProtocol}//127.0.0.1:3080/api/remote.mux`, webContentsId: 42, requestHeaders: { Origin: 'mwf-app://app' } }
     handler(details, callback)
     expect(callback).toHaveBeenLastCalledWith({ requestHeaders: {
       origin: `${protocol}//127.0.0.1:3080`, cookie: 'test-cookie', 'sec-fetch-site': 'same-origin',
@@ -1116,16 +1116,16 @@ describe('desktop main startup', () => {
     const handler = harness.handlers.get(DESKTOP_IPC.boot)!
     await expect(handler({ senderFrame: { url: 'https://other.example/' } })).rejects.toThrow('unowned renderer')
     let settled = false
-    const boot = Promise.resolve(handler({ senderFrame: { url: 'dsh-app://app/' } })).then((value) => { settled = true; return value })
+    const boot = Promise.resolve(handler({ senderFrame: { url: 'mwf-app://app/' } })).then((value) => { settled = true; return value })
     await Promise.resolve()
     expect(settled).toBe(false)
-    expect(harness.windows[0]!.urls).toEqual(['dsh-app://app/'])
+    expect(harness.windows[0]!.urls).toEqual(['mwf-app://app/'])
     harness.prepared.resolve()
     await harness.hostStarted.promise
     expect(settled).toBe(false)
     harness.hosts[0]!.ready.resolve()
     await expect(boot).resolves.toEqual({ injections: [], streamBaseUrl: 'http://127.0.0.1:3080' })
-    expect(harness.windows[0]!.urls).toEqual(['dsh-app://app/'])
+    expect(harness.windows[0]!.urls).toEqual(['mwf-app://app/'])
   })
 
   it('retains macOS native editing actions on right-click and only copy for selected read-only text', async () => {
@@ -1169,7 +1169,7 @@ describe('desktop main startup', () => {
     expect(harness.openExternal).toHaveBeenCalledWith('https://example.com/document')
     harness.openExternal.mockClear()
     const internal = { preventDefault: vi.fn() }
-    window.webContents.emit('will-navigate', internal, 'dsh-app://app/session/task-1')
+    window.webContents.emit('will-navigate', internal, 'mwf-app://app/session/task-1')
     expect(internal.preventDefault).not.toHaveBeenCalled()
     expect(harness.openExternal).not.toHaveBeenCalled()
   })
@@ -1492,9 +1492,9 @@ describe('desktop main startup', () => {
   })
 
   it('shares the failed-check deadline across focus and resume, while explicit checks reset polling', async () => {
-    vi.stubEnv('DSH_DESKTOP_UPDATE_CHECK_INTERVAL_MS', '1000')
-    vi.stubEnv('DSH_DESKTOP_UPDATE_CHECK_MAX_BACKOFF_MS', '4000')
-    vi.stubEnv('DSH_DESKTOP_UPDATE_CHECK_JITTER', '0')
+    vi.stubEnv('MWF_DESKTOP_UPDATE_CHECK_INTERVAL_MS', '1000')
+    vi.stubEnv('MWF_DESKTOP_UPDATE_CHECK_MAX_BACKOFF_MS', '4000')
+    vi.stubEnv('MWF_DESKTOP_UPDATE_CHECK_JITTER', '0')
     harness.updateCheck.mockResolvedValue({ phase: 'error', failedOperation: 'check', message: 'offline' })
     const host = await readyForUpdate()
     await vi.advanceTimersByTimeAsync(0)
@@ -1523,7 +1523,7 @@ describe('desktop main startup', () => {
   it('blocks subsequent product operations without stopping the Host and clears only on a fresh no-force policy', async () => {
     harness.embeddedPolicy = { origin: 'https://policy.example.com',
       allowedPageOrigins: ['https://downloads.example.com'], intervalMs: 10_000, jitter: 0 }
-    vi.stubEnv('DSH_DESKTOP_MANDATORY_UPDATE_CONFIG', '{invalid environment override}')
+    vi.stubEnv('MWF_DESKTOP_MANDATORY_UPDATE_CONFIG', '{invalid environment override}')
     const request = vi.fn<typeof fetch>().mockImplementation(async () => Response.json({ code: 40005,
       data: { show_content: { title: 'Update required', detail: 'Please update' }, desktop_app_link: 'https://downloads.example.com/' } }))
     vi.stubGlobal('fetch', request)
@@ -1538,7 +1538,7 @@ describe('desktop main startup', () => {
     expect(status(owned)).toMatchObject({ policy: { blocking: true } })
     const unowned = [
       { ...owned, sender: {} },
-      { ...owned, senderFrame: { url: 'dsh-app://app/index.html' } },
+      { ...owned, senderFrame: { url: 'mwf-app://app/index.html' } },
       { ...owned, senderFrame: { url: 'https://untrusted.example.com/' } },
     ]
     for (const event of unowned) {
@@ -1567,7 +1567,7 @@ describe('desktop main startup', () => {
     expect(host.stop).not.toHaveBeenCalled()
     expect(request.mock.calls[0]![1]!.headers).toMatchObject({
       'x-client-bundle-id': '', 'x-client-platform': 'desktop-win', 'x-client-version': '1.2.3',
-      'x-client-arch': 'x64', 'x-client-update-channel': 'nightly', 'x-client-bundled-dsh-version': '1.0.0',
+      'x-client-arch': 'x64', 'x-client-update-channel': 'nightly', 'x-client-bundled-mwf-version': '1.0.0',
       'x-client-locale': 'en_US', 'x-client-timezone-offset': String(-new Date().getTimezoneOffset() * 60),
     })
   })
@@ -1907,7 +1907,7 @@ describe('desktop main startup', () => {
     const retry = harness.prepareUpdate()
     expect(replacement.updateTasks).not.toHaveBeenCalled()
     replacement.ready.resolve()
-    await vi.waitFor(() => { expect(harness.windows[0]!.urls).toEqual(['dsh-app://app/', 'dsh-app://app/']) })
+    await vi.waitFor(() => { expect(harness.windows[0]!.urls).toEqual(['mwf-app://app/', 'mwf-app://app/']) })
     await expect(Promise.resolve(invoke(DESKTOP_IPC.boot))).resolves.toEqual({ injections: [], streamBaseUrl: 'http://127.0.0.1:3099' })
     if (mandatory) await answerMandatory('later')
     await expect(retry).resolves.toBe(false)
@@ -1945,7 +1945,7 @@ describe('desktop main startup', () => {
     const retry = harness.prepareUpdate()
     expect(replacement.updateTasks).not.toHaveBeenCalled()
     replacement.ready.resolve()
-    await vi.waitFor(() => { expect(harness.windows[0]!.urls).toEqual(['dsh-app://app/', 'dsh-app://app/']) })
+    await vi.waitFor(() => { expect(harness.windows[0]!.urls).toEqual(['mwf-app://app/', 'mwf-app://app/']) })
     if (mandatory) await answerMandatory('later')
     await expect(retry).resolves.toBe(false)
     expect(replacement.updateTasks.mock.calls).toEqual([['inspect']])
@@ -2033,7 +2033,7 @@ describe('desktop main startup', () => {
     await import('../src/main.ts')
     await harness.preparing.promise
     const window = harness.windows[0]!
-    const frame = { url: 'dsh-app://app/' }
+    const frame = { url: 'mwf-app://app/' }
     Object.assign(window.webContents, { mainFrame: frame })
     const handler = harness.handlers.get(DESKTOP_IPC.bootFailed)! as (event: unknown, message: unknown) => void
     const event = { sender: window.webContents, senderFrame: frame }
@@ -2046,17 +2046,17 @@ describe('desktop main startup', () => {
     expect((harness.dialog.showMessageBox.mock.calls[0]![0] as MessageBoxOptions).detail).toContain('client mount failed')
     expect((harness.dialog.showMessageBox.mock.calls[0]![0] as MessageBoxOptions).detail).toContain('desktop-test-logs/crash-test.log')
     expect(writeCrashReport).toHaveBeenCalledWith('desktop-test-logs', expect.objectContaining({ source: 'web-boot', phase: 'startup' }))
-    expect(window.urls).toEqual(['dsh-app://app/'])
+    expect(window.urls).toEqual(['mwf-app://app/'])
   })
 
   it('ignores subresource failures and navigation cancellation but reports a failed main document', async () => {
     await import('../src/main.ts')
     await harness.preparing.promise
     const window = harness.windows[0]!
-    window.webContents.emit('did-fail-load', {}, -2, 'failed', 'dsh-app://app/image.png', false)
-    window.webContents.emit('did-fail-load', {}, -3, 'aborted', 'dsh-app://app/', true)
+    window.webContents.emit('did-fail-load', {}, -2, 'failed', 'mwf-app://app/image.png', false)
+    window.webContents.emit('did-fail-load', {}, -3, 'aborted', 'mwf-app://app/', true)
     expect(harness.dialog.showMessageBox).not.toHaveBeenCalled()
-    window.webContents.emit('did-fail-load', {}, -2, 'failed', 'dsh-app://app/', true)
+    window.webContents.emit('did-fail-load', {}, -2, 'failed', 'mwf-app://app/', true)
     await harness.dialogShown.promise
     expect((harness.dialog.showMessageBox.mock.calls[0]![0] as MessageBoxOptions).detail).toContain('Desktop page failed to load')
     expect(writeCrashReport).toHaveBeenCalledWith('desktop-test-logs', expect.objectContaining({ source: 'renderer' }))
@@ -2069,7 +2069,7 @@ describe('desktop main startup', () => {
     await harness.dialogShown.promise
     expect((harness.dialog.showMessageBox.mock.calls[0]![0] as MessageBoxOptions).detail).toContain('runtime resources missing')
     expect((harness.dialog.showMessageBox.mock.calls[0]![0] as MessageBoxOptions).buttons).toEqual(['Exit', 'Restart', 'Disable third-party plugins, back up profile patch, and restart'])
-    expect(harness.windows[0]!.urls).toEqual(['dsh-app://app/'])
+    expect(harness.windows[0]!.urls).toEqual(['mwf-app://app/'])
   })
 
   it.each(['preload', 'renderer'])('retains the document after a fatal %s failure and reports only the first error', async (kind) => {
@@ -2083,7 +2083,7 @@ describe('desktop main startup', () => {
     await harness.dialogShown.promise
     expect(harness.dialog.showMessageBox).toHaveBeenCalledOnce()
     expect((harness.dialog.showMessageBox.mock.calls[0]![0] as MessageBoxOptions).detail).not.toContain('secondary failure')
-    expect(window.urls).toEqual(['dsh-app://app/'])
+    expect(window.urls).toEqual(['mwf-app://app/'])
   })
 
   it('ignores clean renderer exits and exits of a destroyed window', async () => {
@@ -2141,12 +2141,12 @@ describe('desktop main startup', () => {
     host.ready.resolve()
     await Promise.resolve(invoke(DESKTOP_IPC.boot))
     const window = harness.windows[0]!
-    window.webContents.emit('console-message', { level: 'info', message: 'boot ok', sourceId: 'dsh-app://app/assets/entry.js', lineNumber: 1 })
+    window.webContents.emit('console-message', { level: 'info', message: 'boot ok', sourceId: 'mwf-app://app/assets/entry.js', lineNumber: 1 })
     window.webContents.emit('console-message', {
       level: 'error', message: 'client-modules: bundle script plugins/??a/client.js&rev=1 failed to load',
-      sourceId: 'dsh-app://app/assets/entry.js', lineNumber: 12,
+      sourceId: 'mwf-app://app/assets/entry.js', lineNumber: 12,
     })
-    host.onFailure!(new Error('dsh desktop host exited with 1: fatal uncaught exception: ENOENT'))
+    host.onFailure!(new Error('mwf desktop host exited with 1: fatal uncaught exception: ENOENT'))
     await host.stopping.promise
     expect(writeCrashReport).toHaveBeenCalledOnce()
     const [directory, report] = vi.mocked(writeCrashReport).mock.calls[0]!
@@ -2155,7 +2155,7 @@ describe('desktop main startup', () => {
     expect(report.phase).toBe('running')
     expect(report.error).toBeInstanceOf(Error)
     expect((report.error as Error).message).toContain('fatal uncaught exception: ENOENT')
-    expect(report.rendererConsole).toEqual(['dsh-app://app/assets/entry.js:12 client-modules: bundle script plugins/??a/client.js&rev=1 failed to load'])
+    expect(report.rendererConsole).toEqual(['mwf-app://app/assets/entry.js:12 client-modules: bundle script plugins/??a/client.js&rev=1 failed to load'])
     expect(report.app).toMatchObject({ name: 'Desktop test', version: '1.0.0', platform: process.platform, locale: 'en' })
     expect(report.time).toBeInstanceOf(Date)
     host.exited.resolve()
@@ -2187,7 +2187,7 @@ describe('desktop main startup', () => {
       expect(console.info).not.toHaveBeenCalled()
     }
     expect(harness.dialog.showMessageBox).toHaveBeenCalledOnce()
-    expect(harness.windows[0]!.urls).toEqual(['dsh-app://app/'])
+    expect(harness.windows[0]!.urls).toEqual(['mwf-app://app/'])
   })
 
   it('creates the Host only after the login-shell read and ends the read on quit', async () => {
@@ -2202,7 +2202,7 @@ describe('desktop main startup', () => {
     expect(harness.hosts).toHaveLength(0)
     finishRead()
     await harness.hostStarted.promise
-    expect(harness.hosts[0]!.environment?.DSH_TEST_LOGIN_SHELL).toBe('login')
+    expect(harness.hosts[0]!.environment?.MWF_TEST_LOGIN_SHELL).toBe('login')
     harness.hosts[0]!.ready.resolve()
     await Promise.all([boot, harness.navigated.promise])
     const { signal } = harness.loginShell.mock.calls[0]![2]
@@ -2218,36 +2218,36 @@ describe('desktop main startup', () => {
     const window = harness.windows[0]!
     expect(window.options.show).toBe(false)
     expect(window.show).not.toHaveBeenCalled()
-    expect(window.urls).toEqual(['dsh-app://app/'])
+    expect(window.urls).toEqual(['mwf-app://app/'])
     expect(harness.hosts).toHaveLength(0)
     const retry = invoke(DESKTOP_IPC.boot)
     const secondRetry = invoke(DESKTOP_IPC.boot)
     harness.prepared.resolve()
     await harness.hostStarted.promise
     expect(harness.hosts).toHaveLength(1)
-    expect(window.urls).toEqual(['dsh-app://app/'])
+    expect(window.urls).toEqual(['mwf-app://app/'])
     harness.hosts[0]!.ready.resolve()
     await Promise.all([retry, secondRetry, harness.navigated.promise])
     expect(harness.applyRelease).toHaveBeenCalledTimes(1)
     expect(harness.hosts[0]).toMatchObject({
       node: process.execPath,
-      runtime: join(harness.app.getAppPath(), 'dsh'),
+      runtime: join(harness.app.getAppPath(), 'mwf'),
       primaryRuntime: join('desktop-test-resources', 'runtime', 'primary-runtime'),
       profile: 'desktop-test-profile',
     })
     expect(harness.hosts[0]!.environment).not.toBe(process.env)
-    expect(harness.hosts[0]!.environment?.DSH_CLIENT_VERSION).toBe('1.2.3')
-    expect(harness.hosts[0]!.environment?.DSH_TEST_LOGIN_SHELL).toBe('login')
+    expect(harness.hosts[0]!.environment?.MWF_CLIENT_VERSION).toBe('1.2.3')
+    expect(harness.hosts[0]!.environment?.MWF_TEST_LOGIN_SHELL).toBe('login')
     expect(console.warn).toHaveBeenCalledWith('desktop login shell: /account/shell failed (timeout)')
     expect(harness.analytics).toHaveBeenCalledExactlyOnceWith({ eventName: 'desktop_app_launch', timestamp: Date.now(), attributes: {} })
     expect(harness.hosts[0]!.start).toHaveBeenCalledTimes(1)
     expect(harness.windows).toHaveLength(1)
-    expect(window.urls).toEqual(['dsh-app://app/'])
+    expect(window.urls).toEqual(['mwf-app://app/'])
   })
 
   it('prepares an independent plugin profile for the unpackaged Host', async () => {
     harness.app.isPackaged = false
-    vi.stubEnv('DSH_DESKTOP_DSH_DIR', undefined)
+    vi.stubEnv('MWF_DESKTOP_MWF_DIR', undefined)
     await import('../src/main.ts')
     await harness.preparing.promise
     harness.prepared.resolve()
@@ -2263,11 +2263,11 @@ describe('desktop main startup', () => {
 
   it('fails an unpackaged launch that receives no primary runtime directory', async () => {
     harness.app.isPackaged = false
-    vi.stubEnv('DSH_DESKTOP_PRIMARY_RUNTIME_DIR', undefined)
+    vi.stubEnv('MWF_DESKTOP_PRIMARY_RUNTIME_DIR', undefined)
     await import('../src/main.ts')
     await harness.dialogShown.promise
     const options = harness.dialog.showMessageBox.mock.calls[0]![0] as MessageBoxOptions
-    expect(options.detail).toContain('DSH_DESKTOP_PRIMARY_RUNTIME_DIR is required for an unpackaged launch')
+    expect(options.detail).toContain('MWF_DESKTOP_PRIMARY_RUNTIME_DIR is required for an unpackaged launch')
     expect(harness.hosts).toHaveLength(0)
   })
 
@@ -2280,9 +2280,9 @@ describe('desktop main startup', () => {
     first.exited.resolve()
     first.ready.reject(new Error('plugin composition failed'))
     await harness.dialogShown.promise
-    expect(harness.windows[0]!.urls).toEqual(['dsh-app://app/'])
+    expect(harness.windows[0]!.urls).toEqual(['mwf-app://app/'])
     expect(harness.dialog.showMessageBox).toHaveBeenCalledOnce()
-    expect(harness.handlers.has('dsh-desktop:backend-retry')).toBe(false)
+    expect(harness.handlers.has('mwf-desktop:backend-retry')).toBe(false)
     expect(harness.hosts).toHaveLength(1)
   })
 
@@ -2324,12 +2324,12 @@ describe('desktop main startup', () => {
     host.exited.resolve()
     await harness.quitCompleted.promise
     expect(host.stop).toHaveBeenCalledTimes(1)
-    expect(window.urls).toEqual(['dsh-app://app/'])
+    expect(window.urls).toEqual(['mwf-app://app/'])
     expect(harness.windows).toHaveLength(1)
   })
 })
 
-it.each(['failed', 'expired'] as const)('focuses DSH once when browser authorization becomes %s', async (phase) => {
+it.each(['failed', 'expired'] as const)('focuses MWF once when browser authorization becomes %s', async (phase) => {
   await import('../src/main.ts')
   await harness.preparing.promise
   harness.prepared.resolve()
@@ -2358,11 +2358,11 @@ it.each([['light', false], ['dark', true]] as const)('opens Platform authorizati
   const state: AccountView = {
     status: 'signed-out', links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' },
     attempt: { id: 'test-theme-attempt' as NonNullable<AccountView['attempt']>['id'], phase: 'waiting-browser',
-      authorizeUrl: 'https://platform.deepseek.com/dsh/authorize?state=state-1' },
+      authorizeUrl: 'https://platform.deepseek.com/mwf/authorize?state=state-1' },
   }
   harness.publishAccount(state)
   harness.publishAccount(state)
-  expect(harness.openExternal).toHaveBeenCalledExactlyOnceWith(`https://platform.deepseek.com/dsh/authorize?state=state-1&theme=${theme}`)
+  expect(harness.openExternal).toHaveBeenCalledExactlyOnceWith(`https://platform.deepseek.com/mwf/authorize?state=state-1&theme=${theme}`)
 })
 
 it('disables native product events for a disabled Desktop launch', async () => {

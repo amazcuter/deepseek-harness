@@ -2,12 +2,12 @@
  * Deliverables plugin, node half. Registers Web file-reference guidance and
  * serves authenticated native opens of declared files. The browser
  * half ships via exports["./client"], discovered through the package.json
- * dsh.client declaration.
+ * mwf.client declaration.
  */
 
 import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-system-prompt'
-import type {} from '@deepseek-ai/dsh-workspace-changes/types'
+import type {} from '@metaworkflow/system-prompt'
+import type {} from '@metaworkflow/workspace-changes/types'
 import { registerPresentOpen } from './present-open.ts'
 
 /** Services required for file-reference guidance, change summaries, and authenticated native opens. */

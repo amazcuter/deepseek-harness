@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { SessionId } from '@metaworkflow/session/types'
 import {
   downloadUrl, SessionLogDownloadController, sessionLogZipFilename,
 } from '../src/client/controller.ts'
@@ -27,7 +27,7 @@ describe('SessionLogDownloadController', () => {
     expect(init.signal).toBeInstanceOf(AbortSignal)
     expect(save).toHaveBeenCalledWith(
       route,
-      'dsh-session-session-export-controller.zip',
+      'mwf-session-session-export-controller.zip',
     )
     expect(controller.store.getSnapshot().bySession[SID]).toEqual({
       open: true, status: 'success', error: null,
@@ -133,7 +133,7 @@ describe('browser download helpers', () => {
   it('sanitizes the archive filename and hands the relative route to a download anchor', () => {
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
 
-    expect(sessionLogZipFilename('a/b' as SessionId)).toBe('dsh-session-a_b.zip')
+    expect(sessionLogZipFilename('a/b' as SessionId)).toBe('mwf-session-a_b.zip')
     downloadUrl('api/session.export?sessionId=a', 'archive.zip')
     expect(click).toHaveBeenCalledOnce()
     const anchor = click.mock.instances[0] as HTMLAnchorElement

@@ -5,23 +5,23 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionStore, { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq } from '@deepseek-ai/dsh-session'
-import type { SessionHeader } from '@deepseek-ai/dsh-session'
-import type { SessionPersistenceSnapshot } from '@deepseek-ai/dsh-session-persistence'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import AgentRegistry from '@metaworkflow/agent'
+import SessionStore, { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq } from '@metaworkflow/session'
+import type { SessionHeader } from '@metaworkflow/session'
+import type { SessionPersistenceSnapshot } from '@metaworkflow/session-persistence'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
 import SessionProjectionCache, {
   checkpointRecord,
   projectionCacheDomainSpec,
   type CheckpointRecord,
-} from '@deepseek-ai/dsh-session-projection-cache'
-import { titleProjectionDefinition } from '@deepseek-ai/dsh-session-title'
-import Storage from '@deepseek-ai/dsh-storage'
-import * as StorageDomain from '@deepseek-ai/dsh-storage-domain'
-import * as StorageJson from '@deepseek-ai/dsh-storage-json'
-import { subagentCatalogProjectionDefinition } from '@deepseek-ai/dsh-subagent/src/catalog.ts'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
+} from '@metaworkflow/session-projection-cache'
+import { titleProjectionDefinition } from '@metaworkflow/session-title'
+import Storage from '@metaworkflow/storage'
+import * as StorageDomain from '@metaworkflow/storage-domain'
+import * as StorageJson from '@metaworkflow/storage-json'
+import { subagentCatalogProjectionDefinition } from '@metaworkflow/subagent/src/catalog.ts'
+import { RemoteError } from '@metaworkflow/typert-protocol'
 import { createSessionTestController } from './test-remote.ts'
 
 const contexts: Context[] = []
@@ -42,7 +42,7 @@ afterEach(async () => {
 })
 
 async function harness(withPersistence = true) {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-projection-discovery-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-projection-discovery-'))
   roots.push(root)
   const ctx = new Context()
   contexts.push(ctx)

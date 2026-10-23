@@ -1,16 +1,16 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
-import { setSandboxMode } from '@deepseek-ai/dsh-sandbox-policy'
+import { setSandboxMode } from '@metaworkflow/sandbox-policy'
 import { mkdtemp, mkdir, readFile, rm } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import { SessionId } from '@metaworkflow/session'
 import { Context } from '@deepseek-ai/cordis'
-import { SandboxUnavailableError } from '@deepseek-ai/dsh-sandbox'
+import { SandboxUnavailableError } from '@metaworkflow/sandbox'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { mountRuntime } from './setup.ts'
 
 async function setup(mode: 'read-only' | 'workspace-write' = 'read-only', executionMode: 'per-call' | 'persistent-in-memory' = 'persistent-in-memory') {
-  const root = await mkdtemp(join(homedir(), '.dsh-persistent-sandbox-'))
+  const root = await mkdtemp(join(homedir(), '.mwf-persistent-sandbox-'))
   const cwd = join(root, 'workspace')
   await mkdir(cwd)
   const ctx = new Context()

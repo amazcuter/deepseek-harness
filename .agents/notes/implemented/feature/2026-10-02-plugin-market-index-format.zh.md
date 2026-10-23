@@ -6,15 +6,15 @@ Status: implemented
 
 ## 问题
 
-DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包名、Git URL、tarball 或本地路径。用户无法浏览可安装的组合包。目前没有官方市场，以后可能会增加官方市场，因此市场机制必须支持第三方发布的索引。
+MWF 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包名、Git URL、tarball 或本地路径。用户无法浏览可安装的组合包。目前没有官方市场，以后可能会增加官方市场，因此市场机制必须支持第三方发布的索引。
 
 最小的索引是一份 npm 包名或 Git 仓库 URL 列表，每行一项。它能标识每个插件，但客户端渲染列表前必须为每个包获取 manifest（元数据清单）、语言文件和图标。列表页面每行发出一个或多个请求时，加载慢、可能部分失败，并且每个客户端都要实现元数据解析。
 
-因此，索引必须包含列表页面显示的全部内容：本地化标题和描述、图标、作者、可用版本、兼容性和发布时间。市场还需要发布自己的数据，例如分类、标签、下载量和评分，而 DSH 不需要理解这些值的含义。
+因此，索引必须包含列表页面显示的全部内容：本地化标题和描述、图标、作者、可用版本、兼容性和发布时间。市场还需要发布自己的数据，例如分类、标签、下载量和评分，而 MWF 不需要理解这些值的含义。
 
 ## 决策
 
-**索引**与**索引生成器**相互分离。DSH 定义并读取一种 JSON 索引格式。索引如何生成、基于哪份源列表生成，由生成器负责。[`dsh-plugin-market-index`](../../../../packages/util/plugin-market-index/README.zh.md) 是可执行的规则集；[发现 Agent Note](2026-10-02-plugin-market-discover.zh.md) 记录 DSH 如何读取和展示索引。索引列出[profile 插件组合包](../../implemented/architecture/2026-08-05-profile-plugin-bundles.zh.md)，并通过[引导式插件安装](../../implemented/architecture/2026-09-15-guided-plugin-installation.zh.md)安装它们。
+**索引**与**索引生成器**相互分离。MWF 定义并读取一种 JSON 索引格式。索引如何生成、基于哪份源列表生成，由生成器负责。[`mwf-plugin-market-index`](../../../../packages/util/plugin-market-index/README.zh.md) 是可执行的规则集；[发现 Agent Note](2026-10-02-plugin-market-discover.zh.md) 记录 MWF 如何读取和展示索引。索引列出[profile 插件组合包](../../implemented/architecture/2026-08-05-profile-plugin-bundles.zh.md)，并通过[引导式插件安装](../../implemented/architecture/2026-09-15-guided-plugin-installation.zh.md)安装它们。
 
 市场复用 npm 的包名、版本、范围、发布标签和 person 声明。读取器与生成器使用维护中的 npm 解析器和校验器。新增字段或改变含义需要 npm 无法满足的插件市场需求。
 
@@ -24,7 +24,7 @@ DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包
 {
   "format": 1,
   "title": { "en": "Example Market", "zh": "示例市场" },
-  "description": { "en": "Community DSH bundles", "zh": "社区 DSH bundle" },
+  "description": { "en": "Community MWF bundles", "zh": "社区 MWF bundle" },
   "metadata": {
     "categories": {
       "productivity": { "title": { "en": "Productivity", "zh": "效率" } }
@@ -39,13 +39,13 @@ DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包
   },
   "plugins": [
     {
-      "name": "@example/dsh-auto-review",
+      "name": "@example/mwf-auto-review",
       "title": { "en": "Auto Review", "zh": "自动审查" },
       "description": { "en": "Per-tool LLM authorization review", "zh": "逐工具 LLM 授权审查" },
       "icon": "icons/auto-review.svg",
       "author": "Example Labs",
-      "homepage": "https://example.com/dsh-auto-review",
-      "repository": { "url": "https://github.com/example/dsh-plugins", "directory": "auto-review" },
+      "homepage": "https://example.com/mwf-auto-review",
+      "repository": { "url": "https://github.com/example/mwf-plugins", "directory": "auto-review" },
       "metadata": {
         "category": "productivity",
         "labels": ["official"],
@@ -58,18 +58,18 @@ DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包
           "version": "0.2.0-rc.2",
           "publishTimestamp": 1790476800,
           "source": { "type": "npm" },
-          "engines": { "dsh": ">=0.2.0 <0.3.0" }
+          "engines": { "mwf": ">=0.2.0 <0.3.0" }
         },
         {
           "version": "0.2.0-rc.1",
           "publishTimestamp": 1789872000,
           "source": { "type": "npm" },
-          "engines": { "dsh": "0.2.0 - 0.2.4 || >=0.3.0 <0.4.0" }
+          "engines": { "mwf": "0.2.0 - 0.2.4 || >=0.3.0 <0.4.0" }
         }
       ]
     },
     {
-      "name": "dsh-plugin-foo",
+      "name": "mwf-plugin-foo",
       "title": "Foo",
       "icon": "https://example.com/foo.png",
       "dist-tags": { "latest": "1.0.0" },
@@ -79,11 +79,11 @@ DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包
           "publishTimestamp": 1788000000,
           "source": {
             "type": "git",
-            "url": "https://github.com/author/dsh-plugins",
+            "url": "https://github.com/author/mwf-plugins",
             "commit": "3f9c2e1d8a4b6c0e7f1a2b3c4d5e6f708192a3b4",
             "path": "packages/foo"
           },
-          "engines": { "dsh": "*" }
+          "engines": { "mwf": "*" }
         }
       ]
     }
@@ -91,7 +91,7 @@ DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包
 }
 ```
 
-下文中的 `LocalizedText` 即 [`dsh-package-manifest`](../../../../packages/util/package-manifest/src/types.ts) 中的 `LocalizedText` 类型，即字符串或包含 `en` 的字符串对象，并附加两条规则：对象的键是匹配 `^[a-z]{2,8}(-[a-z0-9]{1,8})*$` 的小写语言 id，每个字符串至少包含一个非空白字符。
+下文中的 `LocalizedText` 即 [`mwf-package-manifest`](../../../../packages/util/package-manifest/src/types.ts) 中的 `LocalizedText` 类型，即字符串或包含 `en` 的字符串对象，并附加两条规则：对象的键是匹配 `^[a-z]{2,8}(-[a-z0-9]{1,8})*$` 的小写语言 id，每个字符串至少包含一个非空白字符。
 
 ### 根字段
 
@@ -136,26 +136,26 @@ DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包
 | `version` | 是 | npm 的 `node-semver` 解析的精确版本；保留完整字符串，包括 Git 版本编译信息。精确字符串在插件内唯一。 |
 | `publishTimestamp` | 是 | 以秒为单位的整数 Unix 时间戳，取值范围为 `[0, 10^11)`。 |
 | `source` | 是 | `version` 的安装来源；见下文。 |
-| `engines` | 是 | 包含 `dsh` 的对象。 |
-| `engines.dsh` | 是 | 源 manifest 声明的非空白、有效 npm SemVer 范围；原样复制。`*` 显式声明支持任意 DSH 版本。 |
+| `engines` | 是 | 包含 `mwf` 的对象。 |
+| `engines.mwf` | 是 | 源 manifest 声明的非空白、有效 npm SemVer 范围；原样复制。`*` 显式声明支持任意 MWF 版本。 |
 
-相对的 `icon` 引用相对于索引 URL 解析，与 HTML 图片引用相对于所在页面解析的方式相同。对于位于 `https://market.example/dsh/index.json` 的索引，`"icon": "icons/foo.svg"` 指向 `https://market.example/dsh/icons/foo.svg`。因此，生成器可以把索引和图标文件作为一个目录发布到任意静态主机，无需知道最终 URL。指向其他源的绝对图标 URL 必须使用 `https:`；同源规则允许位于 loopback 或内网主机上的 `http:` 索引提供自己的图标。读取器在读取索引时解析该引用，因此客户端收到的是绝对 URL。
+相对的 `icon` 引用相对于索引 URL 解析，与 HTML 图片引用相对于所在页面解析的方式相同。对于位于 `https://market.example/mwf/index.json` 的索引，`"icon": "icons/foo.svg"` 指向 `https://market.example/mwf/icons/foo.svg`。因此，生成器可以把索引和图标文件作为一个目录发布到任意静态主机，无需知道最终 URL。指向其他源的绝对图标 URL 必须使用 `https:`；同源规则允许位于 loopback 或内网主机上的 `http:` 索引提供自己的图标。读取器在读取索引时解析该引用，因此客户端收到的是绝对 URL。
 
 `source` 采用以下两种形式之一，读取器拒绝其他任何 `type`：
 
-- `{ "type": "npm", "registry"?: string }`。`registry` 是不含凭据、查询或片段的 `http:` 或 `https:` URL；允许 `http:` 是为了支持内网镜像，与 DSH 的[安装 registry](../../implemented/architecture/2026-09-18-plugin-install-registries.zh.md) 一致。
+- `{ "type": "npm", "registry"?: string }`。`registry` 是不含凭据、查询或片段的 `http:` 或 `https:` URL；允许 `http:` 是为了支持内网镜像，与 MWF 的[安装 registry](../../implemented/architecture/2026-09-18-plugin-install-registries.zh.md) 一致。
 - `{ "type": "git", "url": string, "commit": string, "path"?: string }`。`url` 是规范的 `https:` URL（等于其 WHATWG URL 序列化结果），至少包含两个非空路径段且不以斜杠结尾，不含凭据、查询或片段，且不以 `.tgz` 或 `.tar.gz` 结尾。`commit` 是 40 位小写十六进制 SHA。`path` 是以 `/` 分隔的相对目录，各段只包含 ASCII 字母、数字和 `._@+-`，且不是 `.` 或 `..`；缺省表示仓库根目录。
 
 ### 安装参数
 
 客户端安装某个版本时恰好使用以下 pnpm 参数：
 
-- npm：spec 为 `<name>@<version>`。没有 `registry` 时，客户端像任何安装一样询问它配置的 registry。存在 `registry` 时，客户端遵循 DSH 的 [registry 计划](../../implemented/architecture/2026-09-18-plugin-install-registries.zh.md)：先询问 `registry`，仅当它属于客户端配置的 registry 之一时才回退到其他已配置 registry；其他 `registry` 单独询问，因此私有 registry 不会回退到可能以相同名称和版本发布不同包的公共 registry。
+- npm：spec 为 `<name>@<version>`。没有 `registry` 时，客户端像任何安装一样询问它配置的 registry。存在 `registry` 时，客户端遵循 MWF 的 [registry 计划](../../implemented/architecture/2026-09-18-plugin-install-registries.zh.md)：先询问 `registry`，仅当它属于客户端配置的 registry 之一时才回退到其他已配置 registry；其他 `registry` 单独询问，因此私有 registry 不会回退到可能以相同名称和版本发布不同包的公共 registry。
 - git：spec 为 `git+<url>.git#<commit>`，`url` 已以 `.git` 结尾时不重复添加；存在 `path` 时在其后追加 `&path:/<path>`。`git+` 前缀使 pnpm 将路径段多于两个的 URL（例如 GitLab 子组）视为 Git 仓库。
 
-### DSH 兼容性
+### MWF 兼容性
 
-市场列出的每个版本都必须声明有效的 `engines.dsh`。读取器与市场来源的安装使用 npm 的 `node-semver` 和 `includePrerelease: true`，根据当前运行的 DSH 版本求值。不存在对等依赖回退或范围合成。npm 包的对等依赖解析不属于市场宿主兼容性检查。
+市场列出的每个版本都必须声明有效的 `engines.mwf`。读取器与市场来源的安装使用 npm 的 `node-semver` 和 `includePrerelease: true`，根据当前运行的 MWF 版本求值。不存在对等依赖回退或范围合成。npm 包的对等依赖解析不属于市场宿主兼容性检查。
 
 安装接受市场来源的包前，会重新检查源 manifest。精确的本地 `name@version` 豁免可以允许有效范围拒绝当前运行时的情况，但不能使缺失或无效声明符合列出条件。豁免不发布在索引中。
 
@@ -165,9 +165,9 @@ DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包
 
 - `name` 和每个 `version` 与所安装来源中的包 manifest 一致。
 - 对于 npm 来源，`publishTimestamp` 是 `version` 在 registry 中的发布时间；对于 Git 来源，它是 `commit` 的提交者时间。
-- `engines.dsh` 原样复制 manifest 声明的范围。缺失、空白或无效范围的版本会被省略并给出诊断。没有合格版本的插件会被省略。
+- `engines.mwf` 原样复制 manifest 声明的范围。缺失、空白或无效范围的版本会被省略并给出诊断。没有合格版本的插件会被省略。
 - `dist-tags` 是 npm [发布标签](https://docs.npmjs.com/cli/v11/commands/npm-dist-tag/)的快照，只保留指向合格且已列出版本的目标。对于 Git 来源，发布者或市场提供同样的精确标签到版本映射。
-- 列出的每个版本都声明了 `dsh.bundle`。安装时也会独立拒绝没有组合包 patch 的包。
+- 列出的每个版本都声明了 `mwf.bundle`。安装时也会独立拒绝没有组合包 patch 的包。
 - `title`、`description` 和 `icon` 来自所列最高版本的语言元数据、manifest 字段和图标，采用已安装插件的显示规则。使用 npm 的 `node-semver.rsort()` 顺序，相等时保留输入顺序。元数据选择不选择安装版本。`homepage` 复制该版本 manifest 的 `homepage`，manifest 没有该字段时省略。`repository` 来自该版本 manifest 的 `repository`：简写或 Git URL 转换为仓库的网页 URL，`directory` 符合 `directory` 规则时原样复制，否则丢弃并保留 `url`；manifest 没有该字段，或其指向的仓库没有网页地址时省略。
 - `author` 来自同一最高版本的 npm 作者声明。复制对象的 `name`；使用维护中的 npm person 归一化器解析简写字符串。省略缺失或全空白的名称以及联系字段。归一化新建的投影，不修改源 manifest。
 
@@ -181,7 +181,7 @@ DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包
 
 分类、标签和排序键对读取器不透明：读取器按它们筛选和排序，显示其 `title`，从不解释 id 的含义。读取器按本地化 `title` 对声明排序后显示。对插件排序时，无论排序方向如何，没有所选排序键值的插件都排在所有有值的插件之后，值相同的插件保持索引顺序。按发布时间排序时使用插件最大的 `publishTimestamp`。
 
-读取器按 DSH 兼容性一节的规则求值必填的 `engines.dsh` 范围。版本使用 npm 的 `node-semver.rsort()` 顺序，相等时保留索引顺序。安装版本由精确的标签目标选择，而不是此显示顺序。
+读取器按 MWF 兼容性一节的规则求值必填的 `engines.mwf` 范围。版本使用 npm 的 `node-semver.rsort()` 顺序，相等时保留索引顺序。安装版本由精确的标签目标选择，而不是此显示顺序。
 
 初始渠道是 `latest`。它的精确目标是发布者或市场选择的版本。客户端安装记录的版本或提交，绝不安装 `name@latest`。缺失或不兼容的 `latest` 需要显式选择版本或渠道；客户端不会自动切换。安装确认标明版本、所选渠道（如果有）、先行版本状态、索引 URL 和来源。
 
@@ -201,7 +201,7 @@ DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包
 
 **只允许内联图标。** 不发额外请求的列表需要内联图标，但已安装插件的 256 KiB 图标上限编码为 base64 后约为 341 KiB，因此 100 个插件的索引可能达到约 35 MB。URL 图标以额外请求和向图片主机暴露用户 IP 地址为代价，换取较小的索引。32 KiB 的内联上限编码为 base64 后约为 43 KiB，因此 1,000 个带内联图标的插件最多增加约 43 MB；更大的图标使用 URL 引用。
 
-**从对等依赖推断宿主兼容性。** 市场定义要求作者声明 `engines.dsh` 的新标准。现有包必须添加此声明才能列出；不需要回退、workspace 映射或范围求交。
+**从对等依赖推断宿主兼容性。** 市场定义要求作者声明 `engines.mwf` 的新标准。现有包必须添加此声明才能列出；不需要回退、workspace 映射或范围求交。
 
 **将完整 npm person 对象复制到显示字段。** 列表需要名称。生成器支持 npm 的原始声明，同时省略不用的联系字段。
 
@@ -220,17 +220,17 @@ DSH 只能从用户已知的 spec 安装第三方组合包（bundle）：npm 包
 ## 后果
 
 - 校验器接受上面的示例，并对根字段、插件字段、版本字段和 `source` 形式中的每条规则各拒绝一个违例，诊断信息给出对应的 JSON 路径。
-- 根据每个示例版本构建的安装参数可被 DSH 的安装 spec 解析器和 pnpm 接受。
+- 根据每个示例版本构建的安装参数可被 MWF 的安装 spec 解析器和 pnpm 接受。
 - 校验器在每一层都忽略未知成员。
-- 生成器和校验器拒绝缺失、空白和无效的 `engines.dsh`；省略版本后不留下悬空的标签目标。索引和市场来源的安装对有效范围结果一致，包括连字符范围、先行版本以及拒绝当前运行时的有效范围。豁免绝不绕过声明要求。
+- 生成器和校验器拒绝缺失、空白和无效的 `engines.mwf`；省略版本后不留下悬空的标签目标。索引和市场来源的安装对有效范围结果一致，包括连字符范围、先行版本以及拒绝当前运行时的有效范围。豁免绝不绕过声明要求。
 - 排名相等的 Git 构建版本重新排序后，精确标签目标仍选择同一来源。缺失的目标被拒绝；`latest` 缺省或不兼容时不自动切换。
 - npm 作者对象与简写字符串产生声明的名称，不包含联系字段，也不修改源身份。
 
 ## 风险
 
-- 索引没有签名。标题、作者、标签和评分是市场的声明；`official` 标签不是 DSH 验证。客户端必须显示索引 URL 以及每个版本的 `source`。
-- Git 版本的 `name`、`version` 和 `engines.dsh` 是关于仓库的声明。仓库可以声明任意名称，包括 `@deepseek-ai/dsh-` 名称，实际安装的内容由已安装的 manifest 决定。
-- npm 版本的 `source.registry` 同样是一种声明：它把任意 `name`（包括 `@deepseek-ai/dsh-` 名称）的安装引向市场选择的 registry，由该 registry 决定实际安装的内容。
+- 索引没有签名。标题、作者、标签和评分是市场的声明；`official` 标签不是 MWF 验证。客户端必须显示索引 URL 以及每个版本的 `source`。
+- Git 版本的 `name`、`version` 和 `engines.mwf` 是关于仓库的声明。仓库可以声明任意名称，包括 `@metaworkflow/` 名称，实际安装的内容由已安装的 manifest 决定。
+- npm 版本的 `source.registry` 同样是一种声明：它把任意 `name`（包括 `@metaworkflow/` 名称）的安装引向市场选择的 registry，由该 registry 决定实际安装的内容。
 - URL 图标会向图片主机暴露用户的 IP 地址。
 - 固定版本和发布标签在索引重新生成之前一直保持陈旧。
-- 市场文本未经 DSH 审核即到达用户，并通过任何列出插件的客户端工具到达模型。
+- 市场文本未经 MWF 审核即到达用户，并通过任何列出插件的客户端工具到达模型。

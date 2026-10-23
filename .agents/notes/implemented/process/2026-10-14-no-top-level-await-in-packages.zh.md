@@ -12,7 +12,7 @@ Status: implemented
 
 - 入口模块用显式 `async function main()`：
   - sensevoice：就绪前失败时只把错误消息写到 stderr，消息写完后以退出码 1 退出（在写入回调里调用 `process.exit(1)`，否则已加载的原生识别器会让进程一直存活）；stdout 只有一行 `{"port":N}`，Host 把它解析为就绪信号。
-  - ssh helper：`main()` 承载 helper 的 try/catch/finally 和信号处理；每个失败都以 `dsh-ssh-sandbox:` 前缀写到 stderr，退出码为 127。
+  - ssh helper：`main()` 承载 helper 的 try/catch/finally 和信号处理；每个失败都以 `mwf-ssh-sandbox:` 前缀写到 stderr，退出码为 127。
   - inspector worker：同步启动部分留在模块顶层，异步部分在 `main()` 里运行，失败时先发 failure 帧再 stop。
 - 门禁 [verify-no-top-level-await](../../../../scripts/verify-no-top-level-await.ts)：
   - **范围**：`packages/*/*/src/**` 下的 `.ts` 和 `.tsx`。

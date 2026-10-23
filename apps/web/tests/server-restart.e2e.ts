@@ -1,4 +1,4 @@
-/** Persisted Session recovery across two real dsh server processes on the same port. */
+/** Persisted Session recovery across two real mwf server processes on the same port. */
 import { spawn, type ChildProcess } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import { createServer } from 'node:http'
@@ -31,17 +31,17 @@ class RestartableServer {
       cwd: this.world,
       env: {
         ...process.env, NODE_OPTIONS: '',
-        DSH_HOME: join(this.world, 'home'), DSH_AGENTS_HOME: join(this.world, 'agents'),
-        DSH_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-server-restart-fixture',
+        MWF_HOME: join(this.world, 'home'), MWF_AGENTS_HOME: join(this.world, 'agents'),
+        MWF_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-server-restart-fixture',
         DEEPSEEK_BASE_URL: this.modelUrl,
-        DSH_WEB_RESTART_HOLD_STARTUP: holdStartup ? '1' : '0',
+        MWF_WEB_RESTART_HOLD_STARTUP: holdStartup ? '1' : '0',
       },
       stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
     })
     this.child = child
     const receive = (data: Buffer): void => {
       this.output += data.toString()
-      const url = /dsh web: (http:\/\/[^\s]+)/u.exec(this.output)?.[1]
+      const url = /mwf web: (http:\/\/[^\s]+)/u.exec(this.output)?.[1]
       if (url !== undefined) ready.resolve(url)
     }
     child.stdout?.on('data', receive)
@@ -85,7 +85,7 @@ class RestartableServer {
 }
 
 it.each([false, true])('keeps the same revision, Session and page across a server restart (delayed startup: %s)', async (holdStartup) => {
-  const world = await mkdtemp(join(tmpdir(), 'dsh-server-restart-'))
+  const world = await mkdtemp(join(tmpdir(), 'mwf-server-restart-'))
   onTestFinished(() => rm(world, { recursive: true, force: true }))
   const model = createServer((request, response) => {
     request.resume()

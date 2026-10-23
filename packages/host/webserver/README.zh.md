@@ -3,13 +3,13 @@ description: "web GUI 宿主的 HTTP 服务器：具名路由与 upgrade 注册�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-host-webserver
+# @metaworkflow/host-webserver
 
 [English](README.md) | 中文
 
 ## 概述
 
-浏览器经由 `dsh-host-webserver` 通过 HTTP 访问 web GUI：一个 `node:http` 服务器——当 `tls` 指定证书与私钥时改用 `node:https`——其他插件在其中注册具名路由、upgrade 路由、index 启动输入与一个回退 handler。它不了解任何 harness 概念，也不提供任何文件服务——`/api` 桥接、插件 bundle、HMR（热模块替换）事件流与 SPA dist 都属于注册它们的插件。路由匹配顺序固定不变：先在整张表中匹配精确 route，再匹配最长前缀，最后交给回退 handler。它只服务浏览器；Electron 通过 `file://` 加载 dist，并经 IPC 桥接承载 fetch。
+浏览器经由 `mwf-host-webserver` 通过 HTTP 访问 web GUI：一个 `node:http` 服务器——当 `tls` 指定证书与私钥时改用 `node:https`——其他插件在其中注册具名路由、upgrade 路由、index 启动输入与一个回退 handler。它不了解任何 harness 概念，也不提供任何文件服务——`/api` 桥接、插件 bundle、HMR（热模块替换）事件流与 SPA dist 都属于注册它们的插件。路由匹配顺序固定不变：先在整张表中匹配精确 route，再匹配最长前缀，最后交给回退 handler。它只服务浏览器；Electron 通过 `file://` 加载 dist，并经 IPC 桥接承载 fetch。
 
 ## 目录
 
@@ -30,7 +30,7 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@deepseek-ai/dsh-host-webserver'
+- name: '@metaworkflow/host-webserver'
   config:
     host: 127.0.0.1
     port: 3000
@@ -45,13 +45,13 @@ kind: "package-reference"
 `tls` 在同一地址上以 TLS 提供同一批路由：载体不会另开一个 HTTP 监听，也从不重定向。两个文件在激活期间、socket 绑定之前各读取一次，因此不可读、为空或格式错误的文件、与证书不匹配的私钥，或绑定失败都会拒绝初始化——配置错误的证书绝不会退回 HTTP。路径相对进程工作目录解析，私钥必须是无口令的 PEM，`certFile` 可以包含证书链且叶子证书在前。替换任一文件都需要重新加载；本载体既不申请也不续期证书。
 
 ```yaml
-- name: '@deepseek-ai/dsh-host-webserver'
+- name: '@metaworkflow/host-webserver'
   config:
     host: 127.0.0.1
     port: 3000
     tls:
-      certFile: /etc/dsh/tls/cert.pem
-      keyFile: /etc/dsh/tls/key.pem
+      certFile: /etc/mwf/tls/cert.pem
+      keyFile: /etc/mwf/tls/key.pem
 ```
 
 `ctx.webServer.protocol` 读出所绑定监听是 `'http:'` 还是 `'https:'`，因此按传输层制定请求策略（会话 Cookie 的 `Secure` 属性、来源检查）的插件只需读一个源自配置的值，无需检查 socket，也无需信任转发头。客户端仍会校验你提供的证书：本载体不附带信任库、不做 HTTP 到 HTTPS 的重定向，也不发送 HSTS 头。
@@ -106,7 +106,7 @@ index 启动输入分两层。`collectIndexInjections()` 收集一张全新的�
 - [HTTP 服务器子系统](../../../docs/subsystems/web-server.zh.md)——路由、匹配顺序与服务器接受的配置。
 - [SPA dist 服务器](../frontend-static/README.zh.md)——回退席位的随附持有者。
 - [Web 配置树启动与传输分层](../../boot/app-boot/README.zh.md)——功能插件为何拥有每条路由。
-- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-host-webserver)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#metaworkflowhost-webserver)——每个受支持配置字段及其源声明。
 
 -----
 
@@ -127,7 +127,7 @@ index 启动输入分两层。`collectIndexInjections()` 收集一张全新的�
 这些限制说明服务器在何处有意保持最小。它们是当前包约束，不是任务积压。
 
 - **不管理证书生命周期**：`tls` 只提供激活时存在的 PEM 文件——载体从不申请、续期或监视它们，并采用 Node 默认的 TLS 策略。替换证书需要重新加载。
-- **不提供服务器级认证或来源策略**：`dsh-client-connection` 等 route owner 会实施自己的请求策略。绑定非回环地址仍会向该网络公开未受保护的 route 与静态资源。
+- **不提供服务器级认证或来源策略**：`mwf-client-connection` 等 route owner 会实施自己的请求策略。绑定非回环地址仍会向该网络公开未受保护的 route 与静态资源。
 - **Socket 选项固定不变**：配置只选择绑定宿主与端口；在具体部署产生需求前，backlog 和其他 socket 设置仍保持内部实现。
 
 <a id="dev-note"></a>

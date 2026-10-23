@@ -36,17 +36,17 @@ describe('SidebarRightTabRegistry — recognition', () => {
   it('matches a pattern containing ":" against the whole address', () => {
     const registry = new SidebarRightTabRegistry(new Context())
     registry.register(typeFor('guide', ['sidebar://guide']))
-    registry.register(typeFor('text', ['dsh-resource://file/**']))
+    registry.register(typeFor('text', ['mwf-resource://file/**']))
     expect(registry.claim('sidebar://guide').kind).toBe('guide')
-    expect(registry.claim('dsh-resource://file/session/s/notes/a.txt').kind).toBe('text')
+    expect(registry.claim('mwf-resource://file/session/s/notes/a.txt').kind).toBe('text')
     expect(ranked(registry, 'sidebar://files')).toEqual([])
   })
 
   it('matches a pattern without ":" against the URI path at any depth, ignoring case', () => {
     const registry = new SidebarRightTabRegistry(new Context())
     registry.register(typeFor('image', ['*.png']))
-    expect(registry.claim('dsh-resource://file/session/s/deep/er/shot.PNG').kind).toBe('image')
-    expect(ranked(registry, 'dsh-resource://file/session/s/shot.png.txt')).toEqual([])
+    expect(registry.claim('mwf-resource://file/session/s/deep/er/shot.PNG').kind).toBe('image')
+    expect(ranked(registry, 'mwf-resource://file/session/s/shot.png.txt')).toEqual([])
   })
 
   it('matches no path pattern for an address that is not a URI', () => {
@@ -62,49 +62,49 @@ describe('SidebarRightTabRegistry — recognition', () => {
   it('does not hide dotfiles from a path pattern', () => {
     const registry = new SidebarRightTabRegistry(new Context())
     registry.register(typeFor('env', ['.env*']))
-    expect(registry.claim('dsh-resource://file/session/s/proj/.env.local').kind).toBe('env')
+    expect(registry.claim('mwf-resource://file/session/s/proj/.env.local').kind).toBe('env')
   })
 })
 
 describe('SidebarRightTabRegistry — ranking', () => {
   it('ranks by band: extension over builtin over fallback, whatever the registration order', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('text', ['dsh-resource://file/**'], { priority: 'fallback' }))
+    registry.register(typeFor('text', ['mwf-resource://file/**'], { priority: 'fallback' }))
     registry.register(typeFor('markdown', ['*.md'], { priority: 'builtin' }))
     registry.register(typeFor('third', ['*.md']))
-    expect(ranked(registry, 'dsh-resource://file/session/s/a.md')).toEqual(['third', 'markdown', 'text'])
-    expect(registry.claim('dsh-resource://file/session/s/a.md').kind).toBe('third')
+    expect(ranked(registry, 'mwf-resource://file/session/s/a.md')).toEqual(['third', 'markdown', 'text'])
+    expect(registry.claim('mwf-resource://file/session/s/a.md').kind).toBe('third')
   })
 
   it('lets a more specific builtin beat the fallback viewer despite the viewer\'s longer pattern', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('text', ['dsh-resource://file/**'], { priority: 'fallback' }))
+    registry.register(typeFor('text', ['mwf-resource://file/**'], { priority: 'fallback' }))
     registry.register(typeFor('image', ['*.png'], { priority: 'builtin' }))
-    expect(registry.claim('dsh-resource://file/session/s/shot.png').kind).toBe('image')
-    expect(registry.claim('dsh-resource://file/session/s/notes.txt').kind).toBe('text')
+    expect(registry.claim('mwf-resource://file/session/s/shot.png').kind).toBe('image')
+    expect(registry.claim('mwf-resource://file/session/s/notes.txt').kind).toBe('text')
   })
 
   it('lets an extension take over a builtin kind, and hands it back when the extension leaves', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('text', ['dsh-resource://file/**'], { priority: 'builtin', title: () => 'builtin text' }))
+    registry.register(typeFor('text', ['mwf-resource://file/**'], { priority: 'builtin', title: () => 'builtin text' }))
     const release = registry.register(typeFor('text', ['*.txt'], { id: 'ext/text', title: () => 'extension text' }))
     // The extension is the type in force: lookups, claims, and the listing.
     expect(registry.get('text')?.title('x')).toBe('extension text')
-    expect(registry.claim('dsh-resource://file/session/s/a.txt').title).toBe('extension text')
+    expect(registry.claim('mwf-resource://file/session/s/a.txt').title).toBe('extension text')
     expect(registry.entries().map(definition => definition.title('x'))).toEqual(['extension text'])
     // The shadowed builtin's globs no longer count.
-    expect(ranked(registry, 'dsh-resource://file/session/s/a.bin')).toEqual([])
+    expect(ranked(registry, 'mwf-resource://file/session/s/a.bin')).toEqual([])
     release()
     expect(registry.get('text')?.title('x')).toBe('builtin text')
-    expect(registry.claim('dsh-resource://file/session/s/a.bin').title).toBe('builtin text')
+    expect(registry.claim('mwf-resource://file/session/s/a.bin').title).toBe('builtin text')
   })
 
   it('lets a builtin register under an extension already holding its kind, shadowed until the extension leaves', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('text', ['dsh-resource://file/**'], { id: 'third-party/text' }))
-    const releaseBuiltin = registry.register(typeFor('text', ['dsh-resource://file/**'], { id: 'shipped/text', priority: 'builtin' }))
+    registry.register(typeFor('text', ['mwf-resource://file/**'], { id: 'third-party/text' }))
+    const releaseBuiltin = registry.register(typeFor('text', ['mwf-resource://file/**'], { id: 'shipped/text', priority: 'builtin' }))
     expect(registry.get('text')?.id).toBe('third-party/text')
-    expect(ranked(registry, 'dsh-resource://file/session/s/a.txt')).toEqual(['text'])
+    expect(ranked(registry, 'mwf-resource://file/session/s/a.txt')).toEqual(['text'])
     // The shadowed builtin leaving changes nothing in force, and its band is free again.
     releaseBuiltin()
     expect(registry.get('text')?.id).toBe('third-party/text')
@@ -113,19 +113,19 @@ describe('SidebarRightTabRegistry — ranking', () => {
 
   it('refuses a second registration in the same band, and any meeting a fallback of the kind', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('text', ['dsh-resource://file/**'], { id: 'a/text', priority: 'builtin' }))
-    expect(() => registry.register(typeFor('text', ['dsh-resource://file/**'], { id: 'b/text', priority: 'builtin' }))).toThrow('already registered')
-    registry.register(typeFor('text', ['dsh-resource://file/**'], { id: 'c/text' }))
-    expect(() => registry.register(typeFor('text', ['dsh-resource://file/**'], { id: 'd/text' }))).toThrow('already registered')
-    expect(() => registry.register(typeFor('text', ['dsh-resource://file/**'], { id: 'e/text', priority: 'fallback' }))).toThrow('already registered')
-    registry.register(typeFor('hex', ['dsh-resource://file/**'], { id: 'a/hex', priority: 'fallback' }))
-    expect(() => registry.register(typeFor('hex', ['dsh-resource://file/**'], { id: 'b/hex', priority: 'builtin' }))).toThrow('already registered')
-    expect(() => registry.register(typeFor('hex', ['dsh-resource://file/**'], { id: 'c/hex' }))).toThrow('already registered')
+    registry.register(typeFor('text', ['mwf-resource://file/**'], { id: 'a/text', priority: 'builtin' }))
+    expect(() => registry.register(typeFor('text', ['mwf-resource://file/**'], { id: 'b/text', priority: 'builtin' }))).toThrow('already registered')
+    registry.register(typeFor('text', ['mwf-resource://file/**'], { id: 'c/text' }))
+    expect(() => registry.register(typeFor('text', ['mwf-resource://file/**'], { id: 'd/text' }))).toThrow('already registered')
+    expect(() => registry.register(typeFor('text', ['mwf-resource://file/**'], { id: 'e/text', priority: 'fallback' }))).toThrow('already registered')
+    registry.register(typeFor('hex', ['mwf-resource://file/**'], { id: 'a/hex', priority: 'fallback' }))
+    expect(() => registry.register(typeFor('hex', ['mwf-resource://file/**'], { id: 'b/hex', priority: 'builtin' }))).toThrow('already registered')
+    expect(() => registry.register(typeFor('hex', ['mwf-resource://file/**'], { id: 'c/hex' }))).toThrow('already registered')
   })
 
   it('refuses a second registration of an id, whatever its kind', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    const dispose = registry.register(typeFor('text', ['dsh-resource://file/**'], { id: 'pkg/viewer', priority: 'builtin' }))
+    const dispose = registry.register(typeFor('text', ['mwf-resource://file/**'], { id: 'pkg/viewer', priority: 'builtin' }))
     expect(() => registry.register(typeFor('hex', ['*.bin'], { id: 'pkg/viewer' }))).toThrow('tab type id "pkg/viewer" is already registered')
     dispose()
     expect(() => registry.register(typeFor('hex', ['*.bin'], { id: 'pkg/viewer' }))).not.toThrow()
@@ -135,48 +135,48 @@ describe('SidebarRightTabRegistry — ranking', () => {
     const registry = new SidebarRightTabRegistry(new Context())
     registry.register(typeFor('markdown', ['*.md'], { priority: 'builtin' }))
     registry.register(typeFor('readme', ['README.md'], { priority: 'builtin' }))
-    expect(ranked(registry, 'dsh-resource://file/session/s/proj/README.md')).toEqual(['readme', 'markdown'])
-    expect(ranked(registry, 'dsh-resource://file/session/s/proj/notes.md')).toEqual(['markdown'])
+    expect(ranked(registry, 'mwf-resource://file/session/s/proj/README.md')).toEqual(['readme', 'markdown'])
+    expect(ranked(registry, 'mwf-resource://file/session/s/proj/notes.md')).toEqual(['markdown'])
   })
 
   it('then registration order', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('first', ['dsh-resource://file/**']))
-    registry.register(typeFor('second', ['dsh-resource://file/**']))
-    expect(ranked(registry, 'dsh-resource://file/session/s/a.txt')).toEqual(['first', 'second'])
+    registry.register(typeFor('first', ['mwf-resource://file/**']))
+    registry.register(typeFor('second', ['mwf-resource://file/**']))
+    expect(ranked(registry, 'mwf-resource://file/session/s/a.txt')).toEqual(['first', 'second'])
   })
 
   it('measures specificity by the longest pattern that matched, not the longest declared', () => {
     const registry = new SidebarRightTabRegistry(new Context())
     registry.register(typeFor('wide', ['*.txt', 'some/very/long/**/never.matches']))
     registry.register(typeFor('narrow', ['notes.txt']))
-    expect(ranked(registry, 'dsh-resource://file/session/s/notes.txt')).toEqual(['narrow', 'wide'])
+    expect(ranked(registry, 'mwf-resource://file/session/s/notes.txt')).toEqual(['narrow', 'wide'])
   })
 })
 
 describe('SidebarRightTabRegistry — claiming', () => {
   it('lets canOpen veto an address its globs matched', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('image', ['*.png'], { canOpen: address => address.startsWith('dsh-resource://file/') }))
-    expect(registry.claim('dsh-resource://file/session/s/shot.png').kind).toBe('image')
+    registry.register(typeFor('image', ['*.png'], { canOpen: address => address.startsWith('mwf-resource://file/') }))
+    expect(registry.claim('mwf-resource://file/session/s/shot.png').kind).toBe('image')
     expect(ranked(registry, 'https://example.com/shot.png')).toEqual([])
   })
 
   it('opens with a named type, skipping its globs but honouring its canOpen', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('text', ['dsh-resource://file/**'], { canOpen: address => !address.endsWith('.bin') }))
+    registry.register(typeFor('text', ['mwf-resource://file/**'], { canOpen: address => !address.endsWith('.bin') }))
     expect(registry.claim('sidebar://guide', 'text').kind).toBe('text')
-    expect(() => registry.claim('dsh-resource://file/session/s/a.bin', 'text')).toThrow('tab type "text" refuses')
-    expect(() => registry.claim('dsh-resource://file/session/s/a.txt', 'nope')).toThrow('no tab type is registered as "nope"')
+    expect(() => registry.claim('mwf-resource://file/session/s/a.bin', 'text')).toThrow('tab type "text" refuses')
+    expect(() => registry.claim('mwf-resource://file/session/s/a.txt', 'nope')).toThrow('no tab type is registered as "nope"')
   })
 
   it('answers with the address as contentId and the type\'s title', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('text', ['dsh-resource://file/**']))
-    expect(registry.claim('dsh-resource://file/session/s/a.txt')).toEqual({
+    registry.register(typeFor('text', ['mwf-resource://file/**']))
+    expect(registry.claim('mwf-resource://file/session/s/a.txt')).toEqual({
       kind: 'text',
-      contentId: 'dsh-resource://file/session/s/a.txt',
-      title: 'text:dsh-resource://file/session/s/a.txt',
+      contentId: 'mwf-resource://file/session/s/a.txt',
+      title: 'text:mwf-resource://file/session/s/a.txt',
     })
   })
 
@@ -193,7 +193,7 @@ describe('SidebarRightTabRegistry — claiming', () => {
 describe('SidebarRightTabRegistry — ids and page types', () => {
   it('answers by kind with the definition in force, whose id is where its body lives', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    const disposeBuiltin = registry.register(typeFor('text', ['dsh-resource://file/**'], { id: 'shipped/text', priority: 'builtin' }))
+    const disposeBuiltin = registry.register(typeFor('text', ['mwf-resource://file/**'], { id: 'shipped/text', priority: 'builtin' }))
     expect(registry.get('text')?.id).toBe('shipped/text')
     const disposeExtension = registry.register(typeFor('text', ['*.txt'], { id: 'third-party/text' }))
     expect(registry.get('text')?.id).toBe('third-party/text')
@@ -212,7 +212,7 @@ describe('SidebarRightTabRegistry — ids and page types', () => {
       title: () => 'Files',
       guide: [{ id: 'default', order: 10, title: () => 'Files' }],
     })
-    expect(ranked(registry, 'dsh-resource://file/session/s/a.txt')).toEqual([])
+    expect(ranked(registry, 'mwf-resource://file/session/s/a.txt')).toEqual([])
     expect(registry.get('files')?.title('x')).toBe('Files')
     expect(registry.guide().map(entry => [entry.kind, entry.order])).toEqual([['files', 10]])
   })
@@ -222,20 +222,20 @@ describe('SidebarRightTabRegistry — lifetime', () => {
   it('lists registered types in registration order', () => {
     const registry = new SidebarRightTabRegistry(new Context())
     registry.register(typeFor('guide', ['sidebar://guide']))
-    registry.register(typeFor('text', ['dsh-resource://file/**']))
+    registry.register(typeFor('text', ['mwf-resource://file/**']))
     expect(registry.entries().map(entry => entry.kind)).toEqual(['guide', 'text'])
   })
 
   it('refuses a second type for the same kind in the same band', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('text', ['dsh-resource://file/**']))
+    registry.register(typeFor('text', ['mwf-resource://file/**']))
     expect(() => registry.register(typeFor('text', ['other://**'], { id: 'other/text' })))
       .toThrow('tab kind "text" is already registered')
   })
 
   it('drops a type when its owner disposes, and frees the kind again', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    const dispose = registry.register(typeFor('text', ['dsh-resource://file/**']))
+    const dispose = registry.register(typeFor('text', ['mwf-resource://file/**']))
     dispose()
     expect(registry.entries()).toEqual([])
     expect(registry.get('text')).toBeUndefined()
@@ -247,7 +247,7 @@ describe('SidebarRightTabRegistry — lifetime', () => {
     const registry = new SidebarRightTabRegistry(ctx)
     const fiber = ctx.plugin({
       apply(inner: Context) {
-        inner.effect(() => registry.register(typeFor('text', ['dsh-resource://file/**'])), 'test: text type')
+        inner.effect(() => registry.register(typeFor('text', ['mwf-resource://file/**'])), 'test: text type')
       },
     })
     await fiber.await()
@@ -263,7 +263,7 @@ describe('SidebarRightTabRegistry — lifetime', () => {
     const first = registry.guide()
     expect(registry.guide()).toBe(first)
     registry.register(typeFor('artifacts', [], { guide: [entry(5)] }))
-    registry.register(typeFor('text', ['dsh-resource://file/**']))
+    registry.register(typeFor('text', ['mwf-resource://file/**']))
     expect(registry.guide().map(item => item.kind)).toEqual(['artifacts', 'files'])
     expect(registry.guide()).not.toBe(first)
   })
@@ -272,7 +272,7 @@ describe('SidebarRightTabRegistry — lifetime', () => {
     const registry = new SidebarRightTabRegistry(new Context())
     const seen = vi.fn()
     const unsubscribe = registry.subscribe(seen)
-    const dispose = registry.register(typeFor('text', ['dsh-resource://file/**']))
+    const dispose = registry.register(typeFor('text', ['mwf-resource://file/**']))
     expect(seen).toHaveBeenCalledTimes(1)
     dispose()
     expect(seen).toHaveBeenCalledTimes(2)
@@ -283,7 +283,7 @@ describe('SidebarRightTabRegistry — lifetime', () => {
 
   it('keeps entries reference-stable between changes', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    registry.register(typeFor('text', ['dsh-resource://file/**']))
+    registry.register(typeFor('text', ['mwf-resource://file/**']))
     const first = registry.entries()
     expect(registry.entries()).toBe(first)
     registry.register(typeFor('guide', ['sidebar://guide']))

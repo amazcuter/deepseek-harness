@@ -8,13 +8,13 @@ import { verifyRuntimeClosure } from './verify-runtime-closure.ts'
 const roots: string[] = []
 
 function fixture(files: Record<string, string | Record<string, unknown>>): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-runtime-closure-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-runtime-closure-'))
   roots.push(root)
   for (const [relative, value] of Object.entries(files)) {
     const preset = /^preset:(.+)$/.exec(relative)
     const path = join(root, preset === null ? relative : `packages/bundle/web-app/presets/${preset[1]}.patch.yml`)
     mkdirSync(dirname(path), { recursive: true })
-    writeFileSync(path, preset === null ? (typeof value === 'string' ? value : `${JSON.stringify(value, null, 2)}\n`) : JSON.stringify([{ insert: [{ name: '@deepseek-ai/dsh-agent-preset', config: { id: preset[1], plugins: typeof value === 'string' ? loadCordisYaml(value) : value } }] }]))
+    writeFileSync(path, preset === null ? (typeof value === 'string' ? value : `${JSON.stringify(value, null, 2)}\n`) : JSON.stringify([{ insert: [{ name: '@metaworkflow/agent-preset', config: { id: preset[1], plugins: typeof value === 'string' ? loadCordisYaml(value) : value } }] }]))
   }
   return root
 }
@@ -89,7 +89,7 @@ describe('verifyRuntimeClosure', () => {
       'preset:standard': `
 - id: conditional
   name: '@scope/conditional'
-  disabled: !!js process.env.DSH_DISABLE_CONDITIONAL === '1'
+  disabled: !!js process.env.MWF_DISABLE_CONDITIONAL === '1'
 `,
     })
 

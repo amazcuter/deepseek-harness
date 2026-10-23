@@ -1,7 +1,7 @@
 /**
- * A profile installs this package from npm beside the dsh installation, so the
+ * A profile installs this package from npm beside the mwf installation, so the
  * host runtimes it mounts must resolve to the installation's single module
- * instance. `dsh-scope` mints its scope-tag symbol and `dsh-mcp-client` keeps
+ * instance. `mwf-scope` mints its scope-tag symbol and `mwf-mcp-client` keeps
  * its live `serverName` reservations per module instance.
  *
  * A dependency edge installs a second copy instead. That copy's `createScope`
@@ -22,7 +22,7 @@ interface Manifest {
 const manifestPath = fileURLToPath(new URL('../package.json', import.meta.url))
 
 /** Host runtimes whose module-local state must not be duplicated. */
-const SHARED_HOST_RUNTIMES = ['@deepseek-ai/dsh-mcp-client', '@deepseek-ai/dsh-scope'] as const
+const SHARED_HOST_RUNTIMES = ['@metaworkflow/mcp-client', '@metaworkflow/scope'] as const
 
 describe('profile installs share the installation host runtime instances', () => {
   it('declares every identity-bearing host runtime as a peer, never a dependency', async () => {

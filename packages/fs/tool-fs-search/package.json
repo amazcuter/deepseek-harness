@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-tool-fs-search",
+  "name": "@metaworkflow/tool-fs-search",
   "description": "Model-facing filesystem discovery tools (glob, grep) backed by the packaged ripgrep binary (@vscode/ripgrep)",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -33,31 +33,31 @@
     "@deepseek-ai/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-output-retention": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-spill": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/output-retention": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/spill": "workspace:*",
+    "@metaworkflow/subprocess": "workspace:*",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/timeout": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-working-directory": "workspace:*"
+    "@metaworkflow/working-directory": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*",
-    "@deepseek-ai/dsh-subprocess-local": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-output-retention": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-spill": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/subprocess": "workspace:*",
+    "@metaworkflow/subprocess-local": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/output-retention": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/spill": "workspace:*",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/timeout": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-working-directory": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*"
+    "@metaworkflow/scope": "workspace:*",
+    "@metaworkflow/working-directory": "workspace:*",
+    "@metaworkflow/agent-loop-testkit": "workspace:*"
   }
 }

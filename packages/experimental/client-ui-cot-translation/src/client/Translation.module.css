@@ -5,7 +5,7 @@
 .toolbar > .viewToggle:hover:not(:disabled),
 .toolbar > .viewToggle:active:not(:disabled),
 .toolbar > .viewToggle:focus-visible:not(:disabled) { color: var(--dsw-alias-label-secondary); }
-.failure { color: var(--dsw-alias-label-primary); font-size: var(--dsh-content-font-size-secondary, 13px); }
+.failure { color: var(--dsw-alias-label-primary); font-size: var(--mwf-content-font-size-secondary, 13px); }
 .field { display: flex; flex-direction: column; gap: 8px; }
 .field label { font-size: 13px; color: var(--dsw-alias-label-primary); }
 .field select { min-height: 32px; border: 0.5px solid var(--dsw-alias-border-l4); border-radius: var(--dsw-radius-md); background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); padding: 0 8px; font: inherit; }

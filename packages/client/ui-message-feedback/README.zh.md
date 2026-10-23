@@ -3,7 +3,7 @@ description: "Web 反馈界面：已定稿助手消息动作行中的 Like/Disli
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-message-feedback
+# @metaworkflow/client-ui-message-feedback
 
 [English](README.md) | 中文
 
@@ -52,8 +52,8 @@ kind: "package-reference"
 
 当反馈界面不够用时阅读以下页面。它们从浏览器条带进入 Session 日志后端与会话外壳。
 
-- [dsh-message-feedback](../../feedback/message-feedback/README.zh.md)——拥有按条目比较并交换与持久化的 Session 日志后端。
-- [dsh-command-feedback](../../feedback/command-feedback/README.zh.md)——`/feedback` 命令、`sessionFeedback` Remote 与分类表。
+- [mwf-message-feedback](../../feedback/message-feedback/README.zh.md)——拥有按条目比较并交换与持久化的 Session 日志后端。
+- [mwf-command-feedback](../../feedback/command-feedback/README.zh.md)——`/feedback` 命令、`sessionFeedback` Remote 与分类表。
 - [ui-commands](../ui-commands/README.zh.md)——`/feedback` 行所经过的命令装饰约定。
 - [ui-conversation](../ui-conversation/README.zh.md)——声明助手动作条与输入框浮层。
 - [客户端包映射](../README.zh.md)——相邻的浏览器 UI 包。

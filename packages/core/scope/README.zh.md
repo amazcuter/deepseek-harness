@@ -3,13 +3,13 @@ description: "面向插件作者与维护者的作用域注册库，用于构建
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-scope
+# @metaworkflow/scope
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-scope` 让插件作者能够为每个 agent 或分组提供隔离的贡献集合与统一生命周期。子作用域继承祖先贡献，且较近的定义优先；祖先作用域可以观察后代活动，这两种关系均不反向成立。释放作用域会移除它拥有的一切。按 agent 或分组隔离必须脱离 agent loop（智能体循环）与 preset 工作时，请使用这个零依赖库。
+`mwf-scope` 让插件作者能够为每个 agent 或分组提供隔离的贡献集合与统一生命周期。子作用域继承祖先贡献，且较近的定义优先；祖先作用域可以观察后代活动，这两种关系均不反向成立。释放作用域会移除它拥有的一切。按 agent 或分组隔离必须脱离 agent loop（智能体循环）与 preset 工作时，请使用这个零依赖库。
 
 ## 目录
 
@@ -24,7 +24,7 @@ kind: "package-library"
 <a id="use-this-package"></a>
 ## 使用本包
 
-插件作者使用 `dsh-scope` 为单个 agent（或单个分组）提供独立的注册世界。core 分组中的注册表都构建在它之上——通过 `agent.ctx` 注册的工具只对该 agent 可见——同样的原语也服务于任何自定义注册表或带作用域的事件。
+插件作者使用 `mwf-scope` 为单个 agent（或单个分组）提供独立的注册世界。core 分组中的注册表都构建在它之上——通过 `agent.ctx` 注册的工具只对该 agent 可见——同样的原语也服务于任何自定义注册表或带作用域的事件。
 
 ### 创建作用域
 

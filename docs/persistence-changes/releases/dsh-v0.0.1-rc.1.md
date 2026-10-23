@@ -9,7 +9,7 @@ English | [中文](dsh-v0.0.1-rc.1.zh.md)
 
 ## Summary
 
-This is the earliest available DSH alpha/rc tag and establishes the historical baseline: 42 persistence roots and writer format 0.
+This is the earliest available MWF alpha/rc tag and establishes the historical baseline: 42 persistence roots and writer format 0.
 
 ## Table of Contents
 

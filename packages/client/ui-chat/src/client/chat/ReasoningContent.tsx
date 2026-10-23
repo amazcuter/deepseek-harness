@@ -1,7 +1,7 @@
 /** Official reasoning content and its default Body Slot adapter. */
 import { memo, useMemo } from 'react'
-import { MarkdownText } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { FactoryComponentPropsOf, PropsRenderFactories, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+import { MarkdownText } from '@metaworkflow/client-ui-primitives'
+import type { FactoryComponentPropsOf, PropsRenderFactories, PropsRuntime } from '@metaworkflow/client-ui-slots'
 import { markdownLabels } from '../markdown-labels.ts'
 
 type ReasoningBodyProps = PropsRuntime<'conversation.chat.reasoning.body'> & PropsRenderFactories

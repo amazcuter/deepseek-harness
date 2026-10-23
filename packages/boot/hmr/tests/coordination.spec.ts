@@ -24,7 +24,7 @@ vi.mock('chokidar', async (original) => {
 })
 
 async function fixture(config: Partial<Hmr.Config> = {}) {
-  const dir = mkdtempSync(join(tmpdir(), 'dsh-hmr-coordination-'))
+  const dir = mkdtempSync(join(tmpdir(), 'mwf-hmr-coordination-'))
   const ctx = new Context()
   ctx.baseUrl = pathToFileURL(dir).href + '/'
   onTestFinished(async () => { await ctx.fiber.dispose(); rmSync(dir, { recursive: true, force: true }) })

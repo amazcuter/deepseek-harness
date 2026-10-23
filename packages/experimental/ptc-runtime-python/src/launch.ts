@@ -6,10 +6,10 @@ export const PYTHON_BOOTSTRAP_LOADER = [
   'import json, sys, types',
   '_sources = json.load(sys.stdin.buffer)',
   '_protocol = types.ModuleType("protocol")',
-  '_protocol.__file__ = "<dsh-ptc-protocol>"',
+  '_protocol.__file__ = "<mwf-ptc-protocol>"',
   'exec(compile(_sources["protocol"], _protocol.__file__, "exec"), _protocol.__dict__)',
   'sys.modules["protocol"] = _protocol',
-  'exec(compile(_sources["bootstrap"], "<dsh-ptc-bootstrap>", "exec"), globals())',
+  'exec(compile(_sources["bootstrap"], "<mwf-ptc-bootstrap>", "exec"), globals())',
 ].join('\n')
 
 /**

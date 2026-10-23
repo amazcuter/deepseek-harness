@@ -3,16 +3,16 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync }
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it, onTestFinished } from 'vitest'
-import { getDshRuntimeVersion } from '../src/index.ts'
+import { getMwfRuntimeVersion } from '../src/index.ts'
 import {
   PROFILE_COMPATIBILITY_FILENAME, isExactPluginVersion,
   readProfileCompatibility, readProfileVersionExemptions, setProfileVersionExemption, validatePluginVersionExemption,
 } from '../src/profile-compatibility.ts'
 
-const runtime = getDshRuntimeVersion()
+const runtime = getMwfRuntimeVersion()
 
 function profileFixture(): string {
-  const dir = mkdtempSync(join(tmpdir(), 'dsh-compatibility-'))
+  const dir = mkdtempSync(join(tmpdir(), 'mwf-compatibility-'))
   onTestFinished(() => { rmSync(dir, { recursive: true, force: true }) })
   return dir
 }
@@ -90,7 +90,7 @@ it.each([
 it('requires explicit risk acknowledgement and the running runtime for a grant', async () => {
   const dir = profileFixture()
   await expect(setProfileVersionExemption(dir, 'plugin@1.0.0', runtime, true, false)).rejects.toThrow('crashes or data loss')
-  await expect(setProfileVersionExemption(dir, 'plugin@1.0.0', '9.9.9', true, true)).rejects.toThrow(`runs DSH ${runtime}`)
+  await expect(setProfileVersionExemption(dir, 'plugin@1.0.0', '9.9.9', true, true)).rejects.toThrow(`runs MWF ${runtime}`)
   expect(readProfileVersionExemptions(dir)).toEqual({})
 })
 

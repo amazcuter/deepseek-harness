@@ -19,7 +19,7 @@ developer_dir=$(xcode-select -p)
 sdk_root=$(DEVELOPER_DIR="$developer_dir" xcrun --sdk macosx --show-sdk-path)
 xcrun --find notarytool
 xcrun --find stapler
-probe_dir=$(mktemp -d "${TMPDIR:-/tmp}/dsh-macos-toolchain.XXXXXX")
+probe_dir=$(mktemp -d "${TMPDIR:-/tmp}/mwf-macos-toolchain.XXXXXX")
 trap 'rm -rf "$probe_dir"' EXIT
 DEVELOPER_DIR="$developer_dir" SDKROOT="$sdk_root" /usr/bin/cc -x c - -o "$probe_dir/toolchain-probe" <<<'int main(void) { return 0; }'
 rm -rf "$probe_dir"
@@ -38,5 +38,5 @@ cd "$runner_root"
 exec /usr/bin/env -i HOME="$HOME" USER="$(id -un)" LOGNAME="$(id -un)" \
   PATH="$node_bin:/usr/bin:/bin:/usr/sbin:/sbin" TMPDIR="${TMPDIR:-/tmp}" \
   DEVELOPER_DIR="$developer_dir" SDKROOT="$sdk_root" \
-  ACTIONS_RUNNER_SVC="${ACTIONS_RUNNER_SVC:-0}" LANG=en_US.UTF-8 DSH_PACKAGING_CONFIG_DIR="$config_root" DSH_TELEMETRY_DISABLED=1 \
+  ACTIONS_RUNNER_SVC="${ACTIONS_RUNNER_SVC:-0}" LANG=en_US.UTF-8 MWF_PACKAGING_CONFIG_DIR="$config_root" MWF_TELEMETRY_DISABLED=1 \
   /usr/bin/caffeinate -i "$entry"

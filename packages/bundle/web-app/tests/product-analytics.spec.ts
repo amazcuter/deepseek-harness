@@ -1,13 +1,13 @@
-import OTel from '@deepseek-ai/dsh-otel'
+import OTel from '@metaworkflow/otel'
 /** Desktop-only collector policy and bounded shutdown against an unresponsive receiver. */
 import { createServer } from 'node:http'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import { loadOverlayPatches } from '@deepseek-ai/dsh-app-boot'
-import * as Telemetry from '@deepseek-ai/dsh-host-product-telemetry-otel'
-import Analytics from '@deepseek-ai/dsh-client-product-analytics'
+import { loadOverlayPatches } from '@metaworkflow/app-boot'
+import * as Telemetry from '@metaworkflow/host-product-telemetry-otel'
+import Analytics from '@metaworkflow/client-product-analytics'
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
 
 afterEach(() => { vi.unstubAllEnvs() })
@@ -20,8 +20,8 @@ it.each(['desktop', 'web'])('limits collection and its shutdown to the Desktop l
   onTestFinished(async () => { const closed = once(server, 'close'); server.close(); server.closeAllConnections(); await closed })
   const address = server.address()
   if (address === null || typeof address === 'string') throw new Error('missing collector address')
-  vi.stubEnv('DSH_CLIENT_VERSION', 'test-version')
-  vi.stubEnv('DSH_PRODUCT_ANALYTICS_OTLP_URL', `http://127.0.0.1:${address.port}/logs`)
+  vi.stubEnv('MWF_CLIENT_VERSION', 'test-version')
+  vi.stubEnv('MWF_PRODUCT_ANALYTICS_OTLP_URL', `http://127.0.0.1:${address.port}/logs`)
   const ctx = new Context()
   onTestFinished(() => ctx.fiber.dispose())
   ctx.provide('profileContext', {

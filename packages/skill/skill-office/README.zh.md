@@ -3,7 +3,7 @@ description: "为文档工作流提供渐进加载的 Office 创作与 CLI 操�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-skill-office
+# @metaworkflow/skill-office
 
 [English](README.md) | 中文
 
@@ -26,10 +26,10 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在技能注册表和 `dsh-tool-skill` 旁挂载技能提供者。提供者负责技能说明；操作技能在加载时附加解释器和 CLI 的绝对路径。
+在技能注册表和 `mwf-tool-skill` 旁挂载技能提供者。提供者负责技能说明；操作技能在加载时附加解释器和 CLI 的绝对路径。
 
 ```yaml
-- name: '@deepseek-ai/dsh-skill-office'
+- name: '@metaworkflow/skill-office'
 
 ```
 
@@ -111,7 +111,7 @@ flowchart TD
 <a id="model-experience"></a>
 ## 模型体验
 
-间接影响：`dsh-tool-skill` 渲染初始 Office 摘要，并返回 `skill(name)` 选择的路由或子技能说明。
+间接影响：`mwf-tool-skill` 渲染初始 Office 摘要，并返回 `skill(name)` 选择的路由或子技能说明。
 
 #### KV Cache 影响
 

@@ -9,13 +9,13 @@
 
 import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import SessionStore from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import type { Agent, AgentHandle, CreateAgentOptions } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import SessionTitleService from '@deepseek-ai/dsh-session-title'
-import type { Session, SessionId } from '@deepseek-ai/dsh-session'
+import SessionStore from '@metaworkflow/session'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import AgentRegistry from '@metaworkflow/agent'
+import type { Agent, AgentHandle, CreateAgentOptions } from '@metaworkflow/agent'
+import { createUserMessage } from '@metaworkflow/llm'
+import SessionTitleService from '@metaworkflow/session-title'
+import type { Session, SessionId } from '@metaworkflow/session'
 import { createSessionTestRemote } from './test-remote.ts'
 
 const sid = (id: string): SessionId => id as SessionId

@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-message-feedback",
+  "name": "@metaworkflow/message-feedback",
   "description": "Canonical Session-log ratings and notes for finalized assistant messages",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -46,13 +46,13 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-persistence": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-command-feedback": "workspace:*"
+    "@metaworkflow/command-feedback": "workspace:*"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:~",
@@ -61,13 +61,13 @@
   "devDependencies": {
     "@deepseek-ai/cordis-plugin-include": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence-jsonl": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-persistence": "workspace:*",
+    "@metaworkflow/session-persistence-jsonl": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-command-feedback": "workspace:*"
+    "@metaworkflow/command-feedback": "workspace:*"
   }
 }

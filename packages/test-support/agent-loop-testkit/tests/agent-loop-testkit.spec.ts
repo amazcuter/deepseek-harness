@@ -3,10 +3,10 @@ import { mkdtemp, realpath, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import FsLocal from '@deepseek-ai/dsh-fs-local'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { Session, SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
-import { renderPrompt } from '@deepseek-ai/dsh-system-prompt'
+import FsLocal from '@metaworkflow/fs-local'
+import { createUserMessage } from '@metaworkflow/llm'
+import { Session, SessionId, SessionSeq } from '@metaworkflow/session'
+import { renderPrompt } from '@metaworkflow/system-prompt'
 import {
   createInboxStub,
   mountAgentLoopTestDependencies,
@@ -18,7 +18,7 @@ function message(text: string) {
   return createUserMessage({ content: [{ type: 'text', text }], source: { kind: 'user' } })
 }
 
-describe('dsh-agent-loop-testkit', () => {
+describe('mwf-agent-loop-testkit', () => {
   it('rejects mutations through an unsupported Agent stub Inbox', () => {
     const inbox = unsupportedInbox()
 

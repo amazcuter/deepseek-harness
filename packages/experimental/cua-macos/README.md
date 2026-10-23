@@ -3,7 +3,7 @@ description: "Inspect and operate native macOS applications through scoped app a
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-cua-macos
+# @metaworkflow/experimental-cua-macos
 
 English | [中文](README.zh.md)
 
@@ -30,8 +30,8 @@ Enable this experimental provider through explicit source composition on macOS 1
 ```sh
 swift build --package-path packages/experimental/cua-macos/native --configuration release
 cua_native_root="$PWD/packages/experimental/cua-macos/native"
-export DSH_CUA_HELPER="$cua_native_root/.build/release/dsh-cua-native"
-pnpm dsh headless --patch packages/experimental/cua-macos/examples/macos.cordis.yml --dump-config
+export MWF_CUA_HELPER="$cua_native_root/.build/release/mwf-cua-native"
+pnpm mwf headless --patch packages/experimental/cua-macos/examples/macos.cordis.yml --dump-config
 ```
 
 The dump command checks profile composition without a model request. For a real task, replace `--dump-config` with a prompt and configure the profile’s model credentials. The overlay mounts the computer-use registry and this provider; remove an existing competing provider before using it. The responsible host/helper needs Accessibility permission for AX/input and Screen Recording permission for capture. `getCapabilities` reports permissions and session lock state without opening a system dialog. Locked or unavailable desktop sessions reject UI observations and input before dispatch; the user must unlock macOS before resuming. `listApps` and `cua.getState` list running applications. `findApps(query)` searches standard macOS application directories by name, bundle ID or absolute path. `getApp` selects a unique name, bundle ID, path or running PID, obtains application consent, and launches a stopped app in the background when needed. A stopped executable is identified before approval and checked again before and after launch; unsigned code only receives task access. The returned object reads initial AX without activating the app. Launch cancellation may leave the application running. Model guidance starts with background observation and input, without activation during initialization or before each action. For hidden or minimized windows, try `app.show()` or `window.show()` and read fresh state. This requests unhide and unminimize without activation, raising or switching Spaces; app-level restoration selects the focused, main or sole AX window. The result names the selected `windowId`, or null when no window was selected, and reports `foregroundChanged` by comparing the front app and top window before and after the request. Null means foreground evidence was unavailable; later focus changes remain possible. If restoration fails or the window remains unusable, explain the needed foreground step, call `app.activate()` or an observed window’s `raise` action, then observe again. Necessary foreground access takes priority over preserving focus. Applications may change focus after input; background delivery does not guarantee an undisturbed user session.
@@ -53,7 +53,7 @@ The dump command checks profile composition without a model request. For a real 
 | `dragDurationMs` / `dragSteps` | `400` / `20` | Duration and movement segments for a drag. |
 | `textEventIntervalMs` | `0.25` | Delay after each Unicode down/up event, from 0 to 1000 ms. Chord timing is independent. |
 
-The [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-experimental-cua-macos) lists all fields. Native tool calls use `{method, params}`; the complete method-specific schema is exposed to the model. For example, `getApp` returns the `appHandle` needed by `listWindows`, `getState` and input operations.
+The [configuration catalog](../../../docs/config-catalog.md#metaworkflowexperimental-cua-macos) lists all fields. Native tool calls use `{method, params}`; the complete method-specific schema is exposed to the model. For example, `getApp` returns the `appHandle` needed by `listWindows`, `getState` and input operations.
 
 Keypad names (`KP_0` through `KP_9`, `KP_Enter`, and keypad operators) retain their physical key codes. Key chords use `+` between modifiers and the key. Use `+` for the plus key, `cmd++` for Command-plus, or the key name `plus`; an unfinished chord such as `cmd+` is rejected.
 
@@ -78,7 +78,7 @@ Native preparation serializes compiler checks and publication with the shared fi
 To run through persistent PTC, add `--patch packages/experimental/cua-macos/examples/persistent-ptc.cordis.yml` after the macOS overlay. This provider keeps variables for the live Agent and applies the selected file sandbox policy. The caller imports the bridge and supplies the current authorized `tools.cua` binding. Persistent PTC receives an installation-owned bridge file URL in its CUA instructions, so the project does not need to install this package. The example below is for an external host that resolves the package from its own installation and supplies `tools`; the package does not install a global object or keep variables alive:
 
 ```javascript
-import { connectCua } from '@deepseek-ai/dsh-cua/bridge'
+import { connectCua } from '@metaworkflow/cua/bridge'
 const cua = connectCua(() => tools.cua, text => console.log(text))
 const app = await cua.getApp("com.apple.TextEdit")
 void await app.getScreenshot()

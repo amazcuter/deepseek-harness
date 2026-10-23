@@ -3,11 +3,11 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/simplification/2026-09-19-retire-app-bin-boot-helpers.md
 /agent-note-retire-app-boot-helpers-used-only-by-fixtures:
-  en: db7c1d105d67279e
-  zh: 299512664ce8a27f
+  en: d057e8665106529b
+  zh: a230d70d782b5fdd
 /agent-note-retire-app-boot-helpers-used-only-by-fixtures/problem:
-  en: f617e973b4e5c136
-  zh: 90a32c3023bd4bbb
+  en: 1c7dbf9bd5f4629a
+  zh: 9475f7505ab259c0
 /agent-note-retire-app-boot-helpers-used-only-by-fixtures/proposal:
   en: 9887763c3f2362ad
   zh: 00a5fdaf4ea5f438

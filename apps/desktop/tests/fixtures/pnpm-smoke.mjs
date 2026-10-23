@@ -46,7 +46,7 @@ console.log('desktop-node-script-ok')
     const run = args => execFileSync(process.execPath, ['--expose-internals', pnpm, ...args], {
       cwd: scratch, encoding: 'utf8', timeout: 45_000, windowsHide: true,
       env: { ...environment, pnpm_config_verify_deps_before_run: 'false',
-        ELECTRON_RUN_AS_NODE: '1', DSH_DESKTOP_NODE_EXECUTABLE: process.execPath,
+        ELECTRON_RUN_AS_NODE: '1', MWF_DESKTOP_NODE_EXECUTABLE: process.execPath,
         PATH: `${join(resourcesRuntime, 'bin')}${delimiter}${systemBin}`,
         HOME: scratch, USERPROFILE: scratch, TMP: scratch, TEMP: scratch, TMPDIR: scratch,
         XDG_CONFIG_HOME: scratch, XDG_CACHE_HOME: scratch, XDG_STATE_HOME: scratch,

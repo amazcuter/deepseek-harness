@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'">
-  <title>DSH CUA Electron fixture</title>
+  <title>MWF CUA Electron fixture</title>
   <style>
     body { margin: 32px; font: 18px system-ui, sans-serif; color: #1f2937; background: #fff; }
     h1 { font-size: 23px; }
@@ -50,7 +50,7 @@
     })
     document.addEventListener('mousemove', event => { lastMove = { buttons: event.buttons, trusted: event.isTrusted }; report() })
     document.querySelector('#hover-action').addEventListener('click', event => { popupClicks++; popupClickTrusted = event.isTrusted; report() })
-    function report() { console.log('DSH_CUA_STATE ' + JSON.stringify({ popupOpen: !popup.hidden, popupClicks, popupClickTrusted, pointerDowns, lastMove, clicks, text: field.value, lastClickTrusted, lastInputTrusted })) }
+    function report() { console.log('MWF_CUA_STATE ' + JSON.stringify({ popupOpen: !popup.hidden, popupClicks, popupClickTrusted, pointerDowns, lastMove, clicks, text: field.value, lastClickTrusted, lastInputTrusted })) }
     button.addEventListener('click', event => { clicks += 1; lastClickTrusted = event.isTrusted; label.textContent = `Clicks: ${clicks}`; report() })
     field.addEventListener('input', event => { lastInputTrusted = event.isTrusted; report() })
     report()

@@ -1,7 +1,7 @@
 /** Scope-owned cancellation during shutdown of the shipped Web profile. */
 import { existsSync, writeFileSync } from 'node:fs'
 import { setImmediate } from 'node:timers/promises'
-import { createUserMessage, LlmAdapter } from '@deepseek-ai/dsh-llm'
+import { createUserMessage, LlmAdapter } from '@metaworkflow/llm'
 
 export const name = 'agent-shutdown-fixture'
 export const inject = ['agents', 'llm', 'appReady', 'appExit']

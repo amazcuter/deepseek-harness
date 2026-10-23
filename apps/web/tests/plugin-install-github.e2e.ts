@@ -13,7 +13,7 @@ import { launchWebScaffold, captureStableAria, compareOrRefreshGolden, webSnapsh
 import { ZH_BROWSER_LOCALE } from './support.ts'
 
 it.each(['network', 'timeout'] as const)('offers a mirror after a GitHub %s, then another way on the mirror, and waits for replacement input', async (failure) => {
-  const scratch = await mkdtemp(join(tmpdir(), 'dsh-install-github-'))
+  const scratch = await mkdtemp(join(tmpdir(), 'mwf-install-github-'))
   onTestFinished(() => rm(scratch, { recursive: true, force: true }))
   const sockets = new Set<Socket>()
   let connections = 0
@@ -60,7 +60,7 @@ it.each(['network', 'timeout'] as const)('offers a mirror after a GitHub %s, the
   if (await page.getByRole('dialog', { name: '设置' }).count() > 0) await page.keyboard.press('Escape')
   await page.getByRole('navigation', { name: '全局面板' }).getByRole('button', { name: '插件', exact: true }).click()
   await page.getByRole('button', { name: '添加插件', exact: true }).click()
-  const spec = 'https://github.com/example/dsh-plugin.git'
+  const spec = 'https://github.com/example/mwf-plugin.git'
   const title = failure === 'timeout' ? '连接 GitHub 超时' : '无法访问 GitHub'
   let dialog = page.getByRole('dialog', { name: '添加插件', exact: true })
   await dialog.getByRole('button', { name: '安装源 npm 官方源', exact: true }).waitFor()

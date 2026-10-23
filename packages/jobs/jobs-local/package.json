@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-jobs-local",
+  "name": "@metaworkflow/jobs-local",
   "description": "Process-local implementation of the DeepSeek Harness background job registry seam",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -29,10 +29,10 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-jobs": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/scope": "workspace:*",
+    "@metaworkflow/jobs": "workspace:*",
+    "@metaworkflow/timeout": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "dependencies": {
@@ -41,13 +41,13 @@
   "devDependencies": {
     "@deepseek-ai/cordis-plugin-include": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-jobs": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/agent-loop-testkit": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/scope": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/jobs": "workspace:*",
+    "@metaworkflow/timeout": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   }
 }

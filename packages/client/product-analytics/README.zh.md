@@ -3,7 +3,7 @@ description: "配置桌面端产品埋点、身份字段和事件时机，不采
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-product-analytics
+# @metaworkflow/client-product-analytics
 
 [English](README.md) | 中文
 
@@ -23,7 +23,7 @@ kind: "package-reference"
 
 桌面端同时装配 Analytics 与必需的 Telemetry 导出器。`product-analytics` settings 命名空间持有动态 `enabled` 字段，默认 `true`，通过现有 Cordis Config / settings 机制配置，暂不提供用户操作入口。普通 Web 不装配这两个服务。关闭后不启动环境查询、不读取埋点身份、不接收新事件；导出器仍保持挂载，已入队事件可以继续导出。会话反馈遥测采用独立策略。
 
-渲染端和 Electron 通过现有认证流订阅 Host 策略变化及重连后的值；Electron 在原生启动上报前还会读取初始策略。欢迎窗口通过 IPC 获取当前策略。Host 在接收事件及读取环境和身份后都检查当前 volatile 配置。`DSH_PRODUCT_ANALYTICS_OTLP_URL` 可覆盖导出目的地，用于隔离的接收端。[导出器](../../host/product-telemetry-otel/README.zh.md)负责批量发送、重试和退出时的交付。
+渲染端和 Electron 通过现有认证流订阅 Host 策略变化及重连后的值；Electron 在原生启动上报前还会读取初始策略。欢迎窗口通过 IPC 获取当前策略。Host 在接收事件及读取环境和身份后都检查当前 volatile 配置。`MWF_PRODUCT_ANALYTICS_OTLP_URL` 可覆盖导出目的地，用于隔离的接收端。[导出器](../../host/product-telemetry-otel/README.zh.md)负责批量发送、重试和退出时的交付。
 
 每条产品事件携带可用的 `device_id`、`user_id` 和 `app_version`，以及下表中的静态字段。身份复用现有登录记录，不创建设备标识；每条事件通过 `deepseekAccount.getDeviceIdentity()` 读取身份。静态环境采集独立于身份读取。不发送单独的环境事件；排除 API key、账户令牌、提示词、模型回复、主机名和机器 UUID。
 
@@ -43,7 +43,7 @@ kind: "package-reference"
 
 首次启用状态下的事件接收采集一份环境快照；并发和后续事件复用成功字段及失败状态，直到插件重新挂载或 Host 重启。事件接收等待采样，调用方异步提交；启动不等待采集。后续事件仍能反映身份变化。每条元数据命令具有可配置的 `environmentQueryTimeoutMillis` 期限（5,000 毫秒）和每路输出的 `environmentQueryMaxOutputBytes` 上限（16,384 bytes）。卸载取消命令并等待子进程关闭；禁用或卸载后的事件接收不会发送迟到结果。缺失修订号不会变为 `.0`，缺失数字字段不会变为零。只有 Windows 和 macOS 查询完整版本、原生架构与物理核心数；其他平台将这些字段标记为 `unsupported`。
 
-Electron 将构建内联的 `DSH_CLIENT_VERSION` 传给 Host；埋点与导出器复用这一客户端版本，导出器要求该值存在。[桌面组合](../../bundle/web-app/README.zh.md)负责批量发送与超时配置，包括达到关闭期限时的取消行为。
+Electron 将构建内联的 `MWF_CLIENT_VERSION` 传给 Host；埋点与导出器复用这一客户端版本，导出器要求该值存在。[桌面组合](../../bundle/web-app/README.zh.md)负责批量发送与超时配置，包括达到关闭期限时的取消行为。
 
 认证事件仅覆盖原生欢迎页；通过 API Key 进入工作区后再登录的场景不在采集范围内。[事件类型](src/events.ts)定义名称和允许的字段。页面曝光按实际进入可见页面计数，包括重新显示的原生欢迎窗口；onboarding 短暂进入加载状态不会重复计算同一页面曝光，关闭 onboarding 弹窗上报 `button_name=close`。有余额时的继续按钮使用 `continue`。消息提交保留最初发生时间，并在异步命令裁决前采集 `msg_type=default|queue|steer`、模型、显式思考强度和 `run_mode`；仅普通消息路径在引用序列化之前上报，已处理或认领的命令不计入。后续序列化、附件处理或发送失败不撤销此次计数，排队后的执行也不重复计数；纯附件提交遵循相同规则。计划模式优先于活跃目标。采集和上报异常不会中断提交。消息提交以及模型或思考强度切换在空白会话中均省略 `session_id`。模型与插件切换仅在变更被接受后上报。分叉事件携带已创建的子会话 ID 和来源 ID，在可选的子会话标题更新前上报；创建失败不产生事件。
 

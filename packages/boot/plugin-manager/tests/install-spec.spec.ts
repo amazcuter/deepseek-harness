@@ -1,32 +1,32 @@
 /** Reading install specs and classifying pnpm failures: pure, table-driven. */
 
 import { describe, expect, it } from 'vitest'
-import { classifyInstallFailure, InvalidInstallSpecError, parseInstallSpec } from '@deepseek-ai/dsh-plugin-manager'
+import { classifyInstallFailure, InvalidInstallSpecError, parseInstallSpec } from '@metaworkflow/plugin-manager'
 
 describe('parseInstallSpec', () => {
   it('reads registry names with an optional range, scoped or not', () => {
-    expect(parseInstallSpec(' dsh-better-sidebar ')).toEqual({ kind: 'registry', spec: 'dsh-better-sidebar', name: 'dsh-better-sidebar' })
-    expect(parseInstallSpec('@acme/dsh-tool@^1.2')).toEqual({ kind: 'registry', spec: '@acme/dsh-tool@^1.2', name: '@acme/dsh-tool', range: '^1.2' })
+    expect(parseInstallSpec(' mwf-better-sidebar ')).toEqual({ kind: 'registry', spec: 'mwf-better-sidebar', name: 'mwf-better-sidebar' })
+    expect(parseInstallSpec('@acme/mwf-tool@^1.2')).toEqual({ kind: 'registry', spec: '@acme/mwf-tool@^1.2', name: '@acme/mwf-tool', range: '^1.2' })
     expect(parseInstallSpec('pkg@latest')).toEqual({ kind: 'registry', spec: 'pkg@latest', name: 'pkg', range: 'latest' })
   })
 
   it('reads absolute paths, with or without a file: or link: prefix, and tarballs on disk', () => {
-    expect(parseInstallSpec('/plugins/dsh-x')).toEqual({ kind: 'path', spec: '/plugins/dsh-x', path: '/plugins/dsh-x' })
-    expect(parseInstallSpec('file:/plugins/dsh-x')).toEqual({ kind: 'path', spec: 'file:/plugins/dsh-x', path: '/plugins/dsh-x' })
-    expect(parseInstallSpec('link:/plugins/dsh-x')).toEqual({ kind: 'path', spec: 'link:/plugins/dsh-x', path: '/plugins/dsh-x' })
-    expect(parseInstallSpec('/packs/dsh-x-1.0.0.tgz')).toEqual({ kind: 'tarball', spec: '/packs/dsh-x-1.0.0.tgz', path: '/packs/dsh-x-1.0.0.tgz' })
+    expect(parseInstallSpec('/plugins/mwf-x')).toEqual({ kind: 'path', spec: '/plugins/mwf-x', path: '/plugins/mwf-x' })
+    expect(parseInstallSpec('file:/plugins/mwf-x')).toEqual({ kind: 'path', spec: 'file:/plugins/mwf-x', path: '/plugins/mwf-x' })
+    expect(parseInstallSpec('link:/plugins/mwf-x')).toEqual({ kind: 'path', spec: 'link:/plugins/mwf-x', path: '/plugins/mwf-x' })
+    expect(parseInstallSpec('/packs/mwf-x-1.0.0.tgz')).toEqual({ kind: 'tarball', spec: '/packs/mwf-x-1.0.0.tgz', path: '/packs/mwf-x-1.0.0.tgz' })
   })
 
   it('reads git hosts and tarball URLs, naming the host the spec itself is fetched from', () => {
     const hosts: Record<string, string> = {
-      'github:someone/dsh-plugin': 'github.com', 'gitlab:a/b#main': 'gitlab.com', 'bitbucket:a/b': 'bitbucket.org', 'gist:0123abcd': 'gist.github.com',
+      'github:someone/mwf-plugin': 'github.com', 'gitlab:a/b#main': 'gitlab.com', 'bitbucket:a/b': 'bitbucket.org', 'gist:0123abcd': 'gist.github.com',
       'git+ssh://git@github.com/a/b.git': 'github.com', 'git://host/a/b': 'host', 'git@github.com:a/b.git': 'github.com',
       'https://github.com/a/b': 'github.com', 'https://github.com/a/b.git#v1': 'github.com', 'git+https://Git.Example.com:8443/a/b.git': 'git.example.com:8443',
     }
     for (const [spec, host] of Object.entries(hosts)) {
       expect(parseInstallSpec(spec)).toEqual({ kind: 'git', spec, host })
     }
-    expect(parseInstallSpec('https://cdn.example.com/x/y/z/dsh-x-1.0.0.tgz')).toEqual({ kind: 'tarball', spec: 'https://cdn.example.com/x/y/z/dsh-x-1.0.0.tgz', host: 'cdn.example.com' })
+    expect(parseInstallSpec('https://cdn.example.com/x/y/z/mwf-x-1.0.0.tgz')).toEqual({ kind: 'tarball', spec: 'https://cdn.example.com/x/y/z/mwf-x-1.0.0.tgz', host: 'cdn.example.com' })
   })
 
   it('refuses what neither the registry nor pnpm would take, naming why', () => {
@@ -43,11 +43,11 @@ describe('parseInstallSpec', () => {
       throw new Error(`${spec} was accepted`)
     }
     expect(refusal('   ')).toBe('the package spec must not be empty')
-    expect(refusal('./dsh-x')).toBe('a local path must be absolute')
-    expect(refusal('../dsh-x')).toBe('a local path must be absolute')
-    expect(refusal('file:./dsh-x')).toBe('a local path must be absolute')
+    expect(refusal('./mwf-x')).toBe('a local path must be absolute')
+    expect(refusal('../mwf-x')).toBe('a local path must be absolute')
+    expect(refusal('file:./mwf-x')).toBe('a local path must be absolute')
     expect(refusal('https://example.com/not-a-package')).toBe('a URL must point at a git repository or a tarball')
-    expect(refusal('Dsh-Upper')).toBe('not a package name the registry accepts')
+    expect(refusal('Mwf-Upper')).toBe('not a package name the registry accepts')
     expect(refusal('.hidden')).toBe('not a package name the registry accepts')
     expect(refusal('has space')).toBe('not a package name the registry accepts')
     expect(refusal('a'.repeat(215))).toBe('not a package name the registry accepts')

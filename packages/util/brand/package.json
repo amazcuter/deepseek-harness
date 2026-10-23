@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-brand",
+  "name": "@metaworkflow/brand",
   "description": "Stateless branded primitive types for the DeepSeek Harness",
   "version": "0.2.1-rc.2",
   "publishConfig": {

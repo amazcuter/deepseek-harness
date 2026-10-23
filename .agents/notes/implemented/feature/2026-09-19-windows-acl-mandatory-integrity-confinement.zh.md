@@ -32,7 +32,7 @@ Status: implemented
 
 ### 为什么不用 `OI|CI` 施加 `FILE_DELETE_CHILD` 拒绝？
 
-那样拒绝项也会落到授权根内的每个**文件**上（用 `icacls` 观察到的正是 `Everyone:(I)(DENY)(DC)`），而 `0x40` 属于 `FILE_ALL_ACCESS`，于是这些文件上的 `CreateFileW(GENERIC_ALL)` 会对用户、Administrators、SYSTEM 与 DSH host 一并返回 `ERROR_ACCESS_DENIED`。收窄标志消除了这一类影响；授权根内**目录**的 FullControl 打开仍被拒绝，这是拒绝一项属于完全访问掩码的权限所无法避免的代价。
+那样拒绝项也会落到授权根内的每个**文件**上（用 `icacls` 观察到的正是 `Everyone:(I)(DENY)(DC)`），而 `0x40` 属于 `FILE_ALL_ACCESS`，于是这些文件上的 `CreateFileW(GENERIC_ALL)` 会对用户、Administrators、SYSTEM 与 MWF host 一并返回 `ERROR_ACCESS_DENIED`。收窄标志消除了这一类影响；授权根内**目录**的 FullControl 打开仍被拒绝，这是拒绝一项属于完全访问掩码的权限所无法避免的代价。
 
 ### 为什么不干脆去掉这层约束、只把逃逸写进文档？
 
@@ -44,7 +44,7 @@ Status: implemented
 
 ## 后果
 
-所得：删除在 Windows 接受的每条授权路径上都被约束，且被约束在各自的授权根内；此前记录的 Everyone 写边界被关闭；写入、读取与进程可见性其余部分不变；每次 Win32 调用失败都 fail-closed。所失（全部记录在包 README 中）：常驻 Low 标签会向**任何**以同一用户身份运行在 Low 完整性的进程放宽该工作区树，并比 DSH 生命期更长（这是在该完整性级别上拥有写边界本身的代价）；被授权目录现在还必须授予 `WRITE_OWNER` 才能写入标签（完全控制的工作区具备，仅授予 Modify 的会大声失败）；授权根内目录的 FullControl 打开被拒绝；被其他 AppContainer 工具以包 SID 标记过的目录树对 Low 子进程不可读；FAT 类目标仍未验证。[受限令牌档笔记](2026-08-08-windows-acl-restricted-token-sandbox.zh.md)仍是该档令牌列表、runner 约定与授权生命周期的归属者；本笔记只负责删除路径与封闭它的完整性层。
+所得：删除在 Windows 接受的每条授权路径上都被约束，且被约束在各自的授权根内；此前记录的 Everyone 写边界被关闭；写入、读取与进程可见性其余部分不变；每次 Win32 调用失败都 fail-closed。所失（全部记录在包 README 中）：常驻 Low 标签会向**任何**以同一用户身份运行在 Low 完整性的进程放宽该工作区树，并比 MWF 生命期更长（这是在该完整性级别上拥有写边界本身的代价）；被授权目录现在还必须授予 `WRITE_OWNER` 才能写入标签（完全控制的工作区具备，仅授予 Modify 的会大声失败）；授权根内目录的 FullControl 打开被拒绝；被其他 AppContainer 工具以包 SID 标记过的目录树对 Low 子进程不可读；FAT 类目标仍未验证。[受限令牌档笔记](2026-08-08-windows-acl-restricted-token-sandbox.zh.md)仍是该档令牌列表、runner 约定与授权生命周期的归属者；本笔记只负责删除路径与封闭它的完整性层。
 
 ## 测试
 

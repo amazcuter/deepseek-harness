@@ -1,7 +1,7 @@
 /**
  * Verify that only experimental packages call `appendPluginRecord` from production source.
  *
- * `appendPluginRecord` in `@deepseek-ai/dsh-session` appends an ignorable `plugin:` record that the
+ * `appendPluginRecord` in `@metaworkflow/session` appends an ignorable `plugin:` record that the
  * experimental persistence catalogue lists and that a Session format migration keeps only on a best-effort
  * basis. Experimental packages may rely on that; a release package must declare its events instead.
  * The owning module and test files, which exercise the operation, are exempt.

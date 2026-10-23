@@ -1,9 +1,9 @@
 ---
-description: "dsh Web 客户端的「内置插件」设置分区：设置导航项与供功能插件注册标签页的标签行。"
+description: "mwf Web 客户端的「内置插件」设置分区：设置导航项与供功能插件注册标签页的标签行。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-settings-plugins
+# @metaworkflow/client-ui-settings-plugins
 
 [English](README.md) | 中文
 

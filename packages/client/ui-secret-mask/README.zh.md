@@ -3,13 +3,13 @@ description: "Web 端已发送用户文本中可识别凭据的显示遮挡，�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-secret-mask
+# @metaworkflow/client-ui-secret-mask
 
 [English](README.md) | 中文
 
 ## 概述
 
-当 Web 用户把 API 密钥、令牌或密码粘贴进消息，而消息可能在共享屏幕或截图中被他人看到时，使用 `dsh-client-ui-secret-mask`。已发送的用户文本会遮挡每个可识别的凭据：密钥或令牌保留前八个字符，其余每个字符显示为 `*`。遮挡只改变显示内容；消息原文、复制操作和模型输入都保留原始字符。
+当 Web 用户把 API 密钥、令牌或密码粘贴进消息，而消息可能在共享屏幕或截图中被他人看到时，使用 `mwf-client-ui-secret-mask`。已发送的用户文本会遮挡每个可识别的凭据：密钥或令牌保留前八个字符，其余每个字符显示为 `*`。遮挡只改变显示内容；消息原文、复制操作和模型输入都保留原始字符。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-把本包与 `dsh-client-ui-conversation` 一起挂载。Web 应用 bundle 默认挂载本包；移除该行后凭据按原样显示。[UserText Factory](../ui-conversation/README.zh.md#sent-user-text) 的每个调用方都会遮挡：消息气泡、插话消息、发送中回显、排队消息以及 `/goal` 输入气泡。
+把本包与 `mwf-client-ui-conversation` 一起挂载。Web 应用 bundle 默认挂载本包；移除该行后凭据按原样显示。[UserText Factory](../ui-conversation/README.zh.md#sent-user-text) 的每个调用方都会遮挡：消息气泡、插话消息、发送中回显、排队消息以及 `/goal` 输入气泡。
 
 每个被遮挡的值以等宽字体显示，因此展开时不会挪动周围文字。交互文本（即已发送消息或已接纳的插话消息）会在每段末尾加一个眼睛控件。该控件显示或隐藏这一个值，每次挂载都从遮挡状态开始。其他调用方只显示遮挡后的值，不带控件。
 

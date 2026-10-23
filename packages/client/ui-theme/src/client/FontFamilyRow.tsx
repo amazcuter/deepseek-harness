@@ -5,10 +5,10 @@
  * an empty field restores the built-in stack. The field shows the persisted
  * list and resets whenever that list changes.
  */
-import { Input } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale, PropsRuntime, PropsStore } from '@deepseek-ai/dsh-client-ui-slots'
+import { Input } from '@metaworkflow/client-ui-primitives'
+import type { PropsLocale, PropsRuntime, PropsStore } from '@metaworkflow/client-ui-slots'
 import { normalizeFontFamily, type FontRole } from '../theme-settings.ts'
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
+import type {} from '@metaworkflow/client-ui-settings/client'
 import type { createFontRowStore } from './settings-store.ts'
 import rowCss from './FontSizeRow.module.css'
 import css from './FontFamilyRow.module.css'

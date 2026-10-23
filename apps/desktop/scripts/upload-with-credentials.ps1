@@ -74,7 +74,7 @@ try {
     $startInfo.RedirectStandardError = $true
     foreach ($name in @($startInfo.EnvironmentVariables.Keys)) {
         # Node preload hooks and unrelated release secrets must not reach this credential-bearing process.
-        if ($name -match 'KEY|SECRET|TOKEN|PASSWORD|^NODE_OPTIONS$|^DSH_DESKTOP_WINDOWS_|^APPLE_|^CSC_') {
+        if ($name -match 'KEY|SECRET|TOKEN|PASSWORD|^NODE_OPTIONS$|^MWF_DESKTOP_WINDOWS_|^APPLE_|^CSC_') {
             $startInfo.EnvironmentVariables.Remove($name)
         }
     }
@@ -87,7 +87,7 @@ try {
     }
     $startInfo.EnvironmentVariables["${prefix}_SECRET_ID"] = $secretId
     $startInfo.EnvironmentVariables["${prefix}_SECRET_KEY"] = $secretKey
-    $startInfo.EnvironmentVariables['DSH_DESKTOP_AUTO_UPDATE_ENV'] = $Environment
+    $startInfo.EnvironmentVariables['MWF_DESKTOP_AUTO_UPDATE_ENV'] = $Environment
     if ($Upload) {
         $startInfo.EnvironmentVariables["${prefix}_BUCKET"] = $Bucket
         $startInfo.Arguments = "--import tsx/esm apps/desktop/scripts/upload-target.ts $Target --credential-launcher --environment $Environment --bucket $Bucket"

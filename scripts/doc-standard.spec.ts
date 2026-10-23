@@ -51,7 +51,7 @@ const KIND_TEMPLATES: Readonly<Record<string, string>> = {
 /**
  * Audited packages whose entry is a plain module API rather than a Cordis
  * plugin (`apply` export or a default service export) or an installable
- * bundle (`dsh.bundle.patch`). Each entry names why the package is a
+ * bundle (`mwf.bundle.patch`). Each entry names why the package is a
  * library; the check re-derives the entry shape so a stale entry fails loud.
  */
 const PACKAGE_LIBRARIES: Readonly<Record<string, string>> = {
@@ -121,12 +121,12 @@ function packageDir(file: string): string {
   return file.replaceAll('\\', '/').replace(/\/README\.zh\.md$/, '').replace(/\/README\.md$/, '')
 }
 
-/** Whether the package manifest declares `dsh.bundle.patch`. */
+/** Whether the package manifest declares `mwf.bundle.patch`. */
 function declaresBundle(dir: string): boolean {
   const manifest = resolve(root, dir, 'package.json')
   if (!existsSync(manifest)) return false
-  const metadata = JSON.parse(readFileSync(manifest, 'utf8')) as { dsh?: { bundle?: { patch?: string } } }
-  return metadata.dsh?.bundle?.patch !== undefined
+  const metadata = JSON.parse(readFileSync(manifest, 'utf8')) as { mwf?: { bundle?: { patch?: string } } }
+  return metadata.mwf?.bundle?.patch !== undefined
 }
 
 /** The expected kind for one package README, from the facts the skill documents. */

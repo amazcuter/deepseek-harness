@@ -1,7 +1,7 @@
 /**
- * Issue #4573: a profile install of this package sits beside the dsh
- * installation and installs its own copy of `@deepseek-ai/dsh-scope`, so two
- * scope module instances coexist in one host process. `dsh-scope` mints its
+ * Issue #4573: a profile install of this package sits beside the mwf
+ * installation and installs its own copy of `@metaworkflow/scope`, so two
+ * scope module instances coexist in one host process. `mwf-scope` mints its
  * scope-tag symbol per module instance, so the copy's `createScope` writes a
  * tag every host registry ignores: each Agent's MCP tools register in the
  * global tool layer, the first Agent succeeds, and every later Agent's tool
@@ -12,7 +12,7 @@
  * two Agents, each with its own browser client.
  *
  * The first case is a characterization of the duplicated package, not a
- * behavior to preserve. Delete it once `dsh-scope` stops depending on module
+ * behavior to preserve. Delete it once `mwf-scope` stops depending on module
  * identity (for example a `Symbol.for` tag shared across copies).
  *
  * Run: `pnpm vitest run packages/experimental/browser-use-runtime/tests/host-runtime-duplication.spec.ts`
@@ -23,10 +23,10 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
-import BrowserUse from '@deepseek-ai/dsh-browser-use'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import type { Agent } from '@deepseek-ai/dsh-agent'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@metaworkflow/agent-loop-testkit'
+import BrowserUse from '@metaworkflow/browser-use'
+import { SessionId } from '@metaworkflow/session'
+import type { Agent } from '@metaworkflow/agent'
 import { mountSessionMcp } from '../src/mcp.ts'
 
 const FIXTURE = fileURLToPath(new URL('./mcp-fixture.mjs', import.meta.url))
@@ -41,7 +41,7 @@ afterEach(async () => {
 
 /** Composition with the registries a browser provider contributes to. */
 async function load(): Promise<{ ctx: Context; root: string }> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-browser-duplication-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-browser-duplication-'))
   roots.push(root)
   const ctx = new Context()
   contexts.push(ctx)
@@ -68,8 +68,8 @@ it('reproduces the second-Agent failure a profile install causes', async () => {
   // What npm installs beside the installation: one second copy of both packages
   // in the profile, so the copy's client resolves the copy's scope module.
   vi.resetModules()
-  const profileScope = await import('@deepseek-ai/dsh-scope')
-  const profileMcpClient = await import('@deepseek-ai/dsh-mcp-client')
+  const profileScope = await import('@metaworkflow/scope')
+  const profileMcpClient = await import('@metaworkflow/mcp-client')
   ctx.on('agent/created', async ({ agent }) => {
     await profileScope.createScope(ctx, agent).ctx.plugin(profileMcpClient, profileMcpClient.Config({
       transport: 'stdio', serverName: 'browser-fixture', command: process.execPath, args: [FIXTURE, root],

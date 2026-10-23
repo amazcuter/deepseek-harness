@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url'
 import { connectDesktopWelcome } from '../../desktop/src/welcome-backend.ts'
 import { chromium, type Browser, type Page } from 'playwright'
 import { afterEach, beforeEach, describe, expect, it, onTestFailed } from 'vitest'
-import { credentialKey, credentialRef } from '@deepseek-ai/dsh-credentials'
-import type {} from '@deepseek-ai/dsh-settings'
+import { credentialKey, credentialRef } from '@metaworkflow/credentials'
+import type {} from '@metaworkflow/settings'
 import {
   acknowledgeReloadConnectionLoss, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,
@@ -46,15 +46,15 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     walletBalance = '0E-16'
     bonusBalance = '0'
     screenshots = undefined
-    root = await mkdtemp(join(tmpdir(), 'dsh-desktop-onboarding-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-desktop-onboarding-'))
     server = createServer((request, response) => {
       if (request.url === '/api/v0/users/get_unnotified_bonuses') {
         bonusReads++
         response.setHeader('content-type', 'application/json')
         response.end(JSON.stringify({ code: 0, data: { biz_code: 0, biz_data: bonusOffered ? [{
-          order_id: '88888888-8888-4888-8888-888888888888', campaign: 'dsh_login_bonus',
+          order_id: '88888888-8888-4888-8888-888888888888', campaign: 'mwf_login_bonus',
           amount: '5.00', currency: 'CNY', granted_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + 86_400_000).toISOString(), msg: '已赠送您 5.00 元 DSH 体验赠金。',
+          expires_at: new Date(Date.now() + 86_400_000).toISOString(), msg: '已赠送您 5.00 元 MWF 体验赠金。',
         }] : [] } }))
         return
       }
@@ -109,12 +109,12 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     const welcome = await connectDesktopWelcome(scaffold.authenticatedUrl, (input, init) => scaffold.hostFetch(input, init))
     await opened.exposeFunction('__onboardingHasApiKey', async () => (await welcome.read()).hasApiKey)
     await opened.addInitScript(() => {
-      Object.defineProperty(globalThis, 'dshOnboarding', { value: {
+      Object.defineProperty(globalThis, 'mwfOnboarding', { value: {
         hasApiKey: () => (globalThis as typeof globalThis & { __onboardingHasApiKey(): Promise<boolean> }).__onboardingHasApiKey(),
         setActive: () => {},
       } })
-      Object.defineProperty(globalThis, 'dshDesktop', { value: { protocolVersion: 1 } })
-      Object.defineProperty(globalThis, 'dshPlatform', { value: {
+      Object.defineProperty(globalThis, 'mwfDesktop', { value: { protocolVersion: 1 } })
+      Object.defineProperty(globalThis, 'mwfPlatform', { value: {
         open: async () => {}, setBounds: async () => {}, close: async () => {},
       } })
     })
@@ -446,7 +446,7 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
       if (!reopen) await page.getByRole('button', { name: '开始设置', exact: true }).click()
       await expect.poll(() => bonusReads).toBeGreaterThan(readsBefore)
       await page.getByRole('heading', { name: '准备可用额度', exact: true }).waitFor()
-      expect(await page.getByText('已赠送您 5.00 元 DSH 体验赠金。', { exact: true }).count()).toBe(0)
+      expect(await page.getByText('已赠送您 5.00 元 MWF 体验赠金。', { exact: true }).count()).toBe(0)
       expect(bonusAcks).toBe(0)
       observations.push(`${reopen ? 'reopened' : 'initial'}.onboarding notice=false acks=${bonusAcks}`)
       if (!reopen) {
@@ -459,7 +459,7 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     await page.getByRole('button', { name: '跳过', exact: true }).click()
     await page.getByRole('dialog').getByRole('button', { name: '进入应用', exact: true }).click()
     await page.locator('[data-desktop-onboarding]').waitFor({ state: 'detached' })
-    const notice = page.getByText('已赠送您 5.00 元 DSH 体验赠金。', { exact: true })
+    const notice = page.getByText('已赠送您 5.00 元 MWF 体验赠金。', { exact: true })
     await notice.waitFor({ state: 'visible' })
     await expect.poll(() => bonusAcks).toBe(1)
     observations.push(`workspace.notice=${await notice.innerText()} acks=${bonusAcks}`)

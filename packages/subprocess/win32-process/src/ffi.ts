@@ -143,14 +143,14 @@ function win32Types(): Win32Types {
   const koffi = requireKoffi()
   const PVOID = koffi.pointer('void')
   const PPVOID = koffi.pointer(PVOID)
-  const STARTUPINFOW = koffi.struct('DSH_STARTUPINFOW', {
+  const STARTUPINFOW = koffi.struct('MWF_STARTUPINFOW', {
     cb: 'uint32', lpReserved: 'str16', lpDesktop: 'str16', lpTitle: 'str16',
     dwX: 'uint32', dwY: 'uint32', dwXSize: 'uint32', dwYSize: 'uint32',
     dwXCountChars: 'uint32', dwYCountChars: 'uint32', dwFillAttribute: 'uint32',
     dwFlags: 'uint32', wShowWindow: 'uint16', cbReserved2: 'uint16',
     lpReserved2: koffi.pointer('uint8'), hStdInput: PVOID, hStdOutput: PVOID, hStdError: PVOID,
   })
-  const PROCESS_INFORMATION = koffi.struct('DSH_PROCESS_INFORMATION', {
+  const PROCESS_INFORMATION = koffi.struct('MWF_PROCESS_INFORMATION', {
     hProcess: PVOID, hThread: PVOID, dwProcessId: 'uint32', dwThreadId: 'uint32',
   })
   /* v8 ignore start -- ABI guards are pinned by native header probes. */

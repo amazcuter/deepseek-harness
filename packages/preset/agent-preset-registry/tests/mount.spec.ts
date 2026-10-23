@@ -5,8 +5,8 @@ import { pathToFileURL } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
 import Group from '@deepseek-ai/cordis-plugin-group'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import { getDshRuntimeVersion, type ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import { createScope } from '@deepseek-ai/dsh-scope'
+import { getMwfRuntimeVersion, type ProfileContext } from '@metaworkflow/app-boot'
+import { createScope } from '@metaworkflow/scope'
 import { expect, it, onTestFinished } from 'vitest'
 import { harness, declare } from './harness.ts'
 import { auditRows, mountPreset, type PresetMount } from '../src/mount.ts'
@@ -103,14 +103,14 @@ it('reports grouped and conditional plugin rows from the activated tree', async 
 it('mounts a profile-denied row disabled and the same row active once exempted', async () => {
   const ctx = await harness()
   onTestFinished(() => ctx.fiber.dispose())
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'dsh-preset-compat-')))
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'mwf-preset-compat-')))
   onTestFinished(() => { rmSync(dir, { recursive: true, force: true }) })
   const pluginDir = join(dir, 'plugin')
   mkdirSync(pluginDir, { recursive: true })
   const loaded = join(pluginDir, 'loaded.txt')
   writeFileSync(join(pluginDir, 'package.json'), JSON.stringify({
     name: 'incompatible-preset-plugin', version: '1.0.0', type: 'module', main: 'index.mjs',
-    peerDependencies: { '@deepseek-ai/dsh': '<0.0.0' },
+    peerDependencies: { '@metaworkflow/cli': '<0.0.0' },
   }))
   writeFileSync(join(pluginDir, 'index.mjs'), [
     "import { writeFileSync } from 'node:fs'",
@@ -139,7 +139,7 @@ it('mounts a profile-denied row disabled and the same row active once exempted',
     scopes.push(deniedScope)
     mounts.push(await mountPreset(deniedScope.ctx, 'denied', [row]))
     loadedWhileDenied.push(existsSync(loaded))
-    writeFileSync(compatibilityPath, JSON.stringify({ 'incompatible-preset-plugin@1.0.0': [getDshRuntimeVersion()] }))
+    writeFileSync(compatibilityPath, JSON.stringify({ 'incompatible-preset-plugin@1.0.0': [getMwfRuntimeVersion()] }))
     const exemptedScope = createScope(owner, {})
     scopes.push(exemptedScope)
     mounts.push(await mountPreset(exemptedScope.ctx, 'exempted', [row]))

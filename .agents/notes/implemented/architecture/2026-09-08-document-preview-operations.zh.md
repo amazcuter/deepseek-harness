@@ -14,7 +14,7 @@ Document Preview 将资源观察与内容读取分开。[资源模型](2026-09-0
 
 [Workspace Files](../../../../packages/api/workspace-files/README.zh.md) 保留 Host 的行读取、字节窗口、有上限的全文读取和相对另一文件目录的有界读取。Client `file` 提供方只观察 `stat` 与 `changes`，`ResourceProtocolMap.file` 直接为 `WorkspaceFileStat`。Host 通过 Session 文件系统解析每条路径；文件读取继承该后端的读取权限，目录列举与变更观察仍限定于工作区。
 
-可读取的文件使用 `dsh-resource://file/session/<sessionId>/<path>`。路径可以相对工作区，也可以是绝对路径；编码后的绝对路径保留前导斜杠。`fileAddressFor` 始终生成这种 Session 地址。提供方与 Preview RPC 只从该地址取 Session，不取当前选择、首个持有者或 tab 所属 Session。不带 Session 的 `absolute` URI 无法读取；提供方报告 `workspace-file/unknown-workspace`。Session 授权是文件协议规则，不是额外的 Resource 身份。
+可读取的文件使用 `mwf-resource://file/session/<sessionId>/<path>`。路径可以相对工作区，也可以是绝对路径；编码后的绝对路径保留前导斜杠。`fileAddressFor` 始终生成这种 Session 地址。提供方与 Preview RPC 只从该地址取 Session，不取当前选择、首个持有者或 tab 所属 Session。不带 Session 的 `absolute` URI 无法读取；提供方报告 `workspace-file/unknown-workspace`。Session 授权是文件协议规则，不是额外的 Resource 身份。
 
 [Document Preview](../../../../packages/client/ui-sidebar-documentpreview/README.zh.md) 负责格式选择和加载策略。元数据通过 `ctx.documentPreviews` 注册；组件单独注册到 keyed `sidebar.right.tab.document` Slot。扩展注册优先于内置注册，其次比较后缀长度和注册顺序。工具栏列出受支持的候选，按 tab 记住手动选择。未知扩展名及文本兼容的渲染器仍可使用纯文本。文本兼容性由注册的二进制后缀决定，与加载方式无关；HTML 和 SVG 不属于二进制后缀，保留源码查看。只有一个候选时不显示查看器控件。注册声明为二进制的后缀不提供纯文本；已知二进制后缀没有注册渲染器时不发起读取，并显示不支持预览的空态（[侧边栏预览打磨](../../../../packages/client/ui-sidebar-documentpreview/README.zh.md)）。子组件收到累积文本或完整原生字节、原始资源地址，以及标准 `useResource` 和 `useTabInfo` 钩子。Preview 通过 `ctx.remote.workspaceFiles.read` 读取文本，通过 `ctx.remote.workspaceFiles.readBytes` 读取原生字节，关联资源使用 `baseFile`。刷新仍按 tab 独立进行，不引入资源 reload、共享 `changed` 确认、额外资源包装层或内容 Session。
 

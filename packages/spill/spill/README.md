@@ -3,13 +3,13 @@ description: "The spill storage service: save oversized tool text or captured se
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-spill
+# @metaworkflow/spill
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-spill` lets plugins and tools save oversized text through the public `ctx.spillStore` API and receive an opaque locator, exact byte count, and retrieval guidance. Choose it when full results must remain retrievable without filling model context. Configure `dsh-spill-local` for local persistence, and add `dsh-spill-policy` when oversized tool results should become bounded previews. The API does not offer retention, replacement, retrieval, or search operations. A save rejects on storage failure, leaving the caller to keep the content inline or fail.
+`mwf-spill` lets plugins and tools save oversized text through the public `ctx.spillStore` API and receive an opaque locator, exact byte count, and retrieval guidance. Choose it when full results must remain retrievable without filling model context. Configure `mwf-spill-local` for local persistence, and add `mwf-spill-policy` when oversized tool results should become bounded previews. The API does not offer retention, replacement, retrieval, or search operations. A save rejects on storage failure, leaving the caller to keep the content inline or fail.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-A composition that saves spill artifacts mounts one backend — this package alone stores nothing. `dsh-spill-policy` decides when tool results spill; `dsh-session-reference` directly saves truncated reference transcripts without requiring that policy. Callers use `ctx.spillStore.saveText()` with an explicit owner; optional consumers discover the backend with `ctx.get("spillStore")`.
+A composition that saves spill artifacts mounts one backend — this package alone stores nothing. `mwf-spill-policy` decides when tool results spill; `mwf-session-reference` directly saves truncated reference transcripts without requiring that policy. Callers use `ctx.spillStore.saveText()` with an explicit owner; optional consumers discover the backend with `ctx.get("spillStore")`.
 
 ### When to choose it
 
@@ -36,8 +36,8 @@ Choose spill storage when a deployment needs to keep full text retrievable after
 Mount a backend and the policy together; with `maxInlineTokens` set, an oversized text/image tool result becomes a preview plus a locator automatically.
 
 ```yaml
-- name: '@deepseek-ai/dsh-spill-local'
-- name: '@deepseek-ai/dsh-spill-policy'
+- name: '@metaworkflow/spill-local'
+- name: '@metaworkflow/spill-policy'
   config:
     maxInlineTokens: 12500
 ```
@@ -55,7 +55,7 @@ const ref = await ctx.spillStore.saveText({
 })
 ```
 
-The returned `SpillRef` carries three fields: `locator`, an opaque model-facing handle the backend produces (a local file path for `dsh-spill-local`, possibly a URI or key for another backend); `bytes`, the exact UTF-8 byte count written; and `retrievalHint`, the guidance a consumer shows the model — for the local backend, read or grep the path. Consumers render the locator with the hint and never parse the locator itself.
+The returned `SpillRef` carries three fields: `locator`, an opaque model-facing handle the backend produces (a local file path for `mwf-spill-local`, possibly a URI or key for another backend); `bytes`, the exact UTF-8 byte count written; and `retrievalHint`, the guidance a consumer shows the model — for the local backend, read or grep the path. Consumers render the locator with the hint and never parse the locator itself.
 
 ### Ownership and boundaries
 
@@ -63,7 +63,7 @@ Storage is grouped by the owning session: forked sessions inherit existing locat
 
 ### Failures and recovery
 
-`saveText` rejects only on a real storage failure — permissions, no space left, or a backend that is down. The caller decides how to degrade: the shipped policy treats a rejection as best-effort, logs a warning, and keeps the original inline result, so a spill failure never turns a successful tool call into an error or hides content. If no backend is mounted, there is nothing to save; load `dsh-spill-local` or another backend in the composition.
+`saveText` rejects only on a real storage failure — permissions, no space left, or a backend that is down. The caller decides how to degrade: the shipped policy treats a rejection as best-effort, logs a warning, and keeps the original inline result, so a spill failure never turns a successful tool call into an error or hides content. If no backend is mounted, there is nothing to save; load `mwf-spill-local` or another backend in the composition.
 
 -----
 
@@ -79,7 +79,7 @@ This section explains the design decisions behind the service; the observable be
 
 The package is built on one separation and a deliberate minimum:
 
-- **Contract, implementation, and policy stay separate.** This package defines what a backend does (`saveText`); `dsh-spill-local` implements it; `dsh-spill-policy` decides when. Each concern evolves and swaps independently.
+- **Contract, implementation, and policy stay separate.** This package defines what a backend does (`saveText`); `mwf-spill-local` implements it; `mwf-spill-policy` decides when. Each concern evolves and swaps independently.
 - **One method, nothing else.** The seam owns no retention policy, no result replacement, and no retrieval or search API — those have owning packages.
 - **Reject, never silently degrade at the seam.** The caller owns degradation; the seam reports real storage failures.
 
@@ -109,9 +109,9 @@ Read these pages when the package-level contract is not enough. They move from t
 
 - [Spill subsystem](../../../docs/subsystems/spill.md) — the exhaustive vocabulary, ownership, and backend relationships.
 - [Spill package map](../README.md) — the three-package family and each role.
-- [dsh-spill-local](../spill-local/README.md) — the shipped local filesystem backend.
-- [dsh-spill-policy](../spill-policy/README.md) — the policy that decides when a final result is too large.
-- [dsh-output-retention](../../util/output-retention/README.md) — the preview mechanics behind the policy.
+- [mwf-spill-local](../spill-local/README.md) — the shipped local filesystem backend.
+- [mwf-spill-policy](../spill-policy/README.md) — the policy that decides when a final result is too large.
+- [mwf-output-retention](../../util/output-retention/README.md) — the preview mechanics behind the policy.
 - [Tool output spill decision](../../../.agents/notes/implemented/architecture/2026-07-08-tool-output-spill-files.md) — the capability boundary and design rationale.
 
 -----

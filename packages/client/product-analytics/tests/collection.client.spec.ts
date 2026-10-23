@@ -1,6 +1,6 @@
 import { Context, Service } from '@deepseek-ai/cordis'
 import { afterEach, expect, it, vi } from 'vitest'
-import type { RemoteStreamOptions } from '@deepseek-ai/dsh-api-gateway/client'
+import type { RemoteStreamOptions } from '@metaworkflow/api-gateway/client'
 import * as Analytics from '../src/client/index.ts'
 
 const cleanup: (() => Promise<void>)[] = []
@@ -39,7 +39,7 @@ async function setup(enabled = true) {
   await ctx.plugin(TracedRemote)
   await ctx.plugin({ apply(child: Context) { child.provide('remote.productAnalytics', remote.productAnalytics as never) } })
   await ctx.plugin(Analytics)
-  if ('dshDesktop' in globalThis) await vi.waitFor(() => { expect(ctx.productAnalytics.enabled).toBe(enabled) })
+  if ('mwfDesktop' in globalThis) await vi.waitFor(() => { expect(ctx.productAnalytics.enabled).toBe(enabled) })
   return { ctx, report, options: () => options!,
     async fail() { failure = new Error('terminal'); wake?.(); await vi.waitFor(() => { expect(ctx.productAnalytics.enabled).toBe(false) }) },
     async policy(enabled: boolean) {
@@ -54,7 +54,7 @@ it('never collects in Web even when the Host advertises analytics', async () => 
   expect(b.report).not.toHaveBeenCalled()
 })
 it('drops disabled events and has no backfill when enabled', async () => {
-  vi.stubGlobal('dshDesktop', {})
+  vi.stubGlobal('mwfDesktop', {})
   const b = await setup(false)
   b.ctx.productAnalytics.track('auth_page_view', {})
   expect(b.report).not.toHaveBeenCalled()
@@ -63,7 +63,7 @@ it('drops disabled events and has no backfill when enabled', async () => {
   expect(b.report).toHaveBeenCalledExactlyOnceWith({ eventName: 'auth_page_click', timestamp: expect.any(Number) as number, attributes: { button_name: 'sign_in' } })
 })
 it('does not retry or propagate transport rejection', async () => {
-  vi.stubGlobal('dshDesktop', {})
+  vi.stubGlobal('mwfDesktop', {})
   const b = await setup()
   b.report.mockRejectedValueOnce(new Error('offline'))
   b.ctx.productAnalytics.track('auth_page_view', {})
@@ -72,7 +72,7 @@ it('does not retry or propagate transport rejection', async () => {
 })
 
 it('does not interrupt an action when Remote access fails synchronously', async () => {
-  vi.stubGlobal('dshDesktop', {})
+  vi.stubGlobal('mwfDesktop', {})
   const b = await setup()
   b.report.mockImplementationOnce(() => { throw new Error('Remote namespace detached') })
   expect(() => { b.ctx.productAnalytics.track('auth_page_view', {}) }).not.toThrow()
@@ -81,7 +81,7 @@ it('does not interrupt an action when Remote access fails synchronously', async 
 })
 
 it('keeps the supplied occurrence time and stops new events on policy changes', async () => {
-  vi.stubGlobal('dshDesktop', {})
+  vi.stubGlobal('mwfDesktop', {})
   const b = await setup()
   b.ctx.productAnalytics.track('auth_page_view', {}, 123)
   expect(b.report).toHaveBeenCalledWith({ eventName: 'auth_page_view', attributes: {}, timestamp: 123 })
@@ -91,7 +91,7 @@ it('keeps the supplied occurrence time and stops new events on policy changes', 
 })
 
 it('fails closed on stream loss and accepts a fresh policy after reconnection', async () => {
-  vi.stubGlobal('dshDesktop', {})
+  vi.stubGlobal('mwfDesktop', {})
   const b = await setup()
   b.options().open(new AbortController().signal)
   expect(b.options().ended(true).message).toContain('policy stream ended')
@@ -102,7 +102,7 @@ it('fails closed on stream loss and accepts a fresh policy after reconnection', 
 })
 
 it('reports from a consumer without granting it the analytics Remote namespace', async () => {
-  vi.stubGlobal('dshDesktop', {})
+  vi.stubGlobal('mwfDesktop', {})
   const b = await setup()
   let click!: () => void
   await b.ctx.plugin({

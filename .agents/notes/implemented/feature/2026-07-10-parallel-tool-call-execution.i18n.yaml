@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-07-10-parallel-tool-call-execution.md
 /agent-note-parallel-tool-call-execution-by-per-call-safety:
-  en: bbc8567dc50716d1
-  zh: 4ddef348cc74b39c
+  en: c0cad4b75faf8c0e
+  zh: 220ca58b2c8e119f
 /agent-note-parallel-tool-call-execution-by-per-call-safety/problem:
   en: 41ffece5e72e022f
   zh: e813a3efb9c12646
 /agent-note-parallel-tool-call-execution-by-per-call-safety/decision:
-  en: 532bb7268d9b93ce
-  zh: ad47162233222ab0
+  en: f1487f7f9b4641dc
+  zh: f1ec9b934b6b5050
 /agent-note-parallel-tool-call-execution-by-per-call-safety/scheduling-and-ordering:
-  en: 4e85280cc5eb8697
-  zh: 8e6b09b1527784fa
+  en: a7217bd14de656a6
+  zh: df0281868e61d090
 /agent-note-parallel-tool-call-execution-by-per-call-safety/safety-contract:
   en: 16c4ee08b65ead23
   zh: df80d6e49982615b
 /agent-note-parallel-tool-call-execution-by-per-call-safety/configuration-and-declarations:
-  en: e112957ed8a48039
-  zh: 37d63f9ea4968fb2
+  en: 35d4a0d10e114a79
+  zh: f9ec889b38552c0f
 /agent-note-parallel-tool-call-execution-by-per-call-safety/verification:
   en: eb5a6aa84980f0ab
   zh: eed2680a160e8ed2

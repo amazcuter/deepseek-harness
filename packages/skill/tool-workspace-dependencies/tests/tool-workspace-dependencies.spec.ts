@@ -8,10 +8,10 @@ import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
 import z from '@deepseek-ai/schemastery'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
+import AgentRegistry from '@metaworkflow/agent'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRuntime from '@metaworkflow/tools'
+import { ToolCallId } from '@metaworkflow/llm'
 import * as workspaceDependencies from '../src/index.ts'
 import { copyPrimaryRuntime, installPrimaryRuntime, parsePrimaryRuntime, readPrimaryRuntime, resolvePrimaryRuntime, workspaceDependencyPaths, type PrimaryRuntimeManifest } from '../src/index.ts'
 
@@ -27,10 +27,10 @@ afterEach(async () => {
 })
 
 async function fixture() {
-  const directory = await mkdtemp(join(tmpdir(), 'dsh-primary-runtime-'))
+  const directory = await mkdtemp(join(tmpdir(), 'mwf-primary-runtime-'))
   roots.push(directory)
   const source = join(directory, 'resources')
-  const root = join(directory, 'home', 'dsh-runtimes', 'dsh-primary-runtime')
+  const root = join(directory, 'home', 'mwf-runtimes', 'mwf-primary-runtime')
   const manifest: PrimaryRuntimeManifest = {
     desktopVersion: '1.0.0', platform: process.platform, arch: process.arch,
     python: '3.12.14', node: '24.21.0', pnpm: '11.7.0',
@@ -287,7 +287,7 @@ it('uses a payload in place without copying and tolerates a payload without Node
     pythonPackages: join(source, 'dependencies', 'python', ...(process.platform === 'win32' ? ['Lib'] : ['lib', 'python3.12']), 'site-packages'),
     pythonDistributions: { 'python-docx': '1.2.0' },
   })
-  await expect(readFile(join(directory, 'home', 'dsh-runtimes', 'dsh-primary-runtime', 'runtime.json'))).rejects.toMatchObject({ code: 'ENOENT' })
+  await expect(readFile(join(directory, 'home', 'mwf-runtimes', 'mwf-primary-runtime', 'runtime.json'))).rejects.toMatchObject({ code: 'ENOENT' })
   await rm(paths.python)
   await expect(resolvePrimaryRuntime(source)).rejects.toMatchObject({ code: 'ENOENT' })
 })

@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-15-guided-plugin-installation.md
 /agent-note-guided-plugin-installation:
-  en: 6b8375e59efb720e
-  zh: d94f130f72639233
+  en: 8df57b5f6e313cb6
+  zh: 6c410a9f6b1fc9ce
 /agent-note-guided-plugin-installation/problem:
   en: edefff7cd986a509
   zh: a270839fa86976a2
 /agent-note-guided-plugin-installation/decision:
-  en: 30f1e636973df06a
-  zh: 0f874b88a5d4d7f5
+  en: 02ccf5edfb64940d
+  zh: f65ba2603e0aef25
 /agent-note-guided-plugin-installation/alternatives-considered:
   en: be64b541f4d81e7c
   zh: 8600531c08ab4288

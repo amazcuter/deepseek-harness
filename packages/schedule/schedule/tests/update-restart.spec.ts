@@ -3,9 +3,9 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { Context } from '@deepseek-ai/cordis'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import { MessageId } from '@deepseek-ai/dsh-llm/brand'
-import { JsonStorageBackend } from '@deepseek-ai/dsh-storage-json'
+import { SessionId } from '@metaworkflow/session'
+import { MessageId } from '@metaworkflow/llm/brand'
+import { JsonStorageBackend } from '@metaworkflow/storage-json'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { createDailyScheduleRecord, ScheduleId } from '../src/domain.ts'
 import { scheduleDomain, type ScheduleTask } from '../src/storage.ts'
@@ -33,7 +33,7 @@ async function setup(root: string, task?: ScheduleTask) {
 }
 
 it.each([true, false])('persists same-ID daily edits with saved history=%s without Session activation', async (withHistory) => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-schedule-update-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-schedule-update-'))
   roots.push(root)
   const sessionId = SessionId('cold-original')
   const id = ScheduleId('daily-stable-id')
@@ -86,7 +86,7 @@ it.each([true, false])('persists same-ID daily edits with saved history=%s witho
 })
 
 it('keeps stored IANA alias spelling and a pinned millisecond target byte-identical on a daily no-op', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-schedule-update-alias-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-schedule-update-alias-'))
   roots.push(root)
   const id = ScheduleId('alias')
   const sessionId = SessionId('alias-session')

@@ -29,16 +29,16 @@ let require: WorkerRequire
 
 beforeEach(() => {
   const vfs = new MemoryVfs()
-  vfs.seedDirectory('/dsh/node_modules/pkg/locale')
-  vfs.writeFileSync('/dsh/node_modules/pkg/package.json', JSON.stringify({
+  vfs.seedDirectory('/mwf/node_modules/pkg/locale')
+  vfs.writeFileSync('/mwf/node_modules/pkg/package.json', JSON.stringify({
     name: 'pkg', exports: { '.': './index.js', './locale/*.json': './locale/*.json' },
   }))
-  vfs.writeFileSync('/dsh/node_modules/pkg/index.js', 'module.exports = { marker: "pkg" }')
-  vfs.writeFileSync('/dsh/node_modules/pkg/locale/en.json', '{}')
-  const loader = new WorkerModuleLoader({ vfs, root: '/dsh', staticModules: createNodeBuiltins() })
+  vfs.writeFileSync('/mwf/node_modules/pkg/index.js', 'module.exports = { marker: "pkg" }')
+  vfs.writeFileSync('/mwf/node_modules/pkg/locale/en.json', '{}')
+  const loader = new WorkerModuleLoader({ vfs, root: '/mwf', staticModules: createNodeBuiltins() })
   setActiveModuleLoader(loader)
-  installProcessGlobal({ cwd: '/dsh', env: {} })
-  require = loader.createRequire('/dsh/')
+  installProcessGlobal({ cwd: '/mwf', env: {} })
+  require = loader.createRequire('/mwf/')
 })
 
 afterEach(() => {
@@ -82,31 +82,31 @@ describe('the cascaded ESM loader', () => {
   })
 
   it('resolves with the Node 24 argument order', () => {
-    expect(cascaded().resolveSync('file:///dsh/', { specifier: 'pkg/locale/en.json', attributes: {} }))
-      .toEqual({ url: 'file:///dsh/node_modules/pkg/locale/en.json', format: 'json' })
-    expect(cascaded().resolveSync('file:///dsh/', { specifier: 'node:path' }))
+    expect(cascaded().resolveSync('file:///mwf/', { specifier: 'pkg/locale/en.json', attributes: {} }))
+      .toEqual({ url: 'file:///mwf/node_modules/pkg/locale/en.json', format: 'json' })
+    expect(cascaded().resolveSync('file:///mwf/', { specifier: 'node:path' }))
       .toEqual({ url: 'node:path', format: 'builtin' })
   })
 
   it('reports a missing resource with the codes Node ESM resolution uses', () => {
-    expect(codeOf(() => cascaded().resolveSync('file:///dsh/', { specifier: 'pkg/icon' }))).toBe('ERR_PACKAGE_PATH_NOT_EXPORTED')
-    expect(codeOf(() => cascaded().resolveSync('file:///dsh/', { specifier: 'absent' }))).toBe('ERR_MODULE_NOT_FOUND')
-    expect(codeOf(() => cascaded().resolveSync('file:///dsh/', { specifier: './absent.js' }))).toBe('ERR_MODULE_NOT_FOUND')
+    expect(codeOf(() => cascaded().resolveSync('file:///mwf/', { specifier: 'pkg/icon' }))).toBe('ERR_PACKAGE_PATH_NOT_EXPORTED')
+    expect(codeOf(() => cascaded().resolveSync('file:///mwf/', { specifier: 'absent' }))).toBe('ERR_MODULE_NOT_FOUND')
+    expect(codeOf(() => cascaded().resolveSync('file:///mwf/', { specifier: './absent.js' }))).toBe('ERR_MODULE_NOT_FOUND')
   })
 
   it('imports through the Worker loader', async () => {
-    await expect(cascaded().import('pkg', 'file:///dsh/', {})).resolves.toEqual({ marker: 'pkg' })
+    await expect(cascaded().import('pkg', 'file:///mwf/', {})).resolves.toEqual({ marker: 'pkg' })
   })
 
   it('keeps an empty load cache with Node LoadCache lookups', () => {
     const cache = cascaded().loadCache
     expect(cache).toBeInstanceOf(Map)
     expect(cache.size).toBe(0)
-    expect(cache.get('file:///dsh/x.js')).toBeUndefined()
-    expect(cache.has('file:///dsh/x.js')).toBe(false)
-    expect(cache.has('file:///dsh/x.json', 'json')).toBe(false)
+    expect(cache.get('file:///mwf/x.js')).toBeUndefined()
+    expect(cache.has('file:///mwf/x.js')).toBe(false)
+    expect(cache.has('file:///mwf/x.json', 'json')).toBe(false)
     expect(codeOf(() => cache.get(1 as never))).toBe('ERR_INVALID_ARG_TYPE')
-    expect(codeOf(() => cache.set('file:///dsh/x.js', 'javascript', {}))).toBe('ERR_FEATURE_UNAVAILABLE_ON_PLATFORM')
+    expect(codeOf(() => cache.set('file:///mwf/x.js', 'javascript', {}))).toBe('ERR_FEATURE_UNAVAILABLE_ON_PLATFORM')
   })
 })
 
@@ -143,9 +143,9 @@ describe('surfaces HMR reads while expiring package configuration', () => {
     const key = cache.serializeKey('./a.json', { type: 'json' })
     expect(key).toBe('./a.json::"type""json"')
     expect(cache.serializeKey('./a.js', {})).toBe('./a.js::')
-    expect(cache.has(key, 'file:///dsh/')).toBe(false)
-    cache.set(key, 'file:///dsh/', { url: 'file:///dsh/a.json', format: 'json' })
-    expect(cache.get(key, 'file:///dsh/')).toEqual({ url: 'file:///dsh/a.json', format: 'json' })
+    expect(cache.has(key, 'file:///mwf/')).toBe(false)
+    cache.set(key, 'file:///mwf/', { url: 'file:///mwf/a.json', format: 'json' })
+    expect(cache.get(key, 'file:///mwf/')).toEqual({ url: 'file:///mwf/a.json', format: 'json' })
   })
 })
 

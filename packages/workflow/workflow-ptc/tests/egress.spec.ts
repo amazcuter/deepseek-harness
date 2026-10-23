@@ -1,8 +1,8 @@
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { provideWorkingDirectoryFixture } from '@metaworkflow/agent-loop-testkit'
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { installProxyFromEnvironment } from '@deepseek-ai/dsh-http-proxy'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
+import { installProxyFromEnvironment } from '@metaworkflow/http-proxy'
+import SubagentRuntime from '@metaworkflow/subagent'
 import PtcWorkflowEngine from '../src/index.ts'
 import { fakeParent, mountPtcRuntime } from './setup.ts'
 

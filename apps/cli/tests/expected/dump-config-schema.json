@@ -353,7 +353,7 @@
           "if": {
             "properties": {
               "name": {
-                "const": "dsh-schema-acceptance-fixture/namespace"
+                "const": "mwf-schema-acceptance-fixture/namespace"
               }
             },
             "required": [
@@ -376,7 +376,7 @@
           "if": {
             "properties": {
               "name": {
-                "const": "dsh-schema-acceptance-fixture/class"
+                "const": "mwf-schema-acceptance-fixture/class"
               }
             },
             "required": [
@@ -399,7 +399,7 @@
           "if": {
             "properties": {
               "name": {
-                "const": "dsh-schema-acceptance-fixture/absent"
+                "const": "mwf-schema-acceptance-fixture/absent"
               }
             },
             "required": [
@@ -459,7 +459,7 @@
                       "name": {
                         "enum": [
                           "",
-                          "dsh-schema-acceptance-fixture/namespace"
+                          "mwf-schema-acceptance-fixture/namespace"
                         ]
                       }
                     }
@@ -508,7 +508,7 @@
                       "name": {
                         "enum": [
                           "",
-                          "dsh-schema-acceptance-fixture/class"
+                          "mwf-schema-acceptance-fixture/class"
                         ]
                       }
                     }
@@ -557,7 +557,7 @@
                       "name": {
                         "enum": [
                           "",
-                          "dsh-schema-acceptance-fixture/absent"
+                          "mwf-schema-acceptance-fixture/absent"
                         ]
                       }
                     }
@@ -590,21 +590,21 @@
       {
         "path": "/0",
         "id": "schema-namespace",
-        "name": "dsh-schema-acceptance-fixture/namespace",
+        "name": "mwf-schema-acceptance-fixture/namespace",
         "status": "schema",
         "configRef": "#/$defs/config0"
       },
       {
         "path": "/1",
         "id": "schema-class",
-        "name": "dsh-schema-acceptance-fixture/class",
+        "name": "mwf-schema-acceptance-fixture/class",
         "status": "schema",
         "configRef": "#/$defs/config1"
       },
       {
         "path": "/2",
         "id": "schema-absent",
-        "name": "dsh-schema-acceptance-fixture/absent",
+        "name": "mwf-schema-acceptance-fixture/absent",
         "status": "absent",
         "configRef": "#/$defs/unknownConfig"
       }

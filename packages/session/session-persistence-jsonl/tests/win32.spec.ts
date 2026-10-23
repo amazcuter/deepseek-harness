@@ -30,7 +30,7 @@ function stripNamespace(path: string): string {
 }
 
 async function tempRoot(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'dsh-jsonl-win32-'))
+  const dir = await mkdtemp(join(tmpdir(), 'mwf-jsonl-win32-'))
   roots.push(dir)
   return dir
 }
@@ -251,7 +251,7 @@ describe('Windows write-lock semaphore', () => {
     // Count-1 semaphore in the login-session namespace, named by path hash:
     // no filesystem footprint, and case-insensitive like Windows paths.
     expect(created[0]).toMatchObject({ initial: 1, maximum: 1 })
-    expect(created[0]?.name).toMatch(/^Local\\dsh-session-lock-[0-9a-f]{64}$/)
+    expect(created[0]?.name).toMatch(/^Local\\mwf-session-lock-[0-9a-f]{64}$/)
     const upper = await importWithLock({ createSemaphoreW: (name) => { created.push({ name, initial: 1, maximum: 1 }); return 7 } })
     await upper.acquireLockHandleWin32('C:\\S\\SESSION.LOCK')
     expect(created[1]?.name).toBe(created[0]?.name)

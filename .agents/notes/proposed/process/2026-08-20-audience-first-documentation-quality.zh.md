@@ -10,7 +10,7 @@ Status: proposed
 
 ### 语义正确性可以在没有现行归属者的情况下通过检查
 
-这些门禁证明结构和生成内容的新鲜度，却不能证明维护中的正文仍指向实际机制。以前的 `dsh-doc-site-sync` 技能曾要求作者复用并不存在的 `en-docs` 侧边栏，还要求把章节加入已经移除的 `sectionOrder`；[website/docs.ts](../../../../website/docs.ts)实际拥有 `en-guide`、`en-develop`、`en-reference` 和 `sections`。已实现的[产品优先 README 决策](../../archived/process/2026-07-22-product-first-root-readme.md)描述了内部测试说明，以及 ACP、Python 与 JSON-RPC 界面章节，但[根 README](../../../../README.zh.md)并无这些内容；与此同时，已实现 Agent Note 必须跟随已交付事实。
+这些门禁证明结构和生成内容的新鲜度，却不能证明维护中的正文仍指向实际机制。以前的 `mwf-doc-site-sync` 技能曾要求作者复用并不存在的 `en-docs` 侧边栏，还要求把章节加入已经移除的 `sectionOrder`；[website/docs.ts](../../../../website/docs.ts)实际拥有 `en-guide`、`en-develop`、`en-reference` 和 `sections`。已实现的[产品优先 README 决策](../../archived/process/2026-07-22-product-first-root-readme.md)描述了内部测试说明，以及 ACP、Python 与 JSON-RPC 界面章节，但[根 README](../../../../README.zh.md)并无这些内容；与此同时，已实现 Agent Note 必须跟随已交付事实。
 
 预算策略也存在相同的分裂。[docs/AGENTS.md](../../../../docs/AGENTS.md#wordcount-budgets)为 `architecture.md` 规定 1,800 词目标和 5% 余量，但[预算 manifest（元数据清单）](../../../../scripts/doc-budgets.manifest.json)允许 2,400 词，而该文件实际包含 1,313 词。预算门禁之所以通过，是因为它只检查 manifest 上限，不检查目标或棘轮规则。因此，高影响正文需要一个具名真源或消费真源的聚焦检查；第二份手写副本不是新鲜度机制。
 
@@ -50,7 +50,7 @@ Status: proposed
 
 [dsh-doc skill](../../../skills/dsh-doc/SKILL.md) 负责这些规则的首个可执行版本。`session-persistence-jsonl` README 对以已交付的追加、恢复与编码行为为证据，而不把其旧版正文当作权威。
 
-- 每个撰写型包 README 都以可搜索 YAML 开头。Skill 风格的 `description` 与按机制推导的 `kind` 为必填字段。四种 kind 与四个技能模板一一对应：`package-group`（组地图）、`package-reference`（插件或服务包）、`package-library`（纯模块入口）与 `package-bundle`（`dsh.bundle.patch`）。对照文件路径、哈希与物理行对齐由支持自动合并的 sidecar 及其门禁负责，因此 README frontmatter 不包含 `i18n` 块。名称已由标题或包 manifest 归属，受众已由文档职责表达；在受治理的标签分类与搜索消费方证明其价值超过全文检索之前，不加入标签。
+- 每个撰写型包 README 都以可搜索 YAML 开头。Skill 风格的 `description` 与按机制推导的 `kind` 为必填字段。四种 kind 与四个技能模板一一对应：`package-group`（组地图）、`package-reference`（插件或服务包）、`package-library`（纯模块入口）与 `package-bundle`（`mwf.bundle.patch`）。对照文件路径、哈希与物理行对齐由支持自动合并的 sidecar 及其门禁负责，因此 README frontmatter 不包含 `i18n` 块。名称已由标题或包 manifest 归属，受众已由文档职责表达；在受治理的标签分类与搜索消费方证明其价值超过全文检索之前，不加入标签。
 - 撰写型页面先写三至五句的 `Summary`，再写带链接的 `Table of Contents`。英文包 README 的 Summary 不超过 100 个按 `wc -w` 语义统计的词。它描述读者可见能力，而不是 Cordis 角色、注册项或内部组件；除非读者会在配置、命令或公开 API 中直接使用某个源码标识符，否则不得写入该标识符。由格式约束的 Agent Note、事故复盘、生成片段和机器文件保留其必需骨架。
 - 每个实质章节在子章节、表格或代码之前先给出简短引导，页面则从基础用户用法逐步进入高级开发者与维护者细节。
 - 英文技术正文采用受 ASD-STE100 启发但不宣称认证的清晰度评审：明确行动者与动作，稳定使用术语，使用直接动词，拆分指令与条件，并完整保留情态、例外、时序与数值。指令 20 词和描述 25 词的限制仅作评审提示。准确性高于句长。
@@ -93,7 +93,7 @@ Status: proposed
 
 该顺序使每项变更都能独立评审。前三个切片改进标准与包入口，而不改变更广的信息架构；生成文档原型则在更广的结构变更前提供证据。
 
-切片 1–3 已按此形式交付：`dsh-doc` 成为合并后的标准（`dsh-doc-standards` 与 `dsh-doc-site-sync` 已并入其中，站点工作流携带修正后的侧边栏值），`session-persistence-jsonl` README 对是参考示例，`pnpm run test:docs` 强制执行元数据、配对与快速文档检查。切片 4–5 仍待完成。
+切片 1–3 已按此形式交付：`dsh-doc` 成为合并后的标准（`mwf-doc-standards` 与 `mwf-doc-site-sync` 已并入其中，站点工作流携带修正后的侧边栏值），`session-persistence-jsonl` README 对是参考示例，`pnpm run test:docs` 强制执行元数据、配对与快速文档检查。切片 4–5 仍待完成。
 
 ### 非目标
 

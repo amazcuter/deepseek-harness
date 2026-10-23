@@ -6,7 +6,7 @@ Status: implemented
 
 ## 问题
 
-原生子智能体集成携带自己的运行时。把这些依赖放进每次 DSH 安装，会让从不向它们委派任务的用户也承担成本；要求用户知道包名，又会让插件页无法展示这些集成。
+原生子智能体集成携带自己的运行时。把这些依赖放进每次 MWF 安装，会让从不向它们委派任务的用户也承担成本；要求用户知道包名，又会让插件页无法展示这些集成。
 
 ## 决策
 
@@ -14,9 +14,9 @@ Status: implemented
 
 选择操作复用普通第三方 bundle 的安装器、profile 依赖、Host 行 patch、兼容性判断、进度、取消、注册表回退和构建脚本审批。原生认证与配置仍由提供方拥有。
 
-当前运行的安装决定目标。已发布应用提供精确的 DSH 发布版本，并保存精确的注册表依赖版本。源码 Web 和开发 Desktop 提供指向当前 CLI 所在 checkout 的普通 `link:` 依赖，使用其中已准备好的工作区依赖和 peer。源码目标跟随实际安装位置，不由当前工作目录或预发布版本后缀决定；不完整的 checkout 不回退到注册表。开发 checkout 可以与内容不同的已发布代码共用版本字符串，因此替换已安装的注册表副本或其他 checkout 的链接时，同时比较来源和版本。替换需显式触发，保留选择状态，并报告是否需要重启；启动时不下载提供方。[插件管理器](../../../../packages/boot/plugin-manager/README.zh.md#use-this-package)拥有操作细节。
+当前运行的安装决定目标。已发布应用提供精确的 MWF 发布版本，并保存精确的注册表依赖版本。源码 Web 和开发 Desktop 提供指向当前 CLI 所在 checkout 的普通 `link:` 依赖，使用其中已准备好的工作区依赖和 peer。源码目标跟随实际安装位置，不由当前工作目录或预发布版本后缀决定；不完整的 checkout 不回退到注册表。开发 checkout 可以与内容不同的已发布代码共用版本字符串，因此替换已安装的注册表副本或其他 checkout 的链接时，同时比较来源和版本。替换需显式触发，保留选择状态，并报告是否需要重启；启动时不下载提供方。[插件管理器](../../../../packages/boot/plugin-manager/README.zh.md#use-this-package)拥有操作细节。
 
-所有 Official 包仍属于 DSH 发布家族。打包后的 DSH 依赖、可选依赖与 peer 均使用家族精确版本。发布前置关系要求先发布目录包，再发布宣传它们的 DSH 包，同时不把这些运行时加入 DSH 生产依赖。目录校验拒绝缺失的元信息、不受支持的成员和过期生成内容。
+所有 Official 包仍属于 MWF 发布家族。打包后的 MWF 依赖、可选依赖与 peer 均使用家族精确版本。发布前置关系要求先发布目录包，再发布宣传它们的 MWF 包，同时不把这些运行时加入 MWF 生产依赖。目录校验拒绝缺失的元信息、不受支持的成员和过期生成内容。
 
 [随附可选 bundle 策略](../process/2026-09-15-shipped-optional-bundles.zh.md)仍管理安装随附的轻量 bundle。[可选组合决策](2026-09-21-experimental-capabilities-as-optional-bundles.zh.md)管理共享 patch 行为与全局可选工具。原生 bundle 插入普通 Host 行，因此任何 profile 都可以选择它们；保留包但不选择其 bundle 的 profile 显式挂载相同的行。[身份兼容决策](2026-10-06-web-desktop-plugin-identity-compatibility.zh.md)管理保留名称、选择器和暂缓的命名清理。
 

@@ -21,12 +21,12 @@
  * composition, entry mounting, the activation audit, and its diagnostics are the
  * same code the Node deployment runs. The Worker supplies module loading, the
  * platform overlay, and the command line.
- * @module @deepseek-ai/dsh-experimental-webworker-runtime/src/worker-host
+ * @module @metaworkflow/experimental-webworker-runtime/src/worker-host
  */
 import { setActiveModuleLoader, WorkerModuleLoader, type StaticModuleFactory } from './module-system/module-loader.ts'
-import type { ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import type { TypertGateway } from '@deepseek-ai/dsh-api-gateway'
-import type { HostConnectionHandle } from '@deepseek-ai/dsh-client-connection'
+import type { ProfileContext } from '@metaworkflow/app-boot'
+import type { TypertGateway } from '@metaworkflow/api-gateway'
+import type { HostConnectionHandle } from '@metaworkflow/client-connection'
 import type { AlsCausality } from './polyfill/async-context/als-runtime.ts'
 import { join } from './module-system/posix-path.ts'
 import { installProcessGlobal } from './node/globals/process.ts'
@@ -103,7 +103,7 @@ export interface WorkerHostOptions {
   readonly cmdlineArgs?: readonly string[]
   /** Port named on the default command line; defaults to {@link DEFAULT_PORT}. */
   readonly port?: number
-  /** Environment for the process shim; `DSH_HOME` defaults to `<root>/home`. */
+  /** Environment for the process shim; `MWF_HOME` defaults to `<root>/home`. */
   readonly env?: Readonly<Record<string, string>>
   /**
    * Image manifest path; defaults to `<root>/config/vfs-manifest.json`. Its
@@ -185,7 +185,7 @@ export function createWorkerHost(options: WorkerHostOptions): WorkerHost {
   const start = async (): Promise<void> => {
     try {
       const home = join(root, IMAGE_HOME_DIRECTORY)
-      const processShim = installProcessGlobal({ cwd: root, env: { DSH_HOME: home, HOME: home, ...options.env } })
+      const processShim = installProcessGlobal({ cwd: root, env: { MWF_HOME: home, HOME: home, ...options.env } })
 
       const [bytes, overlays] = await Promise.all([
         readImage(options.image),
@@ -221,11 +221,11 @@ export function createWorkerHost(options: WorkerHostOptions): WorkerHost {
       modules = loader
 
       const require = loader.requireFrom(root)
-      const appBoot = require('@deepseek-ai/dsh-app-boot') as AppBootFace
-      const { DSH_LAUNCH_ENVIRONMENT_KEY } = require('@deepseek-ai/dsh-launch-environment') as {
-        DSH_LAUNCH_ENVIRONMENT_KEY: string
+      const appBoot = require('@metaworkflow/app-boot') as AppBootFace
+      const { MWF_LAUNCH_ENVIRONMENT_KEY } = require('@metaworkflow/launch-environment') as {
+        MWF_LAUNCH_ENVIRONMENT_KEY: string
       }
-      const cmdline = require('@deepseek-ai/dsh-cmdline') as {
+      const cmdline = require('@metaworkflow/cmdline') as {
         provideCmdline(ctx: unknown, host: {
           args: readonly string[]
           exit: (code: number) => void
@@ -239,7 +239,7 @@ export function createWorkerHost(options: WorkerHostOptions): WorkerHost {
       const profileConfig = join(profile.dir, 'cordis.yml')
       const ctx = await appBoot.boot(BIN_NAME, profileConfig, patches, async (hostCtx) => {
         hostCtx.provide('profileContext', profile)
-        hostCtx.provide(DSH_LAUNCH_ENVIRONMENT_KEY, environment)
+        hostCtx.provide(MWF_LAUNCH_ENVIRONMENT_KEY, environment)
         installLogSink(hostCtx, require)
         // Package lookup without a runtime resolution: the Worker loader owns
         // module resolution, so only manifest lookup over the image applies.
@@ -342,7 +342,7 @@ export function installLogSink(ctx: HostContext, require: (specifier: string) =>
 }
 
 /** Diagnostic prefix the launcher passes to app-boot; the Worker boots the same profile code. */
-const BIN_NAME = 'dsh'
+const BIN_NAME = 'mwf'
 
 /** The app-boot members the Worker boots the tree with, as the image's own app-boot exports them. */
 interface AppBootFace {
@@ -441,7 +441,7 @@ function prepareProfile(
   const profile: ProfileContext = {
     name: loaded.name, dir: loaded.dir, patchPath: loaded.patchPath, installAnchor, cwd: root, home,
     startedBundles: loaded.layers.map(layer => layer.packageName),
-    overlays: [], telemetryDisabledEnv: env.DSH_TELEMETRY_DISABLED,
+    overlays: [], telemetryDisabledEnv: env.MWF_TELEMETRY_DISABLED,
   }
   return { patches: appBoot.readProfilePatches(BIN_NAME, profile, loaded), profile, environment }
 }

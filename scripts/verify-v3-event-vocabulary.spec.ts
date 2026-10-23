@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { RELEASED_V3_EVENT_TYPES } from '@deepseek-ai/dsh-session-format-v3-to-v4'
+import { RELEASED_V3_EVENT_TYPES } from '@metaworkflow/session-format-v3-to-v4'
 import { verifyV3EventVocabulary } from './verify-v3-event-vocabulary.ts'
 
 const roots: string[] = []
@@ -27,7 +27,7 @@ function git(root: string, args: readonly string[], environment: NodeJS.ProcessE
 }
 
 function fixture(options: { writer?: string; events?: string } = {}): { root: string; sourceRef: string } {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-v3-vocabulary-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-v3-vocabulary-'))
   roots.push(root)
   write(root, writerPath, options.writer ?? 'export const SESSION_FORMAT_VERSION = 3 as const\n')
   write(root, eventsPath, options.events ?? `export const KNOWN_SESSION_EVENT_TYPES: ReadonlySet<string> = new Set(${JSON.stringify(names)})\n`)

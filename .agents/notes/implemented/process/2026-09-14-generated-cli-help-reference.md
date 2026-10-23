@@ -10,7 +10,7 @@ Launcher flags, profile options, and nested commands have separate owners. A man
 
 ## Decision
 
-The CLI reference captures the supported `dsh` launcher's help, the plugin forwarder's help, and each shipped profile's help, then recursively discovers the subcommands listed in each page's `Commands:` section. Shipped profile names come from `PROFILE_TEMPLATES`. Every page retains its complete help text; identical alias help appears once with all invocation forms.
+The CLI reference captures the supported `mwf` launcher's help, the plugin forwarder's help, and each shipped profile's help, then recursively discovers the subcommands listed in each page's `Commands:` section. Shipped profile names come from `PROFILE_TEMPLATES`. Every page retains its complete help text; identical alias help appears once with all invocation forms.
 
 Generation uses temporary Harness and Agents homes. Help exits before application work starts and requires no server or model. The plugin forwarder exposes its own help before pnpm arguments; flags after the pnpm command remain pnpm input.
 

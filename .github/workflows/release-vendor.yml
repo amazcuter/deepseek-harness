@@ -1,6 +1,6 @@
 # Pack the vendored framework sequence: the nine rescoped Cordis packages under
 # vendor/, each on its own version line. This sequence releases independently of
-# dsh and of the native packages.
+# mwf and of the native packages.
 #
 # Pack runs without credentials on every pull request and master push.
 # Publication is a manual workflow_dispatch of release-vendor-publish.yml from a
@@ -24,14 +24,14 @@ concurrency:
 
 env:
   PRIMARY_NODE_VERSION: '24'
-  DSH_TELEMETRY_DISABLED: '1'
+  MWF_TELEMETRY_DISABLED: '1'
 
 jobs:
   pack:
     name: Pack npm tarballs
     # Persistent runners accept only trusted, credential-free rehearsals.
     runs-on: >-
-      ${{ vars.DSH_CI_FAILOVER_LINUX == 'selfhosted'
+      ${{ vars.MWF_CI_FAILOVER_LINUX == 'selfhosted'
         && github.repository == 'deepseek-harness/deepseek-harness'
         && github.actor != 'dependabot[bot]'
         && ((github.event_name == 'push' && github.ref == 'refs/heads/master')

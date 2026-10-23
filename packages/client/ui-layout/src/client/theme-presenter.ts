@@ -3,15 +3,15 @@
  * document — `html { color-scheme }` for native UA chrome (scrollbars, form
  * controls), `body[data-ds-dark-theme]` for the token palette, the active
  * theme's alias-token overrides as inline CSS variables on body, the content
- * font-size axis (`--dsh-content-font-size`), the code and terminal sizes
- * (`--dsh-code-font-size`, `--dsh-terminal-font-size`), the user font lists
- * (`--dsh-font-family-<role>`), `html[data-ds-theme-source]`
+ * font-size axis (`--mwf-content-font-size`), the code and terminal sizes
+ * (`--mwf-code-font-size`, `--mwf-terminal-font-size`), the user font lists
+ * (`--mwf-font-family-<role>`), `html[data-ds-theme-source]`
  * for native-chrome mirroring, and one presenter-owned
  * `meta[name="theme-color"]` for surrounding browser UI. Pure DOM writes, no
  * React involvement; the presenter only ever retracts what it wrote itself,
  * so foreign attributes, metadata, and inline styles survive.
  */
-import type { FontRole, ThemeSnapshot } from '@deepseek-ai/dsh-client-ui-theme/client'
+import type { FontRole, ThemeSnapshot } from '@metaworkflow/client-ui-theme/client'
 
 /** Body attribute selecting the dark base palette in the token stylesheets. */
 export const DARK_ATTRIBUTE = 'data-ds-dark-theme'
@@ -28,20 +28,20 @@ export const DARK_ATTRIBUTE = 'data-ds-dark-theme'
 export const THEME_SOURCE_ATTRIBUTE = 'data-ds-theme-source'
 
 /** Body variable carrying the user's content font size in px. */
-export const CONTENT_FONT_SIZE_VARIABLE = '--dsh-content-font-size'
+export const CONTENT_FONT_SIZE_VARIABLE = '--mwf-content-font-size'
 
 /** Body variables carrying the user's font sizes in px by role. */
 const FONT_SIZE_VARIABLES = {
   text: CONTENT_FONT_SIZE_VARIABLE,
-  code: '--dsh-code-font-size',
-  terminal: '--dsh-terminal-font-size',
+  code: '--mwf-code-font-size',
+  terminal: '--mwf-terminal-font-size',
 } as const satisfies Record<FontRole, string>
 
 /** Body variables carrying the user's normalized font lists; absent selects the built-in stack. */
 const FONT_FAMILY_VARIABLES = {
-  text: '--dsh-font-family-text',
-  code: '--dsh-font-family-code',
-  terminal: '--dsh-font-family-terminal',
+  text: '--mwf-font-family-text',
+  code: '--mwf-font-family-code',
+  terminal: '--mwf-font-family-terminal',
 } as const satisfies Record<FontRole, string>
 
 /** Applies theme snapshots to the document; one instance per plugin fiber. */

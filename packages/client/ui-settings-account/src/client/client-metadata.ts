@@ -2,9 +2,9 @@
  * Platform client identity for one account call. The Host turns these fields
  * into the Platform request headers, so the browser sends the UI language and
  * the local UTC offset rather than any credential.
- * @module @deepseek-ai/dsh-client-ui-settings-account/src/client/client-metadata
+ * @module @metaworkflow/client-ui-settings-account/src/client/client-metadata
  */
-import type { AccountClientMetadata } from '@deepseek-ai/dsh-deepseek-account/types'
+import type { AccountClientMetadata } from '@metaworkflow/deepseek-account/types'
 
 /**
  * Build the request identity for one account call.
@@ -14,7 +14,7 @@ import type { AccountClientMetadata } from '@deepseek-ai/dsh-deepseek-account/ty
  * @throws Error when the build carries no version, instead of reporting an empty one.
  */
 export function accountClientMetadata(locale: string, version: string | undefined): AccountClientMetadata {
-  if (version === undefined || version === '') throw new Error('account: this client build carries no DSH_CLIENT_VERSION')
+  if (version === undefined || version === '') throw new Error('account: this client build carries no MWF_CLIENT_VERSION')
   return {
     version,
     locale,

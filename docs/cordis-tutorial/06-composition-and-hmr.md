@@ -22,7 +22,7 @@ Groups nest a sub-list of entries that load and unload as one unit, and `isolate
 
 ## Hot module replacement
 
-Because unloading releases effects ([chapter 2](02-lifecycle-and-effects.md)) and loading follows dependencies ([chapter 3](03-services.md)), HMR can replace a running plugin by unloading and loading it. The `@deepseek-ai/dsh-hmr` plugin watches your files and does exactly that on save.
+Because unloading releases effects ([chapter 2](02-lifecycle-and-effects.md)) and loading follows dependencies ([chapter 3](03-services.md)), HMR can replace a running plugin by unloading and loading it. The `@metaworkflow/hmr` plugin watches your files and does exactly that on save.
 
 In `tmp/cordis-tutorial`, write `cordis.yml`:
 
@@ -32,7 +32,7 @@ In `tmp/cordis-tutorial`, write `cordis.yml`:
 - id: timer
   name: '@deepseek-ai/cordis-plugin-timer'
 - id: hmr
-  name: '@deepseek-ai/dsh-hmr'
+  name: '@metaworkflow/hmr'
   config:
     root: ['.']
 - id: hello
@@ -110,4 +110,4 @@ needs-timer is PENDING — a required service is missing
 
 Next: [Into the harness](07-into-the-harness.md) — the same patterns against real harness services.
 
-[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
+[![](https://img.shields.io/badge/powered_by-mwf-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)

@@ -10,7 +10,7 @@ import { experimentalRuntimeReferences } from './runtime-roster-isolation.ts'
 import type { RuntimeRoster } from './runtime-roster.ts'
 
 it.each(Object.values(EXPERIMENTAL_PACKAGE_NAME_EXCEPTIONS))('finds retained experimental package %s in real roster fields', (name) => {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-runtime-roster-policy-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-runtime-roster-policy-'))
   onTestFinished(() => { rmSync(root, { recursive: true, force: true }) })
   const directory = join(root, 'node_modules/ordinary-alias')
   mkdirSync(directory, { recursive: true })

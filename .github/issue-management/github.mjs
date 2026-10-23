@@ -30,7 +30,7 @@ export async function api(path, options = {}) {
       Accept: 'application/vnd.github+json',
       Authorization: `Bearer ${token()}`,
       'X-GitHub-Api-Version': API_VERSION,
-      'User-Agent': 'dsh-issue-policy',
+      'User-Agent': 'mwf-issue-policy',
       ...options.headers,
     },
   })

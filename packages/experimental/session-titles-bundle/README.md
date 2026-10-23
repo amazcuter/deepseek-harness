@@ -3,7 +3,7 @@ description: "Refresh session titles as new human prompts arrive."
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-session-titles-bundle
+# @metaworkflow/experimental-session-titles-bundle
 
 English | [中文](README.zh.md)
 

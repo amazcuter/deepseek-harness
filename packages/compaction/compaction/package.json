@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-compaction",
+  "name": "@metaworkflow/compaction",
   "description": "Abstract compaction service seam (ctx.compaction) for the DeepSeek Harness",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -36,17 +36,17 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-commands": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/commands": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-commands": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/commands": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   }
 }

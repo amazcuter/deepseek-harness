@@ -1,25 +1,25 @@
 /**
  * Service Definition for the approval capability seam, covering requests, cancellation, audit, and per-session policy. Missing
  * answerers fail closed; grants apply only to the requested action.
- * @module @deepseek-ai/dsh-user-approval
+ * @module @metaworkflow/user-approval
  */
 
 import { randomUUID } from 'node:crypto'
 import { Context, Service } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { createUserMessage, type ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-declare module '@deepseek-ai/dsh-llm' {
+import type { Agent } from '@metaworkflow/agent'
+import { createUserMessage, type ToolCallId } from '@metaworkflow/llm'
+import type { ContextFormed } from '@metaworkflow/llm'
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'user-approval': { kind: 'user-approval' } & ContextFormed
   }
 }
 
-import { scopeTarget } from '@deepseek-ai/dsh-scope'
-import type { Session } from '@deepseek-ai/dsh-session'
-import { SessionSeq } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-system-prompt'
+import { scopeTarget } from '@metaworkflow/scope'
+import type { Session } from '@metaworkflow/session'
+import { SessionSeq } from '@metaworkflow/session'
+import type {} from '@metaworkflow/system-prompt'
 
 declare module '@deepseek-ai/cordis' {
   interface Context {
@@ -27,7 +27,7 @@ declare module '@deepseek-ai/cordis' {
   }
 }
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@metaworkflow/session/types' {
   interface SessionEventMap {
     /**
      * The session's approval policy was switched — log-only, durable,

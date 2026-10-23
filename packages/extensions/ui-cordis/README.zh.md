@@ -3,13 +3,13 @@ description: "历史 Cordis 卡片及进程内 runner 定义的控件。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-cordis
+# @metaworkflow/client-ui-cordis
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-client-ui-cordis` 渲染历史生成插件卡片，并为进程内定义提供控制面板。用户可以操作程序消费者提供的定义；重启后持久化卡片仍可读取，但不会重建定义。新建 Creator 插件使用 Plugin Manager。
+`mwf-client-ui-cordis` 渲染历史生成插件卡片，并为进程内定义提供控制面板。用户可以操作程序消费者提供的定义；重启后持久化卡片仍可读取，但不会重建定义。新建 Creator 插件使用 Plugin Manager。
 
 ## 目录
 

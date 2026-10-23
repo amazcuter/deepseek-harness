@@ -25,7 +25,7 @@ it('shares menu transparency and blur across palettes and follows native menu bo
   onTestFinished(() => browser.close())
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, locale: 'en-US' })
   await page.addInitScript(() => {
-    Object.defineProperty(globalThis, 'dshDesktop', { value: { protocolVersion: 1 } })
+    Object.defineProperty(globalThis, 'mwfDesktop', { value: { protocolVersion: 1 } })
   })
   await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
   const account = page.getByRole('button', { name: 'Account menu', exact: true })

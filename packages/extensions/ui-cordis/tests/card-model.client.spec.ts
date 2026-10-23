@@ -2,8 +2,8 @@
 // call/result slice.
 
 import { describe, expect, it } from 'vitest'
-import type { StartedToolCall, ToolResultNode } from '@deepseek-ai/dsh-client-ui-chat/client'
-import { PartialArguments } from '@deepseek-ai/dsh-util-values'
+import type { StartedToolCall, ToolResultNode } from '@metaworkflow/client-ui-chat/client'
+import { PartialArguments } from '@metaworkflow/util-values'
 import { cordisActionCard, cordisDefineCard } from '../src/client/card-model.ts'
 
 const ARGS = '{"name":"clock","purpose":"顶栏时钟","code":{"client":"return {}","host":"harness.handle(\'now\', () => Date.now())"}}'

@@ -3,13 +3,13 @@ description: "Storage hub (ctx.storage) for compositions and maintainers choosin
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-storage
+# @metaworkflow/storage
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Use `dsh-storage` to keep typed application data durable without adding it to session history. Mount it with a supported storage medium and domain configuration, then callers can access records through the public `ctx.storageDomain` API. Choose it for workspace records, session sidecars, or other application state that must survive restarts without becoming session events. It is available only to host code and has no model-visible effect; compositions that do not need such data can omit it.
+Use `mwf-storage` to keep typed application data durable without adding it to session history. Mount it with a supported storage medium and domain configuration, then callers can access records through the public `ctx.storageDomain` API. Choose it for workspace records, session sidecars, or other application state that must survive restarts without becoming session events. It is available only to host code and has no model-visible effect; compositions that do not need such data can omit it.
 
 ## Table of Contents
 
@@ -34,16 +34,16 @@ Mount the hub whenever any package in the composition persists data that is not 
 ### A minimal composition
 
 ```yaml
-- name: '@deepseek-ai/dsh-storage'
-- name: '@deepseek-ai/dsh-storage-json'
+- name: '@metaworkflow/storage'
+- name: '@metaworkflow/storage-json'
   config:
-    root: /var/lib/dsh/data
-- name: '@deepseek-ai/dsh-storage-domain'
+    root: /var/lib/mwf/data
+- name: '@metaworkflow/storage-domain'
   config:
     backend: json
 ```
 
-With these rows, the `json` backend registers itself and the `domain` data form mounts; a consumer such as `dsh-workspace` then opens its domain over the routed backend and reads and writes records through `ctx.storageDomain`. Several backends can stay mounted side by side; which backend serves which domain is the domain form's configuration, never a hub-wide choice.
+With these rows, the `json` backend registers itself and the `domain` data form mounts; a consumer such as `mwf-workspace` then opens its domain over the routed backend and reads and writes records through `ctx.storageDomain`. Several backends can stay mounted side by side; which backend serves which domain is the domain form's configuration, never a hub-wide choice.
 
 ### What you get
 
@@ -54,7 +54,7 @@ With these rows, the `json` backend registers itself and the `domain` data form 
 ### Failures and recovery
 
 - `backend-not-found` — the domain form routes to a backend that is not mounted; add the backend package. The form waits for every configured backend to register, so row order is not a failure mode.
-- `form-not-mounted` — a consumer reads `ctx.storage.domain` before `dsh-storage-domain` loads; mount the domain row before the consumer.
+- `form-not-mounted` — a consumer reads `ctx.storage.domain` before `mwf-storage-domain` loads; mount the domain row before the consumer.
 - `duplicate-backend` / `duplicate-mount` — the same name or form registers twice; that is a composition bug and fails loud.
 
 -----

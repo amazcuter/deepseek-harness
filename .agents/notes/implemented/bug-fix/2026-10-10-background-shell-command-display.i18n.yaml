@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-10-10-background-shell-command-display.md
 /agent-note-separate-background-shell-command-display-from-job-state:
-  en: c531a4b2eb444a12
-  zh: 7c216f829d2e5168
+  en: 094e0866456a1d8e
+  zh: 3e8e48138ef2aa5a
 /agent-note-separate-background-shell-command-display-from-job-state/problem:
   en: 116454bc385c0cc3
   zh: 241905c37c22cb45
 /agent-note-separate-background-shell-command-display-from-job-state/decision:
-  en: ca05afff8b542979
-  zh: ccb19c8709718ca0
+  en: b39c2c98bb04dd92
+  zh: 13d6dc30b24ba339
 /agent-note-separate-background-shell-command-display-from-job-state/alternatives-considered:
   en: 573a8d2e99de14e6
   zh: 1e7767c951672b42

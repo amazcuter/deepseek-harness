@@ -4,7 +4,7 @@ import { createPdfBinaryDataFactory, workerSource } from './assets.ts'
 import type { PdfSession } from './document.ts'
 import { PdfWorkerFailure } from './errors.ts'
 
-const WORKER_READY = 'dsh-pdf-worker-ready'
+const WORKER_READY = 'mwf-pdf-worker-ready'
 
 /**
  * Open complete PDF bytes with an explicitly owned Worker. Startup failure
@@ -73,7 +73,7 @@ export function openPdf(data: Uint8Array<ArrayBuffer>, signal: AbortSignal, repo
       workerSource,
       `\nself.postMessage({type:${JSON.stringify(WORKER_READY)}});\n`,
     ], { type: 'text/javascript' }))
-    worker = new Worker(url, { type: 'module', name: 'dsh-pdf' })
+    worker = new Worker(url, { type: 'module', name: 'mwf-pdf' })
     worker.addEventListener('error', workerFailed)
     worker.addEventListener('messageerror', workerFailed)
     const started = Promise.withResolvers<undefined>()

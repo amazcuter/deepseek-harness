@@ -27,7 +27,7 @@ body[data-ds-dark-theme] [data-menu-material] {
 /* 派生 elevation 值逐元素声明而非从 body 继承：继承传下来的是在 body 上就
    已替换完 var() 的值，组件重绑 --dsw-elevation-stroke-color 将无法进入
    var(--dsw-elevation-*)；逐元素声明让每个元素按自己看到的描边色重新替换
-   （同 scrollbar.css 对 --dsh-scrollbar-thumb 的处理）。 */
+   （同 scrollbar.css 对 --mwf-scrollbar-thumb 的处理）。 */
 body,
 body * {
   --dsw-elevation-stroke: 0 0 0 0.5px var(--dsw-elevation-stroke-color);
@@ -54,82 +54,82 @@ body[data-ds-dark-theme] {
    max(13px, ...) selects the delta, not a font-size floor. Small typography keeps a
    fixed size; code typography follows the separate code size setting. */
 body {
-  --dsh-content-font-delta: calc(var(--dsh-content-font-size, 14px) - 14px);
-  --dsh-content-font-size-secondary: min(calc(var(--dsh-content-font-size, 14px) - 1px), max(13px, calc(var(--dsh-content-font-size, 14px) - 2px)));
-  --dsh-content-font-delta-secondary: calc(var(--dsh-content-font-size-secondary) - 13px);
-  /* Code size setting (--dsh-code-font-size, integer px 10–16, default 11)
+  --mwf-content-font-delta: calc(var(--mwf-content-font-size, 14px) - 14px);
+  --mwf-content-font-size-secondary: min(calc(var(--mwf-content-font-size, 14px) - 1px), max(13px, calc(var(--mwf-content-font-size, 14px) - 2px)));
+  --mwf-content-font-delta-secondary: calc(var(--mwf-content-font-size-secondary) - 13px);
+  /* Code size setting (--mwf-code-font-size, integer px 10–16, default 11)
      is the code-block size; inline code and the small tool variant move by
      the same increment. */
-  --dsh-code-font-delta: calc(var(--dsh-code-font-size, 11px) - 11px);
+  --mwf-code-font-delta: calc(var(--mwf-code-font-size, 11px) - 11px);
 
-  --dsw-font-markdown-h1: 700 calc(21px + var(--dsh-content-font-delta)) / calc(30px + var(--dsh-content-font-delta)) var(--dsw-font-family);
+  --dsw-font-markdown-h1: 700 calc(21px + var(--mwf-content-font-delta)) / calc(30px + var(--mwf-content-font-delta)) var(--dsw-font-family);
   --dsw-font-markdown-h1-font-family: var(--dsw-font-family);
   --dsw-font-markdown-h1-font-weight: 700;
-  --dsw-font-markdown-h1-line-height: calc(30px + var(--dsh-content-font-delta));
-  --dsw-font-markdown-h1-font-size: calc(21px + var(--dsh-content-font-delta));
+  --dsw-font-markdown-h1-line-height: calc(30px + var(--mwf-content-font-delta));
+  --dsw-font-markdown-h1-font-size: calc(21px + var(--mwf-content-font-delta));
   --dsw-font-markdown-h1-font-style: normal;
 
-  --dsw-font-markdown-h2: 700 calc(19px + var(--dsh-content-font-delta)) / calc(28px + var(--dsh-content-font-delta)) var(--dsw-font-family);
+  --dsw-font-markdown-h2: 700 calc(19px + var(--mwf-content-font-delta)) / calc(28px + var(--mwf-content-font-delta)) var(--dsw-font-family);
   --dsw-font-markdown-h2-font-family: var(--dsw-font-family);
   --dsw-font-markdown-h2-font-weight: 700;
-  --dsw-font-markdown-h2-line-height: calc(28px + var(--dsh-content-font-delta));
-  --dsw-font-markdown-h2-font-size: calc(19px + var(--dsh-content-font-delta));
+  --dsw-font-markdown-h2-line-height: calc(28px + var(--mwf-content-font-delta));
+  --dsw-font-markdown-h2-font-size: calc(19px + var(--mwf-content-font-delta));
   --dsw-font-markdown-h2-font-style: normal;
 
-  --dsw-font-markdown-h3: 700 calc(18px + var(--dsh-content-font-delta)) / calc(26px + var(--dsh-content-font-delta)) var(--dsw-font-family);
+  --dsw-font-markdown-h3: 700 calc(18px + var(--mwf-content-font-delta)) / calc(26px + var(--mwf-content-font-delta)) var(--dsw-font-family);
   --dsw-font-markdown-h3-font-family: var(--dsw-font-family);
   --dsw-font-markdown-h3-font-weight: 700;
-  --dsw-font-markdown-h3-line-height: calc(26px + var(--dsh-content-font-delta));
-  --dsw-font-markdown-h3-font-size: calc(18px + var(--dsh-content-font-delta));
+  --dsw-font-markdown-h3-line-height: calc(26px + var(--mwf-content-font-delta));
+  --dsw-font-markdown-h3-font-size: calc(18px + var(--mwf-content-font-delta));
   --dsw-font-markdown-h3-font-style: normal;
 
-  --dsw-font-markdown-h4: 600 var(--dsh-content-font-size, 14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family);
+  --dsw-font-markdown-h4: 600 var(--mwf-content-font-size, 14px) / calc(24px + var(--mwf-content-font-delta)) var(--dsw-font-family);
   --dsw-font-markdown-h4-font-family: var(--dsw-font-family);
   --dsw-font-markdown-h4-font-weight: 600;
-  --dsw-font-markdown-h4-line-height: calc(24px + var(--dsh-content-font-delta));
-  --dsw-font-markdown-h4-font-size: var(--dsh-content-font-size, 14px);
+  --dsw-font-markdown-h4-line-height: calc(24px + var(--mwf-content-font-delta));
+  --dsw-font-markdown-h4-font-size: var(--mwf-content-font-size, 14px);
   --dsw-font-markdown-h4-font-style: normal;
 
-  --dsw-font-markdown-base: var(--dsh-content-font-size, 14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family);
+  --dsw-font-markdown-base: var(--mwf-content-font-size, 14px) / calc(24px + var(--mwf-content-font-delta)) var(--dsw-font-family);
   --dsw-font-markdown-base-font-family: var(--dsw-font-family);
   --dsw-font-markdown-base-font-weight: 400;
-  --dsw-font-markdown-base-line-height: calc(24px + var(--dsh-content-font-delta));
-  --dsw-font-markdown-base-font-size: var(--dsh-content-font-size, 14px);
+  --dsw-font-markdown-base-line-height: calc(24px + var(--mwf-content-font-delta));
+  --dsw-font-markdown-base-font-size: var(--mwf-content-font-size, 14px);
   --dsw-font-markdown-base-font-style: normal;
 
-  --dsw-font-markdown-base-strong: 600 var(--dsh-content-font-size, 14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family);
+  --dsw-font-markdown-base-strong: 600 var(--mwf-content-font-size, 14px) / calc(24px + var(--mwf-content-font-delta)) var(--dsw-font-family);
   --dsw-font-markdown-base-strong-font-family: var(--dsw-font-family);
   --dsw-font-markdown-base-strong-font-weight: 600;
-  --dsw-font-markdown-base-strong-line-height: calc(24px + var(--dsh-content-font-delta));
-  --dsw-font-markdown-base-strong-font-size: var(--dsh-content-font-size, 14px);
+  --dsw-font-markdown-base-strong-line-height: calc(24px + var(--mwf-content-font-delta));
+  --dsw-font-markdown-base-strong-font-size: var(--mwf-content-font-size, 14px);
   --dsw-font-markdown-base-strong-font-style: normal;
 
-  --dsw-font-markdown-base-italic: italic var(--dsh-content-font-size, 14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family);
+  --dsw-font-markdown-base-italic: italic var(--mwf-content-font-size, 14px) / calc(24px + var(--mwf-content-font-delta)) var(--dsw-font-family);
   --dsw-font-markdown-base-italic-font-family: var(--dsw-font-family);
   --dsw-font-markdown-base-italic-font-weight: 400;
-  --dsw-font-markdown-base-italic-line-height: calc(24px + var(--dsh-content-font-delta));
-  --dsw-font-markdown-base-italic-font-size: var(--dsh-content-font-size, 14px);
+  --dsw-font-markdown-base-italic-line-height: calc(24px + var(--mwf-content-font-delta));
+  --dsw-font-markdown-base-italic-font-size: var(--mwf-content-font-size, 14px);
   --dsw-font-markdown-base-italic-font-style: italic;
 
-  --dsw-font-markdown-base-strong-italic: italic 600 var(--dsh-content-font-size, 14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family);
+  --dsw-font-markdown-base-strong-italic: italic 600 var(--mwf-content-font-size, 14px) / calc(24px + var(--mwf-content-font-delta)) var(--dsw-font-family);
   --dsw-font-markdown-base-strong-italic-font-family: var(--dsw-font-family);
   --dsw-font-markdown-base-strong-italic-font-weight: 600;
-  --dsw-font-markdown-base-strong-italic-line-height: calc(24px + var(--dsh-content-font-delta));
-  --dsw-font-markdown-base-strong-italic-font-size: var(--dsh-content-font-size, 14px);
+  --dsw-font-markdown-base-strong-italic-line-height: calc(24px + var(--mwf-content-font-delta));
+  --dsw-font-markdown-base-strong-italic-font-size: var(--mwf-content-font-size, 14px);
   --dsw-font-markdown-base-strong-italic-font-style: italic;
 
-  --dsw-font-markdown-table: var(--dsh-content-font-size-secondary, 13px)/calc(22px + var(--dsh-content-font-delta-secondary, 0px)) var(--dsw-font-family);
+  --dsw-font-markdown-table: var(--mwf-content-font-size-secondary, 13px)/calc(22px + var(--mwf-content-font-delta-secondary, 0px)) var(--dsw-font-family);
   --dsw-font-markdown-table-font-family: var(--dsw-font-family);
   --dsw-font-markdown-table-font-weight: 400;
-  --dsw-font-markdown-table-line-height: calc(22px + var(--dsh-content-font-delta-secondary, 0px));
-  --dsw-font-markdown-table-font-size: var(--dsh-content-font-size-secondary, 13px);
+  --dsw-font-markdown-table-line-height: calc(22px + var(--mwf-content-font-delta-secondary, 0px));
+  --dsw-font-markdown-table-font-size: var(--mwf-content-font-size-secondary, 13px);
   --dsw-font-markdown-table-font-style: normal;
 
-  --dsw-font-markdown-table-head: 500 var(--dsh-content-font-size-secondary, 13px)/calc(22px + var(--dsh-content-font-delta-secondary, 0px)) var(--dsw-font-family);
+  --dsw-font-markdown-table-head: 500 var(--mwf-content-font-size-secondary, 13px)/calc(22px + var(--mwf-content-font-delta-secondary, 0px)) var(--dsw-font-family);
   --dsw-font-markdown-table-head-font-family: var(--dsw-font-family);
   --dsw-font-markdown-table-head-font-weight: 500;
-  --dsw-font-markdown-table-head-line-height: calc(22px + var(--dsh-content-font-delta-secondary, 0px));
-  --dsw-font-markdown-table-head-font-size: var(--dsh-content-font-size-secondary, 13px);
+  --dsw-font-markdown-table-head-line-height: calc(22px + var(--mwf-content-font-delta-secondary, 0px));
+  --dsw-font-markdown-table-head-font-size: var(--mwf-content-font-size-secondary, 13px);
   --dsw-font-markdown-table-head-font-style: normal;
 
   --dsw-font-markdown-small: 12px/20px var(--dsw-font-family);
@@ -160,26 +160,26 @@ body {
   --dsw-font-markdown-small-strong-italic-font-size: 12px;
   --dsw-font-markdown-small-strong-italic-font-style: italic;
 
-  --dsw-font-markdown-code: calc(12px + var(--dsh-code-font-delta)) / calc(19px + var(--dsh-code-font-delta)) var(--ds-font-family-code);
+  --dsw-font-markdown-code: calc(12px + var(--mwf-code-font-delta)) / calc(19px + var(--mwf-code-font-delta)) var(--ds-font-family-code);
   --dsw-font-markdown-code-font-family: var(--ds-font-family-code);
   --dsw-font-markdown-code-font-weight: 400;
-  --dsw-font-markdown-code-line-height: calc(19px + var(--dsh-code-font-delta));
-  --dsw-font-markdown-code-font-size: calc(12px + var(--dsh-code-font-delta));
+  --dsw-font-markdown-code-line-height: calc(19px + var(--mwf-code-font-delta));
+  --dsw-font-markdown-code-font-size: calc(12px + var(--mwf-code-font-delta));
   --dsw-font-markdown-code-font-style: normal;
 
-  --dsw-font-markdown-code-block: var(--dsh-code-font-size, 11px) / calc(19px + var(--dsh-code-font-delta)) var(--ds-font-family-code);
+  --dsw-font-markdown-code-block: var(--mwf-code-font-size, 11px) / calc(19px + var(--mwf-code-font-delta)) var(--ds-font-family-code);
   --dsw-font-markdown-code-block-font-family: var(--ds-font-family-code);
   --dsw-font-markdown-code-block-font-weight: 400;
-  --dsw-font-markdown-code-block-line-height: calc(19px + var(--dsh-code-font-delta));
-  --dsw-font-markdown-code-block-font-size: var(--dsh-code-font-size, 11px);
+  --dsw-font-markdown-code-block-line-height: calc(19px + var(--mwf-code-font-delta));
+  --dsw-font-markdown-code-block-font-size: var(--mwf-code-font-size, 11px);
   --dsw-font-markdown-code-block-font-style: normal;
 
   /* 手工补充（非插件导出）：tool row 展开卡片内的小号 code 字体。 */
-  --dsw-font-markdown-code-block-small: var(--dsh-code-font-size, 11px) / calc(16px + var(--dsh-code-font-delta)) var(--ds-font-family-code);
+  --dsw-font-markdown-code-block-small: var(--mwf-code-font-size, 11px) / calc(16px + var(--mwf-code-font-delta)) var(--ds-font-family-code);
   --dsw-font-markdown-code-block-small-font-family: var(--ds-font-family-code);
   --dsw-font-markdown-code-block-small-font-weight: 400;
-  --dsw-font-markdown-code-block-small-line-height: calc(16px + var(--dsh-code-font-delta));
-  --dsw-font-markdown-code-block-small-font-size: var(--dsh-code-font-size, 11px);
+  --dsw-font-markdown-code-block-small-line-height: calc(16px + var(--mwf-code-font-delta));
+  --dsw-font-markdown-code-block-small-font-size: var(--mwf-code-font-size, 11px);
   --dsw-font-markdown-code-block-small-font-style: normal;
 
   --dsw-font-xl-24: 600 24px/32px var(--dsw-font-family);

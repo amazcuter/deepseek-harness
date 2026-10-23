@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-06-11-dev-invariants-over-deep-readonly.md
 /agent-note-source-owned-session-immutability:
-  en: cf33ffdd07df7257
-  zh: 3d6895c9c80b0b1f
+  en: 07c4947ca4025791
+  zh: bd411064236f7335
 /agent-note-source-owned-session-immutability/problem:
   en: e5d87f6c5aef2dad
   zh: 9f7f1459d99c523c
@@ -12,8 +12,8 @@
   en: 821a886d365a2271
   zh: 4ba5d74a7772150d
 /agent-note-source-owned-session-immutability/decision/session-owns-immutable-history:
-  en: 76fc0d8548d192c1
-  zh: 34c610fff5beb455
+  en: eb5ef352764397a7
+  zh: 1d61747b04b9dd51
 /agent-note-source-owned-session-immutability/decision/derived-requests-remain-detached:
   en: 975df574ee6e6df8
   zh: 96d765058482835a

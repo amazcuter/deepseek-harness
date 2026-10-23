@@ -3,13 +3,13 @@ description: "目录选择 seam 的原生 OS 选择器后端：为坐在 web GUI
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-host-directory-picker-native
+# @metaworkflow/host-directory-picker-native
 
 [English](README.md) | 中文
 
 ## 概述
 
-坐在宿主屏幕前的操作者通过原生 OS 选择器选择工作区目录：`dsh-host-directory-picker-native` 每次选择打开一个平台目录选择器，并解析出所选绝对路径（取消时为 `null`）。macOS 驱动带标准「编辑」菜单的脚本化 AppKit 面板，Linux 使用 Zenity 并以 KDialog 回退，Windows 在 spawn 的子进程中打开现代 `IFileOpenDialog`。只有操作者坐在宿主屏幕前时才可用——远程部署应组合[浏览后端](../directory-picker-browse/README.zh.md)。一行组合配置还会在工作区流程中注册匹配的浏览器侧交互，因此同时选择两侧。
+坐在宿主屏幕前的操作者通过原生 OS 选择器选择工作区目录：`mwf-host-directory-picker-native` 每次选择打开一个平台目录选择器，并解析出所选绝对路径（取消时为 `null`）。macOS 驱动带标准「编辑」菜单的脚本化 AppKit 面板，Linux 使用 Zenity 并以 KDialog 回退，Windows 在 spawn 的子进程中打开现代 `IFileOpenDialog`。只有操作者坐在宿主屏幕前时才可用——远程部署应组合[浏览后端](../directory-picker-browse/README.zh.md)。一行组合配置还会在工作区流程中注册匹配的浏览器侧交互，因此同时选择两侧。
 
 ## 目录
 
@@ -49,7 +49,7 @@ kind: "package-reference"
 
 ### 设计理念
 
-后端是平台选择器之上的一层薄服务：`NativeDirectoryPicker` 注册 `native` 能力，其 `pick` 转发给 `pickNativeDirectory`，选择器以子进程运行，因此宿主进程不会因对话框而阻塞。命令边界（`DirectoryPickerRunner`）与平台事实可注入；共享的免 shell 子进程运行器位于 [`dsh-native-command`](../../util/native-command/README.zh.md)。
+后端是平台选择器之上的一层薄服务：`NativeDirectoryPicker` 注册 `native` 能力，其 `pick` 转发给 `pickNativeDirectory`，选择器以子进程运行，因此宿主进程不会因对话框而阻塞。命令边界（`DirectoryPickerRunner`）与平台事实可注入；共享的免 shell 子进程运行器位于 [`mwf-native-command`](../../util/native-command/README.zh.md)。
 
 ### 平台机制
 

@@ -15,19 +15,19 @@ afterEach(() => {
 })
 
 function fixture(edges: Array<[number, number]>): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-session-format-catalog-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-session-format-catalog-'))
   fixtureRoots.push(root)
   mkdirSync(join(root, 'packages/core/session/src'), { recursive: true })
   writeFileSync(join(root, 'packages/core/session/src/types.ts'), 'export const SESSION_FORMAT_VERSION = 2\n')
   const catalogDependencies: Record<string, string> = {}
   for (const [from, to] of edges) {
     const dir = join(root, `packages/session/session-format-v${from}-to-v${to}`)
-    const name = `@deepseek-ai/dsh-session-format-v${from}-to-v${to}`
+    const name = `@metaworkflow/session-format-v${from}-to-v${to}`
     mkdirSync(dir, { recursive: true })
     catalogDependencies[name] = 'workspace:^'
     writeFileSync(join(dir, 'package.json'), JSON.stringify({
       name,
-      dsh: { sessionFormatMigration: {
+      mwf: { sessionFormatMigration: {
         from, to, export: '.',
         migration: `sessionFormatV${from}ToV${to}`,
         sourceCodec: `releasedV${from}SessionFormatCodec`,
@@ -36,10 +36,10 @@ function fixture(edges: Array<[number, number]>): string {
         targetRestorer: `restoreReleasedV${to}Artifact`,
       } },
       dependencies: from === 0
-        ? { '@deepseek-ai/dsh-session-format': 'workspace:^' }
+        ? { '@metaworkflow/session-format': 'workspace:^' }
         : {
-          '@deepseek-ai/dsh-session-format': 'workspace:^',
-          [`@deepseek-ai/dsh-session-format-v${from - 1}-to-v${from}`]: 'workspace:^',
+          '@metaworkflow/session-format': 'workspace:^',
+          [`@metaworkflow/session-format-v${from - 1}-to-v${from}`]: 'workspace:^',
         },
     }))
   }
@@ -47,8 +47,8 @@ function fixture(edges: Array<[number, number]>): string {
   mkdirSync(catalog, { recursive: true })
   writeFileSync(join(catalog, 'package.json'), JSON.stringify({
     dependencies: catalogDependencies,
-    peerDependencies: { '@deepseek-ai/dsh-session': 'workspace:^' },
-    devDependencies: { '@deepseek-ai/dsh-session': 'workspace:^' },
+    peerDependencies: { '@metaworkflow/session': 'workspace:^' },
+    devDependencies: { '@metaworkflow/session': 'workspace:^' },
   }))
   return root
 }
@@ -57,7 +57,7 @@ function edgeManifest(root: string, from: number, to: number): {
   path: string
   value: Record<string, unknown> & {
     dependencies: Record<string, string>
-    dsh: { sessionFormatMigration: Record<string, unknown> }
+    mwf: { sessionFormatMigration: Record<string, unknown> }
   }
 } {
   const path = join(root, `packages/session/session-format-v${from}-to-v${to}/package.json`)
@@ -65,7 +65,7 @@ function edgeManifest(root: string, from: number, to: number): {
     path,
     value: JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown> & {
       dependencies: Record<string, string>
-      dsh: { sessionFormatMigration: Record<string, unknown> }
+      mwf: { sessionFormatMigration: Record<string, unknown> }
     },
   }
 }
@@ -101,14 +101,14 @@ describe('session format catalog generator', () => {
     const output = renderSessionFormatCatalog(declarations, version)
 
     expect(declarations.map(item => [item.from, item.to])).toEqual([[0, 1], [1, 2]])
-    expect(output).toContain("from '@deepseek-ai/dsh-session-format-v0-to-v1'")
+    expect(output).toContain("from '@metaworkflow/session-format-v0-to-v1'")
     expect(output).toContain('currentVersion: 2')
     expect(output).toContain('currentEncoder: releasedV2SessionFormatCodec')
     expect(output).toContain('restoreReleasedV2Artifact(artifact, KNOWN_SESSION_EVENT_TYPES)')
     expect(output).toContain('restoreTransformedCurrent(artifact)')
     expect(output).toContain('assertReleasedV2Header(header)')
     expect(output).toContain('validateInstalledCurrentSessionHeader(header)')
-    expect(output).toContain("from '@deepseek-ai/dsh-session'")
+    expect(output).toContain("from '@metaworkflow/session'")
     expect(output).toContain("from './current.ts'")
     const imports = output.split('\n').filter(line => line.startsWith('import {'))
     expect(imports.filter(line => line.includes('releasedV1SessionFormatCodec'))).toHaveLength(1)
@@ -122,7 +122,7 @@ describe('session format catalog generator', () => {
   it('refuses a later edge whose declared source codec does not continue the prior target', () => {
     const root = fixture([[0, 1], [1, 2]])
     const manifest = edgeManifest(root, 1, 2)
-    manifest.value.dsh.sessionFormatMigration['sourceCodec'] = 'UnrelatedV1Codec'
+    manifest.value.mwf.sessionFormatMigration['sourceCodec'] = 'UnrelatedV1Codec'
     writeFileSync(manifest.path, JSON.stringify(manifest.value))
 
     expect(() => collectSessionFormatMigrations(root, 2))
@@ -132,21 +132,21 @@ describe('session format catalog generator', () => {
   it('requires every later edge to depend on the package that owns its source codec', () => {
     const root = fixture([[0, 1], [1, 2]])
     const manifest = edgeManifest(root, 1, 2)
-    delete manifest.value.dependencies['@deepseek-ai/dsh-session-format-v0-to-v1']
+    delete manifest.value.dependencies['@metaworkflow/session-format-v0-to-v1']
     writeFileSync(manifest.path, JSON.stringify(manifest.value))
 
     expect(() => collectSessionFormatMigrations(root, 2))
-      .toThrow(/must depend on @deepseek-ai\/dsh-session-format-v0-to-v1/)
+      .toThrow(/must depend on @metaworkflow\/session-format-v0-to-v1/)
   })
 
   it('requires the package name to identify its declared adjacent edge', () => {
     const root = fixture([[0, 1], [1, 2]])
     const manifest = edgeManifest(root, 1, 2)
-    manifest.value['name'] = '@deepseek-ai/dsh-session-format-other'
+    manifest.value['name'] = '@metaworkflow/session-format-other'
     writeFileSync(manifest.path, JSON.stringify(manifest.value))
 
     expect(() => collectSessionFormatMigrations(root, 2))
-      .toThrow(/name must be @deepseek-ai\/dsh-session-format-v1-to-v2/)
+      .toThrow(/name must be @metaworkflow\/session-format-v1-to-v2/)
   })
 
   it('requires the catalog to share the installed Session package as a peer', () => {
@@ -157,11 +157,11 @@ describe('session format catalog generator', () => {
       peerDependencies: Record<string, string>
       devDependencies: Record<string, string>
     }
-    manifest.dependencies['@deepseek-ai/dsh-session'] = 'workspace:^'
-    delete manifest.peerDependencies['@deepseek-ai/dsh-session']
+    manifest.dependencies['@metaworkflow/session'] = 'workspace:^'
+    delete manifest.peerDependencies['@metaworkflow/session']
     writeFileSync(path, JSON.stringify(manifest))
 
     expect(() => collectSessionFormatMigrations(root, 2))
-      .toThrow(/must share @deepseek-ai\/dsh-session through peer \+ dev dependencies/)
+      .toThrow(/must share @metaworkflow\/session through peer \+ dev dependencies/)
   })
 })

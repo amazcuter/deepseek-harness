@@ -1,19 +1,19 @@
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { provideWorkingDirectoryFixture, mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { createUserMessage } from '@metaworkflow/llm'
+import { provideWorkingDirectoryFixture, mountAgentLoopTestDependencies } from '@metaworkflow/agent-loop-testkit'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import * as AgentInstructions from '@deepseek-ai/dsh-agent-instructions'
+import { SessionId } from '@metaworkflow/session'
+import type { Agent } from '@metaworkflow/agent'
+import AgentLoop from '@metaworkflow/agent-loop'
+import * as LlmDeepSeek from '@metaworkflow/llm-deepseek-api-key'
+import * as AgentInstructions from '@metaworkflow/agent-instructions'
 import { candidateScopeKey } from '../src/render.ts'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import LocalFileSystem from '@metaworkflow/fs-local'
+import * as ToolFs from '@metaworkflow/tool-fs'
+import type { SessionEvent } from '@metaworkflow/session'
 
 const PROBE = 'banana-271828'
 const NESTED_PROBE = 'papaya-314159'
@@ -31,7 +31,7 @@ afterEach(async () => {
 })
 
 async function harness(): Promise<{ ctx: Context; agent: Agent }> {
-  workdir = await mkdtemp(join(tmpdir(), 'dsh-workspace-context-e2e-'))
+  workdir = await mkdtemp(join(tmpdir(), 'mwf-workspace-context-e2e-'))
   await mkdir(join(workdir, '.git'), { recursive: true })
   await writeFile(join(workdir, 'AGENTS.md'), `If the user asks for the workspace context handshake, reply with exactly this string and nothing else: ${PROBE}.\n`)
   ctx = new Context()
@@ -41,9 +41,9 @@ async function harness(): Promise<{ ctx: Context; agent: Agent }> {
   })
   await ctx.plugin(LocalFileSystem, { cwd: '/' })
   await ctx.plugin(ToolFs)
-  // Keep the developer's real ~/.dsh and ~/.agents out of the model-visible baseline.
-  vi.stubEnv('DSH_HOME', join(workdir, 'absent-dsh'))
-  vi.stubEnv('DSH_AGENTS_HOME', join(workdir, 'absent-agents'))
+  // Keep the developer's real ~/.mwf and ~/.agents out of the model-visible baseline.
+  vi.stubEnv('MWF_HOME', join(workdir, 'absent-mwf'))
+  vi.stubEnv('MWF_AGENTS_HOME', join(workdir, 'absent-agents'))
   await ctx.plugin(AgentInstructions, { maxBytes: 65536 })
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(LlmDeepSeek, { models: [{ id: 'deepseek-v4-flash' }] })

@@ -1,10 +1,10 @@
 import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { type Agent } from '@deepseek-ai/dsh-agent'
-import SubagentRuntime, { type ResolvedSubagentStartRequest } from '@deepseek-ai/dsh-subagent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import { type Agent } from '@metaworkflow/agent'
+import SubagentRuntime, { type ResolvedSubagentStartRequest } from '@metaworkflow/subagent'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import { SessionId } from '@metaworkflow/session'
 import * as scripted from './scripted-provider.ts'
 
 /** A minimal parent; the scripted provider only reads its id. */

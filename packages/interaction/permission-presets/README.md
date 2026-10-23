@@ -3,7 +3,7 @@ description: "User-facing permission presets for users and maintainers choosing,
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-permission-presets
+# @metaworkflow/permission-presets
 
 English | [中文](README.zh.md)
 
@@ -32,7 +32,7 @@ Choose this service when a deployment wants to offer users one Permissions selec
 The plugin config defines the preset table and the default for fresh sessions. Each preset name bundles one sandbox mode with one approval policy; `name` and `description` are optional client presentation. The reserved names `custom` and `auto` cannot appear in this table.
 
 ```yaml
-- name: '@deepseek-ai/dsh-permission-presets'
+- name: '@metaworkflow/permission-presets'
   config:
     presets:
       workspace-write:
@@ -49,7 +49,7 @@ The plugin config defines the preset table and the default for fresh sessions. E
 | `presets` | `workspace-write`, `danger-full-access` | Table of preset name → sandbox/approval bundle |
 | `defaultPreset` | inferred | Preset pinned into fresh sessions; required when composition defaults match no preset |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-permission-presets) is the exhaustive source for every accepted field and its JSDoc. `custom` is reserved for the derived not-a-preset state, while `auto` is reserved for the Auto review integration. Mounting requires a confining bash executor (one that reports a `sandboxMode`) and the approval service.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowpermission-presets) is the exhaustive source for every accepted field and its JSDoc. `custom` is reserved for the derived not-a-preset state, while `auto` is reserved for the Auto review integration. Mounting requires a confining bash executor (one that reports a `sandboxMode`) and the approval service.
 
 ### Switching presets
 
@@ -82,7 +82,7 @@ The observable behavior is covered in [Use this package](#use-this-package); thi
 
 ### Write path
 
-`set()` resolves the preset and synchronously runs Auto admission when applicable. Transitions append `permission/preset` only when the effective preset changes, then write each changed knob through its canonical setter — `setSandboxMode` from `dsh-sandbox-policy` and `setApprovalPolicy` from `dsh-user-approval`. The selection event therefore preserves user intent when two presets share a bundle. Switching between Auto and Full access records the new identity and the changed approval policy. A net-zero selection appends nothing.
+`set()` resolves the preset and synchronously runs Auto admission when applicable. Transitions append `permission/preset` only when the effective preset changes, then write each changed knob through its canonical setter — `setSandboxMode` from `mwf-sandbox-policy` and `setApprovalPolicy` from `mwf-user-approval`. The selection event therefore preserves user intent when two presets share a bundle. Switching between Auto and Full access records the new identity and the changed approval policy. A net-zero selection appends nothing.
 
 ### Read side and `custom`
 
@@ -117,7 +117,7 @@ Read these pages when the package-level contract is not enough. They move from t
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through `dsh-user-approval` and `dsh-tool-bash`, which render the approval-policy prompt, switch notice, and sandboxed tool outcomes selected by this service's knob events; `permission/preset` itself is log-only.
+Indirectly, through `mwf-user-approval` and `mwf-tool-bash`, which render the approval-policy prompt, switch notice, and sandboxed tool outcomes selected by this service's knob events; `permission/preset` itself is log-only.
 
 #### KV Cache effect
 

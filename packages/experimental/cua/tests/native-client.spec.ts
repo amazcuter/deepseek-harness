@@ -1,6 +1,6 @@
 /** Controlled connection streams exercise the platform-independent native protocol client. */
 import { PassThrough, Writable } from 'node:stream'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
+import { ToolCallId } from '@metaworkflow/llm'
 import type { NativeChannel } from '../src/native-client.ts'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { z } from 'zod'

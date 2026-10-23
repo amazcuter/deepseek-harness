@@ -15,11 +15,11 @@
  * replaced in place is still named by a fresh read. Signing out, unloading, or a
  * read naming another account clears all of it; a later sign-in shows whatever
  * the server still offers.
- * @module @deepseek-ai/dsh-client-ui-settings-account/src/client/bonus-notices
+ * @module @metaworkflow/client-ui-settings-account/src/client/bonus-notices
  */
 import type {
   AccountBonusBatch, AccountBonusOrderId, AccountUserId,
-} from '@deepseek-ai/dsh-deepseek-account/types'
+} from '@metaworkflow/deepseek-account/types'
 
 /** Notice eligible for display; the message is server-authored for the active locale. */
 export interface BonusNotice {

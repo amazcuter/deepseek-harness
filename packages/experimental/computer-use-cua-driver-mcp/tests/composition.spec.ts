@@ -7,17 +7,17 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context, FiberState } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import ComputerUse from '@deepseek-ai/dsh-computer-use'
-import { ComputerUseProviderName } from '@deepseek-ai/dsh-computer-use/brand'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import LocalAttachmentStore from '@deepseek-ai/dsh-attachment-local'
+import ComputerUse from '@metaworkflow/computer-use'
+import { ComputerUseProviderName } from '@metaworkflow/computer-use/brand'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRuntime from '@metaworkflow/tools'
+import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@metaworkflow/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@metaworkflow/llm'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import AgentRegistry from '@metaworkflow/agent'
+import AgentLoop from '@metaworkflow/agent-loop'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import LocalAttachmentStore from '@metaworkflow/attachment-local'
 import * as Provider from '../src/index.ts'
 
 const TOOL = 'mcp__cua-driver-mcp__screenshot'
@@ -56,35 +56,35 @@ class ScreenshotModel extends LlmAdapter {
 }
 
 async function load(mode?: string): Promise<{ ctx: Context; root: string; model: ScreenshotModel }> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-computer-use-mcp-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-computer-use-mcp-'))
   roots.push(root)
   const model = new ScreenshotModel()
   const modules = new Map<string, unknown>([
-    ['@deepseek-ai/dsh-computer-use', ComputerUse],
-    ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
-    ['@deepseek-ai/dsh-tools', ToolRuntime],
-    ['@deepseek-ai/dsh-llm', LlmRuntime],
-    ['@deepseek-ai/dsh-session', SessionStore],
-    ['@deepseek-ai/dsh-agent', AgentRegistry],
-    ['@deepseek-ai/dsh-agent-loop', AgentLoop],
-    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@deepseek-ai/dsh-attachment-local', LocalAttachmentStore],
+    ['@metaworkflow/computer-use', ComputerUse],
+    ['@metaworkflow/system-prompt', SystemPrompt],
+    ['@metaworkflow/tools', ToolRuntime],
+    ['@metaworkflow/llm', LlmRuntime],
+    ['@metaworkflow/session', SessionStore],
+    ['@metaworkflow/agent', AgentRegistry],
+    ['@metaworkflow/agent-loop', AgentLoop],
+    ['@metaworkflow/session-projection', SessionProjectionRegistry],
+    ['@metaworkflow/attachment-local', LocalAttachmentStore],
     ['@fixture/model', { inject: ['llm'], apply(ctx: Context) { ctx.effect(() => ctx.llm.registerAdapter(['fixture'], model)) } }],
-    ['@deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp', Provider],
+    ['@metaworkflow/experimental-computer-use-cua-driver-mcp', Provider],
   ])
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, JSON.stringify([...modules.keys()].map(name => ({
-    id: name === '@deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp' ? 'computer-use-driver' : undefined,
+    id: name === '@metaworkflow/experimental-computer-use-cua-driver-mcp' ? 'computer-use-driver' : undefined,
     name,
-    config: name === '@deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp'
+    config: name === '@metaworkflow/experimental-computer-use-cua-driver-mcp'
       ? {
         command: process.execPath,
         args: [fixture, root, ...(mode === undefined ? [] : [mode])],
         reconnect: { initialDelayMs: 20, maxDelayMs: 40, maxAttempts: 2 },
       }
-      : name === '@deepseek-ai/dsh-attachment-local'
-        ? { dshHome: root }
-        : name === '@deepseek-ai/dsh-agent-loop' ? { agents: [] } : {},
+      : name === '@metaworkflow/attachment-local'
+        ? { mwfHome: root }
+        : name === '@metaworkflow/agent-loop' ? { agents: [] } : {},
   }))))
   const ctx = new Context()
   contexts.push(ctx)

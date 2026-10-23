@@ -41,7 +41,7 @@ it('reconstructs a 100000-delta live prefix within baseline time and retained-me
   const samples: ReconnectReport[] = []
   for (let sample = 0; sample < SAMPLES; sample++) {
     const run = await runBuiltBenchmarkWorker<ReconnectReport>({
-      worker: join(import.meta.dirname, '../.dsh-build/active-stream-reconnect/reconnect.worker.js'),
+      worker: join(import.meta.dirname, '../.mwf-build/active-stream-reconnect/reconnect.worker.js'),
       exposeGc: true, timeoutMs: 30000,
     })
     expect(run.timedOut, run.stderr).toBe(false)

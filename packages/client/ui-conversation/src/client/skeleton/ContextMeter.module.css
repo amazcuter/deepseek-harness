@@ -17,9 +17,9 @@
   background: transparent;
   color: var(--dsw-alias-label-tertiary);
   font-family: inherit;
-  font-size: var(--dsh-content-font-size-secondary, 13px);
+  font-size: var(--mwf-content-font-size-secondary, 13px);
   font-variant-numeric: tabular-nums;
-  line-height: calc(20px + var(--dsh-content-font-delta-secondary, 0px));
+  line-height: calc(20px + var(--mwf-content-font-delta-secondary, 0px));
   white-space: nowrap;
   cursor: pointer;
 }

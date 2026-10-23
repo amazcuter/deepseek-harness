@@ -60,7 +60,7 @@
   color: var(--dsw-alias-label-primary);
   box-shadow: var(--dsw-elevation-panel);
   opacity: 1;
-  transition: opacity var(--dsh-hover-preview-fade) linear;
+  transition: opacity var(--mwf-hover-preview-fade) linear;
 }
 
 @starting-style {
@@ -78,8 +78,8 @@
 
 .inline { display: inline; }
 .media {
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --mwf-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --mwf-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
   overflow: auto;
   padding: 8px;
   border: 0;

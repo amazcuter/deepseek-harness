@@ -1,17 +1,17 @@
 /**
  * Default model selection for an Agent without a session-specific selection.
  *
- * @module @deepseek-ai/dsh-agent-default-model
+ * @module @metaworkflow/agent-default-model
  */
-import type {} from '@deepseek-ai/dsh-settings'
+import type {} from '@metaworkflow/settings'
 
 import type { Volatile } from '@deepseek-ai/cordis'
 
 import { Context, Service } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import type { ModelSelection } from '@deepseek-ai/dsh-agent'
-import { ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-import type {} from '@deepseek-ai/dsh-config-editor'
+import type { ModelSelection } from '@metaworkflow/agent'
+import { ReasoningEffortId } from '@metaworkflow/llm'
+import type {} from '@metaworkflow/config-editor'
 
 declare module '@deepseek-ai/cordis' {
   interface Context {

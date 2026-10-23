@@ -2,7 +2,7 @@
  * Pack the local dependency closure of the Official on-demand bundles and serve
  * it as a loopback npm registry.
  *
- * A packaged application installs an Official bundle as `name@<running DSH
+ * A packaged application installs an Official bundle as `name@<running MWF
  * version>`, and the plugin manager asks a custom registry *alone*
  * ([registry plan](../packages/boot/plugin-manager/src/registry.ts)). Every
  * transitive dependency of the packed bundles must therefore be answerable by
@@ -113,8 +113,8 @@ export interface RegistryManifest {
     readonly commit: string
     /** Whether the checkout had uncommitted changes, so the commit alone is not the snapshot. */
     readonly dirty: boolean
-    /** Running DSH version the catalog installation target names. */
-    readonly dshVersion: string
+    /** Running MWF version the catalog installation target names. */
+    readonly mwfVersion: string
   }
   /** Catalog roots in admission order. */
   readonly entries: readonly string[]
@@ -199,7 +199,7 @@ export function readWorkspacePackages(root: string): Map<string, WorkspacePackag
  */
 export function readReleaseMembers(root: string): Map<string, ReleaseEntry> {
   const members = new Map<string, ReleaseEntry>()
-  for (const id of ['dsh', 'vendor']) {
+  for (const id of ['mwf', 'vendor']) {
     const family = releaseFamily(id)
     for (const member of family.members(root)) members.set(member.name, { family, member })
   }
@@ -211,7 +211,7 @@ export function readReleaseMembers(root: string): Map<string, ReleaseEntry> {
  * @param root - repository root containing the release families.
  */
 export function verifyReleaseVersions(root: string): void {
-  for (const id of ['dsh', 'vendor']) {
+  for (const id of ['mwf', 'vendor']) {
     const family = releaseFamily(id)
     family.verifyVersions(family.members(root))
   }
@@ -238,10 +238,10 @@ export function verifyBuiltBundles(options: {
     if (!existsSync(entry) || !statSync(entry).isFile()) {
       throw new Error(`${name}: built runtime is missing at ${entry}; run pnpm run build:official first`)
     }
-    const dsh = member.manifest.dsh
-    if (!isRecord(dsh) || !isRecord(dsh.bundle)) throw new Error(`${name} declares no dsh.bundle`)
+    const mwf = member.manifest.mwf
+    if (!isRecord(mwf) || !isRecord(mwf.bundle)) throw new Error(`${name} declares no mwf.bundle`)
     const patches = declaredBundlePatches(member.manifest)
-    if (patches.length === 0) throw new Error(`${name}: dsh.bundle.patch must be a file path or a list of file paths`)
+    if (patches.length === 0) throw new Error(`${name}: mwf.bundle.patch must be a file path or a list of file paths`)
     for (const patch of patches) {
       const path = join(member.directory, patch)
       if (!existsSync(path) || !statSync(path).isFile()) throw new Error(`${name}: bundle patch ${path} is missing`)
@@ -489,14 +489,14 @@ export async function writeRegistryManifest(path: string, manifest: RegistryMani
 /**
  * Record which checkout produced a run.
  * @param root - repository root.
- * @param dshVersion - running DSH version the catalog installation target names.
+ * @param mwfVersion - running MWF version the catalog installation target names.
  * @returns The commit, whether the tree was dirty, and the version served.
  */
-export function sourceEvidence(root: string, dshVersion: string): RegistryManifest['source'] {
+export function sourceEvidence(root: string, mwfVersion: string): RegistryManifest['source'] {
   return {
     commit: capture('git', ['rev-parse', 'HEAD'], { cwd: root }),
     dirty: capture('git', ['status', '--porcelain'], { cwd: root }) !== '',
-    dshVersion,
+    mwfVersion,
   }
 }
 
@@ -739,9 +739,9 @@ function payloadPath(file: string): string {
  * @returns Package-relative patch paths, or nothing when the package is not a bundle.
  */
 function declaredBundlePatches(manifest: Record<string, unknown>): string[] {
-  const dsh = manifest.dsh
-  if (!isRecord(dsh) || !isRecord(dsh.bundle)) return []
-  const declared = dsh.bundle.patch
+  const mwf = manifest.mwf
+  if (!isRecord(mwf) || !isRecord(mwf.bundle)) return []
+  const declared = mwf.bundle.patch
   if (typeof declared === 'string') return [declared]
   return Array.isArray(declared) && declared.every(entry => typeof entry === 'string') ? declared : []
 }

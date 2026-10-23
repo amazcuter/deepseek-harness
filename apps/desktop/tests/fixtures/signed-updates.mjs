@@ -9,7 +9,7 @@ import { DesktopUpdateHttpExecutor } from '../../lib/types/update-http-executor.
 import { resolveWindowsUpdatePublisher } from '../../scripts/windows-sign.mjs'
 import { artifactDigest, createArtifactUpdateServer } from './artifact-update-server.mjs'
 
-const root = process.env.DSH_SIGNED_UPDATE_TEST_ROOT
+const root = process.env.MWF_SIGNED_UPDATE_TEST_ROOT
 assert.ok(root, 'Launcher must supply a private test root')
 app.setPath('userData', join(root, 'runtime', 'electron'))
 const { NsisUpdater } = updaterModule
@@ -17,14 +17,14 @@ const report = { cases: [], installerExecuted: false, passed: false }
 
 async function main() {
   await app.whenReady()
-  const publisher = resolveWindowsUpdatePublisher(process.env.DSH_SIGNED_UPDATE_CERTIFICATE)
+  const publisher = resolveWindowsUpdatePublisher(process.env.MWF_SIGNED_UPDATE_CERTIFICATE)
   const server = await createArtifactUpdateServer({
-    signed: process.env.DSH_SIGNED_UPDATE_SIGNED,
-    unsigned: process.env.DSH_SIGNED_UPDATE_UNSIGNED,
-    ...(process.env.DSH_SIGNED_UPDATE_OLD ? {
-      old: process.env.DSH_SIGNED_UPDATE_OLD,
-      oldBlockmap: `${process.env.DSH_SIGNED_UPDATE_OLD}.blockmap`,
-      signedBlockmap: `${process.env.DSH_SIGNED_UPDATE_SIGNED}.blockmap`,
+    signed: process.env.MWF_SIGNED_UPDATE_SIGNED,
+    unsigned: process.env.MWF_SIGNED_UPDATE_UNSIGNED,
+    ...(process.env.MWF_SIGNED_UPDATE_OLD ? {
+      old: process.env.MWF_SIGNED_UPDATE_OLD,
+      oldBlockmap: `${process.env.MWF_SIGNED_UPDATE_OLD}.blockmap`,
+      signedBlockmap: `${process.env.MWF_SIGNED_UPDATE_SIGNED}.blockmap`,
     } : {}),
   })
   report.inputs = server.artifacts

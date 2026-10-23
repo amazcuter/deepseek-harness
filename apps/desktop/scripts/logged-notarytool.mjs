@@ -74,7 +74,7 @@ export async function runLoggedNotarytool(args, directory, invoke = execute) {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
-  try { process.stdout.write(await runLoggedNotarytool(process.argv.slice(2), process.env.DSH_DESKTOP_PACKAGING_RUN_DIR)) }
+  try { process.stdout.write(await runLoggedNotarytool(process.argv.slice(2), process.env.MWF_DESKTOP_PACKAGING_RUN_DIR)) }
   catch {
     // execFile errors include credential-bearing argv; detailed failures are redacted in the journal.
     process.stderr.write('desktop notarization: Apple command failed; see packaging events.jsonl\n')

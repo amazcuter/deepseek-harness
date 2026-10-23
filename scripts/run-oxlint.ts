@@ -28,8 +28,8 @@ export interface OxlintInvocation {
 
 /**
  * Apply the repository worker bound to both Oxlint backends.
- * `DSH_OXLINT_THREADS` selects the bound; without it, CI keeps Oxlint's own default and other runs use the
- * [local worker budget](./parallelism.ts). A caller's own `--threads` without `DSH_OXLINT_THREADS` passes through.
+ * `MWF_OXLINT_THREADS` selects the bound; without it, CI keeps Oxlint's own default and other runs use the
+ * [local worker budget](./parallelism.ts). A caller's own `--threads` without `MWF_OXLINT_THREADS` passes through.
  * @param args - Oxlint CLI arguments requested by the caller.
  * @param env - Environment inherited by the Oxlint process.
  * @param cpus - CPU count Node reports for this process.
@@ -42,16 +42,16 @@ export function resolveOxlintInvocation(
 ): OxlintInvocation {
   const resolvedArgs = [...args]
   if (env.CI === 'true' && !hasOutputFormat(args)) resolvedArgs.push('--format=default')
-  const raw = env.DSH_OXLINT_THREADS
+  const raw = env.MWF_OXLINT_THREADS
   const explicit = raw !== undefined && raw !== ''
   if (explicit) {
     const parsed = Number.parseInt(raw, 10)
     if (!Number.isSafeInteger(parsed) || parsed < 1 || String(parsed) !== raw) {
-      throw new Error(`run-oxlint: DSH_OXLINT_THREADS must be a positive integer, got ${JSON.stringify(raw)}.`)
+      throw new Error(`run-oxlint: MWF_OXLINT_THREADS must be a positive integer, got ${JSON.stringify(raw)}.`)
     }
   }
   if (args.some(arg => arg === '--threads' || arg.startsWith('--threads='))) {
-    if (explicit) throw new Error('run-oxlint: use DSH_OXLINT_THREADS instead of passing --threads directly.')
+    if (explicit) throw new Error('run-oxlint: use MWF_OXLINT_THREADS instead of passing --threads directly.')
     return { args: resolvedArgs, env: { ...env } }
   }
   if (!explicit && env.CI === 'true') return { args: resolvedArgs, env: { ...env } }

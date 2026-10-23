@@ -5,51 +5,51 @@
 /:
   en: 21c486a1839068f4
   zh: 0333ad7c4f984794
-/deepseek-ai-dsh-file-reference:
-  en: 304654061fc0503d
-  zh: dab669557b3c261f
-/deepseek-ai-dsh-file-reference/summary:
-  en: a6ce5c696182da3b
-  zh: 274f9c9613f9df0b
-/deepseek-ai-dsh-file-reference/table-of-contents:
+/metaworkflow-file-reference:
+  en: 325e9a7cb0ce552d
+  zh: 5dae15aca83243a3
+/metaworkflow-file-reference/summary:
+  en: eff458f6580b6a58
+  zh: 235a54fd5313b22d
+/metaworkflow-file-reference/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-file-reference/use-this-package:
+/metaworkflow-file-reference/use-this-package:
   en: e37b5d4bf0020063
   zh: 2eb37494ea43228f
-/deepseek-ai-dsh-file-reference/use-this-package/mention-grammar:
+/metaworkflow-file-reference/use-this-package/mention-grammar:
   en: efbe0e9233f402a4
   zh: e3ec7c6ae2335a41
-/deepseek-ai-dsh-file-reference/use-this-package/getting-candidates:
+/metaworkflow-file-reference/use-this-package/getting-candidates:
   en: 4dc2d6289f532225
   zh: af06ce75299f23e5
-/deepseek-ai-dsh-file-reference/use-this-package/pairing-with-a-provider:
-  en: 2d443c98aca75438
-  zh: 2299ced5c4e315c1
-/deepseek-ai-dsh-file-reference/understand-the-implementation:
+/metaworkflow-file-reference/use-this-package/pairing-with-a-provider:
+  en: 747313ca6303a297
+  zh: 3987d51d18fd5989
+/metaworkflow-file-reference/understand-the-implementation:
   en: 92049fb7a6c345c3
   zh: 86efc4d17127f97f
-/deepseek-ai-dsh-file-reference/understand-the-implementation/design-concept:
-  en: 191332951f81b136
-  zh: 8336659a9ffa20f1
-/deepseek-ai-dsh-file-reference/understand-the-implementation/source-map:
+/metaworkflow-file-reference/understand-the-implementation/design-concept:
+  en: bc99c9bf3e1ca636
+  zh: b3a4d727e2964408
+/metaworkflow-file-reference/understand-the-implementation/source-map:
   en: 7ca26c752fab5c46
   zh: 961bc4283792155d
-/deepseek-ai-dsh-file-reference/understand-the-implementation/main-flow:
+/metaworkflow-file-reference/understand-the-implementation/main-flow:
   en: fd65f309c940de96
   zh: c1517e592d646d6c
-/deepseek-ai-dsh-file-reference/further-exploration:
-  en: 90447bd5ebd2c47f
-  zh: dae6d0005ab9779d
-/deepseek-ai-dsh-file-reference/model-experience:
+/metaworkflow-file-reference/further-exploration:
+  en: 169dc40a96205b9b
+  zh: ae455b8686df0ca6
+/metaworkflow-file-reference/model-experience:
   en: ab69d93c10a1572c
   zh: b63720b1e6182805
-/deepseek-ai-dsh-file-reference/model-experience/kv-cache-effect:
+/metaworkflow-file-reference/model-experience/kv-cache-effect:
   en: 0aba47b2a2828b78
   zh: 83a1af441dac3074
-/deepseek-ai-dsh-file-reference/known-limitations-and-deferred-work:
+/metaworkflow-file-reference/known-limitations-and-deferred-work:
   en: cc83a00bd7d4ccc9
   zh: 130ba16bb567db5a
-/deepseek-ai-dsh-file-reference/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-file-reference/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

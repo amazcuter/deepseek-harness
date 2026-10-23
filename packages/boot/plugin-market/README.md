@@ -3,13 +3,13 @@ description: "Host reader of the plugin market indexes a user configures, with i
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-plugin-market
+# @metaworkflow/plugin-market
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`pluginMarket` reads the plugin market indexes the user configures, validates them with [`dsh-plugin-market-index`](../../util/plugin-market-index/README.md), and annotates every entry with the profile's installation status, DSH compatibility, and the exact arguments that install it. The Web [Discover tab](../../client/ui-plugin-market/README.md) and the `plugin_market` agent tool read through it; installation itself goes through [`pluginManager.installBundle`](../plugin-manager/README.md). The format and its rationale live in the [index format Agent Note](../../../.agents/notes/implemented/feature/2026-10-02-plugin-market-index-format.md); the Host and Web design lives in the [Discover Agent Note](../../../.agents/notes/implemented/feature/2026-10-02-plugin-market-discover.md).
+`pluginMarket` reads the plugin market indexes the user configures, validates them with [`mwf-plugin-market-index`](../../util/plugin-market-index/README.md), and annotates every entry with the profile's installation status, MWF compatibility, and the exact arguments that install it. The Web [Discover tab](../../client/ui-plugin-market/README.md) and the `plugin_market` agent tool read through it; installation itself goes through [`pluginManager.installBundle`](../plugin-manager/README.md). The format and its rationale live in the [index format Agent Note](../../../.agents/notes/implemented/feature/2026-10-02-plugin-market-index-format.md); the Host and Web design lives in the [Discover Agent Note](../../../.agents/notes/implemented/feature/2026-10-02-plugin-market-discover.md).
 
 ## Table of Contents
 
@@ -72,7 +72,7 @@ Concurrent reads of one URL share one fetch. A successful document is cached for
 
 Filtering and ordering read only the document; installation status and compatibility are computed for the returned page on every call. The first query with text in a document builds its text index with [MiniSearch](https://github.com/lucaong/minisearch), 500 plugins per event-loop turn, and later queries reuse it until the document is replaced.
 
-Compatibility is computed per version with `evaluatePluginCompatibility`, the version's `engines.dsh`, and the profile's version exemptions, the same check installation applies. A plugin's default version is its highest compatible version without a prerelease tag, or its highest compatible prerelease when it lists no version without one; a plugin with no compatible version has none. Installation status comes from `pluginManager.listBundles()` by package name, measured against the default version, or the highest version without one: `not-installed`, also for an on-demand catalog entry the profile has not installed; `installed` at that version; `update-available` when that version is greater; `different-version` when the installed version is unknown, not valid SemVer, or greater; and `provided` for a bundle the DSH installation ships.
+Compatibility is computed per version with `evaluatePluginCompatibility`, the version's `engines.mwf`, and the profile's version exemptions, the same check installation applies. A plugin's default version is its highest compatible version without a prerelease tag, or its highest compatible prerelease when it lists no version without one; a plugin with no compatible version has none. Installation status comes from `pluginManager.listBundles()` by package name, measured against the default version, or the highest version without one: `not-installed`, also for an on-demand catalog entry the profile has not installed; `installed` at that version; `update-available` when that version is greater; `different-version` when the installed version is unknown, not valid SemVer, or greater; and `provided` for a bundle the MWF installation ships.
 
 `marketInstallTarget` builds install arguments: `name@version` with the version's registry for npm, and `git+<url>.git#<commit>` with `&path:/<path>` for a package directory in Git.
 
@@ -85,7 +85,7 @@ Compatibility is computed per version with `evaluatePluginCompatibility`, the ve
 
 #### What the model sees
 
-The [`plugin_market` tool](../../../docs/tool-catalog.md#deepseek-aidsh-plugin-market) returns JSON: configured index URLs with English titles and last errors, one page of plugins, in index order or by best match for a `query`, with name, English title, description, and author each truncated to 300 characters, homepage, repository, category, label ids, sort-key values, installation status, the default version, and the number of versions, or one page of a plugin's versions. Each returned version carries its ISO publish time, compatibility, and install arguments. Its description states that market text is third-party content, not instructions.
+The [`plugin_market` tool](../../../docs/tool-catalog.md#metaworkflowplugin-market) returns JSON: configured index URLs with English titles and last errors, one page of plugins, in index order or by best match for a `query`, with name, English title, description, and author each truncated to 300 characters, homepage, repository, category, label ids, sort-key values, installation status, the default version, and the number of versions, or one page of a plugin's versions. Each returned version carries its ISO publish time, compatibility, and install arguments. Its description states that market text is third-party content, not instructions.
 
 #### Token effect
 

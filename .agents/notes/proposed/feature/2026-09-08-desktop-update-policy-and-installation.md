@@ -6,7 +6,7 @@ English | [中文](2026-09-08-desktop-update-policy-and-installation.zh.md)
 
 ## Problem
 
-Desktop usually runs a local dsh server, so remote business errors cannot reliably deliver mandatory-update policy. Users need automatic discovery, user-initiated downloads, visible preparation state, and separate restart approval that accounts for running tasks.
+Desktop usually runs a local mwf server, so remote business errors cannot reliably deliver mandatory-update policy. Users need automatic discovery, user-initiated downloads, visible preparation state, and separate restart approval that accounts for running tasks.
 
 ## Proposal
 
@@ -32,7 +32,7 @@ Persisting a mandatory block across a same-version offline restart requires prod
 
 The following release and operations choices are pending; they are not active CDN settings or completed load qualification.
 
-- [ ] Operations: separate `/dsh-desk/feeds/*` from `/dsh-desk/bin/*`; do not retain a blanket cache bypass for large production downloads. For feeds, evaluate client revalidation with `max-age=0`, a 30–60-second edge TTL, and a purge on publication. Agree on the maximum propagation delay and measure fixed-URL replacement across regions; a purge is not a guarantee of immediate global visibility.
+- [ ] Operations: separate `/mwf-desk/feeds/*` from `/mwf-desk/bin/*`; do not retain a blanket cache bypass for large production downloads. For feeds, evaluate client revalidation with `max-age=0`, a 30–60-second edge TTL, and a purge on publication. Agree on the maximum propagation delay and measure fixed-URL replacement across regions; a purge is not a guarantee of immediate global visibility.
 - [ ] Operations and release owner: evaluate a 30-day to one-year edge TTL for versioned or hash-named packages and blockmaps, without overwriting their URLs. Upload and verify binaries, prewarm them, then publish the feed; confirm retention covers older clients' differential-update inputs.
 - [ ] Operations and Desktop maintainers: verify node TTL separately from client Cache-Control, using repeat-request cache status, hit ratio, and COS origin metrics. Check whether updater-added query parameters fragment the cache key or bypass caching; ignore only parameters proven irrelevant to content. Verify Range/206, Content-Range, complete-file hashes, and feed freshness through the actual updater. See Tencent's [node TTL](https://cloud.tencent.com/document/product/1552/70777), [browser TTL](https://cloud.tencent.com/document/product/1552/70758), and [cache configuration](https://cloud.tencent.com/document/product/1552/95263) documentation.
 - [ ] Desktop maintainers and product owner: confirm startup and overdue-resume burst handling. Periodic jitter and bounded failure backoff are implemented and tested; startup and overdue wakeups still check immediately. Adding a short randomized delay to those triggers needs product confirmation. Mandatory-policy polling remains a separate API and scheduling policy.

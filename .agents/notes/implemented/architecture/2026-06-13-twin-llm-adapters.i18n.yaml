@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-06-13-twin-llm-adapters.md
 /agent-note-two-llm-adapters-as-a-design-verification-twin:
-  en: dcb28a02ba26cb31
-  zh: 096d0ab60a3ad638
+  en: 8bfe29a9e601b290
+  zh: e7d8ac6aadaa333b
 /agent-note-two-llm-adapters-as-a-design-verification-twin/problem:
-  en: d8c455ccae0fc166
-  zh: 801cc040eb67ab5b
+  en: fbec0733a89069a4
+  zh: 2554d4546f15ae58
 /agent-note-two-llm-adapters-as-a-design-verification-twin/decision:
-  en: 0dd6ebb29aebc164
-  zh: 20065ae72f4d131d
+  en: 8e2f7dc0bbe05fc1
+  zh: 664b7c88cd42e719
 /agent-note-two-llm-adapters-as-a-design-verification-twin/alternatives-considered:
   en: c523a9b402588189
   zh: bced37eb1040360a
 /agent-note-two-llm-adapters-as-a-design-verification-twin/consequences:
-  en: 71cc34560fc2e012
-  zh: 91ea73e3e009a9a5
+  en: 8714d28250c2a137
+  zh: 9ab5211d3ad14301

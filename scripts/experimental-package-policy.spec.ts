@@ -11,7 +11,7 @@ import {
 const names = Object.values(EXPERIMENTAL_PACKAGE_NAME_EXCEPTIONS)
 
 describe('experimental package identities', () => {
-  it.each([...names, '@deepseek-ai/dsh-experimental-terminal-bundle'])('recognizes %s independently of installation layout', (name) => {
+  it.each([...names, '@metaworkflow/experimental-terminal-bundle'])('recognizes %s independently of installation layout', (name) => {
     expect(isExperimentalPackageName(name)).toBe(true)
     for (const reference of [name, `${name}/client`, `${name}@1.2.3`, `npm:${name}@1.2.3`, `workspace:${name}@*`,
       `\0virtual:${name}/client?raw`, `/node_modules/${name}/lib/index.js`, `C:\\node_modules\\${name}\\lib\\index.js`, `C:\\node_modules\\${name.replaceAll('/', '\\')}\\lib\\index.js`]) {
@@ -20,7 +20,7 @@ describe('experimental package identities', () => {
   })
 
   it.each(names)('does not extend the retained-name exception %s to another package', (name) => {
-    for (const reference of [`${name}-unrelated`, `other-${name}`, name.replace('@deepseek-ai/', '@other/')]) {
+    for (const reference of [`${name}-unrelated`, `other-${name}`, name.replace('@metaworkflow/', '@other/')]) {
       expect(isExperimentalPackageName(reference)).toBe(false)
       expect(hasExperimentalPackageReference(reference)).toBe(false)
       expect(experimentalPackageRecordNamespace(reference)).toBeUndefined()
@@ -28,8 +28,8 @@ describe('experimental package identities', () => {
   })
 
   it('keeps new experimental packages under their prefixed namespaces', () => {
-    expect(experimentalPackageRecordNamespace('@deepseek-ai/dsh-experimental-bridge')).toBe('bridge')
-    expect(hasExperimentalPackageReference('@deepseek-ai/dsh-core')).toBe(false)
+    expect(experimentalPackageRecordNamespace('@metaworkflow/experimental-bridge')).toBe('bridge')
+    expect(hasExperimentalPackageReference('@metaworkflow/core')).toBe(false)
   })
 
   it.each(Object.entries(EXPERIMENTAL_PACKAGE_NAME_EXCEPTIONS))('keeps %s record names independent of the retained npm name', (directory, name) => {

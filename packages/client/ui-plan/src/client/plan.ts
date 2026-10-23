@@ -1,7 +1,7 @@
 /** Plan text and resource identities derived from logged native or PTC calls. */
-import type { ToolCallId } from '@deepseek-ai/dsh-llm/brand'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { SessionAddress } from '@deepseek-ai/dsh-api-session-controller/types'
+import type { ToolCallId } from '@metaworkflow/llm/brand'
+import type { SessionId } from '@metaworkflow/session/types'
+import type { SessionAddress } from '@metaworkflow/api-session-controller/types'
 
 /** Complete Markdown and the heading displayed by a plan preview. */
 export interface PlanDocument {
@@ -57,7 +57,7 @@ export function planAddress(target: PlanAddress): string {
   const parts = session.kind === 'session'
     ? [session.sessionId, callId]
     : ['subagent', session.parentSessionId, session.childSessionId, session.mode, callId]
-  return `dsh-resource://plan/${parts.map(encodeURIComponent).join('/')}`
+  return `mwf-resource://plan/${parts.map(encodeURIComponent).join('/')}`
 }
 
 /**
@@ -66,7 +66,7 @@ export function planAddress(target: PlanAddress): string {
  * @returns the decoded identity, or undefined for an unsupported address.
  */
 export function parsePlanAddress(address: string): PlanAddress | undefined {
-  const match = /^dsh-resource:\/\/plan\/([^?#]+)$/.exec(address)
+  const match = /^mwf-resource:\/\/plan\/([^?#]+)$/.exec(address)
   if (match === null) return undefined
   try {
     const parts = (match[1] as string).split('/').map(decodeURIComponent)

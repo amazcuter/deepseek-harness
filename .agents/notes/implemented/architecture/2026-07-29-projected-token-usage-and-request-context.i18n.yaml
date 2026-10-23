@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-07-29-projected-token-usage-and-request-context.md
 /agent-note-projected-token-usage-and-context-occupancy:
-  en: 293fcae41011ed29
-  zh: 9a018a07b6491173
+  en: acd24ccae912c2b3
+  zh: f8422764c4827c8b
 /agent-note-projected-token-usage-and-context-occupancy/problem:
   en: 081098cb08ca80aa
   zh: f829b6630a68fc3c
 /agent-note-projected-token-usage-and-context-occupancy/decision:
-  en: a2ee4260a00cd576
-  zh: 15b5f187830539bd
+  en: 66166c470f55877d
+  zh: 2ab3e7c062581c83
 /agent-note-projected-token-usage-and-context-occupancy/context-occupancy-is-approximate-and-that-is-the-decision:
   en: 9df83c0a48f462d2
   zh: 94c2ad19af4b13fc

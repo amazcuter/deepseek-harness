@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/session-query.md
 /session-query:
-  en: 041684440d88fbbc
-  zh: 376e7f0b173b238d
+  en: 3193695bf0ce7f57
+  zh: a1bedd156c210de2
 /session-query/logical-records:
   en: 839a70b2761c16f1
   zh: 883277abce68c750

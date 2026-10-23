@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-06-web-desktop-plugin-identity-compatibility.md
 /agent-note-preserve-web-and-desktop-plugin-identities-across-experimental-consolidation:
-  en: 45d8ead4ca3db272
-  zh: 4ef8e729d5d7e8c1
+  en: 4ecd5b63330b926b
+  zh: 76357bb031eceaa0
 /agent-note-preserve-web-and-desktop-plugin-identities-across-experimental-consolidation/problem:
   en: 8112c1c059d1cf10
   zh: 852d23c56a93a555
 /agent-note-preserve-web-and-desktop-plugin-identities-across-experimental-consolidation/decision:
-  en: 90d74300f045bf6e
-  zh: 088e88944478ca2a
+  en: 0b081b8b2b353f5b
+  zh: 8cf46a056ba19621
 /agent-note-preserve-web-and-desktop-plugin-identities-across-experimental-consolidation/deferred-naming-cleanup:
-  en: 4c428f65ef611d07
-  zh: 1fdc5467b0203d08
+  en: 23296cc81365e01b
+  zh: 352b07716f6e8ecd
 /agent-note-preserve-web-and-desktop-plugin-identities-across-experimental-consolidation/alternatives-considered:
   en: 65af55b5775c9bc5
   zh: 2ea75b3fd33ac0c2
 /agent-note-preserve-web-and-desktop-plugin-identities-across-experimental-consolidation/consequences:
-  en: e8e96b0354f1a3c6
-  zh: ad1bfe3600e14ff1
+  en: 6baa172c822abf4c
+  zh: c1d57f4e3c8f91c5

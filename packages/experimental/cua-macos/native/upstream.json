@@ -23,12 +23,12 @@
     {
       "local": "Sources/CuaNative/WindowSpaces.swift",
       "upstream": "libs/cua-driver/rust/crates/platform-macos/src/windows.rs",
-      "changes": "Reimplement read-only multi-Space membership using the same SkyLight queries from input/skylight.rs. Preserve unknown results and per-window display selection; add the DSH WindowServer front-process observation."
+      "changes": "Reimplement read-only multi-Space membership using the same SkyLight queries from input/skylight.rs. Preserve unknown results and per-window display selection; add the MWF WindowServer front-process observation."
     },
     {
       "local": "Sources/CuaNative/AXAccess.swift",
       "upstream": "libs/cua-driver/rust/crates/platform-macos/src/ax/tree.rs",
-      "changes": "Reimplement AX traversal, selected-window filtering and display projection in Swift. Retain CFEqual identity handling, scoped AX references, checked discovery failures, AX-less owned windows and DSH system-panel ownership validation. Batch per-node observation attributes while retaining per-attribute errors and individual reads for unsupported batch APIs. Resolve exact-window AX frames for DSH capture and pointer geometry checks. Include value writability, disabled and selected state in the model-facing tree. Select uniquely matched literal text through AXSelectedTextRange and verify the UTF-16 range without rewriting content."
+      "changes": "Reimplement AX traversal, selected-window filtering and display projection in Swift. Retain CFEqual identity handling, scoped AX references, checked discovery failures, AX-less owned windows and MWF system-panel ownership validation. Batch per-node observation attributes while retaining per-attribute errors and individual reads for unsupported batch APIs. Resolve exact-window AX frames for MWF capture and pointer geometry checks. Include value writability, disabled and selected state in the model-facing tree. Select uniquely matched literal text through AXSelectedTextRange and verify the UTF-16 range without rewriting content."
     },
     {
       "local": "Sources/CuaNative/NativePlatform.swift",

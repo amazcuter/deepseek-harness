@@ -2,7 +2,7 @@
 /** Markdown preview uses one accumulated document across page arrivals and EOF. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
+import { makeTranslate } from '@metaworkflow/client-test-runtime'
 import { MarkdownBody, type MarkdownBodyProps } from '../src/client/markdown/MarkdownBody.tsx'
 import { en, zh } from '../src/client/markdown/locales.ts'
 import type { DocumentContent } from '../src/client/document/contract.ts'
@@ -23,7 +23,7 @@ function content(pageTexts: readonly string[], eof: boolean): DocumentContent {
 // Unused framework seats belong to the slot integration tests.
 function props(value: DocumentContent, t: MarkdownBodyProps['t'] = makeTranslate(en), absolutePath?: string): MarkdownBodyProps {
   return {
-    resourceAddress: 'dsh-resource://file/session/markdown/notes.md', content: value, wrap: false, t,
+    resourceAddress: 'mwf-resource://file/session/markdown/notes.md', content: value, wrap: false, t,
     useResource: () => ({
       status: absolutePath === undefined ? 'loading' : 'live',
       value: absolutePath === undefined ? undefined : { absolutePath, version: 'v1' },
@@ -33,7 +33,7 @@ function props(value: DocumentContent, t: MarkdownBodyProps['t'] = makeTranslate
 }
 
 describe('MarkdownBody', () => {
-  it.each(['http://localhost/', 'dsh-app://app/'])('loads document images and failure text under %s', (base) => {
+  it.each(['http://localhost/', 'mwf-app://app/'])('loads document images and failure text under %s', (base) => {
     vi.spyOn(document, 'baseURI', 'get').mockReturnValue(base)
     const text = '![relative](images/a.png) ![absolute](/tmp/a.png) ![external](https://example.test/a.png)'
     const view = render(<MarkdownBody {...props(content([text], true), undefined, '/work/guide/notes.md')} />)

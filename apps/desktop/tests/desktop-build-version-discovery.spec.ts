@@ -13,7 +13,7 @@ const DATE = '20260921'
 const directories: string[] = []
 
 async function artifactsWith(names: readonly string[]): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), 'dsh-discovery-'))
+  const directory = await mkdtemp(join(tmpdir(), 'mwf-discovery-'))
   directories.push(directory)
   for (const name of names) await writeFile(join(directory, name), '')
   return directory

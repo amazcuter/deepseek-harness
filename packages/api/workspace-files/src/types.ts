@@ -6,25 +6,25 @@
  *
  * - `read`, `readBytes`, `stat`, and `changes` name a file by its absolute path in the
  *   filesystem's execution world, because their consumer is the Client
- *   resource system, whose `dsh-resource://file/session/<id>/<path>` address carries that
+ *   resource system, whose `mwf-resource://file/session/<id>/<path>` address carries that
  *   same path.
  * - `list` speaks workspace paths — the same syntax its `path` argument accepts —
  *   because its consumer is a tree rooted at the workspace root.
  *
- * @module @deepseek-ai/dsh-api-workspace-files/types
+ * @module @metaworkflow/api-workspace-files/types
  */
 
 // Import the protocol module so the declaration at the end of this file
 // augments its error map rather than defining an unrelated ambient module.
-import type {} from '@deepseek-ai/dsh-typert-protocol'
+import type {} from '@metaworkflow/typert-protocol'
 
 /** Identity and freshness of one workspace file, without its content. */
 export interface WorkspaceFileStat {
   /**
    * Absolute path of the file in the filesystem's execution world, symlinks
    * resolved: `/`-separated on POSIX, drive-rooted with the platform separator
-   * on Windows. What a `dsh-resource://file/absolute/…` address carries, and
-   * what a `dsh-resource://file/session/<sessionId>/…` address's
+   * on Windows. What a `mwf-resource://file/absolute/…` address carries, and
+   * what a `mwf-resource://file/session/<sessionId>/…` address's
    * workspace-relative path resolves to against that Session's root.
    */
   readonly absolutePath: string
@@ -150,7 +150,7 @@ export type WorkspaceFileWatchFrame =
   | { readonly kind: 'ready' }
   | { readonly kind: 'change'; readonly change: WorkspaceFileChange }
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@metaworkflow/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The filesystem provider cannot initialize a watch for this target. */
     'workspace-file/watch-unsupported': { readonly path: string }

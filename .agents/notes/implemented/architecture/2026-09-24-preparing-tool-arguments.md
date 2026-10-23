@@ -17,11 +17,11 @@ The order in which the model generates arguments also decides what can appear fi
 | `properties` + `required` together | Same plus reordered `required` | Forced tool_choice 10/10; free calling Pro 7/10, Flash 0/10 | Forced 10/10; free 20/20 |
 | Together + one ordering instruction in the description text | Appends "Provide `description` before `command` in the arguments." | Free calling Flash 19/20, Pro 20/20 | 20/20 |
 
-In these samples, reordering `required` changes argument order where reordering `properties` alone does not; V4 Flash's free bash calls also need the explicit instruction. The `dsh-tools` schema DSL generates `required` in property declaration order, so changing the declaration order in source reorders both. The probe uses a minimal system prompt, not the complete Harness prompt.
+In these samples, reordering `required` changes argument order where reordering `properties` alone does not; V4 Flash's free bash calls also need the explicit instruction. The `mwf-tools` schema DSL generates `required` in property declaration order, so changing the declaration order in source reorders both. The probe uses a minimal system prompt, not the complete Harness prompt.
 
 ## Decision
 
-### A lazily computed argument view lives in `dsh-util-values`
+### A lazily computed argument view lives in `mwf-util-values`
 
 `PartialArguments` is a tool-independent lazy reader. It retains separate argument fragments and a top-level key/value range index, or borrows an already parsed PTC payload. Reads index only newly received boundaries; unrequested values are neither decoded, counted, nor parsed. Requested fields materialize from their own ranges, without a per-tool field specification or registry.
 

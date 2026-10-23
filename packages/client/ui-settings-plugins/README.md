@@ -1,9 +1,9 @@
 ---
-description: "Built-in plugins settings section for the dsh web client: the Settings navigation entry and the tab chrome that feature-owned tabs register into."
+description: "Built-in plugins settings section for the mwf web client: the Settings navigation entry and the tab chrome that feature-owned tabs register into."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-settings-plugins
+# @metaworkflow/client-ui-settings-plugins
 
 English | [中文](README.zh.md)
 

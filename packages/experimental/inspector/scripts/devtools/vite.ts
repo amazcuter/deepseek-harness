@@ -8,7 +8,7 @@ import { configureCodeMirrorBrowser, configureHostPerformanceSource, cssTextModu
 
 const assets = fileURLToPath(new URL('../../assets/devtools/', import.meta.url))
 const CONNECT = join(assets, 'connect.js')
-const VIRTUAL = '\0dsh-devtools:'
+const VIRTUAL = '\0mwf-devtools:'
 const EMPTY = `${VIRTUAL}empty`
 const ENTRIES = ['devtools_app', 'device_mode_emulation_frame', 'formatter_worker', 'heap_snapshot_worker', 'wasmparser_worker', 'lighthouse_worker'] as const
 
@@ -28,7 +28,7 @@ export const LOCAL_FETCH_PATTERN = "data:application/json,{}", REMOTE_FETCH_PATT
     ['panels/timeline/EasterEgg.js', 'export const SHOULD_SHOW_EASTER_EGG = false;'],
   ])
   const sourcePlugin = (): Plugin => ({
-    name: 'dsh-devtools-source', enforce: 'pre',
+    name: 'mwf-devtools-source', enforce: 'pre',
     async resolveId(request, importer) {
       if (request === 'puppeteer' || request === 'lighthouse' || request === 'node:util' || request.includes('/NodeWebSocketTransport.js')) return EMPTY
       if (!importer || (!request.startsWith('.') && !isAbsolute(request))) return null
@@ -83,7 +83,7 @@ export const LOCAL_FETCH_PATTERN = "data:application/json,{}", REMOTE_FETCH_PATT
   const input = Object.fromEntries(ENTRIES.map(name => [name, join(front, entryFiles[name]!.replace(/\.js$/u, '.ts'))]))
   input.connect = CONNECT
   await build({ ...base, plugins: [sourcePlugin(), {
-    name: 'dsh-devtools-static-assets',
+    name: 'mwf-devtools-static-assets',
     async generateBundle() {
       const emit = (fileName: string, source: string | Uint8Array): void => { this.emitFile({ type: 'asset', fileName, source }) }
       for (const file of ['application_tokens.css', 'design_system_tokens.css']) emit(file, await readFile(join(front, file)))

@@ -3,13 +3,13 @@ description: "Web display masking for recognized credentials in sent user text, 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-secret-mask
+# @metaworkflow/client-ui-secret-mask
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Use `dsh-client-ui-secret-mask` when Web users paste API keys, tokens, or passwords into messages that others may see on a shared screen or in a screenshot. Sent user text draws each recognized credential masked: a key or token keeps its first eight characters, and each remaining character is drawn as `*`. Masking changes only what is drawn; the message text, the copy action, and the model input keep the original characters.
+Use `mwf-client-ui-secret-mask` when Web users paste API keys, tokens, or passwords into messages that others may see on a shared screen or in a screenshot. Sent user text draws each recognized credential masked: a key or token keeps its first eight characters, and each remaining character is drawn as `*`. Masking changes only what is drawn; the message text, the copy action, and the model input keep the original characters.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ Use `dsh-client-ui-secret-mask` when Web users paste API keys, tokens, or passwo
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the package beside `dsh-client-ui-conversation`. The Web app bundle mounts it by default; removing its row draws credentials as written. Every caller of the [UserText Factory](../ui-conversation/README.md#sent-user-text) masks: message bubbles, steering messages, pending echoes, queued messages, and `/goal` input bubbles.
+Mount the package beside `mwf-client-ui-conversation`. The Web app bundle mounts it by default; removing its row draws credentials as written. Every caller of the [UserText Factory](../ui-conversation/README.md#sent-user-text) masks: message bubbles, steering messages, pending echoes, queued messages, and `/goal` input bubbles.
 
 Each masked value is drawn in a monospace font, so revealing it does not move the surrounding text. Interactive text, which is a sent message or an admitted steering message, adds an eye control at the end of each run. The control reveals or hides that one value, and every mount starts masked. Other callers draw the masked value without a control.
 

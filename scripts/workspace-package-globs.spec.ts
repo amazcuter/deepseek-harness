@@ -7,7 +7,7 @@ import { expect, it, onTestFinished } from 'vitest'
 import { workspacePackageGlobs } from './workspace-package-globs.ts'
 
 it('selects workspace packages from Windows and POSIX manifest paths', async () => {
-  const cwd = await mkdtemp(join(tmpdir(), 'dsh-workspace-globs-'))
+  const cwd = await mkdtemp(join(tmpdir(), 'mwf-workspace-globs-'))
   onTestFinished(() => rm(cwd, { recursive: true, force: true }))
   const manifests = ['packages\\util\\atomic-write\\package.json', 'vendor/cordis/package.json']
   for (const [index, directory] of ['packages/util/atomic-write', 'vendor/cordis'].entries()) {

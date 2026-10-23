@@ -6,9 +6,9 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import TokenMeter from '@deepseek-ai/dsh-token-meter'
-import ToolResultPruner from '@deepseek-ai/dsh-compaction-tool-result-pruner'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import TokenMeter from '@metaworkflow/token-meter'
+import ToolResultPruner from '@metaworkflow/compaction-tool-result-pruner'
 
 let root: string | undefined
 let context: Context | undefined
@@ -22,12 +22,12 @@ afterEach(async () => {
 
 describe('compaction-tool-result-pruner real Loader composition', () => {
   it('loads and resolves the flat YAML plugin shape', async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-compact-tool-result-prune-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-compact-tool-result-prune-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@deepseek-ai/dsh-session-projection'",
-      "- name: '@deepseek-ai/dsh-token-meter'",
-      "- name: '@deepseek-ai/dsh-compaction-tool-result-pruner'",
+      "- name: '@metaworkflow/session-projection'",
+      "- name: '@metaworkflow/token-meter'",
+      "- name: '@metaworkflow/compaction-tool-result-pruner'",
       '  config:',
       '    thresholdChars: 100',
       '    headChars: 20',
@@ -42,9 +42,9 @@ describe('compaction-tool-result-pruner real Loader composition', () => {
     context.loader.internal = {
       version: 'v2',
       async import(specifier: string) {
-        if (specifier === '@deepseek-ai/dsh-session-projection') return SessionProjectionRegistry
-        if (specifier === '@deepseek-ai/dsh-token-meter') return TokenMeter
-        if (specifier === '@deepseek-ai/dsh-compaction-tool-result-pruner') return ToolResultPruner
+        if (specifier === '@metaworkflow/session-projection') return SessionProjectionRegistry
+        if (specifier === '@metaworkflow/token-meter') return TokenMeter
+        if (specifier === '@metaworkflow/compaction-tool-result-pruner') return ToolResultPruner
         throw new Error(`unexpected Loader import: ${specifier}`)
       },
     } as unknown as NonNullable<typeof context.loader.internal>

@@ -5,14 +5,14 @@
   gap: 4px;
   margin-left: 8px;
   padding: 0 10px;
-  height: calc(22px + var(--dsh-content-font-delta, 0px));
+  height: calc(22px + var(--mwf-content-font-delta, 0px));
   border: none;
   border-radius: 999px;
   corner-shape: round;
   background: var(--dsw-alias-button-floating-fill);
   color: var(--dsw-alias-label-primary);
   font-family: inherit;
-  font-size: calc(var(--dsh-content-font-size-secondary, 13px) - 1px);
+  font-size: calc(var(--mwf-content-font-size-secondary, 13px) - 1px);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;

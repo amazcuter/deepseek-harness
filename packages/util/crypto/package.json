@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-util-crypto",
+  "name": "@metaworkflow/util-crypto",
   "description": "Zero-dependency browser-safe UUID and byte-encoding helpers",
   "version": "0.2.1-rc.2",
   "publishConfig": {

@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 /** Page-active capture, selected input routing, and late permissions use real audio ownership. */
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { bindSnapshotSelector, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
-import { en as commonEn } from '@deepseek-ai/dsh-client-locale/src/locales/en.ts'
+import { bindSnapshotSelector, makeTranslate } from '@metaworkflow/client-test-runtime'
+import { zh as commonZh } from '@metaworkflow/client-locale/src/locales/zh.ts'
+import { en as commonEn } from '@metaworkflow/client-locale/src/locales/en.ts'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { MicrophonePicker } from '../src/client/MicrophonePicker.tsx'
 import { createMicrophoneDeviceStore } from '../src/client/microphone-device.ts'
@@ -99,7 +99,7 @@ it('keeps device choices available after permission denial', async () => {
 })
 
 it.each([null, 'usb', { id: 3, label: 'USB' }, { id: 'usb' }])('ignores invalid persisted microphone fields: %j', (saved) => {
-  localStorage.setItem('dsh.voice-input.microphone', JSON.stringify(saved))
+  localStorage.setItem('mwf.voice-input.microphone', JSON.stringify(saved))
   expect(createMicrophoneDeviceStore().getSnapshot()).toEqual({ id: '', label: '' })
 })
 
@@ -393,7 +393,7 @@ it('persists raw unnamed labels and translates a retained permission failure', a
 })
 
 it('shows a localized name while a restored unnamed selection awaits enumeration', async () => {
-  localStorage.setItem('dsh.voice-input.microphone', JSON.stringify({ id: 'usb', label: '' }))
+  localStorage.setItem('mwf.voice-input.microphone', JSON.stringify({ id: 'usb', label: '' }))
   const b = fixture()
   try {
     expect(selector().selectedOptions[0]?.textContent).toBe(zh.unnamedSelectedMicrophone)
@@ -454,7 +454,7 @@ it('uses the acquired device group to show its physical name without the browser
 })
 
 it('does not restore a previous default device name and persists only the system preference', async () => {
-  localStorage.setItem('dsh.voice-input.microphone', JSON.stringify({ id: '', label: 'Previous default microphone' }))
+  localStorage.setItem('mwf.voice-input.microphone', JSON.stringify({ id: '', label: 'Previous default microphone' }))
   const b = fixture()
   try {
     expect(selector().selectedOptions[0]?.textContent).toBe(zh.systemMicrophone)

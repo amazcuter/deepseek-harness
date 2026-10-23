@@ -14,12 +14,12 @@ function viewer(): HTMLDialogElement {
 }
 
 it('shows the file as plain text, replaces it on reuse, and closes from its button', () => {
-  showTextViewer('/dsh/home/a.yml', '<b>first</b>')
+  showTextViewer('/mwf/home/a.yml', '<b>first</b>')
   expect(viewer().open).toBe(true)
-  expect(viewer().querySelector('h2')?.textContent).toBe('/dsh/home/a.yml')
+  expect(viewer().querySelector('h2')?.textContent).toBe('/mwf/home/a.yml')
   expect(viewer().querySelector('pre')?.innerHTML).toBe('&lt;b&gt;first&lt;/b&gt;')
 
-  showTextViewer('/dsh/home/b.yml', 'second')
+  showTextViewer('/mwf/home/b.yml', 'second')
   expect(document.querySelectorAll('dialog[data-preview-text-viewer]')).toHaveLength(1)
   expect(viewer().querySelector('pre')?.textContent).toBe('second')
 
@@ -28,7 +28,7 @@ it('shows the file as plain text, replaces it on reuse, and closes from its butt
 })
 
 it('keeps keys pressed in the viewer from reaching document-level modal layers', () => {
-  showTextViewer('/dsh/home/a.yml', 'text')
+  showTextViewer('/mwf/home/a.yml', 'text')
   let reached = false
   const listener = (): void => { reached = true }
   document.addEventListener('keydown', listener)

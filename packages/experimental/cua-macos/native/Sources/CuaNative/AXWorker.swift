@@ -4,7 +4,7 @@ import Dispatch
 import ApplicationServices
 
 final class NativeSerialExecutor: SerialExecutor {
-    private let queue = DispatchQueue(label: "dsh.cua.ax")
+    private let queue = DispatchQueue(label: "mwf.cua.ax")
     func enqueue(_ job: consuming ExecutorJob) {
         let unowned = UnownedJob(job)
         let executor = asUnownedSerialExecutor()

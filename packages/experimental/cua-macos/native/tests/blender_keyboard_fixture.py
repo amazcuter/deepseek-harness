@@ -66,8 +66,8 @@ def selection_state(text):
             "selected": text.as_string()[offsets[0]:offsets[1]], "collapsed": start == end}
 
 
-class WM_OT_dsh_cua_observe(bpy.types.Operator):
-    bl_idname = "wm.dsh_cua_observe"
+class WM_OT_mwf_cua_observe(bpy.types.Operator):
+    bl_idname = "wm.mwf_cua_observe"
     bl_label = "Observe owned CUA keyboard fixture"
 
     def invoke(self, context, _event):
@@ -128,7 +128,7 @@ def initialize():
     TARGET_WINDOW = bpy.context.window_manager.windows[0]
     TARGET_AREA = max(TARGET_WINDOW.screen.areas, key=lambda area: area.width * area.height)
     TARGET_AREA.type = "TEXT_EDITOR"
-    TARGET_TEXT = bpy.data.texts.new("DSH CUA keyboard " + ARGS.token)
+    TARGET_TEXT = bpy.data.texts.new("MWF CUA keyboard " + ARGS.token)
     TARGET_TEXT.write(ARGS.seed)
     TARGET_TEXT.cursor_set(0, character=0, select=False)
     TARGET_TEXT.use_module = False
@@ -136,10 +136,10 @@ def initialize():
     TARGET_AREA.spaces.active.show_line_numbers = False
     TARGET_AREA.spaces.active.show_word_wrap = False
     bpy.context.preferences.view.show_splash = False
-    bpy.utils.register_class(WM_OT_dsh_cua_observe)
+    bpy.utils.register_class(WM_OT_mwf_cua_observe)
     region = next(region for region in TARGET_AREA.regions if region.type == "WINDOW")
     with bpy.context.temp_override(window=TARGET_WINDOW, area=TARGET_AREA, region=region):
-        result = bpy.ops.wm.dsh_cua_observe("INVOKE_DEFAULT")
+        result = bpy.ops.wm.mwf_cua_observe("INVOKE_DEFAULT")
     if "RUNNING_MODAL" not in result:
         raise RuntimeError("Blender event observer did not start: " + repr(result))
     bpy.app.timers.register(publish, first_interval=0.05)

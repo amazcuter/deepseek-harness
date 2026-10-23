@@ -3,13 +3,13 @@ description: "DeepSeek Search 与 Fetch API 提供者、共享的鉴权与传输
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-web-deepseek-api
+# @metaworkflow/web-deepseek-api
 
 [English](README.md) | 中文
 
 ## 概述
 
-通过 DeepSeek Search 与 Fetch API 搜索和抓取网页：每次操作只发起一次直接请求，无需辅助模型请求。插件注册 `deepseek-search-api` 和 `deepseek-fetch-api`，两者共用一份凭据和一个 API 基础地址，并使用 API key（API 密钥）或已配置的账号集成鉴权。Search 返回标题、URL、可用的摘要和可用的发布时间；Fetch 返回页面 Markdown。Messages 搜索仍由 [dsh-web-search-deepseek](../web-search-deepseek/README.zh.md) 提供；面向模型的工具由 `dsh-tool-web` 提供。
+通过 DeepSeek Search 与 Fetch API 搜索和抓取网页：每次操作只发起一次直接请求，无需辅助模型请求。插件注册 `deepseek-search-api` 和 `deepseek-fetch-api`，两者共用一份凭据和一个 API 基础地址，并使用 API key（API 密钥）或已配置的账号集成鉴权。Search 返回标题、URL、可用的摘要和可用的发布时间；Fetch 返回页面 Markdown。Messages 搜索仍由 [mwf-web-search-deepseek](../web-search-deepseek/README.zh.md) 提供；面向模型的工具由 `mwf-tool-web` 提供。
 
 ## 目录
 
@@ -24,14 +24,14 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用此包
 
-将插件与 `dsh-web` 一起挂载，并选择它的提供者。内置配置挂载此插件，同时选择 Messages 搜索和本地 HTTP 抓取。在**插件 > 内置插件配置 > 网页搜索**中开启**启用新版 Web 搜索 API**并保存，会同时选择此包的两个提供者；关闭后恢复内置选择。保存的选择从下一次操作开始生效。
+将插件与 `mwf-web` 一起挂载，并选择它的提供者。内置配置挂载此插件，同时选择 Messages 搜索和本地 HTTP 抓取。在**插件 > 内置插件配置 > 网页搜索**中开启**启用新版 Web 搜索 API**并保存，会同时选择此包的两个提供者；关闭后恢复内置选择。保存的选择从下一次操作开始生效。
 
 ```yaml
-- name: '@deepseek-ai/dsh-web'
+- name: '@metaworkflow/web'
   config:
     searchProvider: deepseek-search-api
     fetchProvider: deepseek-fetch-api
-- name: '@deepseek-ai/dsh-web-deepseek-api'
+- name: '@metaworkflow/web-deepseek-api'
   config:
     apiKeyEnv: DEEPSEEK_API_KEY
 ```
@@ -50,7 +50,7 @@ kind: "package-reference"
 
 ### 鉴权
 
-使用 `deepseek-account` 路由的会话向账号服务请求已授权用于解析后端点的令牌，并通过 `x-dsh-auth-token` 发送；2026-10-16 公网 Search 与 Fetch 路由已接受该令牌。其他情况下，非空的字面 `apiKey` 优先于 `apiKeyEnv`；凭据引用通过 `ctx.credentials` 解析，该服务缺省时使用启动环境。API 密钥使用 `Authorization: Bearer`。凭据解析和端点选择使用同一份设置快照。
+使用 `deepseek-account` 路由的会话向账号服务请求已授权用于解析后端点的令牌，并通过 `x-mwf-auth-token` 发送；2026-10-16 公网 Search 与 Fetch 路由已接受该令牌。其他情况下，非空的字面 `apiKey` 优先于 `apiKeyEnv`；凭据引用通过 `ctx.credentials` 解析，该服务缺省时使用启动环境。API 密钥使用 `Authorization: Bearer`。凭据解析和端点选择使用同一份设置快照。
 
 ### 结果与失败
 

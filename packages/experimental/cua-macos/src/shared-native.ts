@@ -6,10 +6,10 @@ import { userInfo } from 'node:os'
 import { join } from 'node:path'
 import { PassThrough, Writable } from 'node:stream'
 import { setTimeout as delay } from 'node:timers/promises'
-import type { SubprocessHandle, SubprocessOutcome, SubprocessRuntime } from '@deepseek-ai/dsh-subprocess'
+import type { SubprocessHandle, SubprocessOutcome, SubprocessRuntime } from '@metaworkflow/subprocess'
 import { z } from 'zod'
-import type { NativeClientConfig, NativeChannel } from '@deepseek-ai/dsh-cua/native-client'
-export type { NativeChannel } from '@deepseek-ai/dsh-cua/native-client'
+import type { NativeClientConfig, NativeChannel } from '@metaworkflow/cua/native-client'
+export type { NativeChannel } from '@metaworkflow/cua/native-client'
 
 const Ready = z.object({
   type: z.literal('ready'), protocol: z.literal(1), runtimeKey: z.string(),
@@ -138,7 +138,7 @@ class SharedNativeChannel implements NativeChannel {
     const helperPath = await realpath(this.config.helperPath)
     const runtimeKey = createHash('sha256').update(await readFile(helperPath, { signal: this.startup.signal })).digest('hex')
     const uid = userInfo().uid
-    const directory = `/tmp/dsh-cua-${uid}`
+    const directory = `/tmp/mwf-cua-${uid}`
     try { await mkdir(directory, { mode: 0o700 }) }
     catch (error) {
       if (!(error instanceof Error && 'code' in error && error.code === 'EEXIST')) throw error

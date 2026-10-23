@@ -1,19 +1,19 @@
 /** The optional namespace and both UI contributions leave with the plugin. */
 import assert from 'node:assert/strict'
 import { Context, Service } from '@deepseek-ai/cordis'
-import { SessionId } from '@deepseek-ai/dsh-session/types'
+import { SessionId } from '@metaworkflow/session/types'
 import { expect, it, vi } from 'vitest'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type { InjectParams, StoredEntry } from '@deepseek-ai/dsh-client-ui-slots'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { stubConfigForm } from '@deepseek-ai/dsh-client-test-runtime'
-import { RemoteError, type RemoteResult, type TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol'
+import { SlotRegistry } from '@metaworkflow/client-ui-renderer/client'
+import type { InjectParams, StoredEntry } from '@metaworkflow/client-ui-slots'
+import { LocaleRuntime } from '@metaworkflow/client-locale/client'
+import { stubConfigForm } from '@metaworkflow/client-test-runtime'
+import { RemoteError, type RemoteResult, type TypertRemoteContribution } from '@metaworkflow/typert-protocol'
 import type { CotTranslationPreferences, CotTranslationSnapshot } from '../src/preferences.ts'
 import type { TranslationBodyInjected } from '../src/client/TranslationBody.tsx'
 import type { TranslationFormInjected } from '../src/client/preferences-form.ts'
 import { inject, mountTranslation } from '../src/client/mount.ts'
 
-const contribution: TypertRemoteContribution = { package: '@deepseek-ai/dsh-experimental-client-ui-cot-translation', descriptors: [] }
+const contribution: TypertRemoteContribution = { package: '@metaworkflow/experimental-client-ui-cot-translation', descriptors: [] }
 const sourceSessionId = SessionId('reasoning-source')
 
 async function fixture(failure = false, preferences: CotTranslationPreferences = { provider: 'bing', targetLanguage: 'auto' }) {
@@ -103,7 +103,7 @@ it('registers translated reasoning and preferences, adopts accepted choices, and
     b.setCatalog({ maxTextChars: 12, availableProviders: ['bing', 'google'], preferences: { provider: 'bing', targetLanguage: 'ja' } })
     b.scope.publish({ value: { provider: 'bing', targetLanguage: 'ja' } })
     await vi.waitFor(() => { expect(body.hooks.preferences.getSnapshot()).toEqual({ provider: 'bing', targetLanguage: 'ja' }) })
-    expect(b.ctx.slots.entries('plugins.bundle.config')[0]?.options).toMatchObject({ key: '@deepseek-ai/dsh-experimental-cot-translation-bundle' })
+    expect(b.ctx.slots.entries('plugins.bundle.config')[0]?.options).toMatchObject({ key: '@metaworkflow/experimental-cot-translation-bundle' })
     expect(b.ctx.slots.entries('plugins.bundle.config')[0]!.inject!()).toHaveProperty('hooks.translationForm')
     const request = { text: 'original', provider: 'bing' as const, targetLanguage: 'ja' }, signal = new AbortController().signal
     expect(await body.translate(request, signal)).toBe('translated')
@@ -130,7 +130,7 @@ it.each(['limits', 'registration'])('rolls back the Remote when %s fails', async
 
 it('loads the browser entry through its generated optional Remote contribution', async () => {
   const b = await fixture()
-  vi.doMock('@deepseek-ai/dsh-experimental-client-ui-cot-translation/remote', () => ({ default: contribution }))
+  vi.doMock('@metaworkflow/experimental-client-ui-cot-translation/remote', () => ({ default: contribution }))
   try {
     const browser = await import('../src/client/index.ts')
     expect(browser.inject).toEqual(inject)
@@ -141,7 +141,7 @@ it('loads the browser entry through its generated optional Remote contribution',
     expect(b.unmount).toHaveBeenCalledOnce()
   } finally {
     await b.ctx.fiber.dispose()
-    vi.doUnmock('@deepseek-ai/dsh-experimental-client-ui-cot-translation/remote')
+    vi.doUnmock('@metaworkflow/experimental-client-ui-cot-translation/remote')
   }
 })
 

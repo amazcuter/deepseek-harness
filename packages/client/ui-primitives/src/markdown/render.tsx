@@ -82,7 +82,7 @@ function vocabularyImageUrl(url: string): string | undefined {
   try {
     const protocol = new URL(url).protocol
     return protocol === 'http:' || protocol === 'https:' || protocol === 'blob:' || protocol === 'data:'
-      || url.startsWith('dsh-app://app/api/file?')
+      || url.startsWith('mwf-app://app/api/file?')
       ? url
       : undefined
   } catch {

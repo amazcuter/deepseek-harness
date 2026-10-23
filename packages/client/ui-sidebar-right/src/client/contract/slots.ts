@@ -20,19 +20,19 @@
  * registering into one already depends on it for the declaration. The types
  * therefore live with their declarer.
  */
-import type { ShortcutCatalogEntry } from '@deepseek-ai/dsh-client-shortcuts/client'
-import type {} from '@deepseek-ai/dsh-client-ui-slots'
-import type { RightbarOwnerProps } from '@deepseek-ai/dsh-client-ui-layout/client'
+import type { ShortcutCatalogEntry } from '@metaworkflow/client-shortcuts/client'
+import type {} from '@metaworkflow/client-ui-slots'
+import type { RightbarOwnerProps } from '@metaworkflow/client-ui-layout/client'
 // The locale plugin's own merge carries the shared `common` vocabulary that the
 // lookup chain consults after this namespace misses.
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type { PaneId, TabId, TabRecord } from '@deepseek-ai/dsh-client-ui-dockkit'
-import type { SlotHookFactory } from '@deepseek-ai/dsh-client-ui-slots'
+import type {} from '@metaworkflow/client-locale/client'
+import type { PaneId, TabId, TabRecord } from '@metaworkflow/client-ui-dockkit'
+import type { SlotHookFactory } from '@metaworkflow/client-ui-slots'
 import type { TabHookContext } from '../tab-info.ts'
 import type { SidebarRightKey } from '../locales.ts'
 import type { SidebarRightNavigationParams, SidebarRightResourceParams, SidebarRightTabParamsFor } from './params.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Right-Sidebar chrome, docking-kit vocabulary, and guide copy. */
     sidebarRight: SidebarRightKey
@@ -146,7 +146,7 @@ export interface SidebarRightTabActions {
   bindCommands(commands: SidebarRightTabCommands): () => void
   /**
    * Open a resource from this tab; see `ISidebarRight.openResource`.
-   * @param address - a `dsh-resource://` address.
+   * @param address - a `mwf-resource://` address.
    * @param options - placement and the resource's navigation parameters.
    */
   openResource(address: string, options?: SidebarRightTabPlacement & { readonly params?: SidebarRightResourceParams }): void

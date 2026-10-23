@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/develop/basic/tool.md
 /build-a-tool:
-  en: 7cc993f14da8bb11
-  zh: 32cc4de7310ace97
+  en: ef6e33ed714b085a
+  zh: c44e1f05a776ab5e
 /build-a-tool/create-the-tool-plugin:
   en: ee66fee86af58d93
   zh: ee7d157e69d01ae4
@@ -12,5 +12,5 @@
   en: 3bdae6640d729bfc
   zh: d1e945ac53cbb467
 /build-a-tool/next-steps:
-  en: aba2c55a0ba557f9
-  zh: d4615e9e57c540bd
+  en: 46095d5b412eb3e2
+  zh: 3bfe3e5e277973b1

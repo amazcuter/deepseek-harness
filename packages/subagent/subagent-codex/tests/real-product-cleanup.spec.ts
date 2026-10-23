@@ -30,7 +30,7 @@ it('attributes root removal failures to the owned path', async () => {
 })
 
 it('closes its real HTTP server and removes its root after context disposal rejects', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-codex-cleanup-rejected-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-codex-cleanup-rejected-'))
   const server = createServer()
   const close = (): Promise<void> => new Promise((resolve, reject) => {
     server.close((error) => {
@@ -58,7 +58,7 @@ it('closes its real HTTP server and removes its root after context disposal reje
 })
 
 it('removes sibling roots after an earlier root removal fails', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-codex-cleanup-sibling-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-codex-cleanup-sibling-'))
   try {
     await expect(cleanupRealProduct({ contexts: [], fixtures: [], roots: ['invalid\0root', root] }))
       .rejects.toHaveProperty('cause.code', 'ERR_INVALID_ARG_VALUE')
@@ -114,8 +114,8 @@ it('reports failures from every cleanup stage together', async () => {
 })
 
 it('keeps resources registered during pending cleanup for their own cleanup', async () => {
-  const oldRoot = mkdtempSync(join(tmpdir(), 'dsh-codex-cleanup-old-'))
-  const nextRoot = mkdtempSync(join(tmpdir(), 'dsh-codex-cleanup-next-'))
+  const oldRoot = mkdtempSync(join(tmpdir(), 'mwf-codex-cleanup-old-'))
+  const nextRoot = mkdtempSync(join(tmpdir(), 'mwf-codex-cleanup-next-'))
   const releaseContext = Promise.withResolvers<undefined>()
   const oldContext = { fiber: { dispose: vi.fn(() => releaseContext.promise) } }
   const nextContext = { fiber: { dispose: vi.fn(async () => {}) } }

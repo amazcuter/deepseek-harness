@@ -1,17 +1,17 @@
 import { Context } from '@deepseek-ai/cordis'
-import type { Agent, Inbox, InboxState } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import type { Agent, Inbox, InboxState } from '@metaworkflow/agent'
+import { createUserMessage } from '@metaworkflow/llm'
+import type { ContextFormed } from '@metaworkflow/llm'
+import { SessionId } from '@metaworkflow/session'
 import { afterEach, describe, expect, it } from 'vitest'
 import { SessionControlController } from '../src/control.ts'
 import type { SessionControlFrame } from '../src/types.ts'
 import {
   mountAgentLoopTestDependencies,
   mountAgentLoopTestHarness,
-} from '@deepseek-ai/dsh-agent-loop-testkit'
+} from '@metaworkflow/agent-loop-testkit'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'fixture': { kind: 'fixture' } & ContextFormed
   }

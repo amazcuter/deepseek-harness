@@ -3,59 +3,59 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-settings-general/README.md
 /:
-  en: b12def981d836df5
-  zh: 9d813c1937f22c61
-/deepseek-ai-dsh-client-ui-settings-general:
-  en: 1017c980d55e1945
-  zh: d3febd2062fce20f
-/deepseek-ai-dsh-client-ui-settings-general/summary:
-  en: cd94b4a8dae32670
-  zh: 333b8603e77f92d7
-/deepseek-ai-dsh-client-ui-settings-general/table-of-contents:
+  en: f6f154aba8af0420
+  zh: 69bcc71c959cf538
+/metaworkflow-client-ui-settings-general:
+  en: c53db3e7892de2cc
+  zh: cfb079e571b35d07
+/metaworkflow-client-ui-settings-general/summary:
+  en: 6239b0b566a1923f
+  zh: d6207b128cbc6be9
+/metaworkflow-client-ui-settings-general/table-of-contents:
   en: 2843d46e95311bce
   zh: ec11bdeb5d3ce818
-/deepseek-ai-dsh-client-ui-settings-general/use-this-package:
-  en: 2bc21e57fe17eab9
-  zh: e441cd313f747b22
-/deepseek-ai-dsh-client-ui-settings-general/use-this-package/the-general-section:
-  en: 8b8a7c6287bb303b
-  zh: 19535112531aedd5
-/deepseek-ai-dsh-client-ui-settings-general/use-this-package/opening-the-configuration-file:
+/metaworkflow-client-ui-settings-general/use-this-package:
+  en: 4b7b385ed73f6e2a
+  zh: 7cad0fef77e74b19
+/metaworkflow-client-ui-settings-general/use-this-package/the-general-section:
+  en: 0cb653d08c9ff585
+  zh: 917b055b99bf2103
+/metaworkflow-client-ui-settings-general/use-this-package/opening-the-configuration-file:
   en: 597df68b5913e8d7
   zh: bc9114f3e877679a
-/deepseek-ai-dsh-client-ui-settings-general/use-this-package/onboarding-steps:
+/metaworkflow-client-ui-settings-general/use-this-package/onboarding-steps:
   en: 27f0f6ec55f00228
   zh: 69b47ff1efd81c17
-/deepseek-ai-dsh-client-ui-settings-general/understand-the-implementation:
+/metaworkflow-client-ui-settings-general/understand-the-implementation:
   en: 41726bcd4ae37c0a
   zh: d994b70ca7997da8
-/deepseek-ai-dsh-client-ui-settings-general/understand-the-implementation/ledger-projections:
+/metaworkflow-client-ui-settings-general/understand-the-implementation/ledger-projections:
   en: 3e3c2c72f87e8b23
   zh: 12b10ba2d37c9077
-/deepseek-ai-dsh-client-ui-settings-general/understand-the-implementation/connection-recovery:
+/metaworkflow-client-ui-settings-general/understand-the-implementation/connection-recovery:
   en: e37fb7df883ea356
   zh: c972524e56c6d6c2
-/deepseek-ai-dsh-client-ui-settings-general/understand-the-implementation/host-release-changes:
-  en: d464f726b026c39a
-  zh: c949e5f4d65a639f
-/deepseek-ai-dsh-client-ui-settings-general/understand-the-implementation/document-availability:
+/metaworkflow-client-ui-settings-general/understand-the-implementation/host-release-changes:
+  en: aa94068509c77b79
+  zh: 14a6a4a11894ce3c
+/metaworkflow-client-ui-settings-general/understand-the-implementation/document-availability:
   en: ff1aec9eb1a87a79
   zh: eb91ab8bef59742d
-/deepseek-ai-dsh-client-ui-settings-general/understand-the-implementation/host-half:
+/metaworkflow-client-ui-settings-general/understand-the-implementation/host-half:
   en: 5d722d055516f905
   zh: e7a236f0ff84f7ff
-/deepseek-ai-dsh-client-ui-settings-general/further-exploration:
-  en: 21348b768f60f587
-  zh: 0c3c5b6a682ae267
-/deepseek-ai-dsh-client-ui-settings-general/model-experience:
+/metaworkflow-client-ui-settings-general/further-exploration:
+  en: d8f24051e3321e51
+  zh: 38d307874af2f0b2
+/metaworkflow-client-ui-settings-general/model-experience:
   en: 3120df665299c634
   zh: 1d9f365d091d0d2a
-/deepseek-ai-dsh-client-ui-settings-general/model-experience/kv-cache-effect:
+/metaworkflow-client-ui-settings-general/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/deepseek-ai-dsh-client-ui-settings-general/known-limitations-and-deferred-work:
+/metaworkflow-client-ui-settings-general/known-limitations-and-deferred-work:
   en: 97dd637a320ac334
   zh: faa5c512c56a128e
-/deepseek-ai-dsh-client-ui-settings-general/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-client-ui-settings-general/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

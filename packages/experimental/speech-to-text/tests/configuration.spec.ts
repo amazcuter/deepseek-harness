@@ -3,14 +3,14 @@ import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSy
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it } from 'vitest'
-import { boot, initProfile, readProfilePatches, type ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import ConfigEditor from '@deepseek-ai/dsh-config-editor'
-import Settings from '@deepseek-ai/dsh-settings'
+import { boot, initProfile, readProfilePatches, type ProfileContext } from '@metaworkflow/app-boot'
+import ConfigEditor from '@metaworkflow/config-editor'
+import Settings from '@metaworkflow/settings'
 import SpeechToText from '../src/index.ts'
 import type { SpeechProviderId } from '../src/types.ts'
 
 it('saves language and provider preferences without remounting and restores them at restart', async () => {
-  const home = realpathSync(mkdtempSync(join(tmpdir(), 'dsh-speech-configuration-')))
+  const home = realpathSync(mkdtempSync(join(tmpdir(), 'mwf-speech-configuration-')))
   let ctx: Awaited<ReturnType<typeof boot>> | undefined
   try {
     const dir = join(home, 'profiles', 'test')
@@ -18,7 +18,7 @@ it('saves language and provider preferences without remounting and restores them
     const bundle = join(dir, 'node_modules', 'test-bundle')
     mkdirSync(bundle, { recursive: true })
     writeFileSync(join(home, 'package.json'), '{"name":"test-installation"}\n')
-    writeFileSync(join(bundle, 'package.json'), JSON.stringify({ name: 'test-bundle', version: '1.0.0', dsh: { bundle: { patch: 'cordis.patch.yml' } } }))
+    writeFileSync(join(bundle, 'package.json'), JSON.stringify({ name: 'test-bundle', version: '1.0.0', mwf: { bundle: { patch: 'cordis.patch.yml' } } }))
     writeFileSync(join(bundle, 'cordis.patch.yml'), readFileSync(new URL('./fixtures/selection.patch.yml', import.meta.url)))
     writeFileSync(join(dir, 'cordis.yml'), '[]\n')
     const profile: ProfileContext = {

@@ -1,5 +1,5 @@
 /**
- * DSH_COVERAGE_TEST_TIMEOUT_MS reaches every inline Vitest project through the
+ * MWF_COVERAGE_TEST_TIMEOUT_MS reaches every inline Vitest project through the
  * root config (coverageTestTimeoutOptions owns the rule and why a CLI flag
  * cannot carry it). A budget below the fixture's waits must end all three
  * inside both projects; unset must keep Vitest's defaults, under which the
@@ -31,7 +31,7 @@ let configPath = ''
 // is outside the repository; the sibling package.json keeps Vite bundling the
 // config as ESM, which the repository root's "type" otherwise supplies.
 beforeAll(() => {
-  temporaryRoot = mkdtempSync(join(tmpdir(), 'dsh-lane-test-budget-'))
+  temporaryRoot = mkdtempSync(join(tmpdir(), 'mwf-lane-test-budget-'))
   configPath = join(temporaryRoot, 'vitest.config.ts')
   writeFileSync(join(temporaryRoot, 'package.json'), '{ "type": "module" }\n', 'utf8')
   writeFileSync(configPath, [
@@ -59,7 +59,7 @@ function runFixture(budget: string | undefined): { status: number | null; output
     // The parent worker's Vitest state and the coverage coordinator's own
     // variables describe this process, not the child; the Actions reporter
     // would otherwise annotate the parent job with the fixture's failures.
-    if (name.startsWith('VITEST') || name.startsWith('DSH_COVERAGE_') || name === 'GITHUB_ACTIONS') Reflect.deleteProperty(env, name)
+    if (name.startsWith('VITEST') || name.startsWith('MWF_COVERAGE_') || name === 'GITHUB_ACTIONS') Reflect.deleteProperty(env, name)
   }
   if (budget !== undefined) env[COVERAGE_TEST_TIMEOUT_ENV] = budget
   const child = spawnSync(process.execPath, [vitestCli, 'run', '--config', configPath], {

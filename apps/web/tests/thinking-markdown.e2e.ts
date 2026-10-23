@@ -3,9 +3,9 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-session-title'
+import { createMessage, createUserMessage } from '@metaworkflow/llm'
+import { SESSION_FORMAT_VERSION, Session, SessionId } from '@metaworkflow/session'
+import type {} from '@metaworkflow/session-title'
 import {
   assertFixtureInventory,
   captureStableAria,
@@ -268,11 +268,11 @@ describe('web e2e: secondary Thinking Markdown', () => {
     const trajectoryHeading = details.locator('[data-markdown-variant="compact"] h1')
     await trajectoryHeading.waitFor({ timeout: 10_000 })
     expect(await trajectoryHeading.evaluate(element => getComputedStyle(element).fontSize)).toBe(summaryStyle.fontSize)
-    const originalFontSize = await page.evaluate(() => document.body.style.getPropertyValue('--dsh-content-font-size'))
+    const originalFontSize = await page.evaluate(() => document.body.style.getPropertyValue('--mwf-content-font-size'))
     try {
       for (const fontSize of [16, 17]) {
         await scaffold.ctx.settings.update('ui-theme', { fontSize })
-        await expect.poll(() => page.evaluate(() => document.body.style.getPropertyValue('--dsh-content-font-size')))
+        await expect.poll(() => page.evaluate(() => document.body.style.getPropertyValue('--mwf-content-font-size')))
           .toBe(`${String(fontSize)}px`)
         const typography = await details.evaluate((panel) => {
           const heading = panel.querySelector('[data-markdown-variant="compact"] h1')
@@ -294,7 +294,7 @@ describe('web e2e: secondary Thinking Markdown', () => {
       }
     } finally {
       await scaffold.ctx.settings.update('ui-theme', { fontSize: Number.parseFloat(originalFontSize) })
-      await expect.poll(() => page.evaluate(() => document.body.style.getPropertyValue('--dsh-content-font-size')))
+      await expect.poll(() => page.evaluate(() => document.body.style.getPropertyValue('--mwf-content-font-size')))
         .toBe(originalFontSize)
     }
     expect(tripwire.pageErrors).toEqual([])

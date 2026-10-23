@@ -3,13 +3,13 @@ description: "The runtime Typert registry: stores generated package reflection, 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-typert-registry
+# @metaworkflow/typert-registry
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-typert-registry` makes generated Typert artifacts queryable at runtime: each package's reflection, lazy Zod schema factories, and Remote invocation descriptors live under stable keys. A schema is materialized and cached when a consumer first requests it. Registrations are atomic and fiber-scoped: a contribution lands whole or not at all and is withdrawn automatically when the registering component unloads. The same service hosts the lookup and scoped-Context provider registries that Remote calls resolve through. It performs no TypeScript analysis and generates no schemas; the generator and the loader handle those.
+`mwf-typert-registry` makes generated Typert artifacts queryable at runtime: each package's reflection, lazy Zod schema factories, and Remote invocation descriptors live under stable keys. A schema is materialized and cached when a consumer first requests it. Registrations are atomic and fiber-scoped: a contribution lands whole or not at all and is withdrawn automatically when the registering component unloads. The same service hosts the lookup and scoped-Context provider registries that Remote calls resolve through. It performs no TypeScript analysis and generates no schemas; the generator and the loader handle those.
 
 ## Table of Contents
 
@@ -32,14 +32,14 @@ Mount the registry in any Host or Client composition that stores or consumes gen
 Load the registry plugin; the Client face is installed the same way by the Client runtime's own metadata, and both faces run the same implementation:
 
 ```yaml
-- name: '@deepseek-ai/dsh-typert-registry'
+- name: '@metaworkflow/typert-registry'
 ```
 
 ### Querying schemas and reflection
 
 Consumers read schemas with `get(key)`, `resolve(key)`, or `list(filter?)` and package reflection with `getPackage(name, face?)` or `listPackages(filter?)`. The first schema read materializes one process-realm instance; later reads reuse it. `resolve()` distinguishes a malformed key, an absent package, and a registered package that contributes no schema under that name, each with its own error. `toJSONSchema(key)` projects the materialized Zod schema to JSON Schema without caching the projection.
 
-Invocation information is available through existing `ctx.typert.local.get/list` and `ctx.typert.remotes.get/list` queries. They return the registered descriptor objects, including generated direct methods with `input(options?)`, `result`, and `invoke`; there is no separate metadata store or RPC API. Consumers select `method.input({ strict: true })` for matching strict parsing and JSON Schema without changing registration or Host dispatch. Use `isTypertRemoteMethod(descriptor)` from `@deepseek-ai/dsh-typert-protocol/remote-info` to narrow the base descriptor. This guard exposes inputs as `object` and outputs as `unknown`, not endpoint-dependent generics. The [ordinary generated `TYPERT_REMOTE.methods` index](<../generator/README.md#ordinary-remote-metadata>) supplies precise per-method static types and aliases those same descriptors within its artifact instance.
+Invocation information is available through existing `ctx.typert.local.get/list` and `ctx.typert.remotes.get/list` queries. They return the registered descriptor objects, including generated direct methods with `input(options?)`, `result`, and `invoke`; there is no separate metadata store or RPC API. Consumers select `method.input({ strict: true })` for matching strict parsing and JSON Schema without changing registration or Host dispatch. Use `isTypertRemoteMethod(descriptor)` from `@metaworkflow/typert-protocol/remote-info` to narrow the base descriptor. This guard exposes inputs as `object` and outputs as `unknown`, not endpoint-dependent generics. The [ordinary generated `TYPERT_REMOTE.methods` index](<../generator/README.md#ordinary-remote-metadata>) supplies precise per-method static types and aliases those same descriptors within its artifact instance.
 
 ### Registering a contribution
 

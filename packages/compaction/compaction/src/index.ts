@@ -4,12 +4,12 @@
  * {@link CompactionEngine}. This interface necessarily depends on session and LLM
  * vocabulary; the dependency rule is documented in the
  * [compaction reference](../README.md#understand-the-implementation).
- * @module @deepseek-ai/dsh-compaction
+ * @module @metaworkflow/compaction
  */
 
 import { Context, Service } from '@deepseek-ai/cordis'
-import type { Session, SessionSeq } from '@deepseek-ai/dsh-session'
-import type { CommandId } from '@deepseek-ai/dsh-commands/brand'
+import type { Session, SessionSeq } from '@metaworkflow/session'
+import type { CommandId } from '@metaworkflow/commands/brand'
 import type { CompactionResult } from './types.ts'
 import type { CompactionCheckpointSource } from './checkpoint.ts'
 
@@ -22,7 +22,7 @@ export { toolPairingBalancedAfter, toolPairingBalancedBefore } from './tool-pair
 export { compactCheckpointSource, isCompactCheckpointSource } from './checkpoint.ts'
 export type { CompactionCheckpointSource } from './checkpoint.ts'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'compact-checkpoint': CompactionCheckpointSource
   }

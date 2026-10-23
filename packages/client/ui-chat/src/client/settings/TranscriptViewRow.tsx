@@ -1,7 +1,7 @@
 /** General Settings row for work-details presentation. */
 
-import type { SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+import type { SnapshotStore } from '@metaworkflow/client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@metaworkflow/client-ui-slots'
 import { TRANSCRIPT_VIEW_MODES, type TranscriptViewMode } from '../../chat-settings.ts'
 import type { ChatKey } from '../locale.ts'
 import { COLLAPSE_TIMINGS, type CollapseTiming } from '../presentation-policy.ts'

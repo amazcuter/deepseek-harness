@@ -22,7 +22,7 @@ const BINARY_BYTES = 'binary fixture'
 const FEED_BYTES = 'version: 1.2.3\n'
 
 async function fixture(environment: 'test' | 'production' = 'test') {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-upload-audit-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-upload-audit-'))
   roots.push(root)
   const binary = join(root, 'package.exe')
   await writeFile(binary, BINARY_BYTES)

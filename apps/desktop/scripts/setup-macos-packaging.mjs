@@ -26,8 +26,8 @@ if (mode !== '--check') {
     if (!existsSync(destination)) {
       const template = readFileSync(resolve(import.meta.dirname, '../config/macos-packaging', `${name}.env.example`), 'utf8')
       const cache = join(root, 'cache/macos-signatures')
-      writeFileSync(destination, template.replace('# DSH_DESKTOP_MACOS_SIGNATURE_CACHE_DIR=',
-        `DSH_DESKTOP_MACOS_SIGNATURE_CACHE_DIR='${cache}'`), { flag: 'wx', mode: 0o600 })
+      writeFileSync(destination, template.replace('# MWF_DESKTOP_MACOS_SIGNATURE_CACHE_DIR=',
+        `MWF_DESKTOP_MACOS_SIGNATURE_CACHE_DIR='${cache}'`), { flag: 'wx', mode: 0o600 })
     }
   }
 }

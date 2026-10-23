@@ -8,7 +8,7 @@ import { Context } from '@deepseek-ai/cordis'
 import type { Include } from '@deepseek-ai/cordis-plugin-include'
 import { boot } from '../src/index.ts'
 
-const NAME = 'dsh-test-bin'
+const NAME = 'mwf-test-bin'
 
 const NOOP_PLUGIN = 'export const name = "noop"\nexport function apply() {}\n'
 
@@ -24,7 +24,7 @@ interface TreeFixture {
 }
 
 async function bootTree(configBody: string, files: Record<string, string> = {}): Promise<TreeFixture> {
-  const dir = mkdtempSync(join(tmpdir(), 'dsh-config-reload-'))
+  const dir = mkdtempSync(join(tmpdir(), 'mwf-config-reload-'))
   tempRoots.push(dir)
   writeFileSync(join(dir, 'noop.mjs'), NOOP_PLUGIN)
   for (const [name, content] of Object.entries(files)) writeFileSync(join(dir, name), content)
@@ -87,7 +87,7 @@ describe('include refresh with an invalid file', () => {
 
 describe('include refresh with overlay patches', () => {
   it('re-applies entry patches and inserted entries on every re-read (parity with initial load)', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'dsh-config-reload-overlay-'))
+    const dir = mkdtempSync(join(tmpdir(), 'mwf-config-reload-overlay-'))
     tempRoots.push(dir)
     writeFileSync(join(dir, 'noop.mjs'), NOOP_PLUGIN)
     writeFileSync(join(dir, 'base.yml'), '- id: noop\n  name: ./noop.mjs\n  config:\n    value: base\n')
@@ -148,12 +148,12 @@ describe('include refresh with overlay patches', () => {
 
 describe('include patches layered over one base', () => {
   it('lets a later patch configure or disable a row an earlier patch inserted', async () => {
-    // The bundle/user-layer/`--patch` composition: `dsh` includes one root
+    // The bundle/user-layer/`--patch` composition: `mwf` includes one root
     // and applies each source as its own patch list at the SAME include
     // level, because patches never cross an include boundary. A later layer
     // must therefore be able to reach a row an earlier layer inserted, or
     // bundle-only rows would be invisible to the user's patch layer.
-    const dir = mkdtempSync(join(tmpdir(), 'dsh-config-layered-'))
+    const dir = mkdtempSync(join(tmpdir(), 'mwf-config-layered-'))
     tempRoots.push(dir)
     writeFileSync(join(dir, 'noop.mjs'), NOOP_PLUGIN)
     writeFileSync(join(dir, 'base.yml'), '- id: shared\n  name: ./noop.mjs\n  config:\n    value: base\n')

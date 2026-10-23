@@ -3,7 +3,7 @@ description: "Web GUI 的权限预设界面：通用设置中的默认行与切�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-permission-presets
+# @metaworkflow/client-ui-permission-presets
 
 [English](README.md) | 中文
 
@@ -56,7 +56,7 @@ General Settings 行经 `ctx.configForms` 读取显式暴露的 `permission` Set
 
 需要了解权限界面以外的内容时，请阅读以下页面。这些页面从浏览器界面进一步介绍宿主策略与命令外壳。
 
-- [dsh-permission-presets](../../interaction/permission-presets/README.zh.md)——这些界面写入的宿主侧权限预设策略。
+- [mwf-permission-presets](../../interaction/permission-presets/README.zh.md)——这些界面写入的宿主侧权限预设策略。
 - [ui-commands](../ui-commands/README.zh.md)——`/permission` 装饰注册进的 popupSelect 外壳。
 - [ui-conversation](../ui-conversation/README.zh.md)——把这份共享目录与 Session 当前值合并的 composer seat。
 - [客户端包映射](../README.zh.md)——相邻的浏览器 UI 包。

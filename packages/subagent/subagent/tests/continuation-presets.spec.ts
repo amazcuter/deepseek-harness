@@ -9,16 +9,16 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import AgentPresets from '@deepseek-ai/dsh-agent-preset-registry'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import { queueHostSubagentPrompt } from '@deepseek-ai/dsh-subagent/internal'
-import * as SubagentFork from '@deepseek-ai/dsh-subagent-fork-in-process'
-import * as SubagentSpawn from '@deepseek-ai/dsh-subagent-spawn-in-process'
+import type { Agent } from '@metaworkflow/agent'
+import AgentLoop from '@metaworkflow/agent-loop'
+import { mountAgentLoopTestDependencies } from '@metaworkflow/agent-loop-testkit'
+import AgentPresets from '@metaworkflow/agent-preset-registry'
+import { createUserMessage } from '@metaworkflow/llm'
+import { SessionId } from '@metaworkflow/session'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
+import { queueHostSubagentPrompt } from '@metaworkflow/subagent/internal'
+import * as SubagentFork from '@metaworkflow/subagent-fork-in-process'
+import * as SubagentSpawn from '@metaworkflow/subagent-spawn-in-process'
 import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import SubagentRuntime, { SUBAGENT_DESCRIPTOR_VERSION, snapshotSubagentDescriptor } from '../src/index.ts'
 import { TestSessionQuery } from './test-session-query.ts'
@@ -38,7 +38,7 @@ afterEach(async () => {
 
 /** Real preset mounts, Agent lifecycle, and persistence with a scripted model. */
 async function setup() {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-continuation-presets-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-continuation-presets-'))
   roots.push(root)
   const ctx = new Context()
   contexts.push(ctx)

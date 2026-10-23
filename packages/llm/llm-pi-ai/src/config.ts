@@ -10,18 +10,18 @@
  * catalog diagnostics beside serviceable models; writes validate every changed
  * provider before persistence. Self-contained profile constraints apply to both.
  *
- * @module dsh-llm-pi-ai/config
+ * @module mwf-llm-pi-ai/config
  */
 import type { Volatile } from '@deepseek-ai/cordis'
 
 import type { CacheRetention, ChatTemplateKwargValue, ModelThinkingLevel, Provider, ThinkingBudgets, Transport } from '@earendil-works/pi-ai'
 import z from '@deepseek-ai/schemastery'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import type { CredentialRef } from '@deepseek-ai/dsh-credentials'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
-import { resolveRetryPolicy, RetryPolicySchema } from '@deepseek-ai/dsh-llm'
-import type { ResolvedRetryPolicy, RetryPolicyConfig } from '@deepseek-ai/dsh-llm'
-import { deepEqualJson } from '@deepseek-ai/dsh-util-values'
+import { credentialRef } from '@metaworkflow/credentials'
+import type { CredentialRef } from '@metaworkflow/credentials'
+import { MAX_TIMER_DELAY_MS } from '@metaworkflow/timeout'
+import { resolveRetryPolicy, RetryPolicySchema } from '@metaworkflow/llm'
+import type { ResolvedRetryPolicy, RetryPolicyConfig } from '@metaworkflow/llm'
+import { deepEqualJson } from '@metaworkflow/util-values'
 import {
   CACHE_CONTROL_FORMATS,
   CHAT_TEMPLATE_VARS,
@@ -380,7 +380,7 @@ function rejectRemovedFields(provider: string, source: PiAiProviderProfile): voi
   if ('maxRetries' in legacy || 'maxRetryDelayMs' in legacy) {
     throw new Error(
       `llm-pi-ai: provider "${provider}" sets maxRetries or maxRetryDelayMs, which were removed;`
-      + ' compose agent recovery with dsh-llm-retry',
+      + ' compose agent recovery with mwf-llm-retry',
     )
   }
 }

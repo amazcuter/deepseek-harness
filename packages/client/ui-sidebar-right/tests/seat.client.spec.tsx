@@ -3,19 +3,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent } from '@testing-library/react'
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { SlotTestRuntime, type SlotView } from '@deepseek-ai/dsh-client-test-runtime'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { ShortcutCatalogEntry, ShortcutCommandId } from '@deepseek-ai/dsh-client-shortcuts/client'
-import type { PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type { MainPanelId } from '@deepseek-ai/dsh-client-ui-layout/client'
-import type { PaneId, SplitId, TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
-import { dockPaneIds, getPane } from '@deepseek-ai/dsh-client-ui-dockkit'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { SlotTestRuntime, type SlotView } from '@metaworkflow/client-test-runtime'
+import { LocaleRuntime } from '@metaworkflow/client-locale/client'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import type { ShortcutCatalogEntry, ShortcutCommandId } from '@metaworkflow/client-shortcuts/client'
+import type { PropsRuntime } from '@metaworkflow/client-ui-slots'
+import type { MainPanelId } from '@metaworkflow/client-ui-layout/client'
+import type { PaneId, SplitId, TabId } from '@metaworkflow/client-ui-dockkit'
+import { dockPaneIds, getPane } from '@metaworkflow/client-ui-dockkit'
+import type { SessionId } from '@metaworkflow/session/types'
 import { apply, inject } from '../src/client/index.ts'
 import { intentsFor } from '../src/client/shell/SidebarRight.tsx'
 import { registerSidebarShortcuts } from '../src/client/shortcuts.ts'
-import { ShortcutRegistry } from '@deepseek-ai/dsh-client-shortcuts/src/client/registry.ts'
+import { ShortcutRegistry } from '@metaworkflow/client-shortcuts/src/client/registry.ts'
 import type { SidebarRightTabInfo, SidebarRightTabMenuOwnerProps } from '../src/client/contract/slots.ts'
 import type { createSidebarRightStore } from '../src/client/stores.ts'
 
@@ -25,7 +25,7 @@ declare module '../src/client/contract/params.ts' {
   }
 }
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface SlotMap {
     /** A Conversation-column stand-in rendered before the seat, opening a resource as soon as a seat is mounted. */
     'sidebar-right.test.opener': { kind: 'single'; scope: 'session'; owner: { armed: boolean } }
@@ -99,7 +99,7 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0, o
     const seat = useSyncExternalStore(listener => mounted.subscribe(listener), () => mounted.getSnapshot())
     useEffect(() => {
       if (seat === undefined) return
-      const address = `dsh-resource://file/session/s-test/arrival-${opened.length + 1}.txt`
+      const address = `mwf-resource://file/session/s-test/arrival-${opened.length + 1}.txt`
       runtime.ctx.sidebarRight.openResource(address)
       opened.push(address)
     }, [seat])
@@ -136,7 +136,7 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0, o
   }
   await act(async () => {
     runtime.ctx.sidebarRightTabs.register({
-      id: 'test/text', kind: 'text', priority: 'builtin', patterns: ['dsh-resource://file/**'],
+      id: 'test/text', kind: 'text', priority: 'builtin', patterns: ['mwf-resource://file/**'],
       title: address => address.slice(address.lastIndexOf('/') + 1),
       keepMounted,
       guide: Array.from({ length: entryCount }, (_, order) => ({ id: String(order), order, title: () => 'Test', description: () => 'Test page' })),
@@ -153,7 +153,7 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0, o
   const controller = runtime.ctx.sidebarRight
   const layout = () => instance.getSnapshot().bySession[SESSION]!.layout
   const open = (name = 'a.txt', options?: Parameters<typeof controller.openResource>[1]) => {
-    act(() => { controller.openResource(`dsh-resource://file/session/s-test/${name}`, options) })
+    act(() => { controller.openResource(`mwf-resource://file/session/s-test/${name}`, options) })
     return controller.active()!
   }
   const selectSession = (id: SessionId): void => {
@@ -720,7 +720,7 @@ describe('RightbarSeat fullscreen entry', () => {
     else if (change === 'session') {
       await h.runtime.sessions.add({ id: OTHER })
       act(() => { h.selectSession(OTHER) })
-      act(() => { h.controller.openResource('dsh-resource://file/session/s-other/b.txt') })
+      act(() => { h.controller.openResource('mwf-resource://file/session/s-other/b.txt') })
     } else await h.runtime.dispose()
     const openCalls = [...h.frame.openRightbar.mock.calls]
     const closeCalls = h.frame.closeRightbar.mock.calls.length
@@ -804,12 +804,12 @@ describe('slot-owned useTabInfo', () => {
     expect(h.instance.getSnapshot()).toBe(stored)
     expect(info.tab.signal.aborted).toBe(false)
     act(() => { h.selectSession(OTHER) })
-    act(() => { h.controller.openResource('dsh-resource://file/session/s-other/other.txt', { params: { line: 9 } }) })
+    act(() => { h.controller.openResource('mwf-resource://file/session/s-other/other.txt', { params: { line: 9 } }) })
     const otherTab = h.controller.active()!
     expect(otherTab.id).toBe(own.id)
     const otherInfo = h.bodies.get(otherTab.id)!
     expect(otherInfo.tab.signal).not.toBe(info.tab.signal)
-    act(() => { info.tab.actions.openResource('dsh-resource://file/session/s-test/b.txt') })
+    act(() => { info.tab.actions.openResource('mwf-resource://file/session/s-test/b.txt') })
     expect(Object.values(h.layout().tabs).map(tab => tab.title)).toContain('b.txt')
     expect(h.controller.active()?.contentId).toBe(otherTab.contentId)
     expect(h.bodies.get(otherTab.id)?.tab.navigation.params).toEqual({ line: 9 })

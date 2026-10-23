@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/simplification/2026-09-26-team-direct-inbox.md
 /agent-note-team-messages-use-the-target-inbox:
-  en: ae17b789652784b5
-  zh: fa462ace95c8cdaa
+  en: cb53aee459ed182f
+  zh: 4ca2ef3e4bc2da02
 /agent-note-team-messages-use-the-target-inbox/problem:
   en: 83296699f94c77d3
   zh: e681a426bf0a703a
 /agent-note-team-messages-use-the-target-inbox/decision:
-  en: 8d5fed34f19c7302
-  zh: 25417793d3797775
+  en: 16b8fd70aa2b6357
+  zh: 2f1e7967841bfd15
 /agent-note-team-messages-use-the-target-inbox/alternatives-considered:
   en: e847556d8e9f1071
   zh: bf1abe2f0e201eac

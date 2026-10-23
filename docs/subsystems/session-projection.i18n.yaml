@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/session-projection.md
 /session-projections:
-  en: a6ab5134ca1771fd
-  zh: 523039a9d84e3f97
+  en: 0a747ee23aa61a8b
+  zh: 0d44155f7efe5e08
 /session-projections/the-unit:
   en: fad897af8b8839ff
   zh: 3c68c5256973bc39

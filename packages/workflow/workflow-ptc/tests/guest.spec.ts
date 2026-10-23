@@ -225,7 +225,7 @@ describe('workflow guest callbacks', () => {
     const { stdout } = await active
     const result = JSON.parse(stdout) as { stopReason: string; error: string }
     expect(result.stopReason).toBe('error')
-    expect(result.error.includes('dsh-workflow-guest.js:')).toBe(true)
+    expect(result.error.includes('mwf-workflow-guest.js:')).toBe(true)
     expect(result.error.includes('data:text/javascript')).toBe(false)
   })
 })

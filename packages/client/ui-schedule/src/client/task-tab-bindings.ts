@@ -18,8 +18,8 @@
  * succeeded after the tab appeared cannot resolve. Only the task's Session and id are stored; its name, instruction, and
  * deliveries are not.
  */
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { ScheduleId } from '@deepseek-ai/dsh-schedule/client'
+import type { SessionId } from '@metaworkflow/session/types'
+import type { ScheduleId } from '@metaworkflow/schedule/client'
 
 /** The Sidebar fields that identify one task tab page across a reload. */
 export interface TaskTabPage {
@@ -46,7 +46,7 @@ interface StoredEntry extends TaskTabTarget {
 }
 
 /** Storage prefix; one key per Session holds that Session's entries. */
-const PREFIX = 'dsh.schedule.task-tab.v1.'
+const PREFIX = 'mwf.schedule.task-tab.v1.'
 
 /**
  * The committed tab ids of one Session, read when an entry is stored so a closed

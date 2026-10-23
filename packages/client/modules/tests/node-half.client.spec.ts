@@ -10,7 +10,7 @@ import { pathToFileURL } from 'node:url'
 import { runInNewContext } from 'node:vm'
 import { Context, FiberState, type Fiber } from '@deepseek-ai/cordis'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { renderIndexInjections, type WebServer, type WebRoute } from '@deepseek-ai/dsh-host-webserver'
+import { renderIndexInjections, type WebServer, type WebRoute } from '@metaworkflow/host-webserver'
 import * as modulesClient from '../src/client/index.ts'
 import { ClientModuleRegistry, bootInjections, orderByModuleGraph } from '../src/index.ts'
 import type { ClientModuleLoaderTarget, WebBootEntry, WebBootGraph } from '../src/client/index.ts'
@@ -27,7 +27,7 @@ vi.mock('node:fs', async (importOriginal) => {
     ...actual,
     readFileSync: ((path: Parameters<typeof actual.readFileSync>[0], ...rest: unknown[]) => {
       if (syncRefused.has(String(path))) {
-        throw Object.assign(new Error(`synchronous read refused for ${String(path)}`), { code: 'ERR_DSH_VFS_DEFERRED' })
+        throw Object.assign(new Error(`synchronous read refused for ${String(path)}`), { code: 'ERR_MWF_VFS_DEFERRED' })
       }
       return (actual.readFileSync as (...args: unknown[]) => unknown)(path, ...rest)
     }) as typeof actual.readFileSync,
@@ -48,8 +48,8 @@ vi.mock('node:fs/promises', async (importOriginal) => {
   }
 })
 
-const MODULES_ID = '@deepseek-ai/dsh-client-modules'
-const UI_RENDERER_ID = '@deepseek-ai/dsh-client-ui-renderer'
+const MODULES_ID = '@metaworkflow/client-modules'
+const UI_RENDERER_ID = '@metaworkflow/client-ui-renderer'
 
 // Graph rows and batch descriptors carry app-directory-relative references;
 // a host request reaches the backend route once the document's directory
@@ -116,7 +116,7 @@ it.each([false, true])('tracks the Web carrier lifetime when server-first is %s'
 it('publishes this package version and the build commit as the Host release in every composed graph', async () => {
   const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
   const mount = async (commit: string | undefined) => {
-    vi.stubEnv('DSH_CLIENT_COMMIT_HASH', commit)
+    vi.stubEnv('MWF_CLIENT_COMMIT_HASH', commit)
     const ctx = new Context()
     contexts.push({ ctx })
     ctx.provide('loader', { entries: () => [] })
@@ -126,7 +126,7 @@ it('publishes this package version and the build commit as the Host release in e
   }
   const graph = await mount('abc1234')
   expect(graph.release).toEqual({ version, commit: 'abc1234' })
-  expect(bootInjections(graph).at(-1)).toEqual({ kind: 'global', name: '__DSH_BOOT__', value: graph })
+  expect(bootInjections(graph).at(-1)).toEqual({ kind: 'global', name: '__MWF_BOOT__', value: graph })
   expect(modulesClient.parseBootManifest(graph).release).toEqual({ version, commit: 'abc1234' })
   expect((await mount(undefined)).release).toEqual({ version })
 })
@@ -134,9 +134,9 @@ it('publishes this package version and the build commit as the Host release in e
 /** Create a resolvable package whose client export points at the returned path. */
 function writePackage(
   packageName: string,
-  metadata: Record<string, unknown> = { dsh: { client: { platform: 'web' } } },
+  metadata: Record<string, unknown> = { mwf: { client: { platform: 'web' } } },
 ): string {
-  root ??= realpathSync(mkdtempSync(join(tmpdir(), 'dsh-client-modules-')))
+  root ??= realpathSync(mkdtempSync(join(tmpdir(), 'mwf-client-modules-')))
   const pkgRoot = join(root, 'node_modules', ...packageName.split('/'))
   const clientPath = join(pkgRoot, 'lib', 'client.js')
   mkdirSync(pkgRoot, { recursive: true })
@@ -153,7 +153,7 @@ function writePackage(
 
 /** Create a built package with the supplied client declaration. */
 function writeBuiltPackage(packageName: string, client: Record<string, unknown>): void {
-  const clientPath = writePackage(packageName, { dsh: { client: { platform: 'web', ...client } } })
+  const clientPath = writePackage(packageName, { mwf: { client: { platform: 'web', ...client } } })
   mkdirSync(dirname(clientPath), { recursive: true })
   writeFileSync(clientPath, 'module.exports = {}\n')
 }
@@ -273,7 +273,7 @@ describe('HTML bootstrap facade', () => {
       `<link rel="preload" as="script" href="${APPLICATION_URL.replaceAll('&', '&amp;')}">`,
     )
     const bootstrapAt = html.indexOf(`<script src="${BOOTSTRAP_URL.replaceAll('&', '&amp;')}"></script>`)
-    const graphAt = html.indexOf('globalThis["__DSH_BOOT__"] = ')
+    const graphAt = html.indexOf('globalThis["__MWF_BOOT__"] = ')
     const entryAt = html.indexOf('<script type="module" src="/index.js"></script>')
     expect([facadeAt, applicationAt, bootstrapAt, graphAt, entryAt]).toEqual([...new Set([
       facadeAt, applicationAt, bootstrapAt, graphAt, entryAt,
@@ -508,10 +508,10 @@ describe('client bundle activation', () => {
     expect(service.graph().entries.map(entry => entry.id)).toEqual([packageName])
   })
 
-  it('allows sibling dsh roles', () => {
+  it('allows sibling mwf roles', () => {
     const currentName = '@fixture/current-client-field'
     const clientPath = writePackage(currentName, {
-      dsh: {
+      mwf: {
         bundle: { patch: './cordis.patch.yml' },
         client: { platform: 'web' },
         profile: { bundles: [] },
@@ -905,7 +905,7 @@ describe('client bundle activation', () => {
     expect(batchScript.status).toBe(200)
     expect(batchScript.headers?.['cache-control']).toBe('public, max-age=31536000, immutable')
     expect(batchScript.body.toString('utf8')).toContain(`//# sourceMappingURL=${mapReference(batch.url)}`)
-    const shellResponse = await service.fetchBundle(new Request(`dsh-app://app/${batch.url}`))
+    const shellResponse = await service.fetchBundle(new Request(`mwf-app://app/${batch.url}`))
     expect(shellResponse.status).toBe(200)
     expect(shellResponse.headers.get('cache-control')).toBe('public, max-age=31536000, immutable')
     expect(await shellResponse.text()).toBe(batchScript.body.toString('utf8'))
@@ -1007,7 +1007,7 @@ describe('client bundle activation', () => {
   it('loads a renamed browser export at the logical URL without exposing Node bundles as chunks', async () => {
     const packageName = '@fixture/dual-client'
     const legacyPath = writePackage(packageName, {
-      dsh: { client: { platform: 'web' } },
+      mwf: { client: { platform: 'web' } },
       exports: {
         './client': {
           types: './lib/types/client/index.d.ts',
@@ -1177,7 +1177,7 @@ describe('shared module declarations', () => {
     const packageName = '@fixture/external-not-array'
     writeBuiltPackage(packageName, { external: 'react' })
     expect(() => construct([packageName]))
-      .toThrow(`client-modules: ${packageName} dsh.client.external must be a string array`)
+      .toThrow(`client-modules: ${packageName} mwf.client.external must be a string array`)
   })
 })
 

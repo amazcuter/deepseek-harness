@@ -3,7 +3,7 @@
 import { isAbsolute } from 'node:path'
 import * as yaml from 'js-yaml'
 
-/** Public `dsh` profile used to control a recorded-session scenario. */
+/** Public `mwf` profile used to control a recorded-session scenario. */
 export type SnapshotProfile = 'headless' | 'sdk' | 'sdk-minimal' | 'acp' | 'web'
 
 /** How a canonical session may be regenerated. */

@@ -32,7 +32,7 @@
 <a id="corner-radii-and-settings-cards"></a>
 ## 圆角与设置卡片
 
-圆角尺度、组件尺寸映射、正圆与胶囊例外、嵌套 hover，以及设置卡片的底色与描边统一由 [DSH 统一圆角规范](ui-radius.zh.md)定义。
+圆角尺度、组件尺寸映射、正圆与胶囊例外、嵌套 hover，以及设置卡片的底色与描边统一由 [MWF 统一圆角规范](ui-radius.zh.md)定义。
 
 ## 变更系统
 

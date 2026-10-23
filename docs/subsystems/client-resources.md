@@ -2,20 +2,20 @@
 
 English | [中文](client-resources.zh.md)
 
-The client resource model turns an address into live data for any Web Client component. [`dsh-client-resources`](../../packages/client/resources/README.md) provides the `ctx.resources` service and the `useResource` global standard hook; a package that owns a kind of content registers one **provider** for its **protocol**, and a component reads the content's current state by **address** without importing the owner's runtime. The right Sidebar's tabs are the model's first consumer ([Right Sidebar](sidebar-right.md)); the decision record is the [client resource model Agent Note](../../.agents/notes/implemented/architecture/2026-09-05-client-resource-model.md).
+The client resource model turns an address into live data for any Web Client component. [`mwf-client-resources`](../../packages/client/resources/README.md) provides the `ctx.resources` service and the `useResource` global standard hook; a package that owns a kind of content registers one **provider** for its **protocol**, and a component reads the content's current state by **address** without importing the owner's runtime. The right Sidebar's tabs are the model's first consumer ([Right Sidebar](sidebar-right.md)); the decision record is the [client resource model Agent Note](../../.agents/notes/implemented/architecture/2026-09-05-client-resource-model.md).
 
 This page is the developer reference: how to write an address, how to register a provider, how to read a resource, what the states and failures mean, and how the model holds and releases a resource.
 
 ## Addresses
 
-A resource address is a `dsh-resource://<type>/…` URL. The host names the protocol and must be a key of `ResourceProtocolMap`; the path is the protocol's own, and its owner percent-encodes each segment. A protocol that needs a scope puts it in the path: the `file` protocol's addresses read `dsh-resource://file/session/<sessionId>/<path>`, where path is workspace-relative or absolute with its leading slashes preserved, built with `fileAddressFor(sessionId, cwd, path)` and read back with `parseFileAddress(address)` from [`dsh-util-workspace-path`](../../packages/util/workspace-path/README.md). The model itself reads only the scheme and the host: `protocolOf(address)` returns the lower-cased host of a `dsh-resource://` URL and `undefined` for anything else. Addresses under any other scheme — the Sidebar's `sidebar://guide` — name no resource and read as `none`.
+A resource address is a `mwf-resource://<type>/…` URL. The host names the protocol and must be a key of `ResourceProtocolMap`; the path is the protocol's own, and its owner percent-encodes each segment. A protocol that needs a scope puts it in the path: the `file` protocol's addresses read `mwf-resource://file/session/<sessionId>/<path>`, where path is workspace-relative or absolute with its leading slashes preserved, built with `fileAddressFor(sessionId, cwd, path)` and read back with `parseFileAddress(address)` from [`mwf-util-workspace-path`](../../packages/util/workspace-path/README.md). The model itself reads only the scheme and the host: `protocolOf(address)` returns the lower-cased host of a `mwf-resource://` URL and `undefined` for anything else. Addresses under any other scheme — the Sidebar's `sidebar://guide` — name no resource and read as `none`.
 
 | Address | Protocol key | Reads as |
 |---|---|---|
-| `dsh-resource://file/session/s1/notes/a.md` | `file` | the metadata of `notes/a.md` under session `s1`'s workspace root, when the `file` provider is registered |
-| `dsh-resource://file/absolute/home/me/notes.md` | `file` | parseable but fails with `workspace-file/unknown-workspace`: no authorizing Session, and neither current nor Tab Session is borrowed |
-| `DSH-RESOURCE://File/session/s1/a` | `file` | a distinct record: addresses compare as strings, and `openResource` accepts only the canonical lower-case spelling that `fileAddressFor` emits |
-| `dsh-resource://subagentchat/session/c1?parent=p1&mode=continuable` | `subagentchat` | an addressed subagent Conversation whose value owns a `SessionReference` until the resource closes |
+| `mwf-resource://file/session/s1/notes/a.md` | `file` | the metadata of `notes/a.md` under session `s1`'s workspace root, when the `file` provider is registered |
+| `mwf-resource://file/absolute/home/me/notes.md` | `file` | parseable but fails with `workspace-file/unknown-workspace`: no authorizing Session, and neither current nor Tab Session is borrowed |
+| `MWF-RESOURCE://File/session/s1/a` | `file` | a distinct record: addresses compare as strings, and `openResource` accepts only the canonical lower-case spelling that `fileAddressFor` emits |
+| `mwf-resource://subagentchat/session/c1?parent=p1&mode=continuable` | `subagentchat` | an addressed subagent Conversation whose value owns a `SessionReference` until the resource closes |
 | `sidebar://guide` | — | `none`: a navigation address |
 | `/home/me/notes.md` | — | `none`: not a URL |
 
@@ -25,12 +25,12 @@ The owner of a protocol declares its value type on `ResourceProtocolMap` and reg
 
 ```ts ignore-check
 import type { Context } from '@deepseek-ai/cordis'
-import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
-import type {} from '@deepseek-ai/dsh-client-resources/client'
+import type { RemoteResult } from '@metaworkflow/typert-protocol'
+import type {} from '@metaworkflow/client-resources/client'
 
 interface NoteView { readonly title: string; readonly updatedAt: string }
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface ResourceProtocolMap { note: NoteView }
 }
 
@@ -62,8 +62,8 @@ Every slot component receives `useResource` in its props, whatever its scope ([S
 | `failed` | The latest frame reported a failure | the last `ok` value, kept | the frame's `RemoteFailure` |
 
 ```tsx ignore-check
-import type { PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-api-workspace-files/client'
+import type { PropsRuntime } from '@metaworkflow/client-ui-slots'
+import type {} from '@metaworkflow/api-workspace-files/client'
 
 type Props = PropsRuntime<'sidebar.right.pane.tab'>
 
@@ -85,7 +85,7 @@ A consumer presents `failed` itself: the model keeps the last value beside the f
 
 A resource is alive while it has a holder: a subscribed `useResource`, or a pin. `ctx.resources.pin(address, signal)` keeps a resource open without subscribing until `signal` aborts, and an already-aborted signal pins nothing; the right Sidebar pins every open tab record's address for the record's life, so switching tabs unmounts a body without closing its stream. The first holder opens the provider's stream; the last release aborts it, discards the value, and returns the snapshot to `loading` (provider present) or `none` (absent). A frame the provider yields after that release is dropped, and the iterator is returned. `ctx.resources.source(address)` is the bare observable behind the hook, reference-stable per address, for callers outside React; reading its snapshot does not hold the resource ([lifecycle](../../packages/client/resources/README.md#lifecycle)).
 
-Most streams carry metadata rather than content. The `file` provider's value is `WorkspaceFileStat { absolutePath, version, bytes? }`: the first frame comes from Host `stat`, and later observations update the version. A consumer reads content through the Workspace Files Remote namespace; Preview owns refresh independently per tab ([`dsh-api-workspace-files`](../../packages/api/workspace-files/README.md)). The `subagentchat` provider retains the addressed Session and yields its `SessionReference`, then releases that reference when the resource signal aborts.
+Most streams carry metadata rather than content. The `file` provider's value is `WorkspaceFileStat { absolutePath, version, bytes? }`: the first frame comes from Host `stat`, and later observations update the version. A consumer reads content through the Workspace Files Remote namespace; Preview owns refresh independently per tab ([`mwf-api-workspace-files`](../../packages/api/workspace-files/README.md)). The `subagentchat` provider retains the addressed Session and yields its `SessionReference`, then releases that reference when the resource signal aborts.
 
 ## Limits
 

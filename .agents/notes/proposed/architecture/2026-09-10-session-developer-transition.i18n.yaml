@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/architecture/2026-09-10-session-developer-transition.md
 /agent-note-session-developer-transition-rules:
-  en: e5554b1d8a98818d
-  zh: e1ed935f755924b6
+  en: 9aade64d0efabf67
+  zh: b2ef3187a16bd69e
 /agent-note-session-developer-transition-rules/problem:
   en: bc0c73010718f890
   zh: a8e3ea46366c1c7a
@@ -18,8 +18,8 @@
   en: 62cc198142f1477f
   zh: 37e806f78817e5e3
 /agent-note-session-developer-transition-rules/proposal/how-a-new-contributor-starts:
-  en: 0fcd7c50d5659978
-  zh: 8ada6e3a6f3d6cb3
+  en: 7aa7e253acd3c3ed
+  zh: 033fed19d2ae9488
 /agent-note-session-developer-transition-rules/alternatives-considered:
   en: dc22bb7bfbf8cb80
   zh: 8c3bcbe5b1caf20e

@@ -9,8 +9,8 @@
  * default page arrives with the expansion that would otherwise show nothing.
  */
 import { describe, expect, it, vi } from 'vitest'
-import type { LayoutState, PaneId, TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
-import { dockPaneIds, findTabPane, getPane, getSplit } from '@deepseek-ai/dsh-client-ui-dockkit'
+import type { LayoutState, PaneId, TabId } from '@metaworkflow/client-ui-dockkit'
+import { dockPaneIds, findTabPane, getPane, getSplit } from '@metaworkflow/client-ui-dockkit'
 import { createSidebarRightStore } from '../src/client/stores.ts'
 import { pageAddress } from '../src/client/contract/seed.ts'
 
@@ -41,7 +41,7 @@ describe('createSidebarRightStore — the sequence', () => {
     const { actions, layout, entries, guide, expand } = harness()
     expand()
     actions.openContent(SESSION, {
-      kind: 'text', contentId: 'dsh-resource://file/session/s-test/a.txt', title: 'a',
+      kind: 'text', contentId: 'mwf-resource://file/session/s-test/a.txt', title: 'a',
     }, () => {})
     const text = Object.values(layout().tabs).find(tab => tab.kind === 'text')
     if (text === undefined) throw new Error('expected the text tab')
@@ -196,7 +196,7 @@ describe('createSidebarRightStore — the sequence', () => {
 
   it('closes a tab once: a second close of a record already gone records nothing and throws nothing', () => {
     const { actions, layout, entries } = harness()
-    actions.openContent(SESSION, { kind: 'text', contentId: 'dsh-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
+    actions.openContent(SESSION, { kind: 'text', contentId: 'mwf-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
     const tab = Object.values(layout().tabs).find(record => record.title === 'a')
     if (tab === undefined) throw new Error('expected the opened tab')
     actions.closeTab(SESSION, tab.id)
@@ -237,7 +237,7 @@ describe('createSidebarRightStore — the last docked tab', () => {
   it('closes the last non-guide tab together with the column, leaving it empty until the next expansion seeds', () => {
     const { actions, layout, entries, expand, guide } = harness()
     expand()
-    actions.openContent(SESSION, { kind: 'text', contentId: 'dsh-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
+    actions.openContent(SESSION, { kind: 'text', contentId: 'mwf-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
     const text = Object.values(layout().tabs).find(tab => tab.kind === 'text')
     if (text === undefined) throw new Error('expected the text tab beside the guide')
     // Two tabs: closing the guide is an ordinary close, and the column stays open.
@@ -274,7 +274,7 @@ describe('createSidebarRightStore — the last docked tab', () => {
   it('closes a floating tab without touching the column: floats do not count as the last docked tab', () => {
     const { actions, layout, guide } = harness()
     actions.setExpanded(SESSION, true)
-    actions.openContent(SESSION, { kind: 'text', contentId: 'dsh-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
+    actions.openContent(SESSION, { kind: 'text', contentId: 'mwf-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
     const text = Object.values(layout().tabs).find(tab => tab.kind === 'text')
     if (text === undefined) throw new Error('expected the text tab')
     actions.floatTab(SESSION, text.id, { x: 10, y: 20, width: 300, height: 200 })
@@ -376,7 +376,7 @@ describe('createSidebarRightStore — focus', () => {
   it('records a focus only when it changes which tab or pane is active, docked or floating', () => {
     const { actions, layout, entries, guide, expand } = harness()
     expand()
-    actions.openContent(SESSION, { kind: 'text', contentId: 'dsh-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
+    actions.openContent(SESSION, { kind: 'text', contentId: 'mwf-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
     const text = Object.values(layout().tabs).find(tab => tab.kind === 'text')
     if (text === undefined) throw new Error('expected the text tab')
     const home = layout().activePaneId
@@ -423,7 +423,7 @@ describe('createSidebarRightStore — page uniqueness', () => {
   it('places and drops any other tab as the kit plans it, guides in the target pane or not', () => {
     const { actions, layout, expand } = harness()
     expand()
-    actions.openContent(SESSION, { kind: 'text', contentId: 'dsh-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
+    actions.openContent(SESSION, { kind: 'text', contentId: 'mwf-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
     const text = Object.values(layout().tabs).find(tab => tab.kind === 'text')
     if (text === undefined) throw new Error('expected the text tab')
     actions.splitPane(SESSION)
@@ -443,7 +443,7 @@ describe('createSidebarRightStore — page uniqueness', () => {
     const { actions, layout, guide, expand } = harness()
     expand()
     const pane = layout().activePaneId
-    actions.openContent(SESSION, { kind: 'text', contentId: 'dsh-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
+    actions.openContent(SESSION, { kind: 'text', contentId: 'mwf-resource://file/session/s-test/a.txt', title: 'a' }, () => {})
     expect(getPane(layout(), pane).tabs[0]).toBe(guide())
     actions.placeTab(SESSION, guide(), pane, 2)
     expect(getPane(layout(), pane).tabs.at(-1)).toBe(guide())

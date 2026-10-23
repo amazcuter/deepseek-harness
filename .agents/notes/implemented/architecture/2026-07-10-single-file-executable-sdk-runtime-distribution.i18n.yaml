@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-07-10-single-file-executable-sdk-runtime-distribution.md
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe:
-  en: 00b5d91d3e44a9f8
-  zh: eabd3c4b338249b3
+  en: 39c97ddc6a148951
+  zh: b15c329f4f1ea329
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/problem:
   en: 112178b76e5209f6
   zh: 68726254ae530566
@@ -12,29 +12,29 @@
   en: a15c7c13f167e5ac
   zh: 63bcc2ef60c2f344
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/packaging-route-yao-pkg-pkg-s-sea-mode:
-  en: f1c2b60e9474111d
-  zh: 5de398b5e8554429
-/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/the-serving-interface-is-a-plugin-inside-the-dsh-application:
-  en: 5fdde26e9e8c6108
-  zh: 629559d733c1f0c5
+  en: 1f2d5bd9cf73b343
+  zh: fc3cb8172ceeeb87
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/the-serving-interface-is-a-plugin-inside-the-mwf-application:
+  en: 69f067465d96ee87
+  zh: 82708a94fd77b5ce
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/plugin-resolution-the-vfs-holds-a-real-package-tree-the-closure-manifest-is-the-deploy-root:
-  en: 985e0eb63f3d1fd6
-  zh: 337cc44fadc6227e
+  en: 7c714dfdbde612d1
+  zh: 1004ed1073bd670e
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/build-pipeline-and-artifacts:
-  en: 921085cb9d894688
-  zh: 12d99fe153d36738
+  en: f2cbc476966d4783
+  zh: 01792140f6457b12
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/python-sdk-distribution-two-carriers-exe-for-production-node-for-development:
-  en: 02e6b36f9f92c83a
-  zh: edd8b2db7a787483
+  en: 2e5238ff61aafaf8
+  zh: 28f33fea6ea97025
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/naming-lineage:
-  en: 31a5aecb8bf828bb
-  zh: 2dffb6fd2e0f8194
+  en: 22ae8e9d95b10135
+  zh: 23e03ffd44046398
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/packaged-workflow-and-code-execution:
-  en: 0426f598f3f44e64
-  zh: fc66728e17f3bcfb
+  en: 3f57b2565cce6d66
+  zh: 0656265c26ffb7dd
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/testing:
-  en: 8e7f46bbb595afa9
-  zh: 4641894ed285d717
+  en: 0771e5c7bd787c81
+  zh: 9fb077f7a2c6aaa2
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/alternatives-considered:
   en: 50d965ca81a401ba
   zh: 0c6296245b97b9ac

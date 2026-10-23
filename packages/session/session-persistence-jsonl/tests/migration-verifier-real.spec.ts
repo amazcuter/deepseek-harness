@@ -3,14 +3,14 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Worker } from 'node:worker_threads'
-import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
+import { SESSION_FORMAT_VERSION } from '@metaworkflow/session'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { verifyCurrentGenerationInWorker } from '../src/migration-verifier.ts'
 import { compressZstdFrame } from '../src/zstd.ts'
 
 describe('real migration verifier shutdown', () => {
   it.for(['none', 'zstd'] as const)('naturally exits after verifying %s input', async (compression, { signal }) => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-verifier-natural-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-verifier-natural-'))
     onTestFinished(async () => { await rm(root, { recursive: true, force: true }) })
     const path = join(root, 'staged.jsonl')
     const header = Buffer.from(JSON.stringify({

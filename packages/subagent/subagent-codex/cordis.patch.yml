@@ -1,8 +1,8 @@
 - insert:
     - id: subagent-codex
-      name: '@deepseek-ai/dsh-subagent-codex'
+      name: '@metaworkflow/subagent-codex'
     - id: tool-subagent-codex
-      name: '@deepseek-ai/dsh-tool-subagent'
+      name: '@metaworkflow/tool-subagent'
       config:
         provider: codex
         toolName: subagent_codex

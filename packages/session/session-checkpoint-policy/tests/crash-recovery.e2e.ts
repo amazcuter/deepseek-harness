@@ -8,8 +8,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import SessionStore, {
   SessionId, TOOL_OUTCOME_UNKNOWN, interruptedTurnClosers,
   type SessionEvent,
-} from '@deepseek-ai/dsh-session'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+} from '@metaworkflow/session'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
 
 const repoRoot = fileURLToPath(new URL('../../../../', import.meta.url))
 const childScript = fileURLToPath(new URL('./fixtures/crash-child.ts', import.meta.url))
@@ -37,7 +37,7 @@ async function waitForMarker(path: string, expected: string): Promise<string> {
 }
 
 async function crashAt(mode: 'request' | 'tool'): Promise<{ root: string; markerText: string }> {
-  const root = await mkdtemp(join(tmpdir(), `dsh-semantic-${mode}-`))
+  const root = await mkdtemp(join(tmpdir(), `mwf-semantic-${mode}-`))
   roots.push(root)
   const marker = join(root, 'failpoint')
   // Keep the open-before-write window deterministic: readiness is marker content, not path existence.

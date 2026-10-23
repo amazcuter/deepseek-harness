@@ -32,7 +32,7 @@ function file(path: string, source: string): void {
 }
 
 function fixture() {
-  const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-hmr-manifest-')))
+  const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'mwf-hmr-manifest-')))
   cleanup.push(() => { rmSync(root, { recursive: true, force: true }) })
   const dir = join(root, 'packages', 'pkg')
   const manifest = join(dir, 'package.json')
@@ -66,7 +66,7 @@ describe('package manifest invalidation', { concurrent: false }, () => {
     file(f.manifest, '{}')
     const importerRequire = createRequire(f.importer)
     const nativeFs = importerRequire('node:fs') as typeof import('node:fs')
-    const missingBuiltin = 'node:dsh-hmr-missing'
+    const missingBuiltin = 'node:mwf-hmr-missing'
     const missingFailure = outcome(() => importerRequire(missingBuiltin))
     expect(missingFailure).toHaveProperty('code', 'ERR_UNKNOWN_BUILTIN_MODULE')
     const target = join(f.dir, 'a.cjs')

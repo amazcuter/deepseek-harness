@@ -3,7 +3,7 @@ description: "在输入框的模型选择器中为 DeepSeek Flash 显示临时�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-deepseek-model-label-1017
+# @metaworkflow/client-ui-deepseek-model-label-1017
 
 [English](README.md) | 中文
 

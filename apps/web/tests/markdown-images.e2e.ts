@@ -6,13 +6,13 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createMessage, createUserMessage } from '@metaworkflow/llm'
 import {
   SESSION_FORMAT_VERSION,
   Session,
   SessionId,
-} from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-session-title'
+} from '@metaworkflow/session'
+import type {} from '@metaworkflow/session-title'
 import {
   assertFixtureInventory,
   captureStableAria,
@@ -292,7 +292,7 @@ describe('web e2e: Markdown image rendering', () => {
     for (const windows of [true, false]) {
       await page.evaluate((value) => {
         document.documentElement.toggleAttribute('data-windows-titlebar', value)
-        document.documentElement.style.setProperty('--dsh-windows-titlebar-height', value ? '40px' : '')
+        document.documentElement.style.setProperty('--mwf-windows-titlebar-height', value ? '40px' : '')
       }, windows)
       // The Windows caption stays unpainted and the close control sits below it.
       expect((await lightboxMask.boundingBox())?.y).toBe(windows ? 40 : 0)

@@ -13,7 +13,7 @@ The `deepseek-account` route previously read its model catalog from the `models`
 
 ## Migration
 
-1. Open `$DSH_HOME/profiles/<profile>/cordis.patch.yml` and find the entry with `id: llm-deepseek-account`.
+1. Open `$MWF_HOME/profiles/<profile>/cordis.patch.yml` and find the entry with `id: llm-deepseek-account`.
 2. Delete its `models` field. For each model whose fields you changed, move only the changed fields under `modelOverrides.<model id>`:
 
    ```yaml

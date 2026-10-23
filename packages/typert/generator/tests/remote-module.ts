@@ -17,6 +17,6 @@ export async function executableRemoteModule<Module>(source: string): Promise<Mo
   const factoryUrl = `data:text/javascript,${encodeURIComponent(factory)}`
   const executable = source
     .replace(/from (['"])zod\1/g, zodImport)
-    .replace(/from (['"])@deepseek-ai\/dsh-typert-protocol\/remote-info\1/g, `from ${JSON.stringify(factoryUrl)}`)
+    .replace(/from (['"])@metaworkflow\/typert-protocol\/remote-info\1/g, `from ${JSON.stringify(factoryUrl)}`)
   return await import(`data:text/javascript,${encodeURIComponent(executable)}`) as Module
 }

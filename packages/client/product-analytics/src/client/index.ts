@@ -1,7 +1,7 @@
 /** Desktop renderer analytics sender; browser applications have no collection capability. */
 import { Service, type Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-api-gateway/client'
-export type {} from '@deepseek-ai/dsh-client-product-analytics/remote'
+import type {} from '@metaworkflow/api-gateway/client'
+export type {} from '@metaworkflow/client-product-analytics/remote'
 import type { ProductEvent, ProductEventMap } from '../events.ts'
 export type { ProductEvent, ProductEventMap, TrackProductEvent } from '../events.ts'
 
@@ -23,7 +23,7 @@ class DesktopAnalytics extends Service {
         // Missing or disconnected Remote services must not interrupt the interaction.
       }
     }
-    if (!('dshDesktop' in globalThis)) return
+    if (!('mwfDesktop' in globalThis)) return
     const stream = ctx.remote.$stream<boolean>({
       name: 'product analytics policy', open: signal => ctx.remote.productAnalytics.watchPolicy(signal),
       ended: () => new Error('product analytics policy stream ended'),

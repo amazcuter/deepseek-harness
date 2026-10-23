@@ -1,9 +1,9 @@
 ---
-description: "dsh Web 客户端插件页上的 DeepSeek 网页搜索设置页：Search 与 Fetch API 开关、API Key、接口地址与每次搜索的上限。"
+description: "mwf Web 客户端插件页上的 DeepSeek 网页搜索设置页：Search 与 Fetch API 开关、API Key、接口地址与每次搜索的上限。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-settings-web-search
+# @metaworkflow/client-ui-settings-web-search
 
 [English](README.md) | 中文
 

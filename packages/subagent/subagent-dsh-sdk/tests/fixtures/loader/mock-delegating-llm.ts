@@ -1,13 +1,13 @@
 import type { Context } from '@deepseek-ai/cordis'
 import { appendFileSync } from 'node:fs'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { ToolCallId, LlmAdapter, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@metaworkflow/llm'
+import { ToolCallId, LlmAdapter, ReasoningEffortId } from '@metaworkflow/llm'
 
 /** Script one delegation, then acknowledge the receipt and the completion notice. */
 class MockDelegatingAdapter extends LlmAdapter {
   override resolveModel(provider: string, model: string): Promise<LlmResolvedModelInfo> {
-    if (process.env.DSH_TEST_PARENT_MODEL_RECORD !== undefined) {
-      appendFileSync(process.env.DSH_TEST_PARENT_MODEL_RECORD, `${provider}/${model}\n`)
+    if (process.env.MWF_TEST_PARENT_MODEL_RECORD !== undefined) {
+      appendFileSync(process.env.MWF_TEST_PARENT_MODEL_RECORD, `${provider}/${model}\n`)
     }
     return Promise.resolve({
       provider,
@@ -29,7 +29,7 @@ class MockDelegatingAdapter extends LlmAdapter {
       : ''
 
     if (!options.messages.some(message => message.role === 'tool')) {
-      const selectedRoute = process.env.DSH_TEST_CHILD_DEFAULT_ROUTE === '1'
+      const selectedRoute = process.env.MWF_TEST_CHILD_DEFAULT_ROUTE === '1'
         ? { reasoning_effort: 'max' }
         : { provider: 'mock', model: 'mock-routed', reasoning_effort: 'max' }
       const args = JSON.stringify({
@@ -62,7 +62,7 @@ export const inject = ['llm']
  * @param ctx - the plugin context supplying `ctx.llm`.
  */
 export function apply(ctx: Context): void {
-  const providers = process.env.DSH_TEST_PARENT_PROVIDER === 'deepseek-official'
+  const providers = process.env.MWF_TEST_PARENT_PROVIDER === 'deepseek-official'
     ? ['deepseek-official', 'mock']
     : ['mock']
   ctx.llm.registerAdapter(providers, new MockDelegatingAdapter())

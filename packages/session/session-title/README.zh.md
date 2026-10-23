@@ -3,13 +3,13 @@ description: "面向用户与维护者的日志支持型会话标题说明，用
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-title
+# @metaworkflow/session-title
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `dsh-session-title` 为每个会话提供客户端可见标题，标题可以来自第一条符合条件的用户消息、可选异步生成器或显式用户重命名。已接受的标题在回放、恢复与分页后仍然存在，但绝不会进入模型输入。自动生成绝不会延迟主 agent（智能体）响应，较新的标题请求会取代旧工作。当客户端需要带可配置长度上限的持久标题，以及通过 `refresh()` 主动重新生成标题的路径时，请选择本包。
+使用 `mwf-session-title` 为每个会话提供客户端可见标题，标题可以来自第一条符合条件的用户消息、可选异步生成器或显式用户重命名。已接受的标题在回放、恢复与分页后仍然存在，但绝不会进入模型输入。自动生成绝不会延迟主 agent（智能体）响应，较新的标题请求会取代旧工作。当客户端需要带可配置长度上限的持久标题，以及通过 `refresh()` 主动重新生成标题的路径时，请选择本包。
 
 ## 目录
 
@@ -36,8 +36,8 @@ kind: "package-reference"
 所有上限都是必填项；该库不提供默认值。以三个上限挂载服务：
 
 ```yaml
-- name: '@deepseek-ai/dsh-session'
-- name: '@deepseek-ai/dsh-session-title'
+- name: '@metaworkflow/session'
+- name: '@metaworkflow/session-title'
   config:
     fallbackMaxWords: 8
     fallbackMaxBytes: 96
@@ -50,7 +50,7 @@ kind: "package-reference"
 | `fallbackMaxBytes` | 必填 | 回退允许的最大 UTF-8 字节数；不得超过 `maxTitleBytes` |
 | `maxTitleBytes` | 必填 | 接受任何来源标题的最大 UTF-8 字节数 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-session-title)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#metaworkflowsession-title)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 添加提供方
 

@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-05-paid-native-flash-reasoning-translation.md
 /agent-note-paid-native-flash-translation-uses-independent-queries:
-  en: 37a2416d68e5a73d
-  zh: ae439aa6ec6a2feb
+  en: 4ed19cbf7d09a60e
+  zh: 78335dd1cb608f5b
 /agent-note-paid-native-flash-translation-uses-independent-queries/problem:
   en: 1029e393c5794564
   zh: 6044cd7da7fc0947
 /agent-note-paid-native-flash-translation-uses-independent-queries/decision:
-  en: be443b5b9ed2d0a4
-  zh: 399c3c196a3a5858
+  en: ffb6b051e71afdbe
+  zh: 8672bc8e8d1e1fa7
 /agent-note-paid-native-flash-translation-uses-independent-queries/alternatives-considered:
   en: e5ec698f302c8ae8
   zh: b3a7d4f037ca6bdb

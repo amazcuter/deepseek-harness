@@ -5,42 +5,42 @@
 /:
   en: 29b2294131f1a592
   zh: 6d7f4fa9e1f46943
-/deepseek-ai-dsh-session-log-deepseek:
-  en: 6d991785cbfd70ae
-  zh: 0918e2462821cde4
-/deepseek-ai-dsh-session-log-deepseek/summary:
-  en: 19c182dbd7d8e064
-  zh: 51c043d6ea52db0d
-/deepseek-ai-dsh-session-log-deepseek/table-of-contents:
+/metaworkflow-session-log-deepseek:
+  en: 64f445ce7ae1ea78
+  zh: c246452e6d4be25c
+/metaworkflow-session-log-deepseek/summary:
+  en: 8c7ded6d84b3eef1
+  zh: 32be6c7a1e1d412b
+/metaworkflow-session-log-deepseek/table-of-contents:
   en: e2aa29e41bc101c4
   zh: 2ef629f2a444bc13
-/deepseek-ai-dsh-session-log-deepseek/configuration:
-  en: 1b899e63d8039643
-  zh: d489461bbb618b5d
-/deepseek-ai-dsh-session-log-deepseek/request-field:
-  en: 65795dc44af4b15e
-  zh: 849c7d57f16f66af
-/deepseek-ai-dsh-session-log-deepseek/acceptance-and-retry:
-  en: 3688592c474b3e95
-  zh: 5e83afeb9aa9e9e3
-/deepseek-ai-dsh-session-log-deepseek/model-experience:
+/metaworkflow-session-log-deepseek/configuration:
+  en: 3c143934a291acad
+  zh: 0e712d070287a27c
+/metaworkflow-session-log-deepseek/request-field:
+  en: c55d1656cda95718
+  zh: bd2dad3dca16eb3f
+/metaworkflow-session-log-deepseek/acceptance-and-retry:
+  en: 5c09d6c723538e40
+  zh: 5aa197c93a50116e
+/metaworkflow-session-log-deepseek/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-session-log-deepseek/model-experience/session-log-metadata:
+/metaworkflow-session-log-deepseek/model-experience/session-log-metadata:
   en: 468b9eaee350f6e2
   zh: c192ad6228e7044d
-/deepseek-ai-dsh-session-log-deepseek/model-experience/session-log-metadata/what-the-model-sees:
-  en: 89fef23a54a0f9d6
-  zh: fd17806f1df6083e
-/deepseek-ai-dsh-session-log-deepseek/model-experience/session-log-metadata/token-effect:
+/metaworkflow-session-log-deepseek/model-experience/session-log-metadata/what-the-model-sees:
+  en: 0ca4e635767b2f87
+  zh: b3762bb1e3d4e06e
+/metaworkflow-session-log-deepseek/model-experience/session-log-metadata/token-effect:
   en: 6a1bb7bbc7db7f06
   zh: 94ddaa773b7538f7
-/deepseek-ai-dsh-session-log-deepseek/model-experience/session-log-metadata/kv-cache-effect:
+/metaworkflow-session-log-deepseek/model-experience/session-log-metadata/kv-cache-effect:
   en: dcf00aa1af688f09
   zh: df5851d66c3a6b4f
-/deepseek-ai-dsh-session-log-deepseek/known-limitations-and-deferred-work:
+/metaworkflow-session-log-deepseek/known-limitations-and-deferred-work:
   en: 249ef8dbc237a0c2
   zh: c169d64ce9ab984c
-/deepseek-ai-dsh-session-log-deepseek/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-session-log-deepseek/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

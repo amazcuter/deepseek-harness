@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
-import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
-import { workspaceDisplayTitle } from '@deepseek-ai/dsh-api-workspace-controller/default-workspace'
+import type { WorkspaceId } from '@metaworkflow/workspace/types'
+import { workspaceDisplayTitle } from '@metaworkflow/api-workspace-controller/default-workspace'
 import type { ConversationContentProps, ConversationViewsProps, InputZone } from '../contract/slots.ts'
 import { HeroShell, WorkspaceChip, workspaceLabel } from './EmptyHero.tsx'
 import css from './ConversationRoot.module.css'
@@ -43,9 +43,9 @@ export function ConversationContent(props: ConversationContentProps) {
   const pickerAnchor = useRef<HTMLButtonElement>(null)
 
   // Publishes the two live measurements floating View chrome reads off the
-  // scroll body: the seat's height as --dsh-composer-height, so controls clear
+  // scroll body: the seat's height as --mwf-composer-height, so controls clear
   // the composer as it grows, and the scrollport's own height as
-  // --dsh-conversation-viewport-height, so a control can sit in the band the
+  // --mwf-conversation-viewport-height, so a control can sit in the band the
   // seat leaves visible. Callback ref, not an effect; stable identity prevents
   // observer churn while the first blank session fills the resident body
   // outlet.
@@ -56,9 +56,9 @@ export function ConversationContent(props: ConversationContentProps) {
     const scroller = seat?.parentElement ?? null
     if (seat === null || scroller === null) return
     seatObserver.current = new ResizeObserver(() => {
-      scroller.style.setProperty('--dsh-composer-height', `${seat.offsetHeight}px`)
+      scroller.style.setProperty('--mwf-composer-height', `${seat.offsetHeight}px`)
       scroller.style.setProperty(
-        '--dsh-conversation-viewport-height',
+        '--mwf-conversation-viewport-height',
         `${scroller.clientHeight}px`,
       )
     })

@@ -3,13 +3,13 @@ description: "纯函数式相邻会话格式规划、无损 JSON 值检查、仅
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-session-format
+# @metaworkflow/session-format
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-session-format` 让持久化代码可以直接还原当前会话，或在只消费一次物理行的同时组合唯一的相邻迁移序列。一次还原会让调用方拥有的已解析值流经有状态 Stage，不复制或冻结中间产物。物理分帧、压缩、不可变 generation 命名、排他发布和 Cordis 生命周期行为不属于本库。
+`mwf-session-format` 让持久化代码可以直接还原当前会话，或在只消费一次物理行的同时组合唯一的相邻迁移序列。一次还原会让调用方拥有的已解析值流经有状态 Stage，不复制或冻结中间产物。物理分帧、压缩、不可变 generation 命名、排他发布和 Cordis 生命周期行为不属于本库。
 
 ## 目录
 

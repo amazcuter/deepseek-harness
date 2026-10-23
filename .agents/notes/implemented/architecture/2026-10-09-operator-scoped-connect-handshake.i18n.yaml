@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-09-operator-scoped-connect-handshake.md
 /agent-note-peer-scoped-connect-handshake:
-  en: 90137ec146d1a60e
-  zh: 3dbb0c96426beb36
+  en: c59e64e64b85699e
+  zh: 7aa5a4b03562e2b7
 /agent-note-peer-scoped-connect-handshake/problem:
   en: 3658160e034e0e58
   zh: 980d922aded8713b
@@ -27,5 +27,5 @@
   en: 81ce03ab4e1fd0d4
   zh: c2729e7e2db56f67
 /agent-note-peer-scoped-connect-handshake/consequences:
-  en: 91f5f80f733c174c
-  zh: 76cbb31b0d2e8764
+  en: 01e4ceeff42e40f9
+  zh: eb39cbc24e88400f

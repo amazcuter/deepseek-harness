@@ -22,7 +22,7 @@ The controls answer different questions:
 | `toolFilter` | Which deployment-global tools enter this child's visible tool view? | A scoped restriction filters globals before child-local tools are added |
 | `maxDepth` | How deep may this delegation tree grow? | A start whose child depth exceeds the absolute cap is rejected |
 
-`dsh-tool-subagent` and direct `SubagentRuntime` callers expose `maxDepth`. Its provider capability determines whether a backend can enforce the cap. Persona and tool-filter values come only from historical descriptors during cold resume.
+`mwf-tool-subagent` and direct `SubagentRuntime` callers expose `maxDepth`. Its provider capability determines whether a backend can enforce the cap. Persona and tool-filter values come only from historical descriptors during cold resume.
 
 ### Persona is a scoped shadow
 
@@ -55,7 +55,7 @@ The depth limit bounds recursive delegation independently of tool visibility. A 
 
 The effective parent depth is the greater of durable `SessionHeader.delegationDepth` and runtime `AgentOptions.subagentDepth`. An in-process child records its derived depth in the session header, and resume restores that header, so a restart cannot lower the recursion count.
 
-Every public entry validates the domain rather than relying on one model-facing configuration path. Negative values, fractions, negative zero, non-finite values, unsafe integers, malformed stored parent depth, and derived overflow all reject. A direct `SubagentStartRequest` may omit the cap to leave depth unbounded; `dsh-tool-subagent` instead reads the live Host depth setting (initially `1`), accepts a numeric override, and uses explicit `'provider-managed'` to omit the cap for an out-of-process provider whose deployment owns its recursion budget. The [base profile](../../../../packages/bundle/base/cordis.patch.yml) uses the Host setting. A numeric tool cap fails at provider mount when the provider lacks `depthLimit`.
+Every public entry validates the domain rather than relying on one model-facing configuration path. Negative values, fractions, negative zero, non-finite values, unsafe integers, malformed stored parent depth, and derived overflow all reject. A direct `SubagentStartRequest` may omit the cap to leave depth unbounded; `mwf-tool-subagent` instead reads the live Host depth setting (initially `1`), accepts a numeric override, and uses explicit `'provider-managed'` to omit the cap for an out-of-process provider whose deployment owns its recursion budget. The [base profile](../../../../packages/bundle/base/cordis.patch.yml) uses the Host setting. A numeric tool cap fails at provider mount when the provider lacks `depthLimit`.
 
 The numeric cap does not synthesize a filter. The delegation tool stays visible at the cap because authorization may depend on runtime state; every attempted start checks the calling agent’s current durable and runtime depth, and a rejected start returns an errored tool result without publishing a child. A preset can omit delegation tool plugins independently of the depth policy. At the cap, the tool contributes an optional runtime-context notice telling the model to work directly. `includeRuntimeContext: false` suppresses this advisory notice; the runtime depth guard remains active. When enabled, the notice reads the live cap and durable depth at request time to keep resumed and reconfigured agents informed without changing their system prompt or tool schemas; unchanged context is not repeatedly appended.
 

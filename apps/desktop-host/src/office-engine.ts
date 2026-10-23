@@ -17,7 +17,7 @@ export function runtimeArchivePath(runtimeDir: string): string | undefined {
 /**
  * Keep engine executable and resource paths usable by native child processes outside Electron.
  * Hooks apply only to this thread; worker threads must install their own resolver.
- * @param runtimeDir - Prepared or ASAR-contained dsh runtime directory.
+ * @param runtimeDir - Prepared or ASAR-contained mwf runtime directory.
  * @returns Installed resolver for the Host lifetime, or undefined for a non-ASAR runtime.
  */
 export function installOfficeEngineResolution(runtimeDir: string): ModuleHooks | undefined {

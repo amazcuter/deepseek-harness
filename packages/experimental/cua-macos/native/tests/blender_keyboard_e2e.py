@@ -86,7 +86,7 @@ def events_after(state, sequence, kind=None):
 
 
 def exercise(args, artifacts, transcript, summary):
-    with tempfile.TemporaryDirectory(prefix="dsh-cua-blender-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="mwf-cua-blender-") as temporary:
         root = Path(temporary)
         state_path = root / "state.json"
         token = uuid.uuid4().hex
@@ -267,7 +267,7 @@ def main():
         raise RuntimeError("Run this assertion-based regression without Python -O")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--blender", type=Path, required=True, help="Existing official .app/Contents/MacOS/Blender executable")
-    parser.add_argument("--helper", type=Path, help="Built dsh-cua-native; an older binary can be selected for a negative control")
+    parser.add_argument("--helper", type=Path, help="Built mwf-cua-native; an older binary can be selected for a negative control")
     parser.add_argument("--artifacts", type=Path, help="Parent for a new private artifact directory")
     parser.add_argument("--startup-timeout", type=float, default=60)
     parser.add_argument("--event-timeout", type=float, default=8)

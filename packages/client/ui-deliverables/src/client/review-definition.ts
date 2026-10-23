@@ -1,13 +1,13 @@
 /**
  * What the `changes-review` tab type IS: the right-Sidebar review of one
  * turn's changed files, showing one file's turn-start and turn-end
- * comparison at a time. It claims the `dsh-resource://changes-review/session/…`
+ * comparison at a time. It claims the `mwf-resource://changes-review/session/…`
  * addresses the changed-files card mints; the Session and the event sequence
  * in the address identify the content, and the turn they carry names the tab.
  * A row opens the tab with the file's index as its navigation parameter.
  */
-import type { SidebarRightTabDefinition } from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
-import type { TranslateNS } from '@deepseek-ai/dsh-client-locale/client'
+import type { SidebarRightTabDefinition } from '@metaworkflow/client-ui-sidebar-right/client'
+import type { TranslateNS } from '@metaworkflow/client-locale/client'
 import { parseChangesReviewAddress } from '../changes.ts'
 import type { NS } from './locales.ts'
 
@@ -15,7 +15,7 @@ import type { NS } from './locales.ts'
 export const CHANGES_REVIEW_KIND = 'changes-review'
 
 /** This implementation's identity in the tab system, and the key its body registers under. */
-export const CHANGES_REVIEW_ID = '@deepseek-ai/dsh-client-ui-deliverables'
+export const CHANGES_REVIEW_ID = '@metaworkflow/client-ui-deliverables'
 
 /** The file a review opens on. */
 export interface ChangesReviewParams {
@@ -23,7 +23,7 @@ export interface ChangesReviewParams {
   index?: number
 }
 
-declare module '@deepseek-ai/dsh-client-ui-sidebar-right/client' {
+declare module '@metaworkflow/client-ui-sidebar-right/client' {
   interface SidebarRightResourceParamsMap {
     /** The file a review tab opens on. */
     'changes-review': ChangesReviewParams
@@ -39,7 +39,7 @@ export function changesReviewDefinition(t: TranslateNS<typeof NS>): SidebarRight
   return {
     id: CHANGES_REVIEW_ID,
     kind: CHANGES_REVIEW_KIND,
-    patterns: ['dsh-resource://changes-review/**'],
+    patterns: ['mwf-resource://changes-review/**'],
     priority: 'builtin',
     canOpen: address => parseChangesReviewAddress(address) !== undefined,
     title: (address) => {

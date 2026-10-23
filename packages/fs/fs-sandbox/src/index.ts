@@ -1,6 +1,6 @@
 /**
  * `SandboxedFileSystem`: the sandbox-enforcing implementation of the
- * `@deepseek-ai/dsh-fs` Service Definition. It extends `LocalFileSystem` so all
+ * `@metaworkflow/fs` Service Definition. It extends `LocalFileSystem` so all
  * text-storage mechanics — resolve, stat, read/stream, list, the atomic
  * write and the read-match-write edit critical section — are the local
  * implementation's, verbatim; this package adds only the per-call POLICY fence
@@ -12,7 +12,7 @@
  * and only the target path is untrusted, so canonicalize-then-contain is the
  * complete answer to this surface. This is containment, not a security
  * boundary; kernel-grade isolation of untrusted CODE stays `ctx.shell`'s job
- * (`@deepseek-ai/dsh-bash-sandbox`). The residual
+ * (`@metaworkflow/bash-sandbox`). The residual
  * TOCTOU (an ancestor symlink swapped between the containment re-check and the
  * syscall) is narrowed by re-canonicalizing immediately before delegating and
  * is accepted for this threat model.
@@ -23,17 +23,17 @@
  * `danger-full-access` delegates unfenced. A denial throws the structured
  * `FS_SANDBOX_DENIED`.
  *
- * @module @deepseek-ai/dsh-fs-sandbox
+ * @module @metaworkflow/fs-sandbox
  */
 
 import { Context } from '@deepseek-ai/cordis'
-import { LocalFileSystem } from '@deepseek-ai/dsh-fs-local'
-import type { Config as LocalConfig } from '@deepseek-ai/dsh-fs-local'
-import { FsError } from '@deepseek-ai/dsh-fs'
-import type { FsEditOutcome, FsEditRequest, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@deepseek-ai/dsh-fs'
-import { writableRoots } from '@deepseek-ai/dsh-sandbox'
-import type { SandboxExecutionPolicy, SandboxMode } from '@deepseek-ai/dsh-sandbox'
-import type {} from '@deepseek-ai/dsh-sandbox-policy'
+import { LocalFileSystem } from '@metaworkflow/fs-local'
+import type { Config as LocalConfig } from '@metaworkflow/fs-local'
+import { FsError } from '@metaworkflow/fs'
+import type { FsEditOutcome, FsEditRequest, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@metaworkflow/fs'
+import { writableRoots } from '@metaworkflow/sandbox'
+import type { SandboxExecutionPolicy, SandboxMode } from '@metaworkflow/sandbox'
+import type {} from '@metaworkflow/sandbox-policy'
 import { isPathUnder } from './containment.ts'
 
 /**
@@ -46,9 +46,9 @@ export type Config = LocalConfig
 
 /**
  * Sandbox-enforcing filesystem backend. Registers as `ctx.fs` (loading it
- * INSTEAD OF `dsh-fs-local`, together with a `ctx.sandboxPolicy`, is the whole
+ * INSTEAD OF `mwf-fs-local`, together with a `ctx.sandboxPolicy`, is the whole
  * swap — the model-facing tools are untouched). Its configured default mode is
- * the capability fact exposed by {@link sandboxMode}; `dsh-tool-fs` resolves
+ * the capability fact exposed by {@link sandboxMode}; `mwf-tool-fs` resolves
  * each session's mode and cwd into a policy for every mutation, while an
  * approved escalation may stamp a strictly wider mode for one call.
  */

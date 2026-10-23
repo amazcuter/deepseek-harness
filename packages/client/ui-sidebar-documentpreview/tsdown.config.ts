@@ -10,7 +10,7 @@ const bundle = clientBundle(import.meta.dirname, ['lib/types/index.js'], {
 })
 const require = createRequire(import.meta.url)
 const workerSpecifier = 'pdfjs-dist/build/pdf.worker.min.mjs?raw'
-const workerModule = '\0dsh-pdf-worker.mjs'
+const workerModule = '\0mwf-pdf-worker.mjs'
 
 /** FortuneSheet omits its repository license from the npm payload. */
 function excelLicenseBanner(): string {
@@ -55,7 +55,7 @@ function pdfAssets(): string {
 
 /** The dynamic client factory has no module URL from which to resolve a Worker file. */
 const pdfWorker: NonNullable<UserConfig['plugins']> = [{
-  name: 'dsh-pdf-worker-source',
+  name: 'mwf-pdf-worker-source',
   resolveId(source) {
     return source === workerSpecifier ? workerModule : null
   },
@@ -69,17 +69,17 @@ const pdfWorker: NonNullable<UserConfig['plugins']> = [{
 
 /** Embed a self-contained browser parser without giving it a loader-module dependency. */
 const excelWorker: NonNullable<UserConfig['plugins']> = [{
-  name: 'dsh-excel-worker-source',
-  resolveId(source) { return source === './worker.ts?raw' ? '\0dsh-excel-worker-source' : null },
+  name: 'mwf-excel-worker-source',
+  resolveId(source) { return source === './worker.ts?raw' ? '\0mwf-excel-worker-source' : null },
   async load(id) {
-    if (id !== '\0dsh-excel-worker-source') return null
+    if (id !== '\0mwf-excel-worker-source') return null
     const parent = this
     const worker = await Rolldown.rolldown({
       input: join(import.meta.dirname, 'src/client/excel/worker.ts'), platform: 'browser',
       resolve: { mainFields: ['browser', 'module', 'main'], aliasFields: [['browser']] },
       transform: { define: { 'process.env.NODE_ENV': JSON.stringify('production') } },
       plugins: [{
-        name: 'dsh-excel-worker-dependencies',
+        name: 'mwf-excel-worker-dependencies',
         async resolveId(source, importer) {
           // The outer build's license analysis must also see imports embedded in Worker text.
           if (importer?.startsWith(join(import.meta.dirname, 'src')) && !source.startsWith('.')) await parent.resolve(source, importer)
@@ -105,6 +105,6 @@ export default (options: Parameters<typeof bundle>[0]): UserConfig[] => bundle(o
       resolve: { ...config.inputOptions?.resolve, mainFields: ['browser', 'module', 'main'], aliasFields: [['browser']] },
     },
     plugins: [config.plugins, pdfWorker, excelWorker],
-    define: { ...config.define, __DSH_PDFJS_ASSETS__: pdfAssets() },
+    define: { ...config.define, __MWF_PDFJS_ASSETS__: pdfAssets() },
   } : config,
 )

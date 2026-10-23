@@ -1,6 +1,6 @@
 - insert:
     - id: skill-badge
-      name: '@deepseek-ai/dsh-skill-badge'
+      name: '@metaworkflow/skill-badge'
 
 - id: skill-filesystem
   config:

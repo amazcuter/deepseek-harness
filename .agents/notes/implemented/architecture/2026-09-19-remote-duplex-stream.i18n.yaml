@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-19-remote-duplex-stream.md
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context:
-  en: c52d4b55f470a50f
-  zh: d2d446516b1011bc
+  en: 5e0ec2d773275ccc
+  zh: e20e03a07bfb1757
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/problem:
   en: 70a969dce3283824
   zh: 18c61bf840a6518a
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/problem/current-state:
-  en: 2de84c3fc0a3552e
-  zh: da9cd565588bf2dd
+  en: f02d99a6898f4e62
+  zh: f4ed24457d68da7f
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/problem/uplink-consumers:
   en: 403103ef08958529
   zh: 2813d9d38c2c55b7
@@ -30,8 +30,8 @@
   en: 943208904785f7eb
   zh: bda1969132a16101
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/decision/terms:
-  en: a22cd84756773075
-  zh: 49efa0c5a37d4b57
+  en: 4db165fc4196fc8a
+  zh: 1d2e25ad05652f91
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/decision/type-signatures:
   en: 5f9cd00890b6f4c3
   zh: 600ecba7e60b63f6
@@ -42,8 +42,8 @@
   en: a7180d3c194cf9d9
   zh: 0dd7833e0e5d0a71
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/decision/peerscope:
-  en: 182634406ed2b25b
-  zh: 0bd5900a39802224
+  en: aa7590b84d1592d2
+  zh: b729794e16068bc3
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/decision/client-face:
   en: 9f10347a73402b8b
   zh: b939c7a254a8e579
@@ -87,11 +87,11 @@
   en: e1b2ae30d8a8a62d
   zh: 8790a068aa3a10e9
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/type-and-wire-definitions/typert-generator-packages-typert-generator-src:
-  en: 3b0b1398141b9a3d
-  zh: 6a96f6785c59dad3
+  en: fda95d52852fbbf3
+  zh: 0d46a4ef959e2932
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/type-and-wire-definitions/two-names-one-entry-point:
-  en: 59188926c8e586de
-  zh: 3298be0413d14274
+  en: 5a09e45a0317eea0
+  zh: cfd83882e7c94225
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/type-and-wire-definitions/gateway-host-packages-api-gateway-src:
   en: 9c8122ce6048a432
   zh: 58f28ebe6d484a9d
@@ -102,8 +102,8 @@
   en: 26dcd8bebdc8d974
   zh: e74bcef7c549e70c
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/placement:
-  en: ecfaff2b9b2ef021
-  zh: 85b392d79364e0c3
+  en: d424ce1fa03978c2
+  zh: 3623f7afd1baf333
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/key-sequences:
   en: 130e4f9ec7296a10
   zh: 2a5aa1302a8db61a
@@ -126,8 +126,8 @@
   en: b42ab0932f8b31b4
   zh: 7fed8cb5b6e36788
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/alternatives-considered:
-  en: b0046c9f7c12a876
-  zh: f3c37b466746b0fd
+  en: 147422aa8a8459a5
+  zh: aed1fcf3ff499f33
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/consequences:
   en: dbc54ce699ef8e71
   zh: 83144f07ae8f8759
@@ -138,5 +138,5 @@
   en: 8368c592f30af97f
   zh: 2ff89acb7b3ed477
 /agent-note-remote-duplex-stream-one-kind-of-stream-an-uplink-channel-and-an-invocation-context/related:
-  en: 475d212ae1f9c1c9
-  zh: 21fe6c6cdb900a6b
+  en: 0625db073b45d418
+  zh: 7115020b09e2dd0b

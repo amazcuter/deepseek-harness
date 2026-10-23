@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-07-24-separate-context-injection-from-turn-execution.md
 /agent-note-separate-context-injection-from-turn-execution:
-  en: f0090d5d271cbd9d
-  zh: 7ff28e03f1273093
+  en: aa98d5db5fb0aa1d
+  zh: 1b34f26ac523ffe8
 /agent-note-separate-context-injection-from-turn-execution/problem:
   en: 2eefc25e17f62a90
   zh: 81bc7ff2649b2704
@@ -15,8 +15,8 @@
   en: 16005492be54cb4f
   zh: db460e0ebf838d54
 /agent-note-separate-context-injection-from-turn-execution/extension-and-caller-semantics:
-  en: 9c7a10ac4679f137
-  zh: 0f19c11778a02929
+  en: 34dd41ab0a281514
+  zh: 75bda9a6ba0622be
 /agent-note-separate-context-injection-from-turn-execution/alternatives-considered:
   en: 0efad389c38dfe95
   zh: 13dd73de20226540

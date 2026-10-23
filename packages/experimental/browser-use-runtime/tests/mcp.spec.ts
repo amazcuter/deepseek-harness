@@ -6,23 +6,23 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import BrowserUse from '@deepseek-ai/dsh-browser-use'
-import SystemPrompt, { renderPrompt } from '@deepseek-ai/dsh-system-prompt'
-import Tools from '@deepseek-ai/dsh-tools'
-import McpResources from '@deepseek-ai/dsh-mcp-resources'
-import { PtcRuntime } from '@deepseek-ai/dsh-ptc-runtime'
-import Llm, { LlmAdapter, ToolCallId, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import Sessions, { SessionId } from '@deepseek-ai/dsh-session'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import Agents from '@deepseek-ai/dsh-agent'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import Projections from '@deepseek-ai/dsh-session-projection'
-import WorkingDirectory from '@deepseek-ai/dsh-working-directory'
-import { bindScopeParent } from '@deepseek-ai/dsh-scope'
+import BrowserUse from '@metaworkflow/browser-use'
+import SystemPrompt, { renderPrompt } from '@metaworkflow/system-prompt'
+import Tools from '@metaworkflow/tools'
+import McpResources from '@metaworkflow/mcp-resources'
+import { PtcRuntime } from '@metaworkflow/ptc-runtime'
+import Llm, { LlmAdapter, ToolCallId, createUserMessage } from '@metaworkflow/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@metaworkflow/llm'
+import Sessions, { SessionId } from '@metaworkflow/session'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
+import Agents from '@metaworkflow/agent'
+import type { Agent } from '@metaworkflow/agent'
+import AgentLoop from '@metaworkflow/agent-loop'
+import { provideWorkingDirectoryFixture } from '@metaworkflow/agent-loop-testkit'
+import LocalFileSystem from '@metaworkflow/fs-local'
+import Projections from '@metaworkflow/session-projection'
+import WorkingDirectory from '@metaworkflow/working-directory'
+import { bindScopeParent } from '@metaworkflow/scope'
 import { BrowserMcpConfig, mountSessionMcp, validateBrowserMcpConfig } from '../src/mcp.ts'
 
 const fixture = fileURLToPath(new URL('./mcp-fixture.mjs', import.meta.url))
@@ -65,7 +65,7 @@ class PresentationRuntime extends PtcRuntime {
 }
 
 async function load(exclusive = false, mode?: string, toolCallTimeoutMs?: number, toolOrder?: string[]) {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-browser-mcp-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-browser-mcp-'))
   roots.push(root)
   const model = new FixtureModel()
   const modules = new Map<string, unknown>([

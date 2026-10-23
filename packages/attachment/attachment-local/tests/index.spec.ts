@@ -1,5 +1,5 @@
 import { Context } from '@deepseek-ai/cordis'
-import { AttachmentId } from '@deepseek-ai/dsh-attachment'
+import { AttachmentId } from '@metaworkflow/attachment'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -66,9 +66,9 @@ describe('local attachment service', () => {
   })
 
   it('saves and reads through the service boundary', async () => {
-    const dshHome = await mkdtemp(join(tmpdir(), 'dsh-attachment-service-'))
+    const mwfHome = await mkdtemp(join(tmpdir(), 'mwf-attachment-service-'))
     try {
-      const service = new LocalAttachmentStore(new Context(), { dshHome })
+      const service = new LocalAttachmentStore(new Context(), { mwfHome })
       const data = Uint8Array.from(Buffer.from(
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWNgZGIGAAAOAAeCcsnOAAAAAElFTkSuQmCC',
         'base64',
@@ -77,7 +77,7 @@ describe('local attachment service', () => {
       await expect(service.readImage(ref)).resolves.toEqual({ ref, data })
       const hostPath = service.imageHostPath(ref)
       expect(hostPath).toBe(join(
-        dshHome,
+        mwfHome,
         'attachments',
         'v1',
         'objects',
@@ -103,14 +103,14 @@ describe('local attachment service', () => {
       for await (const chunk of service.readFileStream(streamRef)) streamed.push(chunk)
       expect(Buffer.concat(streamed)).toEqual(Buffer.from(fileData))
     } finally {
-      await rm(dshHome, { recursive: true, force: true })
+      await rm(mwfHome, { recursive: true, force: true })
     }
   })
 
   it('commits a fully prepared image batch in input order', async () => {
-    const dshHome = await mkdtemp(join(tmpdir(), 'dsh-attachment-batch-success-'))
+    const mwfHome = await mkdtemp(join(tmpdir(), 'mwf-attachment-batch-success-'))
     try {
-      const service = new LocalAttachmentStore(new Context(), { dshHome })
+      const service = new LocalAttachmentStore(new Context(), { mwfHome })
       const first = new Uint8Array(await sharp({
         create: { width: 2, height: 1, channels: 3, background: { r: 1, g: 2, b: 3 } },
       }).png().toBuffer())
@@ -127,14 +127,14 @@ describe('local attachment service', () => {
       await expect(Promise.all(refs.map(ref => service.readImage(ref))))
         .resolves.toHaveLength(2)
     } finally {
-      await rm(dshHome, { recursive: true, force: true })
+      await rm(mwfHome, { recursive: true, force: true })
     }
   })
 
   it.each([3, 4] as const)('admits a 16-bit %s-channel PNG as an 8-bit normalized object', async (channels) => {
-    const dshHome = await mkdtemp(join(tmpdir(), 'dsh-attachment-16-bit-'))
+    const mwfHome = await mkdtemp(join(tmpdir(), 'mwf-attachment-16-bit-'))
     try {
-      const service = new LocalAttachmentStore(new Context(), { dshHome })
+      const service = new LocalAttachmentStore(new Context(), { mwfHome })
       const source = new Uint8Array(await sharp({
         create: { width: 7, height: 5, channels, background: { r: 12, g: 34, b: 56, alpha: 0.5 } },
       }).toColourspace('rgb16').png().toBuffer())
@@ -146,14 +146,14 @@ describe('local attachment service', () => {
       expect(stored.data).not.toEqual(source)
       expect(metadata).toMatchObject({ depth: 'uchar', space: 'srgb', hasAlpha: channels === 4 })
     } finally {
-      await rm(dshHome, { recursive: true, force: true })
+      await rm(mwfHome, { recursive: true, force: true })
     }
   })
 
   it('prepares every batch member before any write', async () => {
-    const dshHome = await mkdtemp(join(tmpdir(), 'dsh-attachment-batch-'))
+    const mwfHome = await mkdtemp(join(tmpdir(), 'mwf-attachment-batch-'))
     try {
-      const service = new LocalAttachmentStore(new Context(), { dshHome })
+      const service = new LocalAttachmentStore(new Context(), { mwfHome })
       const valid = Uint8Array.from(Buffer.from(
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWNgZGIGAAAOAAeCcsnOAAAAAElFTkSuQmCC',
         'base64',
@@ -164,27 +164,27 @@ describe('local attachment service', () => {
       ])).rejects.toThrow(/Unsupported or malformed image data/)
       expect(existsSync(service.root)).toBe(false)
     } finally {
-      await rm(dshHome, { recursive: true, force: true })
+      await rm(mwfHome, { recursive: true, force: true })
     }
   })
 
   it('validates without persisting: a rejected image leaves no storage root behind', async () => {
-    const dshHome = await mkdtemp(join(tmpdir(), 'dsh-attachment-validate-'))
+    const mwfHome = await mkdtemp(join(tmpdir(), 'mwf-attachment-validate-'))
     try {
-      const service = new LocalAttachmentStore(new Context(), { dshHome })
+      const service = new LocalAttachmentStore(new Context(), { mwfHome })
       await expect(service.validateImage({ data: Uint8Array.of(1, 2, 3), mediaType: 'image/png' }))
         .rejects.toThrow(/Unsupported or malformed image data/)
       const valid = Uint8Array.from(Buffer.from(
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWNgZGIGAAAOAAeCcsnOAAAAAElFTkSuQmCC',
         'base64',
       ))
-      const limited = new LocalAttachmentStore(new Context(), { dshHome, maxImageBytes: 1 })
+      const limited = new LocalAttachmentStore(new Context(), { mwfHome, maxImageBytes: 1 })
       await expect(limited.validateImage({ data: valid, mediaType: 'image/png' }))
         .rejects.toMatchObject({ code: 'IMAGE_TOO_LARGE' })
       await expect(service.validateImage({ data: valid, mediaType: 'image/png' })).resolves.toBeUndefined()
       expect(existsSync(service.root)).toBe(false)
     } finally {
-      await rm(dshHome, { recursive: true, force: true })
+      await rm(mwfHome, { recursive: true, force: true })
     }
   })
 })

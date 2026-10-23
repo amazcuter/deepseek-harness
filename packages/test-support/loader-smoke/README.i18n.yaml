@@ -5,54 +5,54 @@
 /:
   en: 00a7ac59f751e4d0
   zh: 35334966b956621d
-/deepseek-ai-dsh-loader-smoke:
-  en: 28364f937b7e24e7
-  zh: 6e5d0574c5331643
-/deepseek-ai-dsh-loader-smoke/summary:
-  en: b7b36ca4623a546e
-  zh: 8c9be89d36f19423
-/deepseek-ai-dsh-loader-smoke/table-of-contents:
+/metaworkflow-loader-smoke:
+  en: dab95c2dcc691198
+  zh: c0cffa5e69659233
+/metaworkflow-loader-smoke/summary:
+  en: 75c9e81c783e78e4
+  zh: 5cf85f02da3266ba
+/metaworkflow-loader-smoke/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-loader-smoke/use-this-package:
+/metaworkflow-loader-smoke/use-this-package:
   en: 682780f6cbeb85cb
   zh: 07a2458db985471a
-/deepseek-ai-dsh-loader-smoke/use-this-package/booting-an-application-fixture:
-  en: e2144d78d4e83030
-  zh: b3e415f69dac20a2
-/deepseek-ai-dsh-loader-smoke/use-this-package/testing-a-shipped-profile:
-  en: aa24542429ab0917
-  zh: 0725fd0950e0993b
-/deepseek-ai-dsh-loader-smoke/use-this-package/driving-a-fixture-turn:
+/metaworkflow-loader-smoke/use-this-package/booting-an-application-fixture:
+  en: 8d90fa8c2e4fc017
+  zh: 9731b03e09a33933
+/metaworkflow-loader-smoke/use-this-package/testing-a-shipped-profile:
+  en: 38756f628cbd5861
+  zh: ca5b845e035816b0
+/metaworkflow-loader-smoke/use-this-package/driving-a-fixture-turn:
   en: c99402b3d2219738
   zh: cbff00f4bfb7d625
-/deepseek-ai-dsh-loader-smoke/use-this-package/source-or-built-mode:
-  en: 312abd1eddcc5015
-  zh: 4fb5c6842f4d49d1
-/deepseek-ai-dsh-loader-smoke/use-this-package/what-can-go-wrong:
-  en: cd38599b474efc54
-  zh: 353237fb992a1b1c
-/deepseek-ai-dsh-loader-smoke/understand-the-implementation:
+/metaworkflow-loader-smoke/use-this-package/source-or-built-mode:
+  en: 89c67cb32e8759f6
+  zh: c45af02050c4b940
+/metaworkflow-loader-smoke/use-this-package/what-can-go-wrong:
+  en: f21e6c16560e91ed
+  zh: 73564d3dd1e02485
+/metaworkflow-loader-smoke/understand-the-implementation:
   en: 3ffb8df759bf5071
   zh: a93d3dd6472d9782
-/deepseek-ai-dsh-loader-smoke/understand-the-implementation/design:
-  en: f3407557b8aafb9c
-  zh: 06c9faf218c69829
-/deepseek-ai-dsh-loader-smoke/understand-the-implementation/source-map:
+/metaworkflow-loader-smoke/understand-the-implementation/design:
+  en: 4ff8dc8ff64e2921
+  zh: 32f2bc44e6d4c7b4
+/metaworkflow-loader-smoke/understand-the-implementation/source-map:
   en: 1dd2e4e1cd1fad2d
   zh: 4783ddacfbcf2cd5
-/deepseek-ai-dsh-loader-smoke/further-exploration:
-  en: f6719ecd2dbb7870
-  zh: 758b46fefe666dbd
-/deepseek-ai-dsh-loader-smoke/model-experience:
+/metaworkflow-loader-smoke/further-exploration:
+  en: 538d185409608f00
+  zh: dd72980a3e94b8ff
+/metaworkflow-loader-smoke/model-experience:
   en: 27696a3c4d31d171
   zh: 48b6df074e0b0911
-/deepseek-ai-dsh-loader-smoke/model-experience/kv-cache-effect:
+/metaworkflow-loader-smoke/model-experience/kv-cache-effect:
   en: c204a02c386ca3a0
   zh: ce9b24304f9644aa
-/deepseek-ai-dsh-loader-smoke/known-limitations-and-deferred-work:
+/metaworkflow-loader-smoke/known-limitations-and-deferred-work:
   en: a3e0e21178bb00cc
   zh: f3dc6139370330f6
-/deepseek-ai-dsh-loader-smoke/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-loader-smoke/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

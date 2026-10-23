@@ -11,7 +11,7 @@ export default ((options) => bundle(options).map(config => ({
   plugins: [...(config.plugins ?? []), {
     name: 'chat-whale-image',
     async transform(code: string, id: string) {
-      if (id.replaceAll('\\', '/') !== `\0dsh-css:${stylesheet}.mjs`) return null
+      if (id.replaceAll('\\', '/') !== `\0mwf-css:${stylesheet}.mjs`) return null
       const imageUrl = './running-whale@2x.png'
       if (!code.includes(imageUrl)) return null
       this.addWatchFile(whaleImage)

@@ -1,7 +1,7 @@
 /** Original-text command candidates restricted to confirmed execution ranges. */
-import type { UserTextRule, UserTextNode } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextRule, UserTextNode } from '@metaworkflow/client-ui-conversation/client'
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@metaworkflow/client-ui-conversation/client' {
   interface UserTextDataMap {
     /** The executed command name, without the leading slash. */
     command: { readonly name: string }

@@ -12,7 +12,7 @@
 }
 
 .surface {
-  anchor-name: var(--dsh-menu-anchor);
+  anchor-name: var(--mwf-menu-anchor);
   isolation: isolate;
 }
 
@@ -38,7 +38,7 @@
 :global(html[data-platform='darwin']) .backing {
   display: block;
   position: fixed;
-  position-anchor: var(--dsh-menu-anchor);
+  position-anchor: var(--mwf-menu-anchor);
   top: anchor(top);
   left: anchor(left);
   width: anchor-size(width, 0px);

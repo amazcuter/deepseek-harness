@@ -131,7 +131,7 @@ describe('experimental Inspector real Worker', () => {
     cdp = await TestCdpClient.connect(inspector.endpoint.webSocketDebuggerUrl)
     let sourceId: string | undefined
     await vi.waitFor(async () => {
-      const sources = recordArray((await cdp!.call('DSHInspector.getSources')).result?.sources)
+      const sources = recordArray((await cdp!.call('MWFInspector.getSources')).result?.sources)
       const selected = sources.find(source => source.label === 'Embedded')
       expect(typeof selected?.sourceId).toBe('string')
       sourceId = String(selected!.sourceId)
@@ -141,7 +141,7 @@ describe('experimental Inspector real Worker', () => {
     secondCdp = await TestCdpClient.connect(endpoint.href)
     await Promise.all([cdp.call('Runtime.enable'), secondCdp.call('Runtime.enable')])
     await Promise.all([cdp.call('Debugger.enable'), secondCdp.call('Debugger.enable')])
-    await secondCdp.call('DSHInspector.enable')
+    await secondCdp.call('MWFInspector.enable')
     const other = await InspectorClientFixture.start(inspector.endpoint.client, { label: 'Other', sourceCatalog: sourceCatalog('other') })
     test.onTestFinished(() => other.close())
     await vi.waitFor(() => {
@@ -160,13 +160,13 @@ describe('experimental Inspector real Worker', () => {
       expect(consoleEvent(secondCdp!, Number(selectedContext.id), 'own-console')).toBeDefined()
     })
     expect(consoleEvent(secondCdp, Number(otherContext.id), 'other-console')).toBeUndefined()
-    const filteredSources = recordArray((await secondCdp.call('DSHInspector.getSources')).result?.sources)
+    const filteredSources = recordArray((await secondCdp.call('MWFInspector.getSources')).result?.sources)
     expect(filteredSources.filter(source => source.kind === 'client').map(source => source.label)).toEqual(['Embedded'])
-    for (const event of secondCdp.events.filter(event => event.method === 'DSHInspector.sourcesChanged')) {
+    for (const event of secondCdp.events.filter(event => event.method === 'MWFInspector.sourcesChanged')) {
       expect(recordArray(event.params?.sources).filter(source => source.kind === 'client').map(source => source.label)).toEqual(['Embedded'])
     }
-    const scopedTree = asRecord((await secondCdp.call('DSHInspector.getCordisTree')).result?.tree)
-    const fullTree = asRecord((await cdp.call('DSHInspector.getCordisTree')).result?.tree)
+    const scopedTree = asRecord((await secondCdp.call('MWFInspector.getCordisTree')).result?.tree)
+    const fullTree = asRecord((await cdp.call('MWFInspector.getCordisTree')).result?.tree)
     expect(recordArray(scopedTree.clients).map(realm => asRecord(realm.source).label)).toEqual(['Embedded'])
     expect(recordArray(fullTree.clients)).toHaveLength(2)
     const root = asRecord((await secondCdp.call('DOM.getDocument', { depth: 3 })).result?.root)
@@ -181,13 +181,13 @@ describe('experimental Inspector real Worker', () => {
       expect(reconnected[1]?.id).not.toBe(selectedContext.id)
     })
     expect(runtimeContexts(secondCdp).some(context => context.name === 'Client — Other')).toBe(false)
-    expect(recordArray((await cdp.call('DSHInspector.getSources')).result?.sources).filter(source => source.kind === 'client')).toHaveLength(2)
+    expect(recordArray((await cdp.call('MWFInspector.getSources')).result?.sources).filter(source => source.kind === 'client')).toHaveLength(2)
     endpoint.searchParams.set('clientSourceId', 'absent-client')
     const absent = await TestCdpClient.connect(endpoint.href)
     test.onTestFinished(() => absent.close())
     await absent.call('Runtime.enable')
     expect(runtimeContexts(absent).map(context => context.name)).toEqual(['Host'])
-    expect(recordArray((await absent.call('DSHInspector.getSources')).result?.sources).every(source => source.kind === 'host')).toBe(true)
+    expect(recordArray((await absent.call('MWFInspector.getSources')).result?.sources).every(source => source.kind === 'host')).toBe(true)
   })
 
   it('rejects malformed Client selectors before admitting a CDP connection', async () => {
@@ -208,7 +208,7 @@ describe('experimental Inspector real Worker', () => {
     await client.publish('client/probe', { value: 2 })
 
     await vi.waitFor(async () => {
-      const response = await cdp!.call('DSHInspector.getSources')
+      const response = await cdp!.call('MWFInspector.getSources')
       const sources = response.result?.sources as Array<{ kind: string; topics: Record<string, number> }>
       expect(sources.find(source => source.kind === 'host')?.topics).toEqual({ 'host/probe': 1 })
       expect(sources.find(source => source.kind === 'client')?.topics).toMatchObject({ 'client/probe': 1 })
@@ -488,7 +488,7 @@ describe('experimental Inspector real Worker', () => {
     cdp = await TestCdpClient.connect(inspector.endpoint.webSocketDebuggerUrl)
     secondCdp = await TestCdpClient.connect(inspector.endpoint.webSocketDebuggerUrl)
     await vi.waitFor(async () => {
-      const response = await cdp!.call('DSHInspector.getSources')
+      const response = await cdp!.call('MWFInspector.getSources')
       expect(recordArray(response.result?.sources).some(source => source.kind === 'client')).toBe(true)
     })
     // The MessagePort can deliver log requests before ingest receives Console subscriptions.
@@ -761,8 +761,8 @@ describe('experimental Inspector real Worker', () => {
       && event.params?.requestId === requestId)).toBe(false)
     const body = await cdp.call('Network.getResponseBody', { requestId })
     expect(Buffer.from(String(body.result?.body), 'base64').toString('utf8')).toBe(eventStream)
-    expect(body.result?.dshInspectorTruncated).toBe(true)
-    expect(String(body.result?.dshInspectorCaptureError)).toContain('AbortError')
+    expect(body.result?.mwfInspectorTruncated).toBe(true)
+    expect(String(body.result?.mwfInspectorCaptureError)).toContain('AbortError')
   })
 })
 

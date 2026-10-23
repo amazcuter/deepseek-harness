@@ -8,19 +8,19 @@ Status: implemented
 
 master 的 `serial / windows (self-hosted standby)` 演练自 2026-09-15 起一直红：`test:coverage` gate 在 `packages/shell/tool-pwsh-persistent/tests/loader-composition.spec.ts` 上失败，形态要么是 `settleReasons` 报出六次 `inferred_idle` 结算里只有一次 `stdin_read`，要么是用例耗尽 120 s 预算。同一个用例在 Blacksmith 的 Windows 镜像上 5.3 s 通过。
 
-Windows 没有精确的 stdin-wait 档：`WindowsProcessInspector.isStdinWaiting()` 恒为 false、`foregroundPgid()` 返回 shell pid，因此 `inspectForeground()` 只能报 `inputWaiting: false`。持久 pwsh 的就绪路径只有在同时看到 OSC `133;D;` 标记与同一次 prompt 渲染写出的可打印 `dsh> ` 尾部之后，才结算 `stdin_read`（`terminal-bash/src/session.ts`）。
+Windows 没有精确的 stdin-wait 档：`WindowsProcessInspector.isStdinWaiting()` 恒为 false、`foregroundPgid()` 返回 shell pid，因此 `inspectForeground()` 只能报 `inputWaiting: false`。持久 pwsh 的就绪路径只有在同时看到 OSC `133;D;` 标记与同一次 prompt 渲染写出的可打印 `mwf> ` 尾部之后，才结算 `stdin_read`（`terminal-bash/src/session.ts`）。
 
-直接在池机器上探测（node-pty 1.2.0-beta.15、`pwsh -NoLogo -NoProfile`、160x40、`TERM=dumb`）说明了那个尾部为何在池上匹配不上：命令输出把视口滚动一次之后，Windows 自带的控制台宿主把提示符行重绘成 `\ndsh>\x1b[1C`——一个前导换行、去掉尾随空格的提示符文本，以及代替那个空格的 cursor-forward 转义。`TerminalSanitizer` 累积标记之后的非转义文本，于是尾部成了 `\ndsh>`，既不等于 `dsh> ` 也不构成它的前缀，此后每次 send 都要等满静默档。池机器上七个提示符里有五个是这个形态；同一串命令在 Windows 11 25H2（conhost 10.0.26100.1）上原样渲染出 `dsh> `。[已见标记的尾部宽限](2026-09-27-pwsh-prompt-tail-grace.zh.md)把同一个红信号记为尾部迟到，并为此交付了 `promptTailGraceMs`；本次测量取代了该归因在这类宿主上的适用范围——已经以非前缀形态到达的尾部永远不满足宽限所延长的那个条件。
+直接在池机器上探测（node-pty 1.2.0-beta.15、`pwsh -NoLogo -NoProfile`、160x40、`TERM=dumb`）说明了那个尾部为何在池上匹配不上：命令输出把视口滚动一次之后，Windows 自带的控制台宿主把提示符行重绘成 `\ndsh>\x1b[1C`——一个前导换行、去掉尾随空格的提示符文本，以及代替那个空格的 cursor-forward 转义。`TerminalSanitizer` 累积标记之后的非转义文本，于是尾部成了 `\ndsh>`，既不等于 `mwf> ` 也不构成它的前缀，此后每次 send 都要等满静默档。池机器上七个提示符里有五个是这个形态；同一串命令在 Windows 11 25H2（conhost 10.0.26100.1）上原样渲染出 `mwf> `。[已见标记的尾部宽限](2026-09-27-pwsh-prompt-tail-grace.zh.md)把同一个红信号记为尾部迟到，并为此交付了 `promptTailGraceMs`；本次测量取代了该归因在这类宿主上的适用范围——已经以非前缀形态到达的尾部永远不满足宽限所延长的那个条件。
 
 ## 决策
 
 `subprocess-local` 分配 Windows 终端时传 node-pty 的 `useConptyDll: true`，PTY 因此由 node-pty 包自带的 OpenConsole 承载，而不是操作系统提供的控制台宿主。该选项仅在运行时平台为 `win32` 时设置；POSIX 分配不变。
 
-同一串命令在池机器上经由自带控制台宿主时，七个提示符全部渲染出 `dsh> `。
+同一串命令在池机器上经由自带控制台宿主时，七个提示符全部渲染出 `mwf> `。
 
 ## 备选方案
 
-**依赖为迟到尾部交付的 `promptTailGraceMs`。** 否决：延长的上界只在已到达的尾部仍构成 `dsh> ` 前缀时生效（`terminal-bash/src/session.ts` 的 `tailPending`）。池上的提示符渲染成 `\ndsh>`，在这个比较里不构成任何前缀，因此宽限永远到不了，send 继续按普通静默上界结算。
+**依赖为迟到尾部交付的 `promptTailGraceMs`。** 否决：延长的上界只在已到达的尾部仍构成 `mwf> ` 前缀时生效（`terminal-bash/src/session.ts` 的 `tailPending`）。池上的提示符渲染成 `\ndsh>`，在这个比较里不构成任何前缀，因此宽限永远到不了，send 继续按普通静默上界结算。
 
 **让 `TerminalSanitizer` 容忍操作系统控制台宿主的渲染形态。** 否决：把前导换行与 `CSI nC` 归一进尾部能让就绪路径继续工作，但它把一个控制台宿主的怪癖写进 sanitizer，之后任何别的重绘形态都会重新引入同一类偏离。控制台宿主是可替换组件，而包里已经带了当前版本。
 

@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import SystemPrompt, {
   AssembleContext, PromptAssembly, renderContextSections, renderContextSnapshot, renderPrompt,
-} from '@deepseek-ai/dsh-system-prompt'
-import type { PromptContextOrderName, PromptSectionOrderName } from '@deepseek-ai/dsh-system-prompt'
+} from '@metaworkflow/system-prompt'
+import type { PromptContextOrderName, PromptSectionOrderName } from '@metaworkflow/system-prompt'
 
 /**
  * Every assembly carries the plugin's own built-ins — `harness:identity`
@@ -162,7 +162,7 @@ describe('SystemPrompt', () => {
     const ctx = new Context()
     try {
       await ctx.plugin(SystemPrompt, { personaPrefix: 'Model {{model}}.', personaSuffix: 'In {{cwd}} on {{platform}}.' })
-      let environment = { model: 'model-a', cwd: '/alice/project', platform: 'darwin', source: '/alice/dsh', url: 'http://127.0.0.1:3080' }
+      let environment = { model: 'model-a', cwd: '/alice/project', platform: 'darwin', source: '/alice/mwf', url: 'http://127.0.0.1:3080' }
       for (const key of ['model', 'cwd', 'platform'] as const) {
         ctx.systemPrompt.variable(key, () => environment[key])
       }
@@ -178,11 +178,11 @@ describe('SystemPrompt', () => {
         name: 'web', order: ctx.systemPrompt.getSectionOrder('WEB_SURFACE'), text: () => environment.url,
       })
       const first = renderPrompt(await ctx.systemPrompt.assemble())
-      environment = { model: 'model-a', cwd: 'C:/bob/project', platform: 'win32', source: 'C:/bob/dsh', url: 'http://127.0.0.1:4080' }
+      environment = { model: 'model-a', cwd: 'C:/bob/project', platform: 'win32', source: 'C:/bob/mwf', url: 'http://127.0.0.1:4080' }
       const second = renderPrompt(await ctx.systemPrompt.assemble())
       const prefix = [IDENTITY, 'Model model-a.', ...reusable].join('\n\n') + '\n\n'
-      expect(first).toBe(prefix + '/alice/dsh\n\nhttp://127.0.0.1:3080\n\nIn /alice/project on darwin.')
-      expect(second).toBe(prefix + 'C:/bob/dsh\n\nhttp://127.0.0.1:4080\n\nIn C:/bob/project on win32.')
+      expect(first).toBe(prefix + '/alice/mwf\n\nhttp://127.0.0.1:3080\n\nIn /alice/project on darwin.')
+      expect(second).toBe(prefix + 'C:/bob/mwf\n\nhttp://127.0.0.1:4080\n\nIn C:/bob/project on win32.')
       environment.model = 'model-b'
       expect(renderPrompt(await ctx.systemPrompt.assemble()))
         .toBe(second.replace('Model model-a.', 'Model model-b.'))

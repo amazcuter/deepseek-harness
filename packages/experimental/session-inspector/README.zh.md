@@ -3,7 +3,7 @@ description: "原始 Session 日志与 Chat group/node 虚拟表格，支持流�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-session-inspector
+# @metaworkflow/experimental-session-inspector
 
 [English](README.md) | 中文
 

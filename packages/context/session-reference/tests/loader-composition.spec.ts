@@ -8,20 +8,20 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import { agentEvents, type Agent } from '@deepseek-ai/dsh-agent'
-import { createUserMessage, ToolCallId } from '@deepseek-ai/dsh-llm'
-import * as systemPromptPlugin from '@deepseek-ai/dsh-system-prompt'
-import * as toolsPlugin from '@deepseek-ai/dsh-tools'
-import * as fsPlugin from '@deepseek-ai/dsh-fs-local'
-import * as toolFsPlugin from '@deepseek-ai/dsh-tool-fs'
-import * as sessionPlugin from '@deepseek-ai/dsh-session'
-import * as sessionProjectionPlugin from '@deepseek-ai/dsh-session-projection'
-import * as workingDirectoryPlugin from '@deepseek-ai/dsh-working-directory'
-import { Session, SessionId } from '@deepseek-ai/dsh-session'
-import * as queryPlugin from '@deepseek-ai/dsh-session-query-sqlite'
-import * as referencePlugin from '@deepseek-ai/dsh-session-reference'
-import * as spillPlugin from '@deepseek-ai/dsh-spill-local'
-import { sessionDir } from '@deepseek-ai/dsh-spill-local'
+import { agentEvents, type Agent } from '@metaworkflow/agent'
+import { createUserMessage, ToolCallId } from '@metaworkflow/llm'
+import * as systemPromptPlugin from '@metaworkflow/system-prompt'
+import * as toolsPlugin from '@metaworkflow/tools'
+import * as fsPlugin from '@metaworkflow/fs-local'
+import * as toolFsPlugin from '@metaworkflow/tool-fs'
+import * as sessionPlugin from '@metaworkflow/session'
+import * as sessionProjectionPlugin from '@metaworkflow/session-projection'
+import * as workingDirectoryPlugin from '@metaworkflow/working-directory'
+import { Session, SessionId } from '@metaworkflow/session'
+import * as queryPlugin from '@metaworkflow/session-query-sqlite'
+import * as referencePlugin from '@metaworkflow/session-reference'
+import * as spillPlugin from '@metaworkflow/spill-local'
+import { sessionDir } from '@metaworkflow/spill-local'
 import * as sourcePlugin from './fixtures/source-session.ts'
 
 let context: Context | undefined
@@ -46,16 +46,16 @@ describe('session-reference real Loader composition', () => {
     await ctx.plugin(Loader)
     ctx.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@deepseek-ai/dsh-session', sessionPlugin],
-      ['@deepseek-ai/dsh-session-projection', sessionProjectionPlugin],
-      ['@deepseek-ai/dsh-working-directory', workingDirectoryPlugin],
-      ['@deepseek-ai/dsh-system-prompt', systemPromptPlugin],
-      ['@deepseek-ai/dsh-tools', toolsPlugin],
-      ['@deepseek-ai/dsh-fs-local', fsPlugin],
-      ['@deepseek-ai/dsh-tool-fs', toolFsPlugin],
-      ['@deepseek-ai/dsh-session-query-sqlite', queryPlugin],
-      ['@deepseek-ai/dsh-session-reference', referencePlugin],
-      ['@deepseek-ai/dsh-spill-local', spillPlugin],
+      ['@metaworkflow/session', sessionPlugin],
+      ['@metaworkflow/session-projection', sessionProjectionPlugin],
+      ['@metaworkflow/working-directory', workingDirectoryPlugin],
+      ['@metaworkflow/system-prompt', systemPromptPlugin],
+      ['@metaworkflow/tools', toolsPlugin],
+      ['@metaworkflow/fs-local', fsPlugin],
+      ['@metaworkflow/tool-fs', toolFsPlugin],
+      ['@metaworkflow/session-query-sqlite', queryPlugin],
+      ['@metaworkflow/session-reference', referencePlugin],
+      ['@metaworkflow/spill-local', spillPlugin],
       ['./source-session.ts', sourcePlugin],
     ])
     ctx.loader.internal = {

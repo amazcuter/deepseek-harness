@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { TurnLocation } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { TurnLocation } from '@metaworkflow/client-ui-conversation/client'
 import type { ChatConversationViewNode } from '../src/client/contract/chat-nodes.ts'
 import { isAtOrOutside, type ChatGroupTree } from '../src/client/contract/group-tree.ts'
 import { GroupTreeSegments } from '../src/client/conversation-nodes/group-tree-segments.ts'

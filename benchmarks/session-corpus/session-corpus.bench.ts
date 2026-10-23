@@ -39,7 +39,7 @@ const FORK_STRATA = Array.from({ length: 10 }, (_, stratum) => Math.floor(((stra
 const FORK_P99_RANK = topLevelRank(Math.ceil(0.99 * CORPUS.fork) - 1)
 /** The longest Session; one sample, because one fork takes about 20 s on standard hosted CI. */
 const FORK_LONGEST_RANK = CORPUS.fork - 1
-const WORKER = join(import.meta.dirname, '..', '.dsh-build', 'session-corpus', 'session-corpus.worker.js')
+const WORKER = join(import.meta.dirname, '..', '.mwf-build', 'session-corpus', 'session-corpus.worker.js')
 
 /** Higher recorded median of the standard EPYC 7763 and EPYC 9V74 hosted runners, per budgeted endpoint. */
 const RECORDED_CI_MS = {
@@ -75,7 +75,7 @@ const CASES: Readonly<Record<CorpusName, BenchmarkCase>> = {
   list: {
     id: `session-corpus/list-${String(CORPUS.list)}`,
     measures: `Cold Web Host boot, then first and repeated session.list over ${CORPUS.list.toLocaleString('en-US')} Sessions of realistic length.`,
-    affects: 'Starting DSH and showing the Session list for a heavy user.',
+    affects: 'Starting MWF and showing the Session list for a heavy user.',
   },
   search: {
     id: 'session-corpus/search',
@@ -213,7 +213,7 @@ describe('Session corpus operations', () => {
 
   beforeAll(async () => {
     started = performance.now()
-    scratch = await mkdtemp(join(tmpdir(), 'dsh-session-corpus-bench-'))
+    scratch = await mkdtemp(join(tmpdir(), 'mwf-session-corpus-bench-'))
     const prepared = await Promise.all(anchorGroups().map(group => run<AnchorsReport>([scratch, 'anchors', ...group.map(String)])))
     seeded = await Promise.all((Object.keys(CORPUS) as CorpusName[])
       .map(name => run<SeedReport>([scratch, 'seed', name, String(CORPUS[name])])))

@@ -3,32 +3,32 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-07-26-ci-failover-runbook.md
 /agent-note-ci-failover-runbook-hosted-pools-in-house-pool:
-  en: 677b522817e84e2f
-  zh: f8518a7033b0fd54
+  en: 5e6e018772781be0
+  zh: cbbd59cd9757ad46
 /agent-note-ci-failover-runbook-hosted-pools-in-house-pool/problem:
-  en: 3ecedc74cceced3b
-  zh: f4708f1887d42c61
+  en: d7fe36de8073565a
+  zh: f0ff4863999e96c3
 /agent-note-ci-failover-runbook-hosted-pools-in-house-pool/decision:
-  en: fbc8d8ef03350ac9
-  zh: 7fc81bf75eaab0b7
+  en: 97d6bab45bf13b16
+  zh: 1a7639b8065b518b
 /agent-note-ci-failover-runbook-hosted-pools-in-house-pool/decision/release-rehearsals-share-the-linux-switch:
-  en: 01e74068e0a96375
-  zh: aa811861ce30cb47
+  en: c25f3d959bad5c39
+  zh: 5c1e2c61394e5514
 /agent-note-ci-failover-runbook-hosted-pools-in-house-pool/decision/what-the-in-house-pool-is:
   en: 00d8934ed30e838c
   zh: bdb5584fbaf27c7d
 /agent-note-ci-failover-runbook-hosted-pools-in-house-pool/decision/what-the-in-house-pool-is/windows-pool:
-  en: f395af725d1deaf1
-  zh: 896cedbb36c13758
+  en: 3ef86c26bd7b96b1
+  zh: 9177b71260e64ae7
 /agent-note-ci-failover-runbook-hosted-pools-in-house-pool/decision/switch-any-repository-writer-1-minute-no-merge:
-  en: 2e3829fd72d6b1b0
-  zh: 563f0abade7974f9
+  en: 3e717daa6af75d23
+  zh: 09935abef0a1769e
 /agent-note-ci-failover-runbook-hosted-pools-in-house-pool/capacity-during-failover:
   en: 22611ed4316adc7c
   zh: 29acd02b4a07313d
 /agent-note-ci-failover-runbook-hosted-pools-in-house-pool/capacity-during-failover/switch-back:
-  en: 63cf911019db8d2f
-  zh: 5eb3903b0ceb30db
+  en: 28b47004e624b024
+  zh: 71b1035984e1811c
 /agent-note-ci-failover-runbook-hosted-pools-in-house-pool/capacity-during-failover/trust-boundary:
   en: c05bc0ceba304ff0
   zh: 19ae9a2d70f25d33

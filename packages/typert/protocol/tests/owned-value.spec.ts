@@ -17,10 +17,10 @@ describe('TypertOwnedValue', () => {
   })
 
   it('recognizes a separately produced marker without accepting false markers or borrowed values', () => {
-    expect(TYPERT_OWNED_VALUE).toBe(Symbol.for('dsh.typert.owned-value'))
-    const siblingBundle = { [Symbol.for('dsh.typert.owned-value')]: true, value: {}, [Symbol.dispose]() {} }
+    expect(TYPERT_OWNED_VALUE).toBe(Symbol.for('mwf.typert.owned-value'))
+    const siblingBundle = { [Symbol.for('mwf.typert.owned-value')]: true, value: {}, [Symbol.dispose]() {} }
     expect(isTypertOwnedValue(siblingBundle)).toBe(true)
-    for (const value of [undefined, null, 1, {}, { [Symbol.for('dsh.typert.owned-value')]: false }]) {
+    for (const value of [undefined, null, 1, {}, { [Symbol.for('mwf.typert.owned-value')]: false }]) {
       expect(isTypertOwnedValue(value)).toBe(false)
     }
   })

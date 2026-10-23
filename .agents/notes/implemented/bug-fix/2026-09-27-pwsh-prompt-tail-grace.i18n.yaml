@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-09-27-pwsh-prompt-tail-grace.md
 /agent-note-a-seen-prompt-marker-keeps-its-own-tail-grace:
-  en: 5e8c5673a0669d9c
-  zh: c8442a6186288a2a
+  en: c0b9d282f197d9e0
+  zh: 6b23cc94c7870f87
 /agent-note-a-seen-prompt-marker-keeps-its-own-tail-grace/problem:
-  en: 2f5e9297c5fd4853
-  zh: 8168c90bc6fa13b5
+  en: a0f56c8c08d78c4c
+  zh: 047b5d5f1fe920b3
 /agent-note-a-seen-prompt-marker-keeps-its-own-tail-grace/decision:
-  en: a998f5c6abdd68eb
-  zh: a7cdd13e1e4de6c6
+  en: 163efe84d0f39b95
+  zh: 8f244f77f547599a
 /agent-note-a-seen-prompt-marker-keeps-its-own-tail-grace/alternatives-considered:
   en: 21a9a19b76f42758
   zh: 30a8f5425b59900d

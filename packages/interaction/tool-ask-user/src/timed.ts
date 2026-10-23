@@ -3,11 +3,11 @@
  */
 
 import type { Context } from '@deepseek-ai/cordis'
-import { defineTool, type ToolExecution } from '@deepseek-ai/dsh-tools'
-import { TIMED_WAIT_PARAMETER } from '@deepseek-ai/dsh-user-questions'
+import { defineTool, type ToolExecution } from '@metaworkflow/tools'
+import { TIMED_WAIT_PARAMETER } from '@metaworkflow/user-questions'
 import type {
   AskUserQuestionAnswer, AskUserQuestionRequestEvent,
-} from '@deepseek-ai/dsh-user-questions/types'
+} from '@metaworkflow/user-questions/types'
 
 function validateTimeout(timeout: number): number {
   if (timeout !== -1 && (!Number.isInteger(timeout) || timeout < 1 || timeout > 2_147_483)) {

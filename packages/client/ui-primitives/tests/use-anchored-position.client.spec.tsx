@@ -75,7 +75,7 @@ describe('useAnchoredPosition', () => {
       else root.setAttribute('data-fullscreen', priorFullscreen)
       vi.restoreAllMocks()
     })
-    root.style.setProperty('--dsh-frame-top-clearance', '40px')
+    root.style.setProperty('--mwf-frame-top-clearance', '40px')
     root.toggleAttribute('data-fullscreen', fullscreen)
     vi.spyOn(HTMLButtonElement.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(100, 0, 200, 10))
     vi.spyOn(HTMLDivElement.prototype, 'offsetHeight', 'get').mockReturnValue(400)

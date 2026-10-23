@@ -5,60 +5,60 @@
 /:
   en: d2aaa955e01c2679
   zh: 9d264cf8be1536cf
-/deepseek-ai-dsh-client-locale:
-  en: 9365090d78467dea
-  zh: 74b6fbb9769d795f
-/deepseek-ai-dsh-client-locale/summary:
-  en: d8cc5ae25160ca20
-  zh: e8fc2b9fb663cdee
-/deepseek-ai-dsh-client-locale/table-of-contents:
+/metaworkflow-client-locale:
+  en: 36afb8f72ed2533b
+  zh: 11da354caf924cf9
+/metaworkflow-client-locale/summary:
+  en: fac2c2b4e424aab5
+  zh: e3f4e2be54bd0aa8
+/metaworkflow-client-locale/table-of-contents:
   en: d152484eb41ac6b4
   zh: bda879a892f240f0
-/deepseek-ai-dsh-client-locale/use-this-package:
+/metaworkflow-client-locale/use-this-package:
   en: 7fedfbcbc3ad8cea
   zh: e29ba5230e0b9ecb
-/deepseek-ai-dsh-client-locale/use-this-package/choosing-a-language:
-  en: 8527d77583824eff
-  zh: 2ac53ced0a32ba19
-/deepseek-ai-dsh-client-locale/use-this-package/registering-a-dictionary:
+/metaworkflow-client-locale/use-this-package/choosing-a-language:
+  en: a939bbe81f4a206a
+  zh: 8b8e5afaafd2fcda
+/metaworkflow-client-locale/use-this-package/registering-a-dictionary:
   en: 9b2fcfa8cae8dc4b
   zh: 293012a4d364ef59
-/deepseek-ai-dsh-client-locale/use-this-package/resolving-package-text:
-  en: 3b63e84fe0fdf8f4
-  zh: e97b5d1b92dff7ec
-/deepseek-ai-dsh-client-locale/use-this-package/registering-a-language-pack:
+/metaworkflow-client-locale/use-this-package/resolving-package-text:
+  en: 4befd3adfe16917c
+  zh: e8ea6c3d889dee19
+/metaworkflow-client-locale/use-this-package/registering-a-language-pack:
   en: aa4e9c70523339cc
   zh: 3359eddc4e9ef15e
-/deepseek-ai-dsh-client-locale/use-this-package/what-the-host-half-does:
-  en: 784035ca4b4838b8
-  zh: 4a258795f408528f
-/deepseek-ai-dsh-client-locale/understand-the-implementation:
+/metaworkflow-client-locale/use-this-package/what-the-host-half-does:
+  en: e68c5e77eb9f2798
+  zh: 65c4004ae85a3354
+/metaworkflow-client-locale/understand-the-implementation:
   en: 288d8db39f9acfc5
   zh: d65cf2ffae8ad35c
-/deepseek-ai-dsh-client-locale/understand-the-implementation/design-concept:
-  en: c2e0ab8bb6bcb26a
-  zh: 508dec4db2c0fde6
-/deepseek-ai-dsh-client-locale/understand-the-implementation/preference-resolution:
+/metaworkflow-client-locale/understand-the-implementation/design-concept:
+  en: 9b2c1e57a4c5cf4a
+  zh: b8904fc94efee58d
+/metaworkflow-client-locale/understand-the-implementation/preference-resolution:
   en: d602d957654641c6
   zh: 2db822b746a6471d
-/deepseek-ai-dsh-client-locale/understand-the-implementation/dictionary-lookup:
+/metaworkflow-client-locale/understand-the-implementation/dictionary-lookup:
   en: f8dcc4035830e738
   zh: 8452ac63ee148c61
-/deepseek-ai-dsh-client-locale/understand-the-implementation/source-map:
+/metaworkflow-client-locale/understand-the-implementation/source-map:
   en: a382e032c06ced3f
   zh: 419cb5f60b075388
-/deepseek-ai-dsh-client-locale/further-exploration:
-  en: f73d411c9e90dead
-  zh: 8dd05f13e081af88
-/deepseek-ai-dsh-client-locale/model-experience:
+/metaworkflow-client-locale/further-exploration:
+  en: 0dd8efdc4408ab22
+  zh: 358be276ebad62a7
+/metaworkflow-client-locale/model-experience:
   en: 209321ba2d2e6710
   zh: 21deb6c973f69b66
-/deepseek-ai-dsh-client-locale/model-experience/kv-cache-effect:
+/metaworkflow-client-locale/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/deepseek-ai-dsh-client-locale/known-limitations-and-deferred-work:
+/metaworkflow-client-locale/known-limitations-and-deferred-work:
   en: 500ede048ef44c6a
   zh: f741fae55b29a627
-/deepseek-ai-dsh-client-locale/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-client-locale/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

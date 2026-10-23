@@ -22,9 +22,9 @@ function load(mainFrame: boolean, response: unknown, origin = 'https://platform.
         ipcRenderer: ipc,
       }
     },
-    process: { isMainFrame: mainFrame, argv: ['--dsh-platform-origin=https://platform.deepseek.com'] }, location: new URL('/usage', origin), exports: {},
+    process: { isMainFrame: mainFrame, argv: ['--mwf-platform-origin=https://platform.deepseek.com'] }, location: new URL('/usage', origin), exports: {},
   })
-  return { bridge: bridges.get('dsh'), invoke, ipc }
+  return { bridge: bridges.get('mwf'), invoke, ipc }
 }
 it('provides a synchronous getter immediately after exactly one bootstrap IPC', () => {
   const { bridge, invoke } = load(true, { origin: 'https://platform.deepseek.com', token: 'fixture-secret', locale: 'zh_CN' })
@@ -60,17 +60,17 @@ it('exposes no bridge when the document leaves the allowed origin', () => {
 it('caches language changes before subscription and removes disposed listeners', () => {
   const { bridge, ipc, invoke } = load(true, { origin: 'https://platform.deepseek.com', token: 'fixture-secret', locale: 'zh_CN' })
   expect(bridge!.getLocale()).toBe('zh_CN')
-  ipc.emit('dsh-platform:locale-changed', {}, 'en_US')
+  ipc.emit('mwf-platform:locale-changed', {}, 'en_US')
   expect(bridge!.getLocale()).toBe('en_US')
   const listener = vi.fn()
   const dispose = bridge!.onLocaleChange(listener)
-  ipc.emit('dsh-platform:locale-changed', {}, 'zh_CN')
+  ipc.emit('mwf-platform:locale-changed', {}, 'zh_CN')
   expect(listener).toHaveBeenCalledWith('zh_CN')
-  ipc.emit('dsh-platform:locale-changed', {}, 'invalid')
+  ipc.emit('mwf-platform:locale-changed', {}, 'invalid')
   expect(bridge!.getLocale()).toBe('zh_CN')
   expect(listener).toHaveBeenCalledOnce()
   dispose()
-  ipc.emit('dsh-platform:locale-changed', {}, 'en_US')
+  ipc.emit('mwf-platform:locale-changed', {}, 'en_US')
   expect(listener).toHaveBeenCalledOnce()
   expect(bridge!.getLocale()).toBe('en_US')
   expect(invoke).toHaveBeenCalledOnce()

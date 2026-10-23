@@ -1,20 +1,20 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import AgentRegistry, { emitAgentEvent } from '@deepseek-ai/dsh-agent'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import { bindScopeParent, createScope, scopeOf } from '@deepseek-ai/dsh-scope'
-import { JobId } from '@deepseek-ai/dsh-jobs'
-import LocalJobRegistry from '@deepseek-ai/dsh-jobs-local'
-import type { JobAppendOptions, JobHandle, JobHooks, JobOutcome, JobOutputSource, JobSpec, JobView } from '@deepseek-ai/dsh-jobs'
-import * as ToolJobs from '@deepseek-ai/dsh-tool-jobs'
+import { ToolCallId } from '@metaworkflow/llm'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRuntime from '@metaworkflow/tools'
+import AgentRegistry, { emitAgentEvent } from '@metaworkflow/agent'
+import type { Agent } from '@metaworkflow/agent'
+import { createUserMessage } from '@metaworkflow/llm'
+import { SessionId } from '@metaworkflow/session'
+import { bindScopeParent, createScope, scopeOf } from '@metaworkflow/scope'
+import { JobId } from '@metaworkflow/jobs'
+import LocalJobRegistry from '@metaworkflow/jobs-local'
+import type { JobAppendOptions, JobHandle, JobHooks, JobOutcome, JobOutputSource, JobSpec, JobView } from '@metaworkflow/jobs'
+import * as ToolJobs from '@metaworkflow/tool-jobs'
 import { publicJob, renderModelDelta, statusLine } from '../src/render.ts'
 
-declare module '@deepseek-ai/dsh-jobs' {
+declare module '@metaworkflow/jobs' {
   interface JobKindMap {
     'test-task': 'test-task'
   }

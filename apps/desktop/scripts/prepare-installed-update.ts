@@ -30,7 +30,7 @@ async function main(): Promise<void> {
   }
   if (command === 'runtime' && original !== undefined && successor === undefined) {
     console.log(JSON.stringify(await prepareInstalledUpdateRuntime(original,
-      resolve(repository, 'apps/desktop/.desktop-build/targets/win-x64/dsh')), null, 2))
+      resolve(repository, 'apps/desktop/.desktop-build/targets/win-x64/mwf')), null, 2))
     return
   }
   if ((command !== 'init' && command !== 'inspect') || original === undefined || successor === undefined

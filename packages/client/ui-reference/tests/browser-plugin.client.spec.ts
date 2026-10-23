@@ -5,19 +5,19 @@
  */
 import { Context, Service } from '@deepseek-ai/cordis'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
-import { UiConversation } from '@deepseek-ai/dsh-client-ui-conversation/src/client/conversation/assembly.ts'
+import { LocaleRuntime } from '@metaworkflow/client-locale/client'
+import { SlotRegistry } from '@metaworkflow/client-ui-renderer/client'
+import type { PropsRenderSlots } from '@metaworkflow/client-ui-slots'
+import { UiConversation } from '@metaworkflow/client-ui-conversation/src/client/conversation/assembly.ts'
 import { FileReference, FolderReference, type FileReferenceInjected } from '../src/client/FileReference.tsx'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { RemoteError, TestSessions } from '@deepseek-ai/dsh-client-test-runtime'
-import type { SessionFixture } from '@deepseek-ai/dsh-client-test-runtime'
+import type { SessionId } from '@metaworkflow/session/types'
+import { RemoteError, TestSessions } from '@metaworkflow/client-test-runtime'
+import type { SessionFixture } from '@metaworkflow/client-test-runtime'
 import type {
   CandidateRequest, ClientSessionContext, InputTriggerCandidate, InputTriggerSource,
-} from '@deepseek-ai/dsh-client-ui-input-trigger/client'
-import type { FileReferenceCandidate } from '@deepseek-ai/dsh-file-reference/types'
-import type { SessionReferenceMentionCandidate } from '@deepseek-ai/dsh-session-reference/types'
+} from '@metaworkflow/client-ui-input-trigger/client'
+import type { FileReferenceCandidate } from '@metaworkflow/file-reference/types'
+import type { SessionReferenceMentionCandidate } from '@metaworkflow/session-reference/types'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as nodeApply } from '../src/index.ts'
 
@@ -89,7 +89,7 @@ async function bench(
       cwd: `${HOME}/project`,
       sameWorkspace: false,
       createdAt: CREATED_AT,
-      mention: '@[Research](dsh-session:InNvdXJjZSI)',
+      mention: '@[Research](mwf-session:InNvdXJjZSI)',
     }],
   })),
   listed: Record<string, {
@@ -292,7 +292,7 @@ describe('candidates', () => {
             cwd: `${HOME}/project`,
             sameWorkspace: false,
             createdAt: CREATED_AT,
-            mention: '@[Research](dsh-session:InNvdXJjZSI)',
+            mention: '@[Research](mwf-session:InNvdXJjZSI)',
           }],
         })
       }
@@ -344,7 +344,7 @@ describe('candidates', () => {
         cwd: `${HOME}/project`,
         sameWorkspace: false,
         createdAt: CREATED_AT,
-        mention: '@[Research](dsh-session:InNvdXJjZSI)',
+        mention: '@[Research](mwf-session:InNvdXJjZSI)',
       }],
     }))
     const { source } = await bench(files, sessions)
@@ -412,7 +412,7 @@ describe('candidates', () => {
         label: 'same',
         sameWorkspace: false,
         createdAt: CREATED_AT,
-        mention: '@[same](dsh-session:InNhbWUi)',
+        mention: '@[same](mwf-session:InNhbWUi)',
       }],
     }))
     const { source } = await bench(files, sessions)
@@ -434,7 +434,7 @@ describe('candidates', () => {
         cwd: `${HOME}/project`,
         sameWorkspace: true,
         createdAt: CREATED_AT,
-        mention: '@[Unlisted run](dsh-session:InVubGlzdGVkIg)',
+        mention: '@[Unlisted run](mwf-session:InVubGlzdGVkIg)',
       }],
     }))
     // A row absent from the list has no durable activity time to read.
@@ -456,7 +456,7 @@ describe('candidates', () => {
           cwd: `${HOME}/project`,
           sameWorkspace: true,
           createdAt: CREATED_AT,
-          mention: '@[Ordinary title](dsh-session:Im9yZGluYXJ5Ig)',
+          mention: '@[Ordinary title](mwf-session:Im9yZGluYXJ5Ig)',
         },
         {
           sessionId: sid('worker'),
@@ -465,7 +465,7 @@ describe('candidates', () => {
           cwd: `${HOME}/project`,
           sameWorkspace: true,
           createdAt: CREATED_AT,
-          mention: '@[researcher](dsh-session:IndvcmtlciI)',
+          mention: '@[researcher](mwf-session:IndvcmtlciI)',
         },
       ],
     }))
@@ -493,10 +493,10 @@ describe('candidates', () => {
     })).toEqual({
       insert: {
         source: 'reference',
-        ref: '@[researcher](dsh-session:IndvcmtlciI)',
+        ref: '@[researcher](mwf-session:IndvcmtlciI)',
         label: 'researcher',
         appearance: 'session',
-        clipboardText: '@[researcher](dsh-session:IndvcmtlciI)',
+        clipboardText: '@[researcher](mwf-session:IndvcmtlciI)',
       },
     })
   })
@@ -511,7 +511,7 @@ describe('candidates', () => {
         cwd: `${HOME}/project`,
         sameWorkspace: true,
         createdAt: NOW - 1_000,
-        mention: '@[Just now](dsh-session:Imp1c3Qtbm93Ig)',
+        mention: '@[Just now](mwf-session:Imp1c3Qtbm93Ig)',
       }],
     }))
     const { source } = await bench(files, sessions, { 'just-now': { updatedAt: NOW - 1_000 } })
@@ -530,7 +530,7 @@ describe('candidates', () => {
         cwd: `${HOME}/project`,
         sameWorkspace: true,
         createdAt: CREATED_AT,
-        mention: '@[Sibling run](dsh-session:InNpYmxpbmdyIg)',
+        mention: '@[Sibling run](mwf-session:InNpYmxpbmdyIg)',
       }],
     }))
     const { source } = await bench(files, sessions)
@@ -657,7 +657,7 @@ describe('pick and codec', () => {
     const { source } = await bench()
     const candidates = await source.candidates(session, request(''))
     const candidate = candidates.find(item => item.name === 'Research')!
-    const mention = '@[Research](dsh-session:InNvdXJjZSI)'
+    const mention = '@[Research](mwf-session:InNvdXJjZSI)'
     expect(pick(source, candidate)).toEqual({
       insert: {
         source: 'reference',
@@ -686,8 +686,8 @@ describe('reference preview', () => {
     factory(session.sessionId).openFile('docs/a b.md')
     factory(sid('other')).openFile('notes.md')
     expect(openResource.mock.calls).toEqual([
-      ['dsh-resource://file/session/target/docs/a%20b.md'],
-      ['dsh-resource://file/session/other/notes.md'],
+      ['mwf-resource://file/session/target/docs/a%20b.md'],
+      ['mwf-resource://file/session/other/notes.md'],
     ])
   })
 
@@ -696,10 +696,10 @@ describe('reference preview', () => {
     const openResource = vi.spyOn(ctx.sidebarRight, 'openResource')
     expect(source.openReference?.(session, { ref: '@notes/readme.md', appearance: 'file' })).toBe(true)
     expect(source.openReference?.(session, { ref: '@"docs/a b.md"', appearance: 'file' })).toBe(true)
-    expect(openResource).toHaveBeenNthCalledWith(1, 'dsh-resource://file/session/target/notes/readme.md')
-    expect(openResource).toHaveBeenNthCalledWith(2, 'dsh-resource://file/session/target/docs/a%20b.md')
+    expect(openResource).toHaveBeenNthCalledWith(1, 'mwf-resource://file/session/target/notes/readme.md')
+    expect(openResource).toHaveBeenNthCalledWith(2, 'mwf-resource://file/session/target/docs/a%20b.md')
     expect(source.openReference?.(session, { ref: '@docs/', appearance: 'folder' })).toBe(false)
-    expect(source.openReference?.(session, { ref: '@[Research](dsh-session:abc)', appearance: 'session' })).toBe(false)
+    expect(source.openReference?.(session, { ref: '@[Research](mwf-session:abc)', appearance: 'session' })).toBe(false)
     expect(openResource).toHaveBeenCalledTimes(2)
     await fiber.dispose()
   })

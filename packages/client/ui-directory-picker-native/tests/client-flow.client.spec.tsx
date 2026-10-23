@@ -3,8 +3,8 @@ import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render } from '@testing-library/react'
 import { afterEach } from 'vitest'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type { DirectoryFlowOwnerProps } from '@deepseek-ai/dsh-client-ui-workspace/client'
+import { SlotRegistry } from '@metaworkflow/client-ui-renderer/client'
+import type { DirectoryFlowOwnerProps } from '@metaworkflow/client-ui-workspace/client'
 import { apply, inject } from '../src/client/index.ts'
 import { NativeDirectoryFlow } from '../src/client/flow.ts'
 import { apply as nodeApply } from '../src/index.ts'
@@ -168,7 +168,7 @@ describe('directory-picker-native client half', () => {
   it.each(['win32', 'darwin'] as const)('consumes the actual Desktop preload directory bridge on %s', async (platform) => {
     vi.spyOn(process, 'platform', 'get').mockReturnValue(platform)
     vi.resetModules()
-    vi.stubGlobal('location', new URL('dsh-app://app/'))
+    vi.stubGlobal('location', new URL('mwf-app://app/'))
     // Desktop's preload is typechecked by its own compiler program.
     const preload = '../../../../apps/desktop/src/preload-app.ts'
     await import(/* @vite-ignore */ preload)
@@ -181,7 +181,7 @@ describe('directory-picker-native client half', () => {
       const entry = b.slots.entries(HOLES[0])[0]!
       const injected = (entry.inject as () => { pick: () => Promise<string | null> })()
       await expect(injected.pick()).resolves.toBe('/desktop/workspace')
-      expect(desktopIpc.invoke).toHaveBeenCalledExactlyOnceWith('dsh-desktop:directory-pick')
+      expect(desktopIpc.invoke).toHaveBeenCalledExactlyOnceWith('mwf-desktop:directory-pick')
       expect(b.pickDirectory).not.toHaveBeenCalled()
     } finally {
       await fiber.dispose()
@@ -191,7 +191,7 @@ describe('directory-picker-native client half', () => {
 
   it('uses the desktop bridge without calling the Host and preserves cancellation and errors', async () => {
     const pick = vi.fn<() => Promise<string | null>>().mockResolvedValue('/desktop/workspace')
-    vi.stubGlobal('__DSH_DIRECTORY_PICKER__', { pick })
+    vi.stubGlobal('__MWF_DIRECTORY_PICKER__', { pick })
     const b = await bench()
     b.declare()
     const fiber = b.ctx.plugin({ inject: [...inject], apply })

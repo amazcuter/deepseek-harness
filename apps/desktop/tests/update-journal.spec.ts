@@ -6,7 +6,7 @@ import { DesktopUpdateJournal, desktopUpdateJournalState } from '../src/update-j
 
 describe('desktop qualification update journal', () => {
   it('keeps both versions in separate files in the shared evidence directory', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'dsh-update-journal-'))
+    const directory = await mkdtemp(join(tmpdir(), 'mwf-update-journal-'))
     try {
       const old = new DesktopUpdateJournal(directory, '1.0.0-nightly.1')
       old.action('download-requested')
@@ -42,7 +42,7 @@ describe('desktop qualification update journal', () => {
 
   it('refuses relative evidence paths and reports storage failure', async () => {
     expect(() => new DesktopUpdateJournal('relative-logs', '1.0.0')).toThrow('must be absolute')
-    const directory = await mkdtemp(join(tmpdir(), 'dsh-update-journal-failure-'))
+    const directory = await mkdtemp(join(tmpdir(), 'mwf-update-journal-failure-'))
     try {
       const journal = new DesktopUpdateJournal(directory, '1.0.0')
       await rm(journal.path)

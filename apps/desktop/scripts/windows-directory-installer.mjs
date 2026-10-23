@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 
 const require = createRequire(import.meta.url)
 const templates = join(dirname(require.resolve('app-builder-lib/package.json')), 'templates/nsis')
-const patched = Symbol.for('@deepseek-ai/dsh-desktop/directory-installer')
+const patched = Symbol.for('@metaworkflow/desktop/directory-installer')
 
 function replaceOnce(source, before, after) {
   if (source.split(before).length !== 2) throw new Error(`Desktop NSIS template changed: ${before}`)
@@ -22,7 +22,7 @@ export function directoryInstallSection(source) {
   result = replaceOnce(result, '!include installer.nsh', `!include installer.nsh
 !macroundef extractUsing7za
 !macro extractUsing7za FILE
-  !insertmacro dshExtractPayload "\${FILE}"
+  !insertmacro mwfExtractPayload "\${FILE}"
 !macroend
 !macroundef uninstallOldVersion
 !macro uninstallOldVersion ROOT_KEY
@@ -36,8 +36,8 @@ export function directoryInstallSection(source) {
   \${EndIf}
 !macroend`)
   result = replaceOnce(result, '!insertmacro setLinkVars', `!insertmacro setLinkVars
-!insertmacro dshStageApplication`)
-  result = replaceOnce(result, '!insertmacro installApplicationFiles', 'Call dshPromoteDirectories\nIfErrors 0 +3\n  SetErrorLevel 2\n  Quit')
+!insertmacro mwfStageApplication`)
+  result = replaceOnce(result, '!insertmacro installApplicationFiles', 'Call mwfPromoteDirectories\nIfErrors 0 +3\n  SetErrorLevel 2\n  Quit')
   result = replaceOnce(result, '!ifdef UNINSTALLER_ICON\n  File /oname=uninstallerIcon.ico "${UNINSTALLER_ICON}"\n!endif\n', '')
   // The staging macro uses the upstream installer macro, including its signed uninstaller.
   return result
@@ -49,7 +49,7 @@ export function directoryInstallSection(source) {
  * @returns {string} Helper with cleanup before installer exits.
  */
 export function directoryInstallerExits(source) {
-  return source.replaceAll(/^(\s*)Quit\s*$/gm, '$1!ifndef BUILD_UNINSTALLER\n$1Call dshCleanupDirectories\n$1!endif\n$1Quit')
+  return source.replaceAll(/^(\s*)Quit\s*$/gm, '$1!ifndef BUILD_UNINSTALLER\n$1Call mwfCleanupDirectories\n$1!endif\n$1Quit')
 }
 
 /** Install the build-only NSIS adapter without replacing electron-builder's signed bootstrap path. */
@@ -80,7 +80,7 @@ export function installWindowsDirectoryInstaller() {
     const uninstaller = join(directory, 'uninstaller.nsh')
     await writeFile(uninstaller, directoryUninstaller(await readFile(join(templates, 'uninstaller.nsh'), 'utf8')))
     adapted = replaceOnce(adapted, '!include "uninstaller.nsh"', `!include "${uninstaller}"`)
-    return `!define DSH_UPDATER_CACHE_NAME "${this.packager.appInfo.updaterCacheDirName}"\n!define DSH_SEVENZIP_PATH "${tool}"\n!define DSH_SEVENZIP_LICENSE_DIR "${dirname(dirname(sourceTool))}"\n${await compute.call(this, adapted, ...args)}`
+    return `!define MWF_UPDATER_CACHE_NAME "${this.packager.appInfo.updaterCacheDirName}"\n!define MWF_SEVENZIP_PATH "${tool}"\n!define MWF_SEVENZIP_LICENSE_DIR "${dirname(dirname(sourceTool))}"\n${await compute.call(this, adapted, ...args)}`
   }
 }
 

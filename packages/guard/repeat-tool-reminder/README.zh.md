@@ -3,13 +3,13 @@ description: "建议性循环卫生 guard：当 agent（智能体）重复完全
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-repeat-tool-reminder
+# @metaworkflow/repeat-tool-reminder
 
 [English](README.md) | 中文
 
 ## 概述
 
-本包帮助模型跳出以相同参数反复调用同一工具却没有进展的循环。达到配置的重复次数时，它会要求模型检查上一次结果并改变方法或结束任务。提醒只是建议，绝不会阻止或延迟合理的重复调用。每个 agent 的重复分别跟踪，新的用户消息会清除计数。`dsh` 基础组合包默认启用本包，并在重复 3、5、8 次时提醒。
+本包帮助模型跳出以相同参数反复调用同一工具却没有进展的循环。达到配置的重复次数时，它会要求模型检查上一次结果并改变方法或结束任务。提醒只是建议，绝不会阻止或延迟合理的重复调用。每个 agent 的重复分别跟踪，新的用户消息会清除计数。`mwf` 基础组合包默认启用本包，并在重复 3、5、8 次时提醒。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当模型应当自行发现自己在相同工具调用上循环时，挂载此插件。无需学习或接线：`dsh` 基础组合包已经运行它，默认值适用于大多数会话——想更早、更晚或在更少的工具上收到提醒时，调优下面的阈值与工具范围即可。
+当模型应当自行发现自己在相同工具调用上循环时，挂载此插件。无需学习或接线：`mwf` 基础组合包已经运行它，默认值适用于大多数会话——想更早、更晚或在更少的工具上收到提醒时，调优下面的阈值与工具范围即可。
 
 ### 何时选择
 
@@ -36,7 +36,7 @@ kind: "package-reference"
 想改变提醒何时触发或覆盖哪些工具时，用配置挂载插件：
 
 ```yaml
-- name: '@deepseek-ai/dsh-repeat-tool-reminder'
+- name: '@metaworkflow/repeat-tool-reminder'
   config:
     thresholds: [3, 5, 8]        # remind at 3, 5, and 8 consecutive repeats
     include: []                  # track every tool; list patterns to track only some
@@ -51,7 +51,7 @@ kind: "package-reference"
 | `exclude` | `[]` | 绝不跟踪这些工具；对它们的调用既不计数也不重置 |
 | `argumentsPreviewChars` | `500` | 详细提醒中显示多少字符的重复参数 |
 
-无效配置会在启动时以清晰错误失败——空的 `thresholds` 列表、小于 2 的重复次数或重复值——绝不会静默改变行为。生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-repeat-tool-reminder)记录每个受支持的值。
+无效配置会在启动时以清晰错误失败——空的 `thresholds` 列表、小于 2 的重复次数或重复值——绝不会静默改变行为。生成的[配置目录](../../../docs/config-catalog.zh.md#metaworkflowrepeat-tool-reminder)记录每个受支持的值。
 
 ### 你会得到什么
 
@@ -106,7 +106,7 @@ guard 建立在四项承诺之上：
 当包级约定不够用时阅读以下页面。它们从工具 waterfall（瀑布式事件）逐步进入穷尽式配置与 guard 组映射。
 
 - [工具子系统参考](../../../docs/subsystems/tools.zh.md)——本 guard 消费的 `tools/execute` waterfall、`additionalContexts` 与决策形态。
-- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-repeat-tool-reminder)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#metaworkflowrepeat-tool-reminder)——每个受支持配置字段及其源声明。
 - [guard 组映射](../README.zh.md)——同组的 guard 包与循环卫生家族。
 
 -----

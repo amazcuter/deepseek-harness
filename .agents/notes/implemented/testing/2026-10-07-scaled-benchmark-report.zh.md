@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决定
 
-每次 `test:bench` 运行都会写出 `benchmarks/.dsh-report/report.html`，这是一个不依赖网络资源的独立页面。基准文件在断言预算之前，把每个有预算的墙钟中位数传给 [scaling-report.ts](../../../../benchmarks/support/scaling-report.ts) 的 `recordTimings`，把整进程峰值 RSS 传给 `recordPeakMemory`。每次调用都带有用例描述，说明该用例测量什么、影响哪个用户场景；读者悬停该用例时页面会显示它。Vitest global setup 在运行前清空结果，在运行后渲染页面，用例失败时也会渲染。预算和断言不变。
+每次 `test:bench` 运行都会写出 `benchmarks/.mwf-report/report.html`，这是一个不依赖网络资源的独立页面。基准文件在断言预算之前，把每个有预算的墙钟中位数传给 [scaling-report.ts](../../../../benchmarks/support/scaling-report.ts) 的 `recordTimings`，把整进程峰值 RSS 传给 `recordPeakMemory`。每次调用都带有用例描述，说明该用例测量什么、影响哪个用户场景；读者悬停该用例时页面会显示它。Vitest global setup 在运行前清空结果，在运行后渲染页面，用例失败时也会渲染。预算和断言不变。
 
 ### 机器缩放
 

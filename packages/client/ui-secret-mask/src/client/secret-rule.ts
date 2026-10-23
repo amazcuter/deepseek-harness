@@ -6,11 +6,11 @@
  * live in [credential-formats.ts](./credential-formats.ts); scanning lives in
  * [credential-scanner.ts](./credential-scanner.ts).
  */
-import type { UserTextRule } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextRule } from '@metaworkflow/client-ui-conversation/client'
 import { CredentialScanner } from './credential-scanner.ts'
 import { formatTables } from './format-tables.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@metaworkflow/client-ui-conversation/client' {
   interface UserTextDataMap {
     /** One recognized credential range. */
     secret: {

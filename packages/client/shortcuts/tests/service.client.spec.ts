@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
+import { LocaleRuntime } from '@metaworkflow/client-locale/client'
 import ShortcutsService from '../src/client/index.ts'
 import { initialShortcutConfig } from '../src/protocol.ts'
 import type { DesktopKeyboardApi, DesktopShortcutsApi, ShortcutConfigSnapshot, ShortcutCommandId } from '../src/protocol.ts'
@@ -10,7 +10,7 @@ const disposers: (() => Promise<void>)[] = []
 afterEach(async () => {
   for (const dispose of disposers.splice(0)) await dispose()
   delete document.documentElement.dataset.platform
-  Reflect.deleteProperty(window, 'dshDesktop')
+  Reflect.deleteProperty(window, 'mwfDesktop')
   localStorage.clear()
   vi.restoreAllMocks()
 })
@@ -35,7 +35,7 @@ function desktop() {
     closeWindow: vi.fn<DesktopKeyboardApi['closeWindow']>().mockResolvedValue(),
     subscribe: vi.fn<DesktopKeyboardApi['subscribe']>(() => () => {}),
   }
-  Object.defineProperty(window, 'dshDesktop', { configurable: true, value: { shortcuts: api, keyboard } })
+  Object.defineProperty(window, 'mwfDesktop', { configurable: true, value: { shortcuts: api, keyboard } })
   return { api, keyboard, publish: (value: ShortcutConfigSnapshot) => { publish(value) }, unsubscribe }
 }
 function mount() {
@@ -107,7 +107,7 @@ it('waits for the Desktop handshake and ignores older get, edit, and broadcast r
 it.each(['darwin', 'win32', 'linux'])('rejects %s Desktop startup without its native keyboard bridge', (platform) => {
   const { api } = desktop()
   document.documentElement.dataset.platform = platform
-  Object.defineProperty(window, 'dshDesktop', { configurable: true, value: { shortcuts: api } })
+  Object.defineProperty(window, 'mwfDesktop', { configurable: true, value: { shortcuts: api } })
   const read = vi.spyOn(Storage.prototype, 'getItem'), write = vi.spyOn(Storage.prototype, 'setItem')
   expect(() => mount()).toThrow('Desktop keyboard bridge unavailable')
   expect(api.get).not.toHaveBeenCalled()
@@ -116,7 +116,7 @@ it.each(['darwin', 'win32', 'linux'])('rejects %s Desktop startup without its na
 
 it('reports unavailable Desktop storage without reading or writing localStorage', async () => {
   const { keyboard } = desktop()
-  Object.defineProperty(window, 'dshDesktop', { configurable: true, value: { keyboard } })
+  Object.defineProperty(window, 'mwfDesktop', { configurable: true, value: { keyboard } })
   const read = vi.spyOn(Storage.prototype, 'getItem'), write = vi.spyOn(Storage.prototype, 'setItem')
   const { service } = mount()
   expect(service.config.getSnapshot().status).toBe('unreadable')

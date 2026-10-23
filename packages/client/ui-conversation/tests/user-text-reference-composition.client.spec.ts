@@ -1,7 +1,7 @@
 /** Real business matchers compose by original position through the data-layer scheduler. */
 import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { UserTextFacts, UserTextRule, UserTextNode, UserTextTransformContext } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextFacts, UserTextRule, UserTextNode, UserTextTransformContext } from '@metaworkflow/client-ui-conversation/client'
 import { UserTextRegistry } from '../src/client/conversation/user-text-registry.ts'
 import { sessionReferenceRule } from '../src/client/user-text/session-reference-rule.ts'
 import { fileReferenceRule, folderReferenceRule } from '../../ui-reference/src/client/user-text-rules.ts'
@@ -38,9 +38,9 @@ describe('original-text reference competition', () => {
 
   it('keeps an earlier complete file instead of a wire Session inside its path', () => {
     const { evaluate } = setup()
-    const text = '@src/@[会话一](dsh-session:x)'
+    const text = '@src/@[会话一](mwf-session:x)'
     expect(references(text, evaluate({ text, facts: {} }))).toEqual([
-      ['file', text, { path: 'src/@[会话一](dsh-session:x)', label: '@[会话一](dsh-session:x)' }],
+      ['file', text, { path: 'src/@[会话一](mwf-session:x)', label: '@[会话一](mwf-session:x)' }],
     ])
   })
 
@@ -96,7 +96,7 @@ describe('original-text reference competition', () => {
     const texts = [
       '🙂 @会话一 @src/@types/react/index.d.ts /review @docs/',
       '/review @"docs /review notes.md" @types/react/index.d.ts',
-      '@会话一@src/a.ts @会话一/plan @src/@[会话一](dsh-session:x)',
+      '@会话一@src/a.ts @会话一/plan @src/@[会话一](mwf-session:x)',
       '@多词 /review @src/a.ts /goal',
     ]
     const factsList: readonly Partial<UserTextFacts>[] = [

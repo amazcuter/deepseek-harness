@@ -30,7 +30,7 @@ describe('desktop upload command', () => {
     const credentials = { DOWNLOAD_TEST_COS_SECRET_ID: 'fixture-id', DOWNLOAD_TEST_COS_SECRET_KEY: 'fixture-key' }
     const plan: DesktopUploadPlan = {
       environment, target: 'win-x64', version: '1.2.3-alpha.4',
-      publicUrl: 'https://desktop-updates.example.com/desktop/dsh-latest-windows-x64.exe',
+      publicUrl: 'https://desktop-updates.example.com/desktop/mwf-latest-windows-x64.exe',
       bucket: 'fixture-bucket', secretIdEnvName: 'DOWNLOAD_TEST_COS_SECRET_ID',
       secretKeyEnvName: 'DOWNLOAD_TEST_COS_SECRET_KEY', artifacts: [], commit: '0'.repeat(40), dirty: false,
     }

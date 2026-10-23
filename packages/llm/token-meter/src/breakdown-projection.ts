@@ -7,16 +7,16 @@
  */
 
 import { z } from 'zod'
-import { canonicalHeader, deriveEventMessage, isSurfaceEvent, SessionSeq } from '@deepseek-ai/dsh-session'
-import type { SurfaceEvent } from '@deepseek-ai/dsh-session'
-import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
+import { canonicalHeader, deriveEventMessage, isSurfaceEvent, SessionSeq } from '@metaworkflow/session'
+import type { SurfaceEvent } from '@metaworkflow/session'
+import type { ProjectionDefinition } from '@metaworkflow/session-projection'
 // Type-only: the `compaction/*` SessionEventMap merges (shadow-price events).
-import type {} from '@deepseek-ai/dsh-compaction'
+import type {} from '@metaworkflow/compaction'
 import { estimateMessage, estimateToolsTokens } from './estimate.ts'
 // Import for the `contextBreakdown` SessionProjectionStateMap key merge.
 import type {} from './projection.ts'
 
-declare module '@deepseek-ai/dsh-session-projection/types' {
+declare module '@metaworkflow/session-projection/types' {
   interface SessionProjectionStateMap {
     contextBreakdown: ContextBreakdownState
   }

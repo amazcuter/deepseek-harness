@@ -46,7 +46,7 @@ export class CdpSession implements NetworkSink {
     this.runtime.setObjectObserver((objectId, realm, reference, group) =>
       this.dom.bindObject(objectId, realm, reference, group))
     this.unsubscribeSources = sources.subscribeStatus(() => {
-      if (this.diagnosticsEnabled) this.sendEvent('DSHInspector.sourcesChanged', { sources: this.visibleSources() })
+      if (this.diagnosticsEnabled) this.sendEvent('MWFInspector.sourcesChanged', { sources: this.visibleSources() })
     })
   }
 
@@ -75,15 +75,15 @@ export class CdpSession implements NetworkSink {
       let result: unknown
       if (request.method.startsWith('Network.')) {
         result = this.network.handle(request.method, request.params, this)
-      } else if (request.method === 'DSHInspector.enable') {
+      } else if (request.method === 'MWFInspector.enable') {
         this.diagnosticsEnabled = true
         result = { sources: this.visibleSources() }
-      } else if (request.method === 'DSHInspector.disable') {
+      } else if (request.method === 'MWFInspector.disable') {
         this.diagnosticsEnabled = false
         result = {}
-      } else if (request.method === 'DSHInspector.getSources') {
+      } else if (request.method === 'MWFInspector.getSources') {
         result = { sources: this.visibleSources() }
-      } else if (request.method === 'DSHInspector.getCordisTree') {
+      } else if (request.method === 'MWFInspector.getCordisTree') {
         void this.cordisTrees.getTree().then(
           (tree) => { this.transport.send({ id: request.id, result: { tree: this.visibleTree(tree) } }) },
           (error: unknown) => {

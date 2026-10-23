@@ -1,5 +1,5 @@
 import { Context } from '@deepseek-ai/cordis'
-import type { PeerScope, Principal } from '@deepseek-ai/dsh-typert-protocol'
+import type { PeerScope, Principal } from '@metaworkflow/typert-protocol'
 import { describe, expect, it, vi } from 'vitest'
 import type { BrowserAuth } from '../src/browser-auth.ts'
 import { HostConnectionService } from '../src/rpc-host.ts'
@@ -21,7 +21,7 @@ async function mounted(): Promise<{
 
 const GUEST: Principal = { kind: 'test-guest', guest: 'connection' }
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@metaworkflow/typert-protocol' {
   interface PrincipalMap {
     /** Test-only non-owner caller shared by the access specs. */
     'test-guest': { readonly kind: 'test-guest'; readonly guest: string }

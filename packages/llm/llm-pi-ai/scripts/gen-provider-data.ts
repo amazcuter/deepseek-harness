@@ -127,7 +127,7 @@ export async function generateProviderData(providers: readonly Provider[] = buil
 export async function syncProviderData(check: boolean, cached = false): Promise<void> {
   const source = '/** Generated from the installed pi-ai catalog. Run pnpm gen-provider-data; do not edit. */\n\n'
     + "import type { BuiltinProvider } from '@earendil-works/pi-ai/providers/all'\n"
-    + "import type { LlmConfigurableProvider } from '@deepseek-ai/dsh-llm'\n\n"
+    + "import type { LlmConfigurableProvider } from '@metaworkflow/llm'\n\n"
     + "type ProviderData = Pick<LlmConfigurableProvider, 'defaultBaseURL' | 'baseURLEnv'> & { env: readonly string[] }\n\n"
     + '/** Catalog endpoints and environment names; no credentials are evaluated at runtime. */\n'
     + 'export const PROVIDER_DATA: Record<BuiltinProvider, ProviderData> & Partial<Record<string, ProviderData>> = {\n'

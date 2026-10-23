@@ -1,30 +1,30 @@
 // @vitest-environment jsdom
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { createSnapshotStore } from '@metaworkflow/client-store'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, fireEvent, render } from '@testing-library/react'
 import { useRef } from 'react'
 import {
   SlotTestRuntime, stubConfigForm, usePinnedBrowserLanguages,
-} from '@deepseek-ai/dsh-client-test-runtime'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { resolveSlotLabel } from '@deepseek-ai/dsh-client-ui-slots'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import type { SessionBinding } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
+} from '@metaworkflow/client-test-runtime'
+import { LocaleRuntime } from '@metaworkflow/client-locale/client'
+import { resolveSlotLabel } from '@metaworkflow/client-ui-slots'
+import type { ObservableSnapshot } from '@metaworkflow/client-store'
+import type { SessionBinding } from '@metaworkflow/api-session-controller/client'
+import type { SessionId } from '@metaworkflow/session/types'
+import type { WorkspaceId } from '@metaworkflow/workspace/types'
 import {
   apply as applyConversation, inject as injectConversation,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
+} from '@metaworkflow/client-ui-conversation/client'
 import type {
   ConversationLocationDataSource, ConversationLocationDataStore, ConversationTurnDataMap,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
+} from '@metaworkflow/client-ui-conversation/client'
 import {
   apply as applyChat, EMPTY_CHAT_SNAPSHOT, inject as injectChat,
-} from '@deepseek-ai/dsh-client-ui-chat/client'
+} from '@metaworkflow/client-ui-chat/client'
 import type {
   ChatFlowInjected, ChatNodeInjected, ChatSnapshot, TranscriptViewRowInjected, UseChatNodeTurnData, UseDisclosure,
-} from '@deepseek-ai/dsh-client-ui-chat/client'
-import type { QuotaNoticeInjected } from '@deepseek-ai/dsh-client-ui-chat/client'
+} from '@metaworkflow/client-ui-chat/client'
+import type { QuotaNoticeInjected } from '@metaworkflow/client-ui-chat/client'
 import type { PerformanceUsageRowInjected } from '../src/client/settings/PerformanceUsageRow.tsx'
 import { CHAT_SETTINGS_NAMESPACE, type ChatSettings } from '../src/chat-settings.ts'
 import { ActivityPill, UsagePill } from '../src/client/chat/StatsPills.tsx'
@@ -32,7 +32,7 @@ import { createFlowMotion, type InputFoldDriver } from '../src/client/chat/flow-
 import { CHAT_FLOW_INJECT, CHAT_NODE_INJECT } from '../src/client/apply.ts'
 import { UserContent } from '../src/client/chat/UserContent.tsx'
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@metaworkflow/client-ui-conversation/client' {
   interface ConversationTurnDataMap {
     metric: number
   }
@@ -196,7 +196,7 @@ describe('Chat apply wiring', () => {
     { desktop: true, initial: 'standard', choice: 'detailed' },
   ] as const)('mirrors the Host transcript preference into its Settings row (desktop: $desktop)', async ({ desktop, initial, choice }) => {
     if (desktop) {
-      vi.stubGlobal('dshDesktop', {})
+      vi.stubGlobal('mwfDesktop', {})
       onTestFinished(() => { vi.unstubAllGlobals() })
     }
     const b = await bench()

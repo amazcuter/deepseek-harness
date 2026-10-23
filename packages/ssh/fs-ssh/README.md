@@ -3,13 +3,13 @@ description: "Remote filesystem semantics for consumers sharing files with SSH s
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-fs-ssh
+# @metaworkflow/fs-ssh
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-fs-ssh` provides `ctx.fs` in the SSH helper’s filesystem. File tools read and mutate the same files that remote Bash, terminals, language servers and Node programs see. Remote canonicalization, version guards and atomic mutations use the local filesystem implementations installed beside the helper.
+`mwf-fs-ssh` provides `ctx.fs` in the SSH helper’s filesystem. File tools read and mutate the same files that remote Bash, terminals, language servers and Node programs see. Remote canonicalization, version guards and atomic mutations use the local filesystem implementations installed beside the helper.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this provider with [`dsh-ssh`](../ssh/README.md) and `sandboxPolicy`; use its paired SSH subprocess and sandbox providers for execution. This provider has no configuration fields: connection identity and the default workspace belong to `dsh-ssh`, while file-effect mode belongs to `sandboxPolicy`.
+Mount this provider with [`mwf-ssh`](../ssh/README.md) and `sandboxPolicy`; use its paired SSH subprocess and sandbox providers for execution. This provider has no configuration fields: connection identity and the default workspace belong to `mwf-ssh`, while file-effect mode belongs to `sandboxPolicy`.
 
 `resolve()` canonicalizes paths on the remote host. `processPath()` and `fileUrl()` name files in that same remote namespace; they do not grant host-side access. File URLs encode literal percent signs, backslashes and newlines without changing the filename. `processPathFromHostPath()` returns `undefined`, so consumers requiring an installed executable or bootstrap must supply a remote artifact explicitly.
 

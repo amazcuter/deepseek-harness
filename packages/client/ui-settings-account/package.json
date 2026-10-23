@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-ui-settings-account",
+  "name": "@metaworkflow/client-ui-settings-account",
   "description": "Manage DeepSeek login and open Platform billing pages",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -26,15 +26,15 @@
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json"
   },
-  "dsh": {
+  "mwf": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-api-remotes",
-        "@deepseek-ai/dsh-client-locale",
-        "@deepseek-ai/dsh-client-ui-chat",
-        "@deepseek-ai/dsh-client-ui-layout",
-        "@deepseek-ai/dsh-client-ui-settings",
-        "@deepseek-ai/dsh-client-ui-theme"
+        "@metaworkflow/api-remotes",
+        "@metaworkflow/client-locale",
+        "@metaworkflow/client-ui-chat",
+        "@metaworkflow/client-ui-layout",
+        "@metaworkflow/client-ui-settings",
+        "@metaworkflow/client-ui-theme"
       ],
       "platform": "web"
     }
@@ -49,27 +49,27 @@
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-api-remotes": "workspace:*",
-    "@deepseek-ai/dsh-client-locale": "workspace:*",
-    "@deepseek-ai/dsh-client-store": "workspace:*",
-    "@deepseek-ai/dsh-client-test-runtime": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-chat": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-layout": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-primitives": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-renderer": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-settings": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-slots": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-theme": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
-    "@deepseek-ai/dsh-settings": "workspace:*",
+    "@metaworkflow/api-remotes": "workspace:*",
+    "@metaworkflow/client-locale": "workspace:*",
+    "@metaworkflow/client-store": "workspace:*",
+    "@metaworkflow/client-test-runtime": "workspace:*",
+    "@metaworkflow/client-ui-chat": "workspace:*",
+    "@metaworkflow/client-ui-layout": "workspace:*",
+    "@metaworkflow/client-ui-primitives": "workspace:*",
+    "@metaworkflow/client-ui-renderer": "workspace:*",
+    "@metaworkflow/client-ui-settings": "workspace:*",
+    "@metaworkflow/client-ui-slots": "workspace:*",
+    "@metaworkflow/client-ui-theme": "workspace:*",
+    "@metaworkflow/deepseek-account": "workspace:*",
+    "@metaworkflow/settings": "workspace:*",
     "@testing-library/react": "^16.3.3",
     "@types/big.js": "^6.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@deepseek-ai/dsh-client-ui-settings-models": "workspace:*",
-    "@deepseek-ai/dsh-host-webserver": "workspace:*",
+    "@metaworkflow/client-ui-settings-models": "workspace:*",
+    "@metaworkflow/host-webserver": "workspace:*",
     "big.js": "^7.0.1",
-    "@deepseek-ai/dsh-client-product-analytics": "workspace:*"
+    "@metaworkflow/client-product-analytics": "workspace:*"
   },
   "files": [
     "locale/*.json",

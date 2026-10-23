@@ -6,14 +6,14 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import MessageFeedback from '@deepseek-ai/dsh-message-feedback'
-import { recordFeedback } from '@deepseek-ai/dsh-command-feedback'
-import LlmRuntime, { createAssistantMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import DeepSeekLlmApiExtensions from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import { startMockLlmServer, type MockLlmServer, type MockLlmServerOptions } from '@deepseek-ai/dsh-llm-mock-server'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
+import MessageFeedback from '@metaworkflow/message-feedback'
+import { recordFeedback } from '@metaworkflow/command-feedback'
+import LlmRuntime, { createAssistantMessage, createUserMessage } from '@metaworkflow/llm'
+import * as LlmDeepSeek from '@metaworkflow/llm-deepseek-api-key'
+import DeepSeekLlmApiExtensions from '@metaworkflow/deepseek-llm-api-extensions'
+import { startMockLlmServer, type MockLlmServer, type MockLlmServerOptions } from '@metaworkflow/llm-mock-server'
 import * as SessionLogDeepSeek from '../src/index.ts'
 import type { DeepSeekSessionLogExtension } from '../src/types.ts'
 
@@ -35,29 +35,29 @@ afterEach(async () => {
 async function boot(
   sessionLog: { enabled: boolean; maxBytes?: number }, mock: MockLlmServerOptions,
 ): Promise<{ ctx: Context; server: MockLlmServer }> {
-  root = await mkdtemp(join(tmpdir(), 'dsh-feedback-upload-'))
-  vi.stubEnv('DSH_HOME', root)
+  root = await mkdtemp(join(tmpdir(), 'mwf-feedback-upload-'))
+  vi.stubEnv('MWF_HOME', root)
   vi.stubEnv('DEEPSEEK_API_KEY', 'feedback-test-key')
   server = await startMockLlmServer(mock)
   const modules = new Map<string, unknown>([
-    ['@deepseek-ai/dsh-session', SessionStore],
-    ['@deepseek-ai/dsh-session-persistence-jsonl', JsonlSessionPersistence],
-    ['@deepseek-ai/dsh-message-feedback', MessageFeedback],
-    ['@deepseek-ai/dsh-llm', LlmRuntime],
-    ['@deepseek-ai/dsh-llm-deepseek-api-key', LlmDeepSeek],
-    ['@deepseek-ai/dsh-deepseek-llm-api-extensions', DeepSeekLlmApiExtensions],
-    ['@deepseek-ai/dsh-session-log-deepseek', SessionLogDeepSeek],
+    ['@metaworkflow/session', SessionStore],
+    ['@metaworkflow/session-persistence-jsonl', JsonlSessionPersistence],
+    ['@metaworkflow/message-feedback', MessageFeedback],
+    ['@metaworkflow/llm', LlmRuntime],
+    ['@metaworkflow/llm-deepseek-api-key', LlmDeepSeek],
+    ['@metaworkflow/deepseek-llm-api-extensions', DeepSeekLlmApiExtensions],
+    ['@metaworkflow/session-log-deepseek', SessionLogDeepSeek],
   ])
   const config = join(root, 'cordis.yml')
   await writeFile(config, JSON.stringify([...modules.keys()].map(name => ({
     name,
-    ...name === '@deepseek-ai/dsh-session-persistence-jsonl'
+    ...name === '@metaworkflow/session-persistence-jsonl'
       ? { config: { root: join(root!, 'sessions'), compression: 'none' } }
-      : name === '@deepseek-ai/dsh-message-feedback'
+      : name === '@metaworkflow/message-feedback'
         ? { config: { maxNoteBytes: 1024 } }
-        : name === '@deepseek-ai/dsh-llm-deepseek-api-key'
+        : name === '@metaworkflow/llm-deepseek-api-key'
           ? { config: { baseURL: server!.baseURL } }
-          : name === '@deepseek-ai/dsh-session-log-deepseek'
+          : name === '@metaworkflow/session-log-deepseek'
             ? { config: sessionLog }
             : {},
   }))))
@@ -104,8 +104,8 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
     expect(await request()).toMatchObject({ type: 'finish', reason: { kind: 'error' } })
     expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)
     expect(await request()).toMatchObject({ type: 'finish', reason: { kind: 'stop' } })
-    const first = (server.requests[0]!.body as { dsh_session_log: DeepSeekSessionLogExtension }).dsh_session_log
-    const retry = (server.requests[1]!.body as { dsh_session_log: DeepSeekSessionLogExtension }).dsh_session_log
+    const first = (server.requests[0]!.body as { mwf_session_log: DeepSeekSessionLogExtension }).mwf_session_log
+    const retry = (server.requests[1]!.body as { mwf_session_log: DeepSeekSessionLogExtension }).mwf_session_log
     expect(retry).toEqual(first)
     expect(first.events).toEqual(initialPrefix)
     expect(first.events.slice(-2)).toMatchObject([
@@ -123,7 +123,7 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
       sessionId: session.id, messageId: assistant.id, ifVersion: edited.value.version,
     })).toEqual({ ok: true, value: { absent: true } })
     expect(await request()).toMatchObject({ type: 'finish', reason: { kind: 'stop' } })
-    const suffix = (server.requests[2]!.body as { dsh_session_log: DeepSeekSessionLogExtension }).dsh_session_log
+    const suffix = (server.requests[2]!.body as { mwf_session_log: DeepSeekSessionLogExtension }).mwf_session_log
     expect(suffix.afterSeq).toBe(first.throughSeq)
     expect(suffix.events).toMatchObject([
       { type: 'session-log-deepseek/delivery-accepted' },
@@ -136,7 +136,7 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
     expect(await ctx.messageFeedback.list({ sessionId: session.id })).toEqual({ ok: true, value: { items: [] } })
     for (const wire of server.requests) {
       expect(wire.path).toBe('/v1/messages')
-      expect(wire.body).not.toHaveProperty('dsh_feedback')
+      expect(wire.body).not.toHaveProperty('mwf_feedback')
       expect(wire.body).toMatchObject({ model: 'deepseek-v4-flash', messages: [
         { role: 'user', content: [{ type: 'text', text: 'Question' }] },
         { role: 'assistant', content: [{ type: 'text', text: 'Answer' }] },
@@ -166,7 +166,7 @@ it('drains a Session log above the configured maxBytes across consecutive routed
       for await (const chunk of ctx.llm.stream({ provider: 'deepseek-official', model: 'deepseek-v4-flash', sessionId: session.id, messages: session.deriveMessages() })) chunks.push(chunk)
       expect(chunks.at(-1)).toMatchObject({ type: 'finish', reason: { kind: 'stop' } })
     }
-    const uploads = server.requests.map(request => (request.body as { dsh_session_log: DeepSeekSessionLogExtension }).dsh_session_log)
+    const uploads = server.requests.map(request => (request.body as { mwf_session_log: DeepSeekSessionLogExtension }).mwf_session_log)
     expect(uploads.length).toBeGreaterThan(1)
     expect(uploads.map(upload => upload.afterSeq)).toEqual([-1, ...uploads.slice(0, -1).map(upload => upload.throughSeq)])
     for (const upload of uploads) expect(Buffer.byteLength(JSON.stringify(upload))).toBeLessThanOrEqual(maxBytes)
@@ -182,7 +182,7 @@ it('changes API log upload on the next request without replacing the plugin fibe
   const { ctx, server } = await boot({ enabled: true }, { sequence: ['success'], repeatLast: true })
   const session = ctx.sessions.create(SessionId('live-upload-setting'))
   session.append('user/message', createUserMessage({ content: [{ type: 'text', text: 'Hello' }], source: { kind: 'user' } }), { surfaceOp: 'append' })
-  const entry = [...ctx.loader.entries()].find(entry => entry.options.name === '@deepseek-ai/dsh-session-log-deepseek')!
+  const entry = [...ctx.loader.entries()].find(entry => entry.options.name === '@metaworkflow/session-log-deepseek')!
   const fiber = entry.fiber
   const request = async () => {
     const chunks = []
@@ -196,13 +196,13 @@ it('changes API log upload on the next request without replacing the plugin fibe
   expect(entry.fiber === fiber).toBe(true)
   recordFeedback(session, { text: 'Recorded while API upload is off' })
   await request()
-  expect(server.requests[1]!.body).not.toHaveProperty('dsh_session_log')
+  expect(server.requests[1]!.body).not.toHaveProperty('mwf_session_log')
   expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(accepted)
   await entry.update({ config: { enabled: true } })
   await ctx.loader.await()
   expect(entry.fiber === fiber).toBe(true)
   await request()
-  const resumed = (server.requests[2]!.body as { dsh_session_log: DeepSeekSessionLogExtension }).dsh_session_log
+  const resumed = (server.requests[2]!.body as { mwf_session_log: DeepSeekSessionLogExtension }).mwf_session_log
   expect(resumed.afterSeq).toBe(accepted)
   expect(resumed.events.some(event => event.type === 'feedback/record')).toBe(true)
 })

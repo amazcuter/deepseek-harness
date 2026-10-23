@@ -2,7 +2,7 @@ import type {
   AssistantBlock, AssistantMessageNode, CommandNode, CompactionSummaryNode,
   ConversationLocation, ConversationViewNode, ModelRetryNode, RunningToolCall,
   ToolCallBlock,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
+} from '@metaworkflow/client-ui-conversation/client'
 import type { ChatGroupTree } from './group-tree.ts'
 
 /** Final Chat render unit produced by a Chat business Definition. */

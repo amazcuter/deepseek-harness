@@ -14,7 +14,7 @@ The Host setting `ui-chat.transcriptView` selects Settings → General → Work 
 From the next release:
 
 - A saved `normal` displays as `detailed` on Desktop and Web. The saved value on disk is not rewritten.
-- A missing, `null`, or invalid value displays as `detailed` in non-Desktop Web (the npm `dsh web` install). Desktop still uses `standard`.
+- A missing, `null`, or invalid value displays as `detailed` in non-Desktop Web (the npm `mwf web` install). Desktop still uses `standard`.
 - Saved `compact`, `standard`, `detailed`, and `verbose` values are unchanged.
 
 Users who relied on the old reading see running Turns with process-group bodies expanded instead of collapsed summaries.

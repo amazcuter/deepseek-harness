@@ -175,7 +175,7 @@ describe('merge', () => {
 describe('tabs', () => {
   it('opens a tab into a pane and focuses it', () => {
     const { state, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     const after = expectRoundTrip(state, { type: 'openTab', paneId, tab, index: 0 })
     const pane = getPane(after, paneId)
     expect(pane.tabs).toEqual([tab.id, guideTabId])
@@ -191,8 +191,8 @@ describe('tabs', () => {
 
   it('closes the active tab onto its previous neighbour', () => {
     const { state, minter, paneId, guideTabId } = fixture()
-    const first = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
-    const second = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/b.txt', 'b.txt')
+    const first = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
+    const second = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/b.txt', 'b.txt')
     let current = applyOp(state, { type: 'openTab', paneId, tab: first, index: 1 }).state
     current = applyOp(current, { type: 'openTab', paneId, tab: second, index: 2 }).state
     expect(getPane(current, paneId).tabs).toEqual([guideTabId, first.id, second.id])
@@ -205,7 +205,7 @@ describe('tabs', () => {
 
   it('closes a tab that is not the active one without moving focus', () => {
     const { state, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     const opened = applyOp(state, { type: 'openTab', paneId, tab, index: 1 }).state
     const after = expectRoundTrip(opened, { type: 'closeTab', tabId: guideTabId })
     expect(getPane(after, paneId).tabs).toEqual([tab.id])
@@ -231,7 +231,7 @@ describe('tabs', () => {
 
   it('moves a tab that is not the active one, leaving the source focus alone', () => {
     const { state, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     const opened = applyOp(state, { type: 'openTab', paneId, tab, index: 1 }).state
     const after = split(opened, minter, paneId)
     const moved = expectRoundTrip(after.state, { type: 'moveTab', tabId: guideTabId, toPaneId: after.newPaneId, index: 0 })
@@ -248,7 +248,7 @@ describe('tabs', () => {
 
   it('reorders inside one pane without changing the active tab', () => {
     const { state, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     const opened = applyOp(state, { type: 'openTab', paneId, tab, index: 1 }).state
     const after = expectRoundTrip(opened, { type: 'reorderTab', tabId: tab.id, index: 0 })
     expect(getPane(after, paneId).tabs).toEqual([tab.id, guideTabId])
@@ -259,7 +259,7 @@ describe('tabs', () => {
 describe('focus', () => {
   it('focuses a tab and its pane', () => {
     const { state, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     const opened = applyOp(state, { type: 'openTab', paneId, tab, index: 1 }).state
     const after = expectRoundTrip(opened, { type: 'focusTab', tabId: guideTabId })
     expect(getPane(after, paneId).activeTabId).toBe(guideTabId)
@@ -267,7 +267,7 @@ describe('focus', () => {
 
   it('raises a floating pane when its tab takes focus', () => {
     const { state, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     let current = applyOp(state, { type: 'openTab', paneId, tab, index: 1 }).state
     const firstFloat = minter.next('float')
     const secondFloat = minter.next('float')
@@ -284,7 +284,7 @@ describe('focus', () => {
 
   it('raises a floating pane when it takes focus', () => {
     const { state, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     let current = applyOp(state, { type: 'openTab', paneId, tab, index: 1 }).state
     const firstFloat = minter.next('float')
     const secondFloat = minter.next('float')
@@ -362,7 +362,7 @@ describe('floating panes', () => {
 
   it('records net drag and resize results, focusing and raising the pane they reshape', () => {
     const { state, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     const floatId = minter.next('float')
     const topId = minter.next('float')
     let current = applyOp(state, { type: 'openTab', paneId, tab, index: 1 }).state
@@ -502,7 +502,7 @@ describe('operations refuse', () => {
   } {
     const { state, minter, paneId, guideTabId } = fixture()
     const second = split(state, minter, paneId)
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     const opened = applyOp(second.state, { type: 'openTab', paneId, tab, index: 1 }).state
     const floatId = minter.next('float')
     const floated = applyOp(opened, {
@@ -513,7 +513,7 @@ describe('operations refuse', () => {
 
   it('opening or inserting a tab into a floating pane', () => {
     const { state, minter, floatId } = mixed()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/b.txt', 'b.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/b.txt', 'b.txt')
     expect(() => applyOp(state, { type: 'openTab', paneId: floatId, tab, index: 0 })).toThrow(/docked pane/)
     expect(() => applyOp(state, { type: 'insertTab', paneId: floatId, tab, index: 0 })).toThrow(/docked pane/)
   })
@@ -551,7 +551,7 @@ describe('operations refuse', () => {
   it('putting a pane back with records that do not match the pane or the split', () => {
     const { state, minter, paneId, secondPaneId, floatId } = mixed()
     const pane = getPane(state, secondPaneId)
-    const stray = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/c.txt', 'c.txt')
+    const stray = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/c.txt', 'c.txt')
     const fresh: PaneNode = { ...pane, id: minter.next('pane') }
     const parent = getSplit(state, state.rootId)
     expect(() => applyOp(state, {
@@ -586,7 +586,7 @@ describe('inverses the engine itself never records', () => {
     const { state, minter, paneId } = fixture()
     const after = split(state, minter, paneId)
     const parent = getSplit(after.state, after.state.rootId)
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     const pane: PaneNode = { kind: 'pane', id: minter.next('pane'), host: 'dock', tabs: [tab.id], activeTabId: tab.id, rect: undefined }
     expect(() => applyOp(after.state, {
       type: 'insertPane', pane, tabs: [tab], attach: { mode: 'child', parentId: parent.id, index: 2, sizes: [0.25, 0.25, 0.5] },
@@ -609,7 +609,7 @@ describe('inverses the engine itself never records', () => {
 describe('replay', () => {
   it('rebuilds the same tree from the recorded operations', () => {
     const { state, minter, paneId, guideTabId } = fixture()
-    const preview = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const preview = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     const secondPaneId = minter.next('pane')
     const floatId = minter.next('float')
     const ops: LayoutOp[] = [

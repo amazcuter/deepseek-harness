@@ -26,12 +26,12 @@ describe('PR preview workflow', () => {
 
   it('keeps the immutable complete artifact build and restore-only dependency cache', () => {
     expect(workflow.env.PRIMARY_NODE_VERSION).toBe('24')
-    expect(workflow.env.DSH_TELEMETRY_DISABLED).toBe('1')
+    expect(workflow.env.MWF_TELEMETRY_DISABLED).toBe('1')
     const commands = preview.steps.map(step => step.run)
     expect(commands).toContain('pnpm install --frozen-lockfile')
     expect(commands).toContain('pnpm run build:artifacts')
-    expect(commands).toContain('pnpm --filter @deepseek-ai/dsh-web-frontend run build:preview')
-    expect(commands.indexOf('pnpm run build:artifacts')).toBeLessThan(commands.indexOf('pnpm --filter @deepseek-ai/dsh-web-frontend run build:preview'))
+    expect(commands).toContain('pnpm --filter @metaworkflow/web-frontend run build:preview')
+    expect(commands.indexOf('pnpm run build:artifacts')).toBeLessThan(commands.indexOf('pnpm --filter @metaworkflow/web-frontend run build:preview'))
     expect(preview.steps.filter(step => step.uses?.startsWith('actions/cache'))).toHaveLength(1)
     expect(preview.steps.find(step => step.uses === 'actions/cache/restore@v6.1.0')?.with).toMatchObject({
       key: "${{ runner.os }}-node-${{ env.PRIMARY_NODE_VERSION }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}",
@@ -43,7 +43,7 @@ describe('PR preview workflow', () => {
       group: 'build-preview-cloudflare-${{ github.event.pull_request.number }}',
       'cancel-in-progress': true,
     })
-    expect(workflow.env.CF_PROJECT).toBe('dsh-build-preview')
+    expect(workflow.env.CF_PROJECT).toBe('mwf-build-preview')
     const shape = preview.steps.find(step => step.name === 'Shape the upload')!
     expect(shape.run).toContain("find apps/web/dist -name '*.map' -delete")
     expect(shape.run).toContain('cp apps/web/dist/preview.html apps/web/dist/index.html')
@@ -57,7 +57,7 @@ describe('PR preview workflow', () => {
     expect(verify.run).toContain('"$magic" != "1f8b"')
     expect(verify.env?.CF_ACCESS_CLIENT_SECRET).toBe('${{ secrets.CF_ACCESS_CLIENT_SECRET }}')
     const comment = preview.steps.find(step => step.name === 'Comment the preview URL')!
-    expect(comment.run).toContain('<!-- dsh-preview-url -->')
+    expect(comment.run).toContain('<!-- mwf-preview-url -->')
     expect(comment.run).toContain('gh pr comment "$PR" --body-file -')
   })
 })

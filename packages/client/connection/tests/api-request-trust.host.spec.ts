@@ -32,7 +32,7 @@ describe('isTrustedApiRequest', () => {
       expect(isTrustedApiRequest(request({ host }), [], '10.1.2.3')).toBe(true)
     }
     expect(isTrustedApiRequest(request({ host: '10.1.2.4:3080' }), [], '10.1.2.3')).toBe(false)
-    expect(isTrustedApiRequest(request({ host: 'dsh-direct.lan:3080' }), [], '10.1.2.3')).toBe(false)
+    expect(isTrustedApiRequest(request({ host: 'mwf-direct.lan:3080' }), [], '10.1.2.3')).toBe(false)
     expect(isTrustedApiRequest(request({ host: '10.1.2.3:3080' }), [])).toBe(false)
     // IPv6 spellings compare through the same normalization as Host, mapped
     // forms included; a zone id selects the local interface, not the address.

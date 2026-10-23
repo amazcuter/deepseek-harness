@@ -4,34 +4,34 @@
  */
 
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { BundleInfo, ChangeResult, ManagementError, PluginEntryId, PluginInfo, PluginInstallRequestId } from '@deepseek-ai/dsh-api-remotes/client'
-import { RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
-import type { HostObservable } from '@deepseek-ai/dsh-client-ui-slots'
+import type { BundleInfo, ChangeResult, ManagementError, PluginEntryId, PluginInfo, PluginInstallRequestId } from '@metaworkflow/api-remotes/client'
+import { RemoteError } from '@metaworkflow/client-test-runtime'
+import type { HostObservable } from '@metaworkflow/client-ui-slots'
 import type { PluginTab } from '../src/client/tab-ledger.ts'
 import type { ConfigLedger } from '../src/client/config-ledger.ts'
 import { offeredRegistries, packageView, PluginManagerController, rowKey, sortPackages } from '../src/client/manager-store.ts'
 
-const INCOMPATIBLE = { name: 'dsh-late', version: '2.0.0', runtimeVersion: '0.1.0', requirements: { '@deepseek-ai/dsh': '^0.2.0' } }
+const INCOMPATIBLE = { name: 'mwf-late', version: '2.0.0', runtimeVersion: '0.1.0', requirements: { '@metaworkflow/cli': '^0.2.0' } }
 const ROW_ENTRY = 'include:sidebar' as PluginEntryId
 
 const BUNDLE: BundleInfo = {
-  name: 'dsh-better-sidebar',
+  name: 'mwf-better-sidebar',
   official: false,
   availability: 'profile',
   version: '0.16.0',
   description: 'A sidebar.',
   enabled: false,
   installed: true,
-  source: 'dsh-better-sidebar@^0.16.0',
+  source: 'mwf-better-sidebar@^0.16.0',
   optional: false,
   removable: true,
-  rows: [{ rowId: 'sidebar', moduleName: 'dsh-better-sidebar', entryId: ROW_ENTRY }, { rowId: 'theme', moduleName: 'dsh-better-sidebar/theme' }],
+  rows: [{ rowId: 'sidebar', moduleName: 'mwf-better-sidebar', entryId: ROW_ENTRY }, { rowId: 'theme', moduleName: 'mwf-better-sidebar/theme' }],
   overrides: [],
 }
 
 const PLUGINS: PluginInfo[] = [
-  { entryId: ROW_ENTRY, moduleName: 'dsh-better-sidebar', enabled: true, fiberPhase: 'active', patchId: 'sidebar' },
-  { entryId: 'include:core' as PluginEntryId, moduleName: '@deepseek-ai/dsh-base', enabled: true, fiberPhase: 'active', readOnlyReason: 'management-required' },
+  { entryId: ROW_ENTRY, moduleName: 'mwf-better-sidebar', enabled: true, fiberPhase: 'active', patchId: 'sidebar' },
+  { entryId: 'include:core' as PluginEntryId, moduleName: '@metaworkflow/base', enabled: true, fiberPhase: 'active', readOnlyReason: 'management-required' },
 ]
 
 const MIRROR = 'https://registry.npmmirror.com/'
@@ -42,14 +42,14 @@ const CORP = 'https://npm.corp.example/'
 const REGISTRIES = { registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL }
 
 /** What the check answers for a registry name. */
-const INSPECTED = { status: 'accepted' as const, kind: 'registry' as const, name: 'dsh-better-sidebar', version: '1.0.0', bundle: true, registry: null }
+const INSPECTED = { status: 'accepted' as const, kind: 'registry' as const, name: 'mwf-better-sidebar', version: '1.0.0', bundle: true, registry: null }
 
-const APPLIED: ChangeResult = { changed: true, application: 'applied', stage: 'enable', target: 'dsh-better-sidebar' }
+const APPLIED: ChangeResult = { changed: true, application: 'applied', stage: 'enable', target: 'mwf-better-sidebar' }
 
 /** A change the Host could not apply, with the refusal it names. */
 function failed(error?: ManagementError, packageResult?: ChangeResult['packageResult']): ChangeResult {
   return {
-    changed: false, application: 'failed', stage: 'enable', target: 'dsh-better-sidebar',
+    changed: false, application: 'failed', stage: 'enable', target: 'mwf-better-sidebar',
     ...error === undefined ? {} : { error }, ...packageResult === undefined ? {} : { packageResult },
   }
 }
@@ -86,7 +86,7 @@ function bench(overrides: Partial<Record<string, ReturnType<typeof vi.fn>>> = {}
     listPlugins: vi.fn(() => Promise.resolve(ok(PLUGINS))),
     inspect: vi.fn(() => Promise.resolve(ok(INSPECTED))),
     registries: vi.fn(() => Promise.resolve(ok(REGISTRIES))),
-    installBundle: vi.fn(() => Promise.resolve(ok({ ...APPLIED, bundle: 'dsh-new' }))),
+    installBundle: vi.fn(() => Promise.resolve(ok({ ...APPLIED, bundle: 'mwf-new' }))),
     waitForInstall: vi.fn(() => Promise.resolve(refused('gateway/internal', 'offline'))),
     cancelInstall: vi.fn(() => Promise.resolve(ok({ status: 'cancelled' }))),
     removeBundle: vi.fn(() => Promise.resolve(ok(APPLIED))),
@@ -121,25 +121,25 @@ it('hands a custom page the shared configuration form of its entry', () => {
 describe('packageView', () => {
   it('joins a bundle with the entries its rows run as', () => {
     expect(packageView(BUNDLE, PLUGINS)).toEqual({
-      name: 'dsh-better-sidebar', version: '0.16.0', description: 'A sidebar.', source: 'dsh-better-sidebar@^0.16.0',
+      name: 'mwf-better-sidebar', version: '0.16.0', description: 'A sidebar.', source: 'mwf-better-sidebar@^0.16.0',
       installed: true, official: false, availability: 'profile', optional: false, removable: true, enabled: false,
       rows: [
-        { rowId: 'sidebar', moduleName: 'dsh-better-sidebar', entryId: ROW_ENTRY, enabled: true, phase: 'active' },
-        { rowId: 'theme', moduleName: 'dsh-better-sidebar/theme', enabled: false, phase: null },
+        { rowId: 'sidebar', moduleName: 'mwf-better-sidebar', entryId: ROW_ENTRY, enabled: true, phase: 'active' },
+        { rowId: 'theme', moduleName: 'mwf-better-sidebar/theme', enabled: false, phase: null },
       ],
     })
     // A row the inventory no longer lists, a protected row, and a bundle the Host cannot read.
     const protectedBundle: BundleInfo = {
-      name: '@deepseek-ai/dsh-base', enabled: true, installed: false, official: false, availability: 'installation', optional: false, removable: false, readOnlyReason: 'management-required',
+      name: '@metaworkflow/base', enabled: true, installed: false, official: false, availability: 'installation', optional: false, removable: false, readOnlyReason: 'management-required',
       error: { code: 'operation-error', diagnostic: 'broken' },
-      rows: [{ rowId: 'core', moduleName: '@deepseek-ai/dsh-base', entryId: 'include:core' as PluginEntryId }, { rowId: 'gone', moduleName: 'x', entryId: 'include:gone' as PluginEntryId }],
+      rows: [{ rowId: 'core', moduleName: '@metaworkflow/base', entryId: 'include:core' as PluginEntryId }, { rowId: 'gone', moduleName: 'x', entryId: 'include:gone' as PluginEntryId }],
       overrides: [],
     }
     expect(packageView(protectedBundle, PLUGINS)).toEqual({
-      name: '@deepseek-ai/dsh-base', installed: false, official: false, availability: 'installation', optional: false, removable: false, enabled: true, readOnlyReason: 'management-required',
+      name: '@metaworkflow/base', installed: false, official: false, availability: 'installation', optional: false, removable: false, enabled: true, readOnlyReason: 'management-required',
       error: { code: 'operation-error', diagnostic: 'broken' },
       rows: [
-        { rowId: 'core', moduleName: '@deepseek-ai/dsh-base', entryId: 'include:core', enabled: true, phase: 'active', readOnlyReason: 'management-required' },
+        { rowId: 'core', moduleName: '@metaworkflow/base', entryId: 'include:core', enabled: true, phase: 'active', readOnlyReason: 'management-required' },
         { rowId: 'gone', moduleName: 'x', entryId: 'include:gone', enabled: false, phase: null },
       ],
     })
@@ -149,14 +149,14 @@ describe('packageView', () => {
 describe('sortPackages', () => {
   it('orders packages by the short name a person reads, not by the Host order or enablement', async () => {
     const plain = { enabled: true, installed: true, official: false, availability: 'profile' as const, optional: false, removable: true, rows: [], overrides: [] }
-    const zeta: BundleInfo = { ...plain, name: 'dsh-zeta' }
-    const alpha: BundleInfo = { ...plain, name: '@acme/dsh-alpha', enabled: false }
+    const zeta: BundleInfo = { ...plain, name: 'mwf-zeta' }
+    const alpha: BundleInfo = { ...plain, name: '@acme/mwf-alpha', enabled: false }
     const views = [zeta, BUNDLE, alpha].map(bundle => packageView(bundle, PLUGINS))
-    expect(sortPackages(views).map(pkg => pkg.name)).toEqual(['@acme/dsh-alpha', 'dsh-better-sidebar', 'dsh-zeta'])
+    expect(sortPackages(views).map(pkg => pkg.name)).toEqual(['@acme/mwf-alpha', 'mwf-better-sidebar', 'mwf-zeta'])
     // The store lists what it read in that order, whatever the Host's order.
     const { state, controller } = bench({ listBundles: vi.fn(() => Promise.resolve(ok([zeta, BUNDLE, alpha]))) })
     await controller.load()
-    expect(state().packages.map(pkg => pkg.name)).toEqual(['@acme/dsh-alpha', 'dsh-better-sidebar', 'dsh-zeta'])
+    expect(state().packages.map(pkg => pkg.name)).toEqual(['@acme/mwf-alpha', 'mwf-better-sidebar', 'mwf-zeta'])
   })
 })
 
@@ -585,24 +585,24 @@ describe('PluginManagerController', () => {
 
   it('installs a Discover spec through the dialog, asking its registry first, and reopens a hidden installation instead', async () => {
     const gate = deferred<ReturnType<typeof ok<ChangeResult>>>()
-    const installBundle = vi.fn((): Promise<ReturnType<typeof ok<ChangeResult>>> => Promise.resolve(ok({ ...APPLIED, bundle: 'dsh-other' })))
+    const installBundle = vi.fn((): Promise<ReturnType<typeof ok<ChangeResult>>> => Promise.resolve(ok({ ...APPLIED, bundle: 'mwf-other' })))
       .mockReturnValueOnce(gate.promise)
     const { plugins, face, state, controller, started, track } = bench({ installBundle })
     await controller.load()
-    face.installFrom({ spec: 'dsh-new@1.0.0', registry: 'https://r.example/', title: 'New', version: '1.0.0' })
+    face.installFrom({ spec: 'mwf-new@1.0.0', registry: 'https://r.example/', title: 'New', version: '1.0.0' })
     expect(track).not.toHaveBeenCalledWith('plugin_add_button_click', {})
-    expect(state().install).toMatchObject({ open: true, spec: 'dsh-new@1.0.0', confirmed: { title: 'New', version: '1.0.0' }, registry: { kind: 'custom', url: 'https://r.example/' } })
+    expect(state().install).toMatchObject({ open: true, spec: 'mwf-new@1.0.0', confirmed: { title: 'New', version: '1.0.0' }, registry: { kind: 'custom', url: 'https://r.example/' } })
     await started()
-    expect(plugins.inspect).toHaveBeenCalledWith('dsh-new@1.0.0', { registry: 'https://r.example/' }, expect.any(AbortSignal))
+    expect(plugins.inspect).toHaveBeenCalledWith('mwf-new@1.0.0', { registry: 'https://r.example/' }, expect.any(AbortSignal))
     face.closeInstall()
-    face.installFrom({ spec: 'dsh-other@2.0.0', title: 'Other', version: '2.0.0' })
-    expect(state().install).toMatchObject({ open: true, spec: 'dsh-new@1.0.0' })
-    gate.resolve(ok({ ...APPLIED, bundle: 'dsh-new' }))
+    face.installFrom({ spec: 'mwf-other@2.0.0', title: 'Other', version: '2.0.0' })
+    expect(state().install).toMatchObject({ open: true, spec: 'mwf-new@1.0.0' })
+    gate.resolve(ok({ ...APPLIED, bundle: 'mwf-new' }))
     await vi.waitFor(() => { expect(state().install.requestId).toBeUndefined() })
     face.closeInstall()
-    face.installFrom({ spec: 'dsh-other@2.0.0', title: 'Other', version: '2.0.0' })
-    expect(state().install).toMatchObject({ open: true, spec: 'dsh-other@2.0.0', registry: { kind: 'offered', registry: null } })
-    await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenLastCalledWith('dsh-other@2.0.0', { registry: null }, expect.any(AbortSignal)) })
+    face.installFrom({ spec: 'mwf-other@2.0.0', title: 'Other', version: '2.0.0' })
+    expect(state().install).toMatchObject({ open: true, spec: 'mwf-other@2.0.0', registry: { kind: 'offered', registry: null } })
+    await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenLastCalledWith('mwf-other@2.0.0', { registry: null }, expect.any(AbortSignal)) })
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
     expect(installBundle).toHaveBeenCalledTimes(2)
   })
@@ -615,44 +615,44 @@ describe('PluginManagerController', () => {
     expect(plugins.inspect).not.toHaveBeenCalled()
     face.openInstall()
     expect(state().install).toMatchObject({ open: true, spec: '', phase: 'idle', inputError: null, subject: null })
-    face.editInstallSpec('  dsh-new ')
+    face.editInstallSpec('  mwf-new ')
     face.runInstall()
     face.runInstall()
     expect(state().install.phase).toBe('checking')
     // Neither typing nor a second run reaches the Host while it checks.
     face.editInstallSpec('other')
-    expect(state().install.spec).toBe('  dsh-new ')
+    expect(state().install.spec).toBe('  mwf-new ')
     await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalledTimes(1) })
-    expect(plugins.inspect).toHaveBeenCalledWith('dsh-new', { registry: null }, expect.any(AbortSignal))
+    expect(plugins.inspect).toHaveBeenCalledWith('mwf-new', { registry: null }, expect.any(AbortSignal))
     const requestId = await started()
-    expect(state().install.subject).toEqual({ spec: 'dsh-new', ...INSPECTED })
+    expect(state().install.subject).toEqual({ spec: 'mwf-new', ...INSPECTED })
     expect(plugins.installBundle).toHaveBeenCalledTimes(1)
-    expect(plugins.installBundle).toHaveBeenCalledWith('dsh-new', { enabled: false, requestId, registry: null })
+    expect(plugins.installBundle).toHaveBeenCalledWith('mwf-new', { enabled: false, requestId, registry: null })
     // The Host's acknowledgement makes the run stoppable; a chunk of another request is not this run's.
     controller.installProgress({ requestId, phase: 'installing' })
     expect(state().install.phase).toBe('running')
     controller.appendLog({ requestId: 'other' as PluginInstallRequestId, jobId: 'j1', argv: [], cwd: '/p', stream: 'stdout', text: 'x' })
     expect(state().install.runs).toEqual([])
-    const argv = ['pnpm', 'add', 'dsh-new']
+    const argv = ['pnpm', 'add', 'mwf-new']
     controller.appendLog({ requestId, jobId: 'j1', argv, cwd: '/p', stream: 'stdout', text: 'Progress\n' })
     // A second run of the same install is its own terminal; a later chunk lands on the run it names.
     controller.appendLog({ requestId, jobId: 'j2', argv: ['pnpm', 'remove', 'lib'], cwd: '/p', stream: 'stdout', text: '- lib\n', exitCode: 0 })
     controller.appendLog({ requestId, jobId: 'j1', argv, cwd: '/p', stream: 'stderr', text: 'Done\n' })
     expect(state().install.runs).toEqual([
-      { jobId: 'j1', command: 'pnpm add dsh-new', cwd: '/p', output: 'Progress\nDone\n' },
+      { jobId: 'j1', command: 'pnpm add mwf-new', cwd: '/p', output: 'Progress\nDone\n' },
       { jobId: 'j2', command: 'pnpm remove lib', cwd: '/p', output: '- lib\n', exitCode: 0 },
     ])
     face.toggleInstallDetails()
     expect(state().install.detailsOpen).toBe(true)
-    gate.resolve(ok({ ...APPLIED, bundle: 'dsh-new', version: '1.0.0' }))
+    gate.resolve(ok({ ...APPLIED, bundle: 'mwf-new', version: '1.0.0' }))
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
-    expect(state().install).toMatchObject({ installed: 'dsh-new', installedVersion: '1.0.0', restartRequired: false, detailsOpen: true })
+    expect(state().install).toMatchObject({ installed: 'mwf-new', installedVersion: '1.0.0', restartRequired: false, detailsOpen: true })
     // The finished install settled its run; a trailing last chunk still lands
     // on it, while a chunk for a run the dialog never saw is dropped.
     controller.appendLog({ requestId, jobId: 'j1', argv, cwd: '/p', stream: 'stdout', text: '', exitCode: 0 })
     controller.appendLog({ requestId, jobId: 'j3', argv, cwd: '/p', stream: 'stdout', text: 'stray' })
     expect(state().install.runs).toEqual([
-      { jobId: 'j1', command: 'pnpm add dsh-new', cwd: '/p', output: 'Progress\nDone\n', exitCode: 0 },
+      { jobId: 'j1', command: 'pnpm add mwf-new', cwd: '/p', output: 'Progress\nDone\n', exitCode: 0 },
       { jobId: 'j2', command: 'pnpm remove lib', cwd: '/p', output: '- lib\n', exitCode: 0 },
     ])
     await vi.waitFor(() => { expect(plugins.listBundles).toHaveBeenCalledTimes(2) })
@@ -667,12 +667,12 @@ describe('PluginManagerController', () => {
   })
 
   it('refuses a spec the list already shows without asking the Host, and words what the Host refused', async () => {
-    const shipped: BundleInfo = { ...BUNDLE, name: '@deepseek-ai/dsh-official', installed: false, official: true, availability: 'installation', optional: true, removable: false }
+    const shipped: BundleInfo = { ...BUNDLE, name: '@metaworkflow/official', installed: false, official: true, availability: 'installation', optional: true, removable: false }
     const { plugins, face, state, controller } = bench({
       listBundles: vi.fn(() => Promise.resolve(ok([BUNDLE, shipped]))),
       inspect: vi.fn()
         .mockResolvedValueOnce(ok({ status: 'refused', problem: 'not-found', reason: 'E404', registries: [null, MIRROR] }))
-        .mockResolvedValueOnce(ok({ status: 'refused', problem: 'not-a-bundle', reason: 'plain declares no dsh.bundle' }))
+        .mockResolvedValueOnce(ok({ status: 'refused', problem: 'not-a-bundle', reason: 'plain declares no mwf.bundle' }))
         .mockResolvedValueOnce(refused('gateway/internal', 'offline')),
     })
     await controller.load()
@@ -681,7 +681,7 @@ describe('PluginManagerController', () => {
     face.runInstall()
     expect(plugins.inspect).not.toHaveBeenCalled()
     expect(state().install).toMatchObject({ phase: 'idle', inputError: { problem: 'already-installed', reason: BUNDLE.name } })
-    // A bundle the installation supplies upgrades with DSH instead.
+    // A bundle the installation supplies upgrades with MWF instead.
     face.editInstallSpec(shipped.name)
     face.runInstall()
     expect(state().install).toMatchObject({ phase: 'idle', inputError: { problem: 'shipped', reason: shipped.name } })
@@ -694,7 +694,7 @@ describe('PluginManagerController', () => {
     expect(plugins.installBundle).not.toHaveBeenCalled()
     face.editInstallSpec('plain')
     face.runInstall()
-    await vi.waitFor(() => { expect(state().install.inputError).toEqual({ problem: 'not-a-bundle', reason: 'plain declares no dsh.bundle' }) })
+    await vi.waitFor(() => { expect(state().install.inputError).toEqual({ problem: 'not-a-bundle', reason: 'plain declares no mwf.bundle' }) })
     // A refused answer, rather than a refused spec, reads as unknown with the transport's words.
     face.editInstallSpec('x')
     face.runInstall()
@@ -709,13 +709,13 @@ describe('PluginManagerController', () => {
     })
     await controller.load()
     face.openInstall()
-    face.editInstallSpec('dsh-x')
+    face.editInstallSpec('mwf-x')
     face.runInstall()
     await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalledOnce() })
     const checkSignal = (plugins.inspect.mock.calls[0] as unknown[])[2] as AbortSignal
     face.cancelInstall()
     expect(checkSignal.aborted).toBe(true)
-    expect(state().install).toMatchObject({ open: true, phase: 'idle', spec: 'dsh-x', inputError: null })
+    expect(state().install).toMatchObject({ open: true, phase: 'idle', spec: 'mwf-x', inputError: null })
     // The settlement of the dropped check changes nothing.
     inspectGate.resolve(ok(INSPECTED))
     await Promise.resolve()
@@ -729,12 +729,12 @@ describe('PluginManagerController', () => {
     expect((plugins.inspect.mock.calls[1] as unknown[])[2]).toMatchObject({ aborted: true })
     // From the failed screen the same control goes back to the spec.
     face.openInstall()
-    face.editInstallSpec('dsh-x')
+    face.editInstallSpec('mwf-x')
     face.runInstall()
     await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
     expect(state().install.failure).toEqual({ reason: 'ERR', code: 'operation-error', kind: 'network' })
     face.cancelInstall()
-    expect(state().install).toMatchObject({ open: true, phase: 'idle', spec: 'dsh-x', failure: null, subject: null })
+    expect(state().install).toMatchObject({ open: true, phase: 'idle', spec: 'mwf-x', failure: null, subject: null })
   })
 
   it('asks the Host to stop a run, keeps the spec once it confirms, and forgets the stopped run', async () => {
@@ -1073,8 +1073,8 @@ describe('PluginManagerController', () => {
   it('enables what a finished install added from its screen, closes, and marks it in the list', async () => {
     const { plugins, face, state, controller } = bench({
       installBundle: vi.fn()
-        .mockResolvedValueOnce(ok({ ...APPLIED, bundle: 'dsh-a' }))
-        .mockResolvedValueOnce(ok({ ...APPLIED, bundle: 'dsh-a' }))
+        .mockResolvedValueOnce(ok({ ...APPLIED, bundle: 'mwf-a' }))
+        .mockResolvedValueOnce(ok({ ...APPLIED, bundle: 'mwf-a' }))
         .mockResolvedValueOnce(ok({ ...APPLIED, application: 'overridden' })),
       setBundleEnabled: vi.fn()
         .mockResolvedValueOnce(ok({ ...APPLIED, application: 'restart-required' }))
@@ -1084,31 +1084,31 @@ describe('PluginManagerController', () => {
     face.enableInstalled()
     expect(plugins.setBundleEnabled).not.toHaveBeenCalled()
     face.openInstall()
-    face.editInstallSpec('dsh-a')
+    face.editInstallSpec('mwf-a')
     face.runInstall()
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
     face.enableInstalled()
     face.enableInstalled()
     expect(state().install.enabling).toBe(true)
     await vi.waitFor(() => { expect(state().install.open).toBe(false) })
-    expect(plugins.setBundleEnabled).toHaveBeenCalledExactlyOnceWith('dsh-a', true)
+    expect(plugins.setBundleEnabled).toHaveBeenCalledExactlyOnceWith('mwf-a', true)
     // A restart it waits for is said in passing; the list marks it.
-    expect(state().notice).toEqual({ kind: 'restart', packageName: 'dsh-a', seq: 1 })
-    expect(state().highlight).toBe('dsh-a')
+    expect(state().notice).toEqual({ kind: 'restart', packageName: 'mwf-a', seq: 1 })
+    expect(state().highlight).toBe('mwf-a')
     face.clearHighlight()
     face.clearHighlight()
     expect(state().highlight).toBeNull()
 
     // A refusal toasts it and still closes.
     face.openInstall()
-    face.editInstallSpec('dsh-a')
+    face.editInstallSpec('mwf-a')
     face.runInstall()
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
     face.enableInstalled()
     await vi.waitFor(() => { expect(state().install.open).toBe(false) })
     expect(plugins.setBundleEnabled).toHaveBeenCalledTimes(2)
-    expect(state().notice).toEqual({ kind: 'failed', action: 'enable', code: 'operation-error', reason: 'the tree rejected it', packageName: 'dsh-a', seq: 2 })
-    expect(state().highlight).toBe('dsh-a')
+    expect(state().notice).toEqual({ kind: 'failed', action: 'enable', code: 'operation-error', reason: 'the tree rejected it', packageName: 'mwf-a', seq: 2 })
+    expect(state().highlight).toBe('mwf-a')
 
     // An install that named no bundle has nothing to enable or mark: the screen just closes.
     face.openInstall()
@@ -1150,10 +1150,10 @@ describe('PluginManagerController', () => {
     const second = await started()
     expect(second).not.toBe(first)
     expect(plugins.installBundle).toHaveBeenLastCalledWith('x', { enabled: false, requestId: second, registry: null, approvedBuilds: ['native'] })
-    expect(state().install).toMatchObject({ subject: { spec: 'x', name: 'dsh-better-sidebar' }, failure: null })
-    gates[1]!.resolve(ok({ ...APPLIED, bundle: 'dsh-better-sidebar', approvedBuilds: ['native'] }))
+    expect(state().install).toMatchObject({ subject: { spec: 'x', name: 'mwf-better-sidebar' }, failure: null })
+    gates[1]!.resolve(ok({ ...APPLIED, bundle: 'mwf-better-sidebar', approvedBuilds: ['native'] }))
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
-    expect(state().install).toMatchObject({ installed: 'dsh-better-sidebar', approvedBuilds: ['native'] })
+    expect(state().install).toMatchObject({ installed: 'mwf-better-sidebar', approvedBuilds: ['native'] })
     expect(plugins.installBundle).toHaveBeenCalledTimes(2)
   })
 
@@ -1162,11 +1162,11 @@ describe('PluginManagerController', () => {
     const { plugins, face, state, controller } = bench({ setBundleEnabled: vi.fn().mockReturnValueOnce(enableGate.promise) })
     await controller.load()
     face.openInstall()
-    face.editInstallSpec('dsh-a')
+    face.editInstallSpec('mwf-a')
     face.runInstall()
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
     face.enableInstalled()
-    expect(plugins.setBundleEnabled).toHaveBeenCalledWith('dsh-new', true)
+    expect(plugins.setBundleEnabled).toHaveBeenCalledWith('mwf-new', true)
     const before = state()
     controller.dispose()
     enableGate.resolve(ok(APPLIED))
@@ -1376,21 +1376,21 @@ describe('PluginManagerController', () => {
     face.changeRegistry()
     expect(state().install.registryOpen).toBe(true)
     face.chooseRegistry({ kind: 'offered', registry: MIRROR })
-    face.editInstallSpec('dsh-new')
+    face.editInstallSpec('mwf-new')
     face.runInstall()
-    expect(plugins.inspect).toHaveBeenCalledWith('dsh-new', { registry: MIRROR }, expect.any(AbortSignal))
+    expect(plugins.inspect).toHaveBeenCalledWith('mwf-new', { registry: MIRROR }, expect.any(AbortSignal))
     // A choice made while the Host checks or runs is dropped.
     face.chooseRegistry({ kind: 'offered', registry: null })
     expect(state().install.registry).toEqual({ kind: 'offered', registry: MIRROR })
     const requestId = await started()
     // The run starts at the registry that answered the check.
     expect(state().install.subject).toMatchObject({ registry: MIRROR })
-    expect(plugins.installBundle).toHaveBeenCalledWith('dsh-new', { enabled: false, requestId, registry: MIRROR })
+    expect(plugins.installBundle).toHaveBeenCalledWith('mwf-new', { enabled: false, requestId, registry: MIRROR })
     // The Host names each registry it asks; the dialog keeps their order and how many there may be.
     controller.installProgress({ requestId, phase: 'installing', attempt: { registry: MIRROR, index: 1, total: 2 } })
     controller.installProgress({ requestId, phase: 'installing', attempt: { registry: null, index: 2, total: 2 } })
     expect(state().install).toMatchObject({ phase: 'running', attempts: { registries: [MIRROR, null], total: 2 } })
-    gate.resolve(ok({ ...APPLIED, bundle: 'dsh-new', registries: [MIRROR, null] }))
+    gate.resolve(ok({ ...APPLIED, bundle: 'mwf-new', registries: [MIRROR, null] }))
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
     expect(state().install.attempts).toEqual({ registries: [MIRROR, null], total: 2 })
   })
@@ -1403,7 +1403,7 @@ describe('PluginManagerController', () => {
 
   it('lists pnpm\'s own configuration once when it names the registry the Host also offers', async () => {
     const shared = { registry: null, fallbackRegistries: [MIRROR], resolved: MIRROR }
-    const storage = new Map([['dsh.plugin-manager.install-registry', JSON.stringify({ kind: 'offered', registry: MIRROR })]])
+    const storage = new Map([['mwf.plugin-manager.install-registry', JSON.stringify({ kind: 'offered', registry: MIRROR })]])
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => storage.get(key) ?? null,
       setItem: (key: string, value: string) => { storage.set(key, value) },
@@ -1423,7 +1423,7 @@ describe('PluginManagerController', () => {
   })
 
   it('keeps a remembered pnpm configuration that names its own registry', async () => {
-    const storage = new Map([['dsh.plugin-manager.install-registry', JSON.stringify({ kind: 'offered', registry: null })]])
+    const storage = new Map([['mwf.plugin-manager.install-registry', JSON.stringify({ kind: 'offered', registry: null })]])
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => storage.get(key) ?? null,
       setItem: (key: string, value: string) => { storage.set(key, value) },
@@ -1448,11 +1448,11 @@ describe('PluginManagerController', () => {
     face.openInstall()
     await vi.waitFor(() => { expect(state().install.registries).toEqual(corporate) })
     expect(state().install.registry).toEqual({ kind: 'offered', registry: CORP })
-    face.editInstallSpec('dsh-new')
+    face.editInstallSpec('mwf-new')
     face.runInstall()
-    expect(plugins.inspect).toHaveBeenCalledWith('dsh-new', { registry: CORP }, expect.any(AbortSignal))
+    expect(plugins.inspect).toHaveBeenCalledWith('mwf-new', { registry: CORP }, expect.any(AbortSignal))
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
-    expect(plugins.installBundle).toHaveBeenCalledWith('dsh-new', expect.objectContaining({ registry: CORP }))
+    expect(plugins.installBundle).toHaveBeenCalledWith('mwf-new', expect.objectContaining({ registry: CORP }))
   })
 
   it('refuses a custom registry that is not an http(s) URL before asking the Host, and remembers the registry last used', async () => {
@@ -1467,30 +1467,30 @@ describe('PluginManagerController', () => {
         inspect: vi.fn(() => Promise.resolve(ok({ ...INSPECTED, registry: 'https://npm.corp.example/' }))),
       })
       face.openInstall()
-      face.editInstallSpec('dsh-new')
+      face.editInstallSpec('mwf-new')
       face.chooseRegistry({ kind: 'custom', url: ' npm.corp.example ' })
       face.runInstall()
       expect(state().install).toMatchObject({ phase: 'idle', registryError: true, registryOpen: true })
       expect(plugins.inspect).not.toHaveBeenCalled()
       expect(track.mock.calls.filter(([event]) => event === 'install_plugin_result')).toEqual([
-        ['install_plugin_result', expect.objectContaining({ input_value: 'dsh-new', is_success: false, error_reason: 'invalid-registry' })],
+        ['install_plugin_result', expect.objectContaining({ input_value: 'mwf-new', is_success: false, error_reason: 'invalid-registry' })],
       ])
       // Typing again clears the refusal; a URL is asked as typed, trimmed.
       face.chooseRegistry({ kind: 'custom', url: ' https://npm.corp.example ' })
       expect(state().install.registryError).toBe(false)
       face.runInstall()
-      expect(plugins.inspect).toHaveBeenCalledWith('dsh-new', { registry: 'https://npm.corp.example' }, expect.any(AbortSignal))
+      expect(plugins.inspect).toHaveBeenCalledWith('mwf-new', { registry: 'https://npm.corp.example' }, expect.any(AbortSignal))
       await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
-      expect(plugins.installBundle).toHaveBeenCalledWith('dsh-new', expect.objectContaining({ registry: 'https://npm.corp.example/' }))
+      expect(plugins.installBundle).toHaveBeenCalledWith('mwf-new', expect.objectContaining({ registry: 'https://npm.corp.example/' }))
       const results = track.mock.calls.filter(([event]) => event === 'install_plugin_result')
       expect(results).toHaveLength(2)
-      expect(results[1]).toEqual(['install_plugin_result', expect.objectContaining({ is_success: true, plugin_name: 'dsh-new' })])
+      expect(results[1]).toEqual(['install_plugin_result', expect.objectContaining({ is_success: true, plugin_name: 'mwf-new' })])
       // A dialog opened later, by another controller, starts from the registry last used.
       const later = bench()
       later.face.openInstall()
       expect(later.state().install.registry).toEqual({ kind: 'custom', url: 'https://npm.corp.example' })
       // A remembered registry the Host no longer offers is kept as a typed one.
-      storage.set('dsh.plugin-manager.install-registry', JSON.stringify({ kind: 'offered', registry: 'https://old.example/' }))
+      storage.set('mwf.plugin-manager.install-registry', JSON.stringify({ kind: 'offered', registry: 'https://old.example/' }))
       const stale = bench()
       stale.face.openInstall()
       expect(stale.state().install.registry).toEqual({ kind: 'offered', registry: 'https://old.example/' })
@@ -1522,17 +1522,17 @@ describe('PluginManagerController', () => {
     }
     const { face, state } = bench({ installBundle: vi.fn(() => Promise.resolve(ok(outcome))) })
     face.openInstall()
-    face.editInstallSpec('dsh-new')
+    face.editInstallSpec('mwf-new')
     face.runInstall()
     await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
     expect(state().install.failure).toMatchObject({ kind: 'network', failedAt: 'registry' })
     expect(state().install.attempts).toEqual({ registries: [null, MIRROR], total: 2 })
     face.changeRegistry()
-    expect(state().install).toMatchObject({ phase: 'idle', spec: 'dsh-new', registryOpen: true, runs: [], failure: null })
+    expect(state().install).toMatchObject({ phase: 'idle', spec: 'mwf-new', registryOpen: true, runs: [], failure: null })
   })
 
   it.each(['network', 'timeout'] as const)('recovers a GitHub %s failure without retrying its URL through a mirror', async (kind) => {
-    const spec = 'https://github.com/example/dsh-plugin.git'
+    const spec = 'https://github.com/example/mwf-plugin.git'
     const inspect = vi.fn().mockResolvedValueOnce(ok({ status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'github.com' }))
       .mockResolvedValue(ok({ ...INSPECTED, registry: MIRROR }))
     const { face, state, plugins } = bench({
@@ -1543,7 +1543,7 @@ describe('PluginManagerController', () => {
       })).mockResolvedValueOnce(ok({
         ...failed(undefined, { exitCode: 1, output: 'Registry connection failed', truncated: false, logPath: '/l', kind: 'network' }),
         failedAt: 'registry',
-      })).mockResolvedValue(ok({ ...APPLIED, bundle: 'dsh-new' })),
+      })).mockResolvedValue(ok({ ...APPLIED, bundle: 'mwf-new' })),
     })
     face.openInstall()
     await vi.waitFor(() => { expect(state().install.registries).toEqual(REGISTRIES) })
@@ -1558,15 +1558,15 @@ describe('PluginManagerController', () => {
       registryOpen: false, failure: null, runs: [],
     })
     expect(plugins.installBundle).toHaveBeenCalledTimes(1)
-    face.editInstallSpec('dsh-new')
+    face.editInstallSpec('mwf-new')
     face.runInstall()
     await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
     face.changeRegistry()
-    expect(state().install).toMatchObject({ phase: 'idle', spec: 'dsh-new', mirrorRecovery: true, registryOpen: true })
+    expect(state().install).toMatchObject({ phase: 'idle', spec: 'mwf-new', mirrorRecovery: true, registryOpen: true })
     face.runInstall()
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
-    expect(plugins.inspect).toHaveBeenLastCalledWith('dsh-new', { registry: MIRROR }, expect.any(AbortSignal))
-    expect(plugins.installBundle).toHaveBeenLastCalledWith('dsh-new', expect.objectContaining({ registry: MIRROR }))
+    expect(plugins.inspect).toHaveBeenLastCalledWith('mwf-new', { registry: MIRROR }, expect.any(AbortSignal))
+    expect(plugins.installBundle).toHaveBeenLastCalledWith('mwf-new', expect.objectContaining({ registry: MIRROR }))
     face.closeInstall()
     face.openInstall()
     await vi.waitFor(() => { expect(state().install.registries).toEqual(REGISTRIES) })
@@ -1588,7 +1588,7 @@ describe('PluginManagerController', () => {
     face.openInstall()
     await vi.waitFor(() => { expect(state().install.registries).toEqual(registries) })
     face.chooseRegistry(choice)
-    face.editInstallSpec('https://github.com/example/dsh-plugin.git')
+    face.editInstallSpec('https://github.com/example/mwf-plugin.git')
     face.runInstall()
     await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
     face.useGithubMirror()
@@ -1604,7 +1604,7 @@ describe('PluginManagerController', () => {
 
 describe('Host registry response recommendation', () => {
   it('inspects the remembered registry when the offered choice becomes custom during the initial read', async () => {
-    const key = 'dsh.plugin-manager.install-registry'
+    const key = 'mwf.plugin-manager.install-registry'
     const registry = 'https://old.example/'
     const storage = new Map([[key, JSON.stringify({ kind: 'offered', registry })]])
     const registries = deferred<ReturnType<typeof ok<typeof REGISTRIES>>>()
@@ -1619,18 +1619,18 @@ describe('Host registry response recommendation', () => {
         inspect: vi.fn(async () => ok({ ...INSPECTED, registry })),
       })
       face.openInstall()
-      face.editInstallSpec('dsh-new')
+      face.editInstallSpec('mwf-new')
       face.runInstall()
       expect(state().install.phase).toBe('checking')
       expect(plugins.inspect).not.toHaveBeenCalled()
       registries.resolve(ok(REGISTRIES))
       await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalled() })
-      expect(plugins.inspect).toHaveBeenCalledWith('dsh-new', { registry }, expect.any(AbortSignal))
+      expect(plugins.inspect).toHaveBeenCalledWith('mwf-new', { registry }, expect.any(AbortSignal))
       expect(state().install.registry).toEqual({ kind: 'custom', url: registry })
       expect(JSON.parse(storage.get(key)!)).toEqual({ kind: 'custom', url: registry })
       expect(probe.fastest).not.toHaveBeenCalled()
       await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
-      expect(plugins.installBundle).toHaveBeenCalledWith('dsh-new', expect.objectContaining({ registry }))
+      expect(plugins.installBundle).toHaveBeenCalledWith('mwf-new', expect.objectContaining({ registry }))
     } finally {
       registries.resolve(ok(REGISTRIES))
       vi.unstubAllGlobals()
@@ -1641,13 +1641,13 @@ describe('Host registry response recommendation', () => {
     const fastest = deferred<ReturnType<typeof ok<string | null>>>()
     const { face, state, plugins, probe } = bench({ fastest: vi.fn(() => fastest.promise) })
     face.openInstall()
-    face.editInstallSpec('dsh-new')
+    face.editInstallSpec('mwf-new')
     face.runInstall()
     await vi.waitFor(() => { expect(probe.fastest).toHaveBeenCalledOnce() })
     expect(plugins.inspect).not.toHaveBeenCalled()
     fastest.resolve(ok(MIRROR))
     await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalled() })
-    expect(plugins.inspect).toHaveBeenCalledWith('dsh-new', { registry: MIRROR }, expect.any(AbortSignal))
+    expect(plugins.inspect).toHaveBeenCalledWith('mwf-new', { registry: MIRROR }, expect.any(AbortSignal))
     expect(state().install.registry).toEqual({ kind: 'offered', registry: MIRROR })
   })
 
@@ -1696,20 +1696,20 @@ describe('Host registry response recommendation', () => {
     face.openInstall()
     await vi.waitFor(() => { expect(probe.fastest).toHaveBeenCalledOnce() })
     face.chooseRegistry({ kind: 'custom', url: CORP })
-    face.editInstallSpec('dsh-new')
+    face.editInstallSpec('mwf-new')
     face.runInstall()
     await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalled() })
     fastest.resolve(ok(MIRROR))
     await fastest.promise
     expect(state().install.registry).toEqual({ kind: 'custom', url: CORP })
-    expect(plugins.inspect).toHaveBeenCalledWith('dsh-new', { registry: CORP }, expect.any(AbortSignal))
+    expect(plugins.inspect).toHaveBeenCalledWith('mwf-new', { registry: CORP }, expect.any(AbortSignal))
   })
 
   it.each(['close', 'dispose'] as const)('discards a waiting install after %s', async (action) => {
     const fastest = deferred<ReturnType<typeof ok<string | null>>>()
     const { face, controller, plugins, probe } = bench({ fastest: vi.fn(() => fastest.promise) })
     face.openInstall()
-    face.editInstallSpec('dsh-new')
+    face.editInstallSpec('mwf-new')
     face.runInstall()
     await vi.waitFor(() => { expect(probe.fastest).toHaveBeenCalledOnce() })
     if (action === 'close') face.closeInstall()
@@ -1745,17 +1745,17 @@ describe('desktop analytics outcomes', () => {
   it('reports input inspection failure separately from cancellation', async () => {
     const b = bench({ inspect: vi.fn(async () => ok({ status: 'refused', problem: 'not-bundle', reason: 'not a bundle' })) })
     b.face.openInstall()
-    b.face.editInstallSpec('dsh-new')
+    b.face.editInstallSpec('mwf-new')
     b.face.runInstall()
-    await vi.waitFor(() => { expect(b.track).toHaveBeenCalledWith('install_plugin_result', expect.objectContaining({ input_value: 'dsh-new', is_success: false, error_reason: 'not-bundle', duration: expect.any(Number) as number })) })
-    expect(b.track).toHaveBeenCalledWith('plugin_install_click', { input_value: 'dsh-new' })
+    await vi.waitFor(() => { expect(b.track).toHaveBeenCalledWith('install_plugin_result', expect.objectContaining({ input_value: 'mwf-new', is_success: false, error_reason: 'not-bundle', duration: expect.any(Number) as number })) })
+    expect(b.track).toHaveBeenCalledWith('plugin_install_click', { input_value: 'mwf-new' })
   })
 
   it('reports unknown only after recovery confirms the result is absent', async () => {
     const lost = deferred<ReturnType<typeof ok<ChangeResult | null>>>()
     const b = bench({ installBundle: vi.fn(async () => refused('gateway/internal', 'offline')), waitForInstall: vi.fn(() => lost.promise) })
     b.face.openInstall()
-    b.face.editInstallSpec('dsh-new')
+    b.face.editInstallSpec('mwf-new')
     b.face.runInstall()
     await vi.waitFor(() => { expect(b.plugins.waitForInstall).toHaveBeenCalledTimes(1) })
     expect(b.track.mock.calls.filter(call => call[0] === 'install_plugin_result')).toEqual([])
@@ -1769,7 +1769,7 @@ describe('desktop analytics outcomes', () => {
     const inspecting = deferred<ReturnType<typeof ok<typeof INSPECTED>>>()
     const b = bench({ inspect: vi.fn(() => inspecting.promise) })
     b.face.openInstall()
-    b.face.editInstallSpec('dsh-new')
+    b.face.editInstallSpec('mwf-new')
     b.face.runInstall()
     await vi.waitFor(() => { expect(b.plugins.inspect).toHaveBeenCalledTimes(1) })
     b.face.closeInstall()
@@ -1801,7 +1801,7 @@ describe('desktop analytics outcomes', () => {
 it('does not retain install identity when analytics is disabled', async () => {
   const b = bench({}, false)
   b.face.openInstall()
-  b.face.editInstallSpec('dsh-new')
+  b.face.editInstallSpec('mwf-new')
   b.face.runInstall()
   await vi.waitFor(() => { expect(b.state().install.phase).toBe('done') })
   expect(b.track.mock.calls.filter(([name]) => name === 'plugin_install_click' || name === 'install_plugin_result')).toEqual([])
@@ -1820,20 +1820,20 @@ it('reports restart-required row toggles and tolerates a vanished inventory entr
 it('reports a successful install with only documented result fields', async () => {
   const b = bench()
   b.face.openInstall()
-  b.face.editInstallSpec('dsh-new')
+  b.face.editInstallSpec('mwf-new')
   b.face.runInstall()
   await vi.waitFor(() => { expect(b.state().install.phase).toBe('done') })
   const results = b.track.mock.calls.filter(([name]) => name === 'install_plugin_result')
   expect(results).toEqual([['install_plugin_result', {
-    input_value: 'dsh-new', is_success: true, duration: expect.any(Number) as number, plugin_name: 'dsh-new',
+    input_value: 'mwf-new', is_success: true, duration: expect.any(Number) as number, plugin_name: 'mwf-new',
   }]])
 })
 
 
 const CATALOG: BundleInfo = {
-  name: '@deepseek-ai/dsh-subagent-codex', official: true, availability: 'missing', installed: false, optional: false,
+  name: '@metaworkflow/subagent-codex', official: true, availability: 'missing', installed: false, optional: false,
   enabled: false, removable: false, rows: [], overrides: [],
-  installTarget: { spec: '@deepseek-ai/dsh-subagent-codex@2.0.0', version: '2.0.0' },
+  installTarget: { spec: '@metaworkflow/subagent-codex@2.0.0', version: '2.0.0' },
 }
 
 it('installs an absent Official entry directly at the host target and enables it through the normal installer', async () => {
@@ -2008,7 +2008,7 @@ it('ignores a stale update target and prevents a disposed tab from beginning an 
 
 
 it('installs a source Official entry as a local path through the ordinary installer', async () => {
-  const spec = 'link:/development/dsh/packages/subagent/subagent-codex'
+  const spec = 'link:/development/mwf/packages/subagent/subagent-codex'
   const entry = { ...CATALOG, installTarget: { spec, version: '2.0.0' } }
   const { controller, plugins, face, state } = bench({ listBundles: vi.fn().mockResolvedValue(ok([entry])) })
   await controller.load()
@@ -2023,7 +2023,7 @@ it('installs a source Official entry as a local path through the ordinary instal
 })
 
 it.each([true, false])('replaces a same-version registry package with its source link and preserves enabled=%s', async (enabled) => {
-  const spec = 'link:/development/dsh/packages/subagent/subagent-codex'
+  const spec = 'link:/development/mwf/packages/subagent/subagent-codex'
   const entry: BundleInfo = { ...CATALOG, installTarget: { spec, version: '2.0.0' }, availability: 'profile',
     installed: true, version: '2.0.0', source: `${CATALOG.name}@2.0.0`, enabled, removable: true }
   const { controller, plugins, face, state } = bench({ listBundles: vi.fn().mockResolvedValue(ok([entry])),

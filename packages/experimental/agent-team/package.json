@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-agent-team",
+  "name": "@metaworkflow/experimental-agent-team",
   "description": "Implicit-root Agent Teams roster, direct peer messaging, and shared task DAG",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -38,32 +38,32 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
     "@deepseek-ai/schemastery": "workspace:~",
     "zod": "4.4.3"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-subagent": "workspace:*"
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-persistence": "workspace:*",
+    "@metaworkflow/session-projection": "workspace:*",
+    "@metaworkflow/subagent": "workspace:*"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence-jsonl": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-session-query": "workspace:*",
-    "@deepseek-ai/dsh-subagent": "workspace:*",
-    "@deepseek-ai/dsh-subagent-fork-in-process": "workspace:*",
-    "@deepseek-ai/dsh-subagent-spawn-in-process": "workspace:*"
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/agent-loop": "workspace:*",
+    "@metaworkflow/agent-loop-testkit": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-persistence": "workspace:*",
+    "@metaworkflow/session-persistence-jsonl": "workspace:*",
+    "@metaworkflow/session-projection": "workspace:*",
+    "@metaworkflow/session-query": "workspace:*",
+    "@metaworkflow/subagent": "workspace:*",
+    "@metaworkflow/subagent-fork-in-process": "workspace:*",
+    "@metaworkflow/subagent-spawn-in-process": "workspace:*"
   }
 }

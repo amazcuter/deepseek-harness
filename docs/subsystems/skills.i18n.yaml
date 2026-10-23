@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/skills.md
 /skills:
-  en: ad77015352a17ed6
-  zh: 5c84933161845393
+  en: 81c32fb4d20e68c8
+  zh: 491dd46a4093d2bc
 /skills/provider-registry:
-  en: abe338b6c6d1ebd1
-  zh: c604db2de10a23c4
+  en: 745a5f964a705123
+  zh: 6f1777a916f899d7
 /skills/local-discovery-priority:
-  en: accf8ad4c73c41ad
-  zh: 141294fe8dab8ecf
+  en: f9c17cf3122eccc0
+  zh: 880979259a562553
 /skills/skill-identity:
   en: 61295a9cf1c51588
   zh: 1c4c1582688d2310
@@ -18,11 +18,11 @@
   en: 8819c25fac497a1f
   zh: 5795f0d16f09750e
 /skills/lookup-and-configuration:
-  en: e60215d73b0abe75
-  zh: a086985044324141
+  en: ca09d958f6710d7d
+  zh: 4ab4f0f401eaf4d8
 /skills/session-catalog-and-tool-contract:
-  en: 5d5c36b1843a9d7d
-  zh: cd92ab1545e65722
+  en: 7eea13b56838f3ec
+  zh: 5596e940388e7068
 /skills/browser-session-catalog:
   en: 1209dc6ee65fd476
   zh: af3b7ef836564d05

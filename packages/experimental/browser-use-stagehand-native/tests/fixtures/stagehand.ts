@@ -1,4 +1,4 @@
-/** External browser/Stagehand fixture; DSH registries, tools, and result logging remain real. */
+/** External browser/Stagehand fixture; MWF registries, tools, and result logging remain real. */
 
 import type { ModelConfig } from '@browserbasehq/stagehand'
 import { z } from 'zod'

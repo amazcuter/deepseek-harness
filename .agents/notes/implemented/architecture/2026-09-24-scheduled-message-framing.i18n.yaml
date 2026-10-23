@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-24-scheduled-message-framing.md
 /agent-note-delivered-reminders-are-framed-as-scheduled-messages-from-the-user:
-  en: f524c3b0ee74c586
-  zh: ec4e85f0fd853532
+  en: ab6f65af16c653cf
+  zh: 14ff7b8d4b5c32fa
 /agent-note-delivered-reminders-are-framed-as-scheduled-messages-from-the-user/problem:
   en: c4156e2a8a3ad379
   zh: 992b76509f83d61f
 /agent-note-delivered-reminders-are-framed-as-scheduled-messages-from-the-user/decision:
-  en: b9b203da394f58e5
-  zh: ac511458d60dab49
+  en: e02b52c535bf25d3
+  zh: de5e460d858d1af2
 /agent-note-delivered-reminders-are-framed-as-scheduled-messages-from-the-user/alternatives-considered:
   en: 8074a2b9b9f5d782
   zh: 1604b7ee5d34375e

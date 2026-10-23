@@ -11,7 +11,7 @@
   padding: 24px;
   color: var(--dsw-alias-label-secondary);
   font-family: var(--dsw-font, sans-serif);
-  font-size: var(--dsh-content-font-size, 14px);
+  font-size: var(--mwf-content-font-size, 14px);
   line-height: 1.5;
   text-align: center;
   white-space: normal;

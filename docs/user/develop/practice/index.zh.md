@@ -12,13 +12,13 @@
 
 以 Bash 执行能力为例：
 
-- **Service Definition** (`dsh-shell`)：定义 Cordis 服务以及 Bash 请求和结果类型
-- **Service Provider** (`dsh-bash-local`)：在本地计算机上执行命令
-- **Consumer** (`dsh-tool-bash`)：将该能力公开为模型可调用的工具
+- **Service Definition** (`mwf-shell`)：定义 Cordis 服务以及 Bash 请求和结果类型
+- **Service Provider** (`mwf-bash-local`)：在本地计算机上执行命令
+- **Consumer** (`mwf-tool-bash`)：将该能力公开为模型可调用的工具
 
 ```
 ┌─────────────┐     ┌──────────────────┐     ┌──────────────┐
-│  dsh-shell   │────▶│  dsh-bash-local  │     │ dsh-tool-bash│
+│  mwf-shell   │────▶│  mwf-bash-local  │     │ mwf-tool-bash│
 │(definition) │     │    (provider)     │     │(consumer/tool)│
 └─────────────┘     └──────────────────┘     └──────────────┘
        ▲                                            │
@@ -34,7 +34,7 @@
 
 ```yaml
 # Local execution
-- name: '@deepseek-ai/dsh-bash-local'
+- name: '@metaworkflow/bash-local'
 
 # Replace this row with another package that provides the same service.
 ```
@@ -92,7 +92,7 @@ export interface MyCapResult {
 ```ts ignore-check
 // packages/my-cap/my-cap-local/src/index.ts
 import type { Context } from '@deepseek-ai/cordis'
-import { MyCapService, type MyCapRequest, type MyCapResult } from '@deepseek-ai/dsh-my-cap'
+import { MyCapService, type MyCapRequest, type MyCapResult } from '@metaworkflow/my-cap'
 
 class MyCapLocal extends MyCapService {
   async execute(request: MyCapRequest): Promise<MyCapResult> {
@@ -113,7 +113,7 @@ export function apply(ctx: Context) {
 ```ts ignore-check
 // packages/my-cap/tool-my-cap/src/index.ts
 import type { Context } from '@deepseek-ai/cordis'
-import { defineTool } from '@deepseek-ai/dsh-tools'
+import { defineTool } from '@metaworkflow/tools'
 
 export const name = 'tool-my-cap'
 export const inject = ['tools', 'myCap']
@@ -140,8 +140,8 @@ export function apply(ctx: Context) {
 ### 在 cordis.yml 中组合
 
 ```yaml
-- name: '@deepseek-ai/dsh-my-cap-local'
-- name: '@deepseek-ai/dsh-tool-my-cap'
+- name: '@metaworkflow/my-cap-local'
+- name: '@metaworkflow/tool-my-cap'
 ```
 
 ## 设计要点

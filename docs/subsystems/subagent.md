@@ -97,7 +97,7 @@ interface SubagentStartRequest {
    * Optional host-Agent provider, model, reasoning-effort, and output-token
    * overrides. Requires {@link SubagentCapabilities.agentOptions}; in-process
    * providers merge them over the parent Agent's options when they create the
-   * child, while the DSH SDK provider merges them over its instance defaults
+   * child, while the MWF SDK provider merges them over its instance defaults
    * before initializing the separate child runtime.
    */
   readonly agentOptions?: AgentOptions
@@ -315,7 +315,7 @@ interface SubagentRun {
 
 ## The provider contract: SubagentProvider
 
-`SubagentManager` owns startup, message admission, and execution lifetimes. Spawn and Fork contribute detached creation inputs for local Agents. Codex, Claude Code, ACP, and DSH SDK contribute one execution handle; they do not gain multiple turns. Each activation is an execution record that directly retains its AgentHandle or SubagentRun. External completion follows the handle’s result promise; inbox and idle admission belong only to local execution. Both paths share admission, capacity, parent ownership, cancellation, and disposal. The [package reference](../../packages/subagent/subagent/README.md) describes composition and deployment requirements.
+`SubagentManager` owns startup, message admission, and execution lifetimes. Spawn and Fork contribute detached creation inputs for local Agents. Codex, Claude Code, ACP, and MWF SDK contribute one execution handle; they do not gain multiple turns. Each activation is an execution record that directly retains its AgentHandle or SubagentRun. External completion follows the handle’s result promise; inbox and idle admission belong only to local execution. Both paths share admission, capacity, parent ownership, cancellation, and disposal. The [package reference](../../packages/subagent/subagent/README.md) describes composition and deployment requirements.
 
 ```ts type-equiv
 /**

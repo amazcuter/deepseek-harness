@@ -9,7 +9,7 @@ description: "会话标题提供方直接注册、拥有自己的策略设置，
 
 ## 变更
 
-`@deepseek-ai/dsh-session-title-llm` 不再导出 `registerSessionTitleLlmProvider`、`generateSessionTitleWithLlm` 或 `SessionTitleLlmMessageSelector`。`SessionTitleLlmConfig` 现在只包含执行控制（`maxInputBytes`、`maxOutputTokens`、`timeoutMs` 以及可选的 `provider`/`model` 对）；`targetWords` 与 `targetCjkCharacters` 已移入各提供方自己的 `Config`。各提供方拥有自己的系统指令、消息封装、标题解析、推理选择与输出解释，直接通过 `ctx.sessionTitle.register()` 注册，并调用 `executeSessionTitleLlm(ctx, config, request, providerId, { system, input, messageSeqs, selectReasoningEffort })`。该函数返回组装后的内容块、终止结束原因与所用模型路由。`SessionTitleProviderRequest` 新增可选的 `currentTitle` 快照。
+`@metaworkflow/session-title-llm` 不再导出 `registerSessionTitleLlmProvider`、`generateSessionTitleWithLlm` 或 `SessionTitleLlmMessageSelector`。`SessionTitleLlmConfig` 现在只包含执行控制（`maxInputBytes`、`maxOutputTokens`、`timeoutMs` 以及可选的 `provider`/`model` 对）；`targetWords` 与 `targetCjkCharacters` 已移入各提供方自己的 `Config`。各提供方拥有自己的系统指令、消息封装、标题解析、推理选择与输出解释，直接通过 `ctx.sessionTitle.register()` 注册，并调用 `executeSessionTitleLlm(ctx, config, request, providerId, { system, input, messageSeqs, selectReasoningEffort })`。该函数返回组装后的内容块、终止结束原因与所用模型路由。`SessionTitleProviderRequest` 新增可选的 `currentTitle` 快照。
 
 ## 迁移
 

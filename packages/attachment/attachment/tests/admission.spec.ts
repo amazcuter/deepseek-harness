@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import AttachmentStore, { admitEncodedFile, admitEncodedImages } from '@deepseek-ai/dsh-attachment'
+import AttachmentStore, { admitEncodedFile, admitEncodedImages } from '@metaworkflow/attachment'
 import type {
   FileAttachmentRef, ImageAttachmentRef, SaveImageAttachment,
-} from '@deepseek-ai/dsh-attachment/types'
+} from '@metaworkflow/attachment/types'
 
 const PNG = 'AAAA' // canonical base64, 3 bytes
 const FILE_REF: FileAttachmentRef = {

@@ -4,8 +4,8 @@ import { mkdtemp, writeFile, rm, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import LocalSubprocess from '@deepseek-ai/dsh-subprocess-local'
-import SpeechToText from '@deepseek-ai/dsh-experimental-speech-to-text'
+import LocalSubprocess from '@metaworkflow/subprocess-local'
+import SpeechToText from '@metaworkflow/experimental-speech-to-text'
 import { afterEach, expect, it, vi } from 'vitest'
 import * as Provider from '../src/index.ts'
 import { SenseVoiceWorker } from '../src/recognizer.ts'
@@ -14,7 +14,7 @@ vi.mock('../src/runtime.ts', () => ({ inspectRuntime: vi.fn(), prepareRuntime: v
 afterEach(() => { vi.restoreAllMocks() })
 
 it.each([false, true])('queues recordings during startup and honors waiting cancellation (%s)', async (cancelled) => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-speech-queue-')), ctx = new Context()
+  const root = await mkdtemp(join(tmpdir(), 'mwf-speech-queue-')), ctx = new Context()
   const startupEntered = Promise.withResolvers<undefined>(), releaseStartup = Promise.withResolvers<undefined>()
   const gate = createServer((_request, response) => {
     startupEntered.resolve(undefined)

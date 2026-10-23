@@ -17,9 +17,9 @@
 
 import { Client, type Transport } from '@modelcontextprotocol/client'
 import type { Context } from '@deepseek-ai/cordis'
-import { assertNever, type JsonValue } from '@deepseek-ai/dsh-util-values'
+import { assertNever, type JsonValue } from '@metaworkflow/util-values'
 import type { ServerContext } from './server-context.ts'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+import { MAX_TIMER_DELAY_MS } from '@metaworkflow/timeout'
 import { createTransport } from './transport.ts'
 import { syncTools } from './tools.ts'
 import type { ToolBridgeOptions, ToolDisposers } from './tools.ts'
@@ -256,7 +256,7 @@ export function startConnection(ctx: Context, config: Config, policy: ResolvedRe
    */
   async function connectGeneration(startup: boolean): Promise<void> {
     const generation = new Client(
-      { name: 'dsh-mcp-client', version: '0.0.1' },
+      { name: 'mwf-mcp-client', version: '0.0.1' },
       {
         capabilities: {},
         versionNegotiation: { mode: 'auto' },

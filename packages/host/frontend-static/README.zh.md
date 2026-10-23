@@ -3,7 +3,7 @@ description: "Web 壳的 SPA dist 服务器：占据 webserver 回退席位，�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-host-frontend-static
+# @metaworkflow/host-frontend-static
 
 [English](README.md) | 中文
 
@@ -30,12 +30,12 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@deepseek-ai/dsh-host-frontend-static'
+- name: '@metaworkflow/host-frontend-static'
   config:
     distIndex: /absolute/path/to/dist/index.html
 ```
 
-`distIndex` 是组合应用的组装事实：[`dsh-web-app`](../../bundle/web-app/README.zh.md) 通过前端包的 exports 解析它并挂载本插件；部署绝不硬编码它。
+`distIndex` 是组合应用的组装事实：[`mwf-web-app`](../../bundle/web-app/README.zh.md) 通过前端包的 exports 解析它并挂载本插件；部署绝不硬编码它。
 
 ### 服务器实施的约束
 
@@ -81,9 +81,9 @@ kind: "package-reference"
 当服务约定不够用时阅读以下内容：先看席位所有者的约定，再看解析 dist 的组合与子系统参考。
 
 - [Webserver](../webserver/README.zh.md)——本插件占据的回退席位与它运行的 index 转换器。
-- [dsh-web-app 组合包](../../bundle/web-app/README.zh.md)——解析 `distIndex` 并挂载本插件的应用。
+- [mwf-web-app 组合包](../../bundle/web-app/README.zh.md)——解析 `distIndex` 并挂载本插件的应用。
 - [HTTP 服务器子系统](../../../docs/subsystems/web-server.zh.md)——回退席位如何融入路由表。
-- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-host-frontend-static)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#metaworkflowhost-frontend-static)——每个受支持配置字段及其源声明。
 
 -----
 

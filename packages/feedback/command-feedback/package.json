@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-command-feedback",
+  "name": "@metaworkflow/command-feedback",
   "description": "Log-only session feedback: the record event, the sessionFeedback Host Remote, and the human-facing slash command",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -46,11 +46,11 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-commands": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-anonymous-user-id": "workspace:*",
+    "@metaworkflow/commands": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/anonymous-user-id": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@metaworkflow/typert-protocol": "workspace:*"
   },
   "dependencies": {
     "zod": "4.4.3"
@@ -58,13 +58,13 @@
   "devDependencies": {
     "@deepseek-ai/cordis-plugin-include": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@deepseek-ai/dsh-commands": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-anonymous-user-id": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/agent-loop-testkit": "workspace:*",
+    "@metaworkflow/commands": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/anonymous-user-id": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@metaworkflow/typert-protocol": "workspace:*"
   }
 }

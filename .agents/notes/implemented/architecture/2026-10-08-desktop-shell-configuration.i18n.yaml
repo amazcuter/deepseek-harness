@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-08-desktop-shell-configuration.md
 /agent-note-desktop-shell-configuration-independent-of-the-host:
-  en: 860c8afa57227b89
-  zh: bec6a19319050aed
+  en: 95d8f8d91684ea87
+  zh: 7bbf96d425cc3d7d
 /agent-note-desktop-shell-configuration-independent-of-the-host/problem:
   en: 9f652292b62cd015
   zh: 14a97b5a4884c008
 /agent-note-desktop-shell-configuration-independent-of-the-host/decision:
-  en: e58311d3d5ebb6b6
-  zh: b4c791fcfde7b986
+  en: 4274207c09d0b998
+  zh: b42b0e0fa81d6141
 /agent-note-desktop-shell-configuration-independent-of-the-host/alternatives-considered:
   en: 349210f3cf5f168b
   zh: 019acfc3c3d71b4b

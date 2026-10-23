@@ -5,87 +5,87 @@
 /:
   en: c6924d7c0d7c82ff
   zh: 95fbf06db428f532
-/deepseek-ai-dsh-llm-deepseek:
-  en: e66a018af9e2de3c
-  zh: d7188003d01964bb
-/deepseek-ai-dsh-llm-deepseek/summary:
-  en: a8871f9ce192ac6a
-  zh: 7d642e993f4ca71c
-/deepseek-ai-dsh-llm-deepseek/table-of-contents:
+/metaworkflow-llm-deepseek:
+  en: 9eb3bffc3037e66f
+  zh: 1e2d90e32a3762a2
+/metaworkflow-llm-deepseek/summary:
+  en: 6af4e720b6954bb6
+  zh: 34e56e867e75525a
+/metaworkflow-llm-deepseek/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-llm-deepseek/use-this-package:
-  en: fe27b41cb85cd031
-  zh: 52d833f0909d94f1
-/deepseek-ai-dsh-llm-deepseek/use-this-package/when-to-choose-it:
-  en: 6850d08bc091ad23
-  zh: 2906e6cf1dfed6ce
-/deepseek-ai-dsh-llm-deepseek/use-this-package/minimal-configuration:
-  en: cfc2de7ef728dbf9
-  zh: 2ce1a406061a71aa
-/deepseek-ai-dsh-llm-deepseek/use-this-package/endpoint-and-wire-format:
+/metaworkflow-llm-deepseek/use-this-package:
+  en: e8ebf5994a8ab03a
+  zh: 786a698f19f69c16
+/metaworkflow-llm-deepseek/use-this-package/when-to-choose-it:
+  en: 466b5eed40895c9c
+  zh: e4536b8d5c8bea09
+/metaworkflow-llm-deepseek/use-this-package/minimal-configuration:
+  en: a27b2fb31d6d66d7
+  zh: 1d8763e449ccb68f
+/metaworkflow-llm-deepseek/use-this-package/endpoint-and-wire-format:
   en: 522e74b770e9d4ca
   zh: a8b261b41677bfe7
-/deepseek-ai-dsh-llm-deepseek/use-this-package/account-credentials:
-  en: 3853ba1a1ffbb46c
-  zh: 97203e80ad933e59
-/deepseek-ai-dsh-llm-deepseek/use-this-package/streaming-with-thinking-and-images:
+/metaworkflow-llm-deepseek/use-this-package/account-credentials:
+  en: 66658005909e79d0
+  zh: 52ec89371924c3cd
+/metaworkflow-llm-deepseek/use-this-package/streaming-with-thinking-and-images:
   en: 81bf213499f015ba
   zh: e9107ef322213e56
-/deepseek-ai-dsh-llm-deepseek/use-this-package/dynamic-configuration:
+/metaworkflow-llm-deepseek/use-this-package/dynamic-configuration:
   en: 49290fc5647136b4
   zh: 96fa9ce0f9e83c13
-/deepseek-ai-dsh-llm-deepseek/use-this-package/provider-specific-request-fields:
-  en: f13f24b504dcfb50
-  zh: 69b0ed9e2adf3394
-/deepseek-ai-dsh-llm-deepseek/use-this-package/failures-and-recovery:
-  en: d43f055d2382ae71
-  zh: af2a7cb4e3476a3f
-/deepseek-ai-dsh-llm-deepseek/understand-the-implementation:
+/metaworkflow-llm-deepseek/use-this-package/provider-specific-request-fields:
+  en: 4d59256dd6248b2d
+  zh: b591cd79768f22bd
+/metaworkflow-llm-deepseek/use-this-package/failures-and-recovery:
+  en: 30c5e338355c2706
+  zh: ef22bcf282f6c0ee
+/metaworkflow-llm-deepseek/understand-the-implementation:
   en: 1598ac8a8bb9b6bf
   zh: fdd089c5ae7722cd
-/deepseek-ai-dsh-llm-deepseek/understand-the-implementation/design-philosophy:
+/metaworkflow-llm-deepseek/understand-the-implementation/design-philosophy:
   en: 829203c4c282dc46
   zh: e05dada4a1420a95
-/deepseek-ai-dsh-llm-deepseek/understand-the-implementation/source-map:
+/metaworkflow-llm-deepseek/understand-the-implementation/source-map:
   en: dc2d2409ad8c41cc
   zh: 51fc4ad65dab6378
-/deepseek-ai-dsh-llm-deepseek/understand-the-implementation/wire-flow:
+/metaworkflow-llm-deepseek/understand-the-implementation/wire-flow:
   en: 9477d8af3d762450
   zh: 52a2967518509f94
-/deepseek-ai-dsh-llm-deepseek/further-exploration:
-  en: d3e6e29335c54987
-  zh: 3461235b93dfd697
-/deepseek-ai-dsh-llm-deepseek/model-experience:
+/metaworkflow-llm-deepseek/further-exploration:
+  en: c555fa4270007841
+  zh: 5ab49cb4fcd1536a
+/metaworkflow-llm-deepseek/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-llm-deepseek/model-experience/deepseek-request:
+/metaworkflow-llm-deepseek/model-experience/deepseek-request:
   en: 1dc50052999253c6
   zh: 7abf968fc18bffcd
-/deepseek-ai-dsh-llm-deepseek/model-experience/deepseek-request/what-the-model-sees:
+/metaworkflow-llm-deepseek/model-experience/deepseek-request/what-the-model-sees:
   en: 14110610860656e8
   zh: 995e28d6931ebe4e
-/deepseek-ai-dsh-llm-deepseek/model-experience/deepseek-request/token-effect:
-  en: 67f4bfa42cbee911
-  zh: 5e9dc9bc07253686
-/deepseek-ai-dsh-llm-deepseek/model-experience/deepseek-request/kv-cache-effect:
+/metaworkflow-llm-deepseek/model-experience/deepseek-request/token-effect:
+  en: 4946ed9c920b3c17
+  zh: b57b6b03126a92f4
+/metaworkflow-llm-deepseek/model-experience/deepseek-request/kv-cache-effect:
   en: 87ac92776176ee15
   zh: bb49edf3a68dda07
-/deepseek-ai-dsh-llm-deepseek/model-experience/deepseek-response:
+/metaworkflow-llm-deepseek/model-experience/deepseek-response:
   en: 957d6665495e5ca5
   zh: 0aa72b2c2dc07167
-/deepseek-ai-dsh-llm-deepseek/model-experience/deepseek-response/what-the-model-sees:
+/metaworkflow-llm-deepseek/model-experience/deepseek-response/what-the-model-sees:
   en: 36a3d0297d6ca209
   zh: bfc68b8300f61593
-/deepseek-ai-dsh-llm-deepseek/model-experience/deepseek-response/token-effect:
+/metaworkflow-llm-deepseek/model-experience/deepseek-response/token-effect:
   en: 533309d1f93b89de
   zh: 4cc0b86f05c9be53
-/deepseek-ai-dsh-llm-deepseek/model-experience/deepseek-response/kv-cache-effect:
+/metaworkflow-llm-deepseek/model-experience/deepseek-response/kv-cache-effect:
   en: ddfbea043596878d
   zh: 4fbf5864a684c053
-/deepseek-ai-dsh-llm-deepseek/known-limitations-and-deferred-work:
-  en: 05fe57d81d8d8202
-  zh: 61e85a6f610842dd
-/deepseek-ai-dsh-llm-deepseek/known-limitations-and-deferred-work/dev-note:
-  en: fc7d8c8a6258331a
-  zh: 491b454fe920a17e
+/metaworkflow-llm-deepseek/known-limitations-and-deferred-work:
+  en: 370b16368d2839f1
+  zh: 17122d82afec2543
+/metaworkflow-llm-deepseek/known-limitations-and-deferred-work/dev-note:
+  en: 3a2d53ff33bed9bd
+  zh: 4c2e0b5d85576ffe

@@ -1,6 +1,6 @@
 {
-  "name": "@deepseek-ai/dsh-acp-app",
-  "description": "The dsh ACP profile bundle: automation-only JSON-RPC stdio and process lifecycle over dsh-base",
+  "name": "@metaworkflow/acp-app",
+  "description": "The mwf ACP profile bundle: automation-only JSON-RPC stdio and process lifecycle over mwf-base",
   "version": "0.2.1-rc.2",
   "publishConfig": {
     "access": "public"
@@ -28,14 +28,14 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
-  "dsh": {
+  "mwf": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-acp": "workspace:*",
-    "@deepseek-ai/dsh-cmdline": "workspace:*",
+    "@metaworkflow/acp": "workspace:*",
+    "@metaworkflow/cmdline": "workspace:*",
     "commander": "^15.0.0"
   },
   "peerDependencies": {

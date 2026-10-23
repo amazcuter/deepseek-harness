@@ -1,15 +1,15 @@
 /** Optional Remote contribution and reasoning-slot registration lifecycle. */
 import type { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-chat/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
-import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
-import type {} from '@deepseek-ai/dsh-experimental-client-ui-cot-translation/remote'
-import type { RemoteResult, TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import type { SessionId } from '@metaworkflow/session/types'
+import type {} from '@metaworkflow/api-remotes/client'
+import type {} from '@metaworkflow/client-locale/client'
+import type {} from '@metaworkflow/client-ui-chat/client'
+import type {} from '@metaworkflow/client-ui-renderer/client'
+import type {} from '@metaworkflow/client-ui-settings/client'
+import type {} from '@metaworkflow/client-ui-plugin-manager/client'
+import type {} from '@metaworkflow/experimental-client-ui-cot-translation/remote'
+import type { RemoteResult, TypertRemoteContribution } from '@metaworkflow/typert-protocol'
+import { createSnapshotStore } from '@metaworkflow/client-store'
 import type { CotTranslationPreferences, CotTranslationSnapshot } from '../preferences.ts'
 import { TranslationBody, type TranslationBodyInjected } from './TranslationBody.tsx'
 import { TranslationSettings } from './TranslationSettings.tsx'
@@ -103,7 +103,7 @@ async function registerUi(ctx: Context, lifetime: AbortController): Promise<void
     inject: injected,
   }, TranslationBody))
   ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
-    name: 'plugins.bundle.config', key: '@deepseek-ai/dsh-experimental-cot-translation-bundle', locale: NS,
+    name: 'plugins.bundle.config', key: '@metaworkflow/experimental-cot-translation-bundle', locale: NS,
     inject: () => {
       const face = form.inject()
       return { ...face, hooks: { ...face.hooks, availableProviders }, refreshProviders: invalidate }

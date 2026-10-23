@@ -3,7 +3,7 @@ description: "DeepSeek account authentication, model listing, and model gating."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-llm-deepseek-account
+# @metaworkflow/llm-deepseek-account
 
 English | [中文](README.zh.md)
 
@@ -11,7 +11,7 @@ English | [中文](README.zh.md)
 
 Register authentication, the account model listing, and model gating for `deepseek-account`. This plugin shares the [Messages transport](../llm-deepseek/README.md) and owns credential resolution, the account catalog, and model admission.
 
-Authentication resolution returns `x-dsh-auth-token` and a failure callback capturing the same token. HTTP 401 classification and rejection stay in this provider; a rejected older request cannot clear a replacement login.
+Authentication resolution returns `x-mwf-auth-token` and a failure callback capturing the same token. HTTP 401 classification and rejection stay in this provider; a rejected older request cannot clear a replacement login.
 
 ## Table of Contents
 
@@ -27,7 +27,7 @@ Authentication resolution returns `x-dsh-auth-token` and a failure callback capt
 
 Only `deepseekAccount.resolveToken(url)` supplies the token; the account service validates the destination. Signed-out or ineligible requests fail with `ACCOUNT_SIGN_IN_REQUIRED` and discovery returns an empty catalog. The route never falls back to an API key. Other credential lookup errors propagate.
 
-The route's catalog comes from the account's `GET /models` listing at the origin of the Messages `baseURL` (`https://api.deepseek.com/models` for the official endpoint); the listing endpoint is not configurable. Listing requests carry the account token in `x-dsh-auth-token` and the harness `User-Agent`, and reject redirects.
+The route's catalog comes from the account's `GET /models` listing at the origin of the Messages `baseURL` (`https://api.deepseek.com/models` for the official endpoint); the listing endpoint is not configurable. Listing requests carry the account token in `x-mwf-auth-token` and the harness `User-Agent`, and reject redirects.
 
 The first access of a credential waits for the listing up to `modelsTimeoutMs`. Later accesses use the loaded listing and refresh it in the background once it is older than `modelsMaxAgeMs`. A failed or empty listing keeps the previous one; before any listing loads, the route serves the built-in catalog of the current version (`deepseek-flash` and `deepseek-v4-pro`). A listing HTTP 401 does not remove the stored login. Each loaded listing, the first failure of a failing streak with the catalog it falls back to, and each hidden listing entry are written to the console with the `[llm-deepseek-account]` tag; secrets are never logged. Each account token has its own listing, so the service can roll a model out to some accounts first.
 
@@ -35,11 +35,11 @@ A listed model is offered only when the current DeepSeek Harness version can ser
 
 Offered models take the listing's name, `context_window`, input modalities, and Messages system prompt mode over the bundled entry for the same id, which keeps its tool-update mode, image budgets, and description. `max_output_tokens` bounds the request default: a request that names no cap sends the smaller of `maxTokens` and that capability. The listing's effort levels are not read; every model offers `off`, `low`, `high`, and `max`.
 
-`modelOverrides` adjusts single models without replacing the catalog. Keys are model ids; values take the fields of a [Messages `models` entry](../llm-deepseek/README.md#minimal-configuration), and unset fields inherit. Overrides apply over the listing and the bundled catalog; they cannot add models or make a refused model available. Listed capabilities do not bound an override: an override `maxTokens` above the listed `max_output_tokens` is sent as written, and the service rejects requests beyond its limits. An override that names a model neither the listing nor the built-in catalog describes, or that the listed model rejects, becomes the provider diagnostic on the Models page, which has no editor for this route. An override for a refused model that the built-in catalog does not describe is checked only once the current version can serve that model. The route has no `models` field; a configuration that still sets it fails at load and names `modelOverrides`. Edit `$DSH_HOME/profiles/<profile>/cordis.patch.yml`; the next request uses the change.
+`modelOverrides` adjusts single models without replacing the catalog. Keys are model ids; values take the fields of a [Messages `models` entry](../llm-deepseek/README.md#minimal-configuration), and unset fields inherit. Overrides apply over the listing and the bundled catalog; they cannot add models or make a refused model available. Listed capabilities do not bound an override: an override `maxTokens` above the listed `max_output_tokens` is sent as written, and the service rejects requests beyond its limits. An override that names a model neither the listing nor the built-in catalog describes, or that the listed model rejects, becomes the provider diagnostic on the Models page, which has no editor for this route. An override for a refused model that the built-in catalog does not describe is checked only once the current version can serve that model. The route has no `models` field; a configuration that still sets it fails at load and names `modelOverrides`. Edit `$MWF_HOME/profiles/<profile>/cordis.patch.yml`; the next request uses the change.
 
 ```yaml
 - id: llm-deepseek-account
-  name: '@deepseek-ai/dsh-llm-deepseek-account'
+  name: '@metaworkflow/llm-deepseek-account'
   config:
     reasoningEffort: high
     modelOverrides:

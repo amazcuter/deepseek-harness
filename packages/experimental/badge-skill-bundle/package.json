@@ -1,6 +1,6 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-badge-skill-bundle",
-  "description": "Let agents add a “powered by dsh” badge to documents, pull requests, and other outputs.",
+  "name": "@metaworkflow/experimental-badge-skill-bundle",
+  "description": "Let agents add a “powered by mwf” badge to documents, pull requests, and other outputs.",
   "version": "0.2.1-rc.2",
   "icon": "./icon.svg",
   "publishConfig": {
@@ -32,13 +32,13 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
-  "dsh": {
+  "mwf": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-skill-badge": "workspace:*"
+    "@metaworkflow/skill-badge": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~"

@@ -31,28 +31,28 @@ describe('tar codec', () => {
     const vfs = loadVfsImage(packTar({
       'config/cordis.yml': encoder.encode('- id: subject\n'),
       'workspace/': new Uint8Array(0),
-    }), '/dsh')
-    expect(vfs.existsSync('/dsh/config/cordis.yml')).toBe(true)
-    expect(vfs.readFileSync('/dsh/config/cordis.yml', 'utf8')).toBe('- id: subject\n')
-    expect(vfs.existsSync('/dsh/config')).toBe(true)
-    expect(vfs.existsSync('/dsh/workspace')).toBe(true)
-    expect(vfs.existsSync('/dsh/absent')).toBe(false)
+    }), '/mwf')
+    expect(vfs.existsSync('/mwf/config/cordis.yml')).toBe(true)
+    expect(vfs.readFileSync('/mwf/config/cordis.yml', 'utf8')).toBe('- id: subject\n')
+    expect(vfs.existsSync('/mwf/config')).toBe(true)
+    expect(vfs.existsSync('/mwf/workspace')).toBe(true)
+    expect(vfs.existsSync('/mwf/absent')).toBe(false)
   })
 
   it('applies ordered data overlays without exposing runtime paths', () => {
     const vfs = loadVfsImage(packTar({
       'config/cordis.yml': encoder.encode('- id: subject\n'),
       'workspace/status.txt': encoder.encode('base'),
-    }), '/dsh')
+    }), '/mwf')
     loadVfsOverlay(packTar({
       'workspace/status.txt': encoder.encode('fixture'),
       'home/sessions/example/session.jsonl': encoder.encode('{}\n'),
-    }), '/dsh', vfs)
-    expect(vfs.readFileSync('/dsh/workspace/status.txt', 'utf8')).toBe('fixture')
-    expect(vfs.readFileSync('/dsh/home/sessions/example/session.jsonl', 'utf8')).toBe('{}\n')
+    }), '/mwf', vfs)
+    expect(vfs.readFileSync('/mwf/workspace/status.txt', 'utf8')).toBe('fixture')
+    expect(vfs.readFileSync('/mwf/home/sessions/example/session.jsonl', 'utf8')).toBe('{}\n')
     expect(() => loadVfsOverlay(packTar({
       'config/cordis.yml': encoder.encode('replaced'),
-    }), '/dsh', vfs)).toThrow(/overlay entry must stay under home\/ or workspace/)
-    expect(vfs.readFileSync('/dsh/config/cordis.yml', 'utf8')).toBe('- id: subject\n')
+    }), '/mwf', vfs)).toThrow(/overlay entry must stay under home\/ or workspace/)
+    expect(vfs.readFileSync('/mwf/config/cordis.yml', 'utf8')).toBe('- id: subject\n')
   })
 })

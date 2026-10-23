@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-webworker-packer",
+  "name": "@metaworkflow/experimental-webworker-packer",
   "description": "Build-time packer for the browser runtime's base VFS image and ordered data-overlay archives",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -14,7 +14,7 @@
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
   "bin": {
-    "dsh-pack-vfs-image": "./bin.js"
+    "mwf-pack-vfs-image": "./bin.js"
   },
   "exports": {
     ".": {
@@ -34,11 +34,11 @@
   "license": "MIT",
   "dependencies": {
     "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-experimental-webworker-runtime": "workspace:*",
-    "@deepseek-ai/dsh-session-format": "workspace:*",
-    "@deepseek-ai/dsh-session-format-catalog": "workspace:*",
-    "@deepseek-ai/dsh-session-format-v3-to-v4": "workspace:*",
+    "@metaworkflow/app-boot": "workspace:*",
+    "@metaworkflow/experimental-webworker-runtime": "workspace:*",
+    "@metaworkflow/session-format": "workspace:*",
+    "@metaworkflow/session-format-catalog": "workspace:*",
+    "@metaworkflow/session-format-v3-to-v4": "workspace:*",
     "js-yaml": "^4.3.2",
     "picomatch": "^4.0.7"
   },

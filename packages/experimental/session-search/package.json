@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-session-search",
+  "name": "@metaworkflow/experimental-session-search",
   "description": "Give Agents tools to search and read earlier sessions from the current workspace.",
   "version": "0.2.1-rc.2",
   "icon": "./icon.svg",
@@ -32,14 +32,14 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
-  "dsh": {
+  "mwf": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-session-query-sqlite": "workspace:*",
-    "@deepseek-ai/dsh-tool-session-query": "workspace:*"
+    "@metaworkflow/session-query-sqlite": "workspace:*",
+    "@metaworkflow/tool-session-query": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~"

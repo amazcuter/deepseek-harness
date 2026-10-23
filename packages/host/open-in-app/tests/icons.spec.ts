@@ -8,7 +8,7 @@ import { mkdtemp, mkdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import type { NativeCommandRunner } from '@deepseek-ai/dsh-native-command'
+import type { NativeCommandRunner } from '@metaworkflow/native-command'
 import { OPEN_IN_APP_CATALOG, type OpenInAppApp } from '../src/catalog.ts'
 import { extractAppIcon } from '../src/icons.ts'
 import type { OpenInAppInternals, OpenInAppResolvedLaunch } from '../src/resolver.ts'
@@ -22,7 +22,7 @@ afterEach(async () => {
 })
 
 async function tempRoot(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-spec-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-open-in-app-spec-'))
   roots.push(root)
   return root
 }

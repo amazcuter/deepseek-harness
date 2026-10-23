@@ -1,4 +1,4 @@
-"""Wire protocol vocabulary for the Python side of dsh-ptc-runtime-python.
+"""Wire protocol vocabulary for the Python side of mwf-ptc-runtime-python.
 
 Mirrors ``src/protocol.ts``. Frames travel on fd 3 as JSON-lines (one JSON
 object per line). The host validates every inbound frame; this side trusts
@@ -136,4 +136,4 @@ def log_truncation_marker(max_bytes: int) -> str:
     same however the cap was hit.
     """
 
-    return f"[dsh-ptc-runtime-python] log capture truncated at {max_bytes} bytes"
+    return f"[mwf-ptc-runtime-python] log capture truncated at {max_bytes} bytes"

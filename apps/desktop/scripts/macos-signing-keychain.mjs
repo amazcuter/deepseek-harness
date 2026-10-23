@@ -49,7 +49,7 @@ export async function withMacOSSigningKeychain(environment, action, run = execut
   const certificate = environment.CSC_LINK
   const exportPassword = environment.CSC_KEY_PASSWORD
   if (!certificate || exportPassword === undefined) throw new Error('desktop macOS signing: CSC_LINK and CSC_KEY_PASSWORD are required')
-  const directory = mkdtempSync(join(tmpdir(), 'dsh-macos-signing-'))
+  const directory = mkdtempSync(join(tmpdir(), 'mwf-macos-signing-'))
   const keychain = join(directory, 'signing.keychain-db')
   const password = randomBytes(32).toString('base64')
   /** @param {string[]} args Security command arguments. */
@@ -69,9 +69,9 @@ export async function withMacOSSigningKeychain(environment, action, run = execut
     security(['list-keychains', '-d', 'user', '-s', keychain, ...previousKeychains])
     const probe = join(directory, 'probe')
     run('/bin/cp', ['/usr/bin/true', probe])
-    run('/usr/bin/codesign', ['--force', '--sign', `Developer ID Application: ${environment.DSH_DESKTOP_MACOS_SIGNING_IDENTITY}`, '--keychain', keychain, '--timestamp', '--options', 'runtime', probe])
+    run('/usr/bin/codesign', ['--force', '--sign', `Developer ID Application: ${environment.MWF_DESKTOP_MACOS_SIGNING_IDENTITY}`, '--keychain', keychain, '--timestamp', '--options', 'runtime', probe])
     run('/usr/bin/codesign', ['--verify', '--strict', probe])
-    const childEnvironment = { ...environment, CSC_KEYCHAIN: keychain, DSH_DESKTOP_MACOS_SIGNING_PROBE: probe }
+    const childEnvironment = { ...environment, CSC_KEYCHAIN: keychain, MWF_DESKTOP_MACOS_SIGNING_PROBE: probe }
     delete childEnvironment.CSC_LINK
     delete childEnvironment.CSC_KEY_PASSWORD
     await action(childEnvironment)

@@ -46,7 +46,7 @@ Before implementation, record a measurement card:
 | Verdict | Raw samples, chosen aggregate, calibrated absolute/ratio/memory limits, and negative control |
 | Behavior | Owning functional tests/snapshots and permitted minor differences |
 
-Measure built JavaScript under plain Node for CPU workers; source-loader overhead and module resolution are not the shipped path. Browser cases use built product assets and the supported `dsh` profile through the existing test harness. Do not add a production export solely for measurement or copy the algorithm into a “benchmark implementation.”
+Measure built JavaScript under plain Node for CPU workers; source-loader overhead and module resolution are not the shipped path. Browser cases use built product assets and the supported `mwf` profile through the existing test harness. Do not add a production export solely for measurement or copy the algorithm into a “benchmark implementation.”
 
 Use fresh children and private temporary roots for cold/process-memory samples. Warm samples explicitly retain the intended cache; never let fixture setup secretly warm a cold scenario. Keep the same input, validations, completion condition, and reachable output on both sides. A parse-and-discard baseline is not comparable with validated retained history.
 

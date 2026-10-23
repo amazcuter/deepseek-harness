@@ -38,7 +38,7 @@ const projectGraphqlData = ({
   organization: {
     projectV2: {
       id: 'project-id',
-      title: 'DSH Issue Management',
+      title: 'MWF Issue Management',
       fields: {
         nodes: [
           {
@@ -321,7 +321,7 @@ test('deletes a stale audit comment after repairing its only violation', async (
         {
           id: 99,
           user: { type: 'Bot' },
-          body: '<!-- dsh-issue-policy -->\nold audit',
+          body: '<!-- mwf-issue-policy -->\nold audit',
         },
       ])
     }
@@ -371,8 +371,8 @@ test('keeps terminal Status aligned with the native close reason', () => {
 test('separates resolving and informational references', () => {
   assert.deepEqual(
     parseReferences({
-      body: 'Fixes #12\nRelated to #4\nRefs deepseekharness/dsh-test#7',
-      repository: 'deepseekharness/dsh-test',
+      body: 'Fixes #12\nRelated to #4\nRefs deepseekharness/mwf-test#7',
+      repository: 'deepseekharness/mwf-test',
     }),
     { all: [4, 7, 12], resolving: [12], related: [4, 7] },
   )
@@ -672,7 +672,7 @@ test('toggles automation-owned work on request changes and repeated review reque
   let status = nextResolvingIssueStatus(
     'In review',
     'changes-requested',
-    'dsh-issue-management',
+    'mwf-issue-management',
   )
   assert.equal(status, 'In progress')
   status = nextResolvingIssueStatus(status, 'review-requested')
@@ -769,7 +769,7 @@ test('rejects multiple, unknown, legacy, and Issue-source PR labels', () => {
 const mockPolicyApi = (t, { pull = {}, requested = true, reviews = [], issues = {}, priority = 'P1', projectError = false } = {}) => {
   const environment = ['GH_TOKEN', 'GITHUB_TOKEN', 'PROJECT_TOKEN', 'GITHUB_API_URL', 'GITHUB_OUTPUT']
   const previous = new Map(environment.map((key) => [key, process.env[key]]))
-  const directory = mkdtempSync(join(tmpdir(), 'dsh-policy-'))
+  const directory = mkdtempSync(join(tmpdir(), 'mwf-policy-'))
   t.after(() => {
     for (const [key, value] of previous) {
       if (value === undefined) delete process.env[key]
@@ -915,7 +915,7 @@ test('keeps trusted preflight before token minting and required policy unconditi
 })
 
 test('runs trusted rollout selection with absent and present capability markers', { skip: process.platform === 'win32' ? 'The policy workflow executes under hosted Ubuntu bash' : false }, (t) => {
-  const directory = mkdtempSync(join(tmpdir(), 'dsh-policy-rollout-'))
+  const directory = mkdtempSync(join(tmpdir(), 'mwf-policy-rollout-'))
   t.after(() => rmSync(directory, { recursive: true, force: true }))
   const source = readFileSync(new URL('../workflows/issue-policy.yml', import.meta.url), 'utf8')
   const script = source.split('        run: |\n')[1].split('      - name: Create Project read token')[0]
@@ -996,7 +996,7 @@ test('keeps REST headers, null responses, and transport errors unchanged', async
       Accept: 'application/vnd.github+json',
       Authorization: 'Bearer preferred-token',
       'X-GitHub-Api-Version': '2026-03-10',
-      'User-Agent': 'dsh-issue-policy',
+      'User-Agent': 'mwf-issue-policy',
     } },
   })
   assert.equal(await api('/empty'), null)

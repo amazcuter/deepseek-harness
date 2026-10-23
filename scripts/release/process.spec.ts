@@ -17,7 +17,7 @@ afterEach(async () => {
  * @returns Absolute path of the archive.
  */
 async function packedTarball(name: string, version: string): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), 'dsh-tarball-'))
+  const directory = await mkdtemp(join(tmpdir(), 'mwf-tarball-'))
   directories.push(directory)
   const contents = join(directory, 'package')
   await import('node:fs/promises').then(async fs => fs.mkdir(contents))
@@ -40,12 +40,12 @@ describe('release process helpers', () => {
 describe('release tarball readers', () => {
   it('lists members of an archive under an absolute path', async () => {
     // GNU tar reads the colon in a Windows drive path as a remote host, so the readers run beside the archive.
-    const archive = await packedTarball('@deepseek-ai/dsh-probe', '1.2.3')
+    const archive = await packedTarball('@metaworkflow/probe', '1.2.3')
     expect(tarballFiles(archive)).toEqual(expect.arrayContaining(['package/package.json', 'package/index.js']))
   })
 
   it('reads what an archive declares about itself', async () => {
-    const archive = await packedTarball('@deepseek-ai/dsh-probe', '1.2.3')
-    expect(packedIdentity(archive)).toEqual({ name: '@deepseek-ai/dsh-probe', version: '1.2.3' })
+    const archive = await packedTarball('@metaworkflow/probe', '1.2.3')
+    expect(packedIdentity(archive)).toEqual({ name: '@metaworkflow/probe', version: '1.2.3' })
   })
 })

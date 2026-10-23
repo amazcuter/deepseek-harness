@@ -18,11 +18,11 @@ import {
 // Graph fixtures select their own browser pool instead of inheriting the CI
 // host's pool, and coverage gates take their shape from the values each case
 // sets, not from the lane that runs this file (a partitioned lane exports
-// DSH_COVERAGE_PARTITIONS to every child).
+// MWF_COVERAGE_PARTITIONS to every child).
 beforeEach(() => {
-  vi.stubEnv('DSH_WEB_SNAPSHOT_WORKERS', undefined)
-  vi.stubEnv('DSH_COVERAGE_MAX_WORKERS', undefined)
-  vi.stubEnv('DSH_COVERAGE_PARTITIONS', undefined)
+  vi.stubEnv('MWF_WEB_SNAPSHOT_WORKERS', undefined)
+  vi.stubEnv('MWF_COVERAGE_MAX_WORKERS', undefined)
+  vi.stubEnv('MWF_COVERAGE_PARTITIONS', undefined)
 })
 afterEach(() => vi.unstubAllEnvs())
 
@@ -167,30 +167,30 @@ describe('CI worker allocation', () => {
   it.each([1, 2, 4, 8, 16, 64])('shares a %i CPU coverage budget without multiplying pools', (cpus) => {
     const env = ciWorkerEnvironment('ci-coverage', { CI: 'true' }, cpus)
     const exempt = Math.max(1, Math.floor(cpus / 3))
-    const instrumented = Number(env.DSH_COVERAGE_PARTITIONS ?? 1)
-    expect(Number(env.DSH_COVERAGE_MAX_WORKERS)).toBe(cpus)
+    const instrumented = Number(env.MWF_COVERAGE_PARTITIONS ?? 1)
+    expect(Number(env.MWF_COVERAGE_MAX_WORKERS)).toBe(cpus)
     expect(instrumented + exempt).toBe(Math.max(2, cpus))
     expect(defaultConcurrency('ci-coverage', 3, cpus, { CI: 'true' }).workers).toBe(Math.min(3, cpus))
-    if (cpus <= 2) expect(env.DSH_COVERAGE_PARTITIONS).toBeUndefined()
+    if (cpus <= 2) expect(env.MWF_COVERAGE_PARTITIONS).toBeUndefined()
   })
 
   it('bounds overlapping readers and lets the isolated browser pool use the runner', () => {
     const env = ciWorkerEnvironment('ci-consumers', { CI: 'true' }, 16)
     expect(env).toMatchObject({
-      DSH_OXLINT_THREADS: '8',
-      DSH_PUBLINT_CONCURRENCY: '8',
-      DSH_SNAPSHOT_MAX_WORKERS: '1',
-      DSH_SNAPSHOT_MAX_CONCURRENCY: '8',
-      DSH_WEB_SNAPSHOT_WORKERS: '16',
+      MWF_OXLINT_THREADS: '8',
+      MWF_PUBLINT_CONCURRENCY: '8',
+      MWF_SNAPSHOT_MAX_WORKERS: '1',
+      MWF_SNAPSHOT_MAX_CONCURRENCY: '8',
+      MWF_WEB_SNAPSHOT_WORKERS: '16',
     })
   })
 
   it('caps local defaults below the CPU count Node reports', () => {
     expect(ciWorkerEnvironment('ci-coverage', {}, 256)).toMatchObject({
-      DSH_OXLINT_THREADS: '6',
-      DSH_COVERAGE_MAX_WORKERS: '48',
-      DSH_COVERAGE_PARTITIONS: '32',
-      DSH_WEB_SNAPSHOT_WORKERS: '12',
+      MWF_OXLINT_THREADS: '6',
+      MWF_COVERAGE_MAX_WORKERS: '48',
+      MWF_COVERAGE_PARTITIONS: '32',
+      MWF_WEB_SNAPSHOT_WORKERS: '12',
     })
     expect(defaultConcurrency('ci-static', 60, 256, {})).toEqual({
       workers: 12,
@@ -201,35 +201,35 @@ describe('CI worker allocation', () => {
 
   it('preserves serial reference overrides on large hosts', () => {
     const inherited = {
-      DSH_GATE_CONCURRENCY: '1',
-      DSH_COVERAGE_MAX_WORKERS: '1',
-      DSH_OXLINT_THREADS: '1',
-      DSH_PUBLINT_CONCURRENCY: '1',
-      DSH_SNAPSHOT_MAX_CONCURRENCY: '1',
-      DSH_WEB_SNAPSHOT_WORKERS: '1',
+      MWF_GATE_CONCURRENCY: '1',
+      MWF_COVERAGE_MAX_WORKERS: '1',
+      MWF_OXLINT_THREADS: '1',
+      MWF_PUBLINT_CONCURRENCY: '1',
+      MWF_SNAPSHOT_MAX_CONCURRENCY: '1',
+      MWF_WEB_SNAPSHOT_WORKERS: '1',
     }
     const additions = ciWorkerEnvironment('ci-primary', inherited, 64)
-    expect(additions).toEqual({ DSH_SNAPSHOT_MAX_WORKERS: '1' })
-    expect(inherited.DSH_COVERAGE_MAX_WORKERS).toBe('1')
+    expect(additions).toEqual({ MWF_SNAPSHOT_MAX_WORKERS: '1' })
+    expect(inherited.MWF_COVERAGE_MAX_WORKERS).toBe('1')
   })
 
   it('honors an explicit coverage budget and partition override', () => {
-    expect(ciWorkerEnvironment('ci-coverage', { DSH_COVERAGE_MAX_WORKERS: '6' }, 16))
-      .toHaveProperty('DSH_COVERAGE_PARTITIONS', '4')
-    expect(ciWorkerEnvironment('ci-coverage', { DSH_COVERAGE_PARTITIONS: '3' }, 16))
-      .not.toHaveProperty('DSH_COVERAGE_PARTITIONS')
+    expect(ciWorkerEnvironment('ci-coverage', { MWF_COVERAGE_MAX_WORKERS: '6' }, 16))
+      .toHaveProperty('MWF_COVERAGE_PARTITIONS', '4')
+    expect(ciWorkerEnvironment('ci-coverage', { MWF_COVERAGE_PARTITIONS: '3' }, 16))
+      .not.toHaveProperty('MWF_COVERAGE_PARTITIONS')
   })
 
   it('leaves the plain unit inventory with the environment pnpm run test finds', () => {
-    // A 3-CPU host would otherwise receive DSH_COVERAGE_PARTITIONS=2, which
+    // A 3-CPU host would otherwise receive MWF_COVERAGE_PARTITIONS=2, which
     // the inventory's own coverage-gate tests read as a partitioned lane.
     expect(ciWorkerEnvironment('ci-unit', {}, 3)).toEqual({})
     expect(ciWorkerEnvironment('ci-unit', {}, 16)).toEqual({})
   })
 
   it.each(['0', '-1', 'NaN', '2.5'])('rejects invalid worker budget %s', (raw) => {
-    expect(() => ciWorkerEnvironment('ci-coverage', { DSH_COVERAGE_MAX_WORKERS: raw }, 16))
-      .toThrow('DSH_COVERAGE_MAX_WORKERS must be a positive integer')
+    expect(() => ciWorkerEnvironment('ci-coverage', { MWF_COVERAGE_MAX_WORKERS: raw }, 16))
+      .toThrow('MWF_COVERAGE_MAX_WORKERS must be a positive integer')
   })
 
   it('keeps local documentation defaults unchanged', () => {
@@ -369,7 +369,7 @@ describe('gate graph validation', () => {
 
     expect(ids).toEqual([
       'rescope-vendor', 'publint', 'constraints', 'default-product-isolation', 'product-use', 'official-bundle-catalog', 'provider-data', 'package-dependencies', 'application-entrypoints',
-      'dsh-package-licenses', 'node-next-types',
+      'mwf-package-licenses', 'node-next-types',
       'optional-dependency-imports', 'client-packages', 'client-ui-i18n', 'client-route-resolution', 'no-bare-dispatcher',
       'plugin-record-callers', 'no-unknown-casts', 'no-top-level-await',
       'cordis-config', 'runtime-closure',
@@ -409,11 +409,11 @@ describe('gate graph validation', () => {
   })
 
   it.each(['ci-primary', 'ci-static', 'check-all'] as const)(
-    'keeps the DSH package license policy in %s',
+    'keeps the MWF package license policy in %s',
     (mode) => {
       const ids = withPnpmEntrypoint(() => gatesForMode(mode).map(subject => subject.id))
 
-      expect(ids).toContain('dsh-package-licenses')
+      expect(ids).toContain('mwf-package-licenses')
     },
   )
 
@@ -575,7 +575,7 @@ describe('gate graph validation', () => {
   })
 
   it.each([undefined, '3'])('provisions Electron before Windows coverage with partition count %s', async (partitions) => {
-    const gates = withEnv('DSH_COVERAGE_PARTITIONS', partitions, () =>
+    const gates = withEnv('MWF_COVERAGE_PARTITIONS', partitions, () =>
       withPnpmEntrypoint(() => gatesForMode('ci-windows-complete')))
     const installers = gates.filter(gate => gate.id === 'electron-install')
     expect(installers).toHaveLength(1)
@@ -596,7 +596,7 @@ describe('gate graph validation', () => {
       const install = gates.find(gate => gate.id === 'electron-install')
       expect(install).toMatchObject({
         command: process.execPath,
-        args: ['/private/pnpm.cjs', '--filter', '@deepseek-ai/dsh-desktop', 'exec', 'install-electron'],
+        args: ['/private/pnpm.cjs', '--filter', '@metaworkflow/desktop', 'exec', 'install-electron'],
         env: { ELECTRON_GET_USE_PROXY: '1' },
       })
       expect(gates.find(gate => gate.id === 'built-bin-smoke')?.needs).toContain('electron-install')
@@ -645,17 +645,17 @@ describe('gate graph validation', () => {
 
   it('restores the platform descriptor when coverage configuration is rejected', () => {
     const original = Object.getOwnPropertyDescriptor(process, 'platform')
-    expect(() => withEnv('DSH_COVERAGE_PARTITIONS', '1', () =>
+    expect(() => withEnv('MWF_COVERAGE_PARTITIONS', '1', () =>
       withPlatform('win32', () => withPnpmEntrypoint(() => gatesForMode('ci-coverage')))))
-      .toThrow('DSH_COVERAGE_PARTITIONS must be an integer greater than 1')
+      .toThrow('MWF_COVERAGE_PARTITIONS must be an integer greater than 1')
     expect(Object.getOwnPropertyDescriptor(process, 'platform')).toEqual(original)
   })
 
   it('leaves the lane test budget to the inherited environment on both coverage gates', () => {
-    // vitest.config.ts reads DSH_COVERAGE_TEST_TIMEOUT_MS per inline project
+    // vitest.config.ts reads MWF_COVERAGE_TEST_TIMEOUT_MS per inline project
     // (coverageTestTimeoutOptions); a gate argument would add a second owner.
     for (const budget of ['15000', undefined]) {
-      const gates = withEnv('DSH_COVERAGE_TEST_TIMEOUT_MS', budget, () =>
+      const gates = withEnv('MWF_COVERAGE_TEST_TIMEOUT_MS', budget, () =>
         withPnpmEntrypoint(() => gatesForMode('ci-windows-complete')))
       for (const id of ['coverage', 'coverage-exempt-heavy']) {
         const gate = gates.find(subject => subject.id === id)
@@ -663,7 +663,7 @@ describe('gate graph validation', () => {
         expect(gate.args).not.toEqual(expect.arrayContaining([
           expect.stringMatching(/^--(?:testTimeout|expect\.poll\.timeout|hookTimeout)=/),
         ]))
-        expect(gate.env ?? {}).not.toHaveProperty('DSH_COVERAGE_TEST_TIMEOUT_MS')
+        expect(gate.env ?? {}).not.toHaveProperty('MWF_COVERAGE_TEST_TIMEOUT_MS')
       }
     }
   })
@@ -676,12 +676,12 @@ describe('gate graph validation', () => {
 
     // The aggregate is the `test` package script's two segments, in order,
     // so a step added to one cannot silently leave the other. The lane sets
-    // DSH_COVERAGE_TEST_TIMEOUT_MS; vitest.config.ts reads it per inline
+    // MWF_COVERAGE_TEST_TIMEOUT_MS; vitest.config.ts reads it per inline
     // project (coverageTestTimeoutOptions), so the gate passes no budget flag.
     const [nativeBuild, unitRun, ...rest] = (scripts.test ?? '').split(' && ')
     expect(rest).toEqual([])
     for (const budget of ['15000', undefined]) {
-      const gates = withEnv('DSH_COVERAGE_TEST_TIMEOUT_MS', budget, () =>
+      const gates = withEnv('MWF_COVERAGE_TEST_TIMEOUT_MS', budget, () =>
         withPnpmEntrypoint(() => gatesForMode('ci-unit')))
       expect(gates.map(gate => gate.id)).toEqual(['native-system', 'unit'])
       expect(gates[0]).toMatchObject({ displayCommand: nativeBuild })
@@ -692,26 +692,26 @@ describe('gate graph validation', () => {
         streamOutput: true,
         args: ['/private/pnpm.cjs', 'exec', 'vitest', 'run'],
       })
-      expect(gates[1]?.env ?? {}).not.toHaveProperty('DSH_COVERAGE_TEST_TIMEOUT_MS')
+      expect(gates[1]?.env ?? {}).not.toHaveProperty('MWF_COVERAGE_TEST_TIMEOUT_MS')
     }
   })
 
   it('selects partitioned coverage only when explicitly configured', () => {
-    const coverage = withEnv('DSH_COVERAGE_PARTITIONS', '3', () =>
+    const coverage = withEnv('MWF_COVERAGE_PARTITIONS', '3', () =>
       withPnpmEntrypoint(() => gatesForMode('ci-windows-complete').find(subject => subject.id === 'coverage')))
 
     expect(coverage).toMatchObject({
-      displayCommand: 'DSH_COVERAGE_PARTITIONS=3 pnpm run test:coverage:partitioned',
+      displayCommand: 'MWF_COVERAGE_PARTITIONS=3 pnpm run test:coverage:partitioned',
       args: ['/private/pnpm.cjs', 'run', 'test:coverage:partitioned'],
-      env: { DSH_COVERAGE_EXEMPT_HEAVY: '1' },
+      env: { MWF_COVERAGE_EXEMPT_HEAVY: '1' },
       streamOutput: true,
     })
   })
 
   it('rejects an invalid coverage partition count before starting a gate', () => {
-    expect(() => withEnv('DSH_COVERAGE_PARTITIONS', '1', () =>
+    expect(() => withEnv('MWF_COVERAGE_PARTITIONS', '1', () =>
       withPnpmEntrypoint(() => gatesForMode('ci-windows-complete'))))
-      .toThrow('DSH_COVERAGE_PARTITIONS must be an integer greater than 1')
+      .toThrow('MWF_COVERAGE_PARTITIONS must be an integer greater than 1')
   })
 
   it.each([
@@ -773,7 +773,7 @@ describe('gate graph validation', () => {
 
 describe('Oxlint gate', () => {
   it('uses the package script when no worker bound is configured', () => {
-    const subject = withEnv('DSH_OXLINT_THREADS', undefined, () =>
+    const subject = withEnv('MWF_OXLINT_THREADS', undefined, () =>
       withPnpmEntrypoint(() => gatesForMode('ci-lint-contracts-ready')[0]))
 
     expect(subject).toMatchObject({
@@ -785,12 +785,12 @@ describe('Oxlint gate', () => {
   })
 
   it('surfaces the configured worker bound on the shared package script', () => {
-    const subject = withEnv('DSH_OXLINT_THREADS', '4', () =>
+    const subject = withEnv('MWF_OXLINT_THREADS', '4', () =>
       withPnpmEntrypoint(() => gatesForMode('ci-lint-contracts-ready')[0]))
 
     expect(subject).toMatchObject({
       id: 'lint',
-      displayCommand: 'DSH_OXLINT_THREADS=4 pnpm run lint:contracts-ready',
+      displayCommand: 'MWF_OXLINT_THREADS=4 pnpm run lint:contracts-ready',
       command: process.execPath,
       args: ['/private/pnpm.cjs', 'run', 'lint:contracts-ready'],
     })
@@ -799,7 +799,7 @@ describe('Oxlint gate', () => {
 
 describe('Typert contract preparation', () => {
   it('prepares primary source consumers once before they run', () => {
-    const subject = withEnv('DSH_OXLINT_THREADS', undefined, () =>
+    const subject = withEnv('MWF_OXLINT_THREADS', undefined, () =>
       withPnpmEntrypoint(() => gatesForMode('ci-primary')))
 
     expect(subject.find(item => item.id === 'typert-contracts')).toMatchObject({
@@ -880,7 +880,7 @@ describe('Node compatibility graph', () => {
 
   it.each([undefined, '1'])('builds the complete Node 22 artifacts once with skip-typecheck=%s', (skipTypecheck) => {
     const subject = withNodeVersion('22.19.0', () =>
-      withEnv('DSH_NODE_COMPAT_SKIP_TYPECHECK', skipTypecheck, () =>
+      withEnv('MWF_NODE_COMPAT_SKIP_TYPECHECK', skipTypecheck, () =>
         withPnpmEntrypoint(() => gatesForMode('node-compat'))))
 
     expect(subject.filter(item => item.displayCommand === 'pnpm run build:artifacts')).toHaveLength(1)
@@ -890,13 +890,13 @@ describe('Node compatibility graph', () => {
     expect(subject.map(item => item.id)).not.toContain('build:web')
     expect(subject.find(item => item.id === 'cli-lazy-search-startup-smoke')).toMatchObject({
       needs: ['build'],
-      env: { DSH_REQUIRE_BUILT_CLI_SMOKE: '1' },
+      env: { MWF_REQUIRE_BUILT_CLI_SMOKE: '1' },
     })
   })
 
   it.each(['passed', 'failed'] as const)('runs the Node 22 lazy-search smoke only after a passed build (%s)', async (buildStatus) => {
     const subject = withNodeVersion('22.19.0', () =>
-      withEnv('DSH_NODE_COMPAT_SKIP_TYPECHECK', '1', () =>
+      withEnv('MWF_NODE_COMPAT_SKIP_TYPECHECK', '1', () =>
         withPnpmEntrypoint(() => gatesForMode('node-compat'))))
     let buildCompleted = false
     let smokeStarted = false
@@ -947,10 +947,10 @@ describe('Node 24 lane ownership', () => {
     ])
     expect(subject.find(item => item.id === 'publint')?.needs).toEqual(['build'])
     expect(subject.find(item => item.id === 'build')?.env).toEqual({
-      DSH_BUILD_CLIENT_PROFILE: 'official',
+      MWF_BUILD_CLIENT_PROFILE: 'official',
     })
     expect(subject.find(item => item.id === 'node-compat')?.env).toEqual({
-      DSH_BUILD_CLIENT_PROFILE: 'official',
+      MWF_BUILD_CLIENT_PROFILE: 'official',
     })
     expect(subject.find(item => item.id === 'lint-and-duplication')?.needs).toEqual(['build'])
     for (const id of [
@@ -963,11 +963,11 @@ describe('Node 24 lane ownership', () => {
     ]) {
       expect(subject.find(item => item.id === id)?.needs).toEqual(['build'])
     }
-    expect(subject.find(item => item.id === 'snapshot')?.env).toEqual({ DSH_EXAMPLE_MODE: 'lib' })
-    expect(subject.find(item => item.id === 'expected-output')?.env).toEqual({ DSH_EXAMPLE_MODE: 'lib' })
-    expect(subject.find(item => item.id === 'built-bin-smoke')?.env).toEqual({ DSH_EXAMPLE_MODE: 'lib' })
+    expect(subject.find(item => item.id === 'snapshot')?.env).toEqual({ MWF_EXAMPLE_MODE: 'lib' })
+    expect(subject.find(item => item.id === 'expected-output')?.env).toEqual({ MWF_EXAMPLE_MODE: 'lib' })
+    expect(subject.find(item => item.id === 'built-bin-smoke')?.env).toEqual({ MWF_EXAMPLE_MODE: 'lib' })
     expect(subject.find(item => item.id === 'doc-typecheck')?.env).toEqual({
-      DSH_DOC_TYPECHECK_USE_BUILD_OUTPUT: '1',
+      MWF_DOC_TYPECHECK_USE_BUILD_OUTPUT: '1',
     })
     expect(subject.find(item => item.id === 'built-bin-smoke')?.args).toEqual(
       expect.arrayContaining([
@@ -980,8 +980,8 @@ describe('Node 24 lane ownership', () => {
       ]),
     )
     expect(subject.find(item => item.id === 'web-snapshot')).toMatchObject({
-      displayCommand: 'DSH_SNAPSHOT=replay pnpm run test:web:built',
-      env: { DSH_SNAPSHOT: 'replay' },
+      displayCommand: 'MWF_SNAPSHOT=replay pnpm run test:web:built',
+      env: { MWF_SNAPSHOT: 'replay' },
       after: [
         'publint',
         'lint-and-duplication',
@@ -1001,8 +1001,8 @@ describe('Linux primary graph', () => {
     const web = subject.find(item => item.id === 'web-snapshot')
 
     expect(web).toMatchObject({
-      displayCommand: 'DSH_SNAPSHOT=replay pnpm run test:web:built',
-      env: { DSH_SNAPSHOT: 'replay' },
+      displayCommand: 'MWF_SNAPSHOT=replay pnpm run test:web:built',
+      env: { MWF_SNAPSHOT: 'replay' },
       needs: ['build'],
     })
   })

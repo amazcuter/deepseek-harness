@@ -8,7 +8,7 @@ import { mkdtempSync, realpathSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { canonicalPath, writableRoots } from '@deepseek-ai/dsh-sandbox'
+import { canonicalPath, writableRoots } from '@metaworkflow/sandbox'
 
 /** Every temp root created by this file, removed after each test. */
 const roots: string[] = []
@@ -18,7 +18,7 @@ afterEach(() => {
 
 describe('canonicalPath', () => {
   it('resolves symlinks (an existing path realpaths)', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'dsh-roots-'))
+    const dir = mkdtempSync(join(tmpdir(), 'mwf-roots-'))
     roots.push(dir)
     expect(canonicalPath(dir)).toBe(realpathSync.native(dir))
   })
@@ -34,7 +34,7 @@ describe('writableRoots', () => {
   })
 
   it('workspace-write grants the workspace root plus the platform temp areas, canonical and deduplicated', () => {
-    const ws = mkdtempSync(join(tmpdir(), 'dsh-ws-'))
+    const ws = mkdtempSync(join(tmpdir(), 'mwf-ws-'))
     roots.push(ws)
     const writable = writableRoots({ mode: 'workspace-write', workspaceRoot: ws })
     expect(writable).toContain(realpathSync.native(ws))

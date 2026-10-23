@@ -1,5 +1,5 @@
 /** Decoding, JSON parsing, and format validation of a fetched index body; the parse Worker runs it. */
-import { MarketIndexError, parseMarketIndex, type MarketIndex } from '@deepseek-ai/dsh-plugin-market-index'
+import { MarketIndexError, parseMarketIndex, type MarketIndex } from '@metaworkflow/plugin-market-index'
 
 /** A validated index, or the JSON path, rule, and diagnostic of the first violation; `$` covers UTF-8 and JSON errors. */
 export type IndexParseResult =

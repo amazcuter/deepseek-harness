@@ -3,7 +3,7 @@ description: "构建并验证内嵌 Node 运行时的 Linux 与 macOS SSH helper
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-ssh-helper-runtime
+# @metaworkflow/ssh-helper-runtime
 
 [English](README.md) | 中文
 
@@ -42,9 +42,9 @@ pnpm exec tsx scripts/build-exe-for-ssh-helper.ts
 | `node24-macos-x64` | `macos-x64` | macOS 14 部署目标 |
 | `node24-macos-arm64` | `macos-arm64` | macOS 14 部署目标 |
 
-产物位于 `dist-exe/ssh-helper/`。每个 `dsh-ssh-helper-<version>-<platform>-<arch>.tar.gz` 都有配套的 `.sha256` 文件。压缩包包含 `dsh-ssh-helper`、`native/system/`、许可证和 `manifest.json`，macOS 还包含 `dsh-ssh-helper-spawn-helper`。清单记录源码提交、源码树是否存在未提交修改、内嵌 Node 版本、协议，以及每个产物文件的摘要和权限。
+产物位于 `dist-exe/ssh-helper/`。每个 `mwf-ssh-helper-<version>-<platform>-<arch>.tar.gz` 都有配套的 `.sha256` 文件。压缩包包含 `mwf-ssh-helper`、`native/system/`、许可证和 `manifest.json`，macOS 还包含 `mwf-ssh-helper-spawn-helper`。清单记录源码提交、源码树是否存在未提交修改、内嵌 Node 版本、协议，以及每个产物文件的摘要和权限。
 
-验证压缩包摘要后，将整个目录解压到项目及被替换的临时挂载之外的版本化运行时位置。原生资源须与可执行文件保持相对位置。安装目录可以只读，但 helper 用户需要可写的临时／缓存位置。为 [`dsh-ssh`](../ssh/README.zh.md) 配置 `launch: { kind: "executable" }`、绝对 `helper` 路径，以及清单中可执行文件的 SHA-256。客户端通过 `ctx.ssh.ptcLaunch` 获取内嵌 PTC 启动方式。
+验证压缩包摘要后，将整个目录解压到项目及被替换的临时挂载之外的版本化运行时位置。原生资源须与可执行文件保持相对位置。安装目录可以只读，但 helper 用户需要可写的临时／缓存位置。为 [`mwf-ssh`](../ssh/README.zh.md) 配置 `launch: { kind: "executable" }`、绝对 `helper` 路径，以及清单中可执行文件的 SHA-256。客户端通过 `ctx.ssh.ptcLaunch` 获取内嵌 PTC 启动方式。
 
 ### 验证与发布
 
@@ -52,7 +52,7 @@ pnpm exec tsx scripts/build-exe-for-ssh-helper.ts
 
 [OpenSSH 验证器](../../../scripts/verify-ssh-helper-ssh.ts) 接受 Linux `--archive`。它创建未安装 Node 的临时 glibc 2.28 SSH 服务器，仅挂载发行包和一次性公钥，并验证生产连接。这个可移植性测试不声明内核隔离能力，该检查由原生主机测试负责。测试身份、主机密钥、端口和工作区均由本次运行独占。
 
-普通 PR 和 master CI 运行源码及构建脚本检查，不构建 SSH 可执行文件。修改 helper 启动、原生依赖或打包逻辑时，应在合并前手动运行[原生工作流](../../../.github/workflows/build-exe-for-ssh-helper.yml)；它支持指定目标，默认构建全部四个平台。`CI master` 也提供手动 `ssh-helper` 测试入口。[Release (SSH helper)](../../../.github/workflows/publish-ssh-helper.yml) 默认为 `publish=false`：从选定 ref 构建四个平台，并校验干净源码构建提供的同一提交完整验证证据。设置 `publish=true` 时，必须选择匹配的 `dsh-v<version>` 标签，工作流将已测试的压缩包及 `SHA256SUMS` 附加到对应 GitHub Release；Release 不存在时创建草稿。发布前仍须通过原生运行验证。仅检查部署目标不能证明已在最低 macOS 版本上运行。
+普通 PR 和 master CI 运行源码及构建脚本检查，不构建 SSH 可执行文件。修改 helper 启动、原生依赖或打包逻辑时，应在合并前手动运行[原生工作流](../../../.github/workflows/build-exe-for-ssh-helper.yml)；它支持指定目标，默认构建全部四个平台。`CI master` 也提供手动 `ssh-helper` 测试入口。[Release (SSH helper)](../../../.github/workflows/publish-ssh-helper.yml) 默认为 `publish=false`：从选定 ref 构建四个平台，并校验干净源码构建提供的同一提交完整验证证据。设置 `publish=true` 时，必须选择匹配的 `mwf-v<version>` 标签，工作流将已测试的压缩包及 `SHA256SUMS` 附加到对应 GitHub Release；Release 不存在时创建草稿。发布前仍须通过原生运行验证。仅检查部署目标不能证明已在最低 macOS 版本上运行。
 
 -----
 

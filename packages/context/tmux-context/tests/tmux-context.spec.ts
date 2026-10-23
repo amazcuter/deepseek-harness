@@ -1,14 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { Session, SessionId } from '@deepseek-ai/dsh-session'
-import AgentRegistry, { agentEvents, type Agent } from '@deepseek-ai/dsh-agent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { ShellExecutor } from '@deepseek-ai/dsh-shell'
-import type { ShellExecRequest, ShellExecSpec, ShellExecution, ShellRunResult } from '@deepseek-ai/dsh-shell'
-import * as tmuxContext from '@deepseek-ai/dsh-tmux-context'
-import type { Config } from '@deepseek-ai/dsh-tmux-context'
-import { unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { Session, SessionId } from '@metaworkflow/session'
+import AgentRegistry, { agentEvents, type Agent } from '@metaworkflow/agent'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import { createUserMessage } from '@metaworkflow/llm'
+import { ShellExecutor } from '@metaworkflow/shell'
+import type { ShellExecRequest, ShellExecSpec, ShellExecution, ShellRunResult } from '@metaworkflow/shell'
+import * as tmuxContext from '@metaworkflow/tmux-context'
+import type { Config } from '@metaworkflow/tmux-context'
+import { unsupportedInbox } from '@metaworkflow/agent-loop-testkit'
 
 /** Empty offset readers for fakes that never produce output. */
 const silentReader = { readFrom: (fromByte: number) => ({ text: '', nextOffset: fromByte, lossy: false }) }

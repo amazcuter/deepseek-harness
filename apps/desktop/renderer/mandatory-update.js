@@ -1,5 +1,5 @@
 /** Text-only policy rendering; the main process owns task inspection and every privileged action. */
-const api = window.dshMandatoryUpdate
+const api = window.mwfMandatoryUpdate
 let current
 let busy = false
 let localError

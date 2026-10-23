@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
-import type { OwnerOf } from '@deepseek-ai/dsh-client-ui-slots'
+import { RemoteError } from '@metaworkflow/client-test-runtime'
+import type { OwnerOf } from '@metaworkflow/client-ui-slots'
 import { TextPreview } from '../src/client/TextPreview.tsx'
 import type { TextPreviewProps } from '../src/client/TextPreview.tsx'
 import type { DocumentPreviewDefinition } from '../src/client/document/registry.ts'
@@ -51,7 +51,7 @@ describe('document toolbar', () => {
     if (!supportsText) h.instance.actions.selected(TAB_ID, PLAIN_BODY_ID)
     const view = render(<TextPreview
       {...props}
-      useTabInfo={() => ({ ...info, tab: { ...info.tab, contentId: `dsh-resource://file/session/s-1/${path}` } })}
+      useTabInfo={() => ({ ...info, tab: { ...info.tab, contentId: `mwf-resource://file/session/s-1/${path}` } })}
       useDocumentPreviews={selector => selector(definitions)}
       renderSlot={() => null}
     />)
@@ -233,7 +233,7 @@ describe('document toolbar', () => {
     }
     const base = h.props()
     const info = base.useTabInfo()
-    const address = 'dsh-resource://file/session/s-1/work/photo.png'
+    const address = 'mwf-resource://file/session/s-1/work/photo.png'
     const props: TextPreviewProps = {
       ...base,
       useTabInfo: () => ({ ...info, tab: { ...info.tab, contentId: address, navigation: { ...info.tab.navigation, address } } }),
@@ -258,7 +258,7 @@ describe('document toolbar', () => {
     }
     const base = h.props()
     const info = base.useTabInfo()
-    const address = 'dsh-resource://file/session/s-1/work/logo.svg'
+    const address = 'mwf-resource://file/session/s-1/work/logo.svg'
     const props: TextPreviewProps = {
       ...base,
       useTabInfo: () => ({ ...info, tab: { ...info.tab, contentId: address, navigation: { ...info.tab.navigation, address } } }),
@@ -292,7 +292,7 @@ describe('document toolbar', () => {
     const h = harness()
     const base = h.props()
     const info = base.useTabInfo()
-    const address = 'dsh-resource://file/session/s-1/work/clip.mp4'
+    const address = 'mwf-resource://file/session/s-1/work/clip.mp4'
     const props: TextPreviewProps = {
       ...base,
       useTabInfo: () => ({ ...info, tab: { ...info.tab, contentId: address, navigation: { ...info.tab.navigation, address } } }),
@@ -318,7 +318,7 @@ describe('document toolbar', () => {
     const h = harness({ 1: page(1, ['plain line'], true) })
     const base = h.props()
     const info = base.useTabInfo()
-    const address = 'dsh-resource://file/session/s-1/work/server.log'
+    const address = 'mwf-resource://file/session/s-1/work/server.log'
     const props: TextPreviewProps = {
       ...base,
       useTabInfo: () => ({ ...info, tab: { ...info.tab, contentId: address, navigation: { ...info.tab.navigation, address } } }),

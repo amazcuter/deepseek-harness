@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-23-best-effort-persistent-ptc.md
 /agent-note-node-ptc-execution-modes-and-in-memory-state:
-  en: 078a89753b06cd6a
-  zh: 4004e5e4bb42f2cc
+  en: 4d905f1e5b0114dc
+  zh: e4c0d0e4c1d5e677
 /agent-note-node-ptc-execution-modes-and-in-memory-state/problem:
   en: e42db40b879fdbf4
   zh: 6017da9c4da17835
 /agent-note-node-ptc-execution-modes-and-in-memory-state/decision:
-  en: d2d08c54c6520f02
-  zh: 520a9b3421ff5c65
+  en: 8438cc627c23ec99
+  zh: 75d7eedc0ec3072b
 /agent-note-node-ptc-execution-modes-and-in-memory-state/alternatives-considered:
   en: 396157a9fc293198
   zh: a061f05b4423e26f
 /agent-note-node-ptc-execution-modes-and-in-memory-state/consequences:
-  en: 9b9172f4aafe907f
-  zh: 022a6bd52d7caf05
+  en: 8a70c20152aef54f
+  zh: 915bdea421c44356

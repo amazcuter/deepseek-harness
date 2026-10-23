@@ -15,6 +15,6 @@
   box-shadow: var(--dsw-elevation-prominent);
   /* Elevated surface: the scrolling columns take the l2 thumb tokens, as in
      every other menu card (see ui-theme styles/scrollbar.css). */
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --mwf-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --mwf-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }

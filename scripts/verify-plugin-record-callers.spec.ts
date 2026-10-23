@@ -21,7 +21,7 @@ afterEach(() => {
 
 /** A temporary git repository with the given files written and none of them staged. */
 function repository(files: Record<string, string>): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-plugin-record-callers-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-plugin-record-callers-'))
   roots.push(root)
   execFileSync('git', ['init', '--quiet'], { cwd: root, stdio: 'pipe' })
   for (const [file, contents] of Object.entries(files)) {
@@ -40,17 +40,17 @@ function declaredRepository(source: string, extra: Record<string, string> = {}):
   return repository({
     'tsconfig.host.json': JSON.stringify({
       compilerOptions: { module: 'NodeNext', moduleResolution: 'NodeNext', strict: true, noEmit: true,
-        paths: { '@deepseek-ai/dsh-session': ['./packages/core/session/src/index.ts'],
-          '@deepseek-ai/dsh-session/types': ['./packages/core/session/src/types.ts'] } },
+        paths: { '@metaworkflow/session': ['./packages/core/session/src/index.ts'],
+          '@metaworkflow/session/types': ['./packages/core/session/src/types.ts'] } },
       include: ['packages/**/*.ts'],
     }),
-    'packages/core/session/package.json': JSON.stringify({ name: '@deepseek-ai/dsh-session' }),
-    'packages/experimental/bridge/package.json': JSON.stringify({ name: '@deepseek-ai/dsh-experimental-bridge' }),
+    'packages/core/session/package.json': JSON.stringify({ name: '@metaworkflow/session' }),
+    'packages/experimental/bridge/package.json': JSON.stringify({ name: '@metaworkflow/experimental-bridge' }),
     'packages/core/session/src/types.ts': 'export interface PluginRecordMap {}\n',
     [OWNER_FILE]: "import type { PluginRecordMap } from './types.ts'\nexport function appendPluginRecord<K extends keyof PluginRecordMap>(session: object, type: K, data: NoInfer<PluginRecordMap[K]>): number { return 0 }\n",
     'packages/experimental/bridge/src/types.ts': [
       'export interface Entry { value: number }',
-      "declare module '@deepseek-ai/dsh-session/types' {",
+      "declare module '@metaworkflow/session/types' {",
       '  interface PluginRecordMap {',
       '    /** Stores the bridge state. */',
       "    'plugin:bridge/state': Entry",
@@ -66,7 +66,7 @@ function declaredRepository(source: string, extra: Record<string, string> = {}):
 function corpus(release: string, extra: Record<string, string> = {}): Map<string, string> {
   return new Map(Object.entries({
     [OWNER_FILE]: OWNER_SOURCE,
-    [EXPERIMENTAL]: "import { appendPluginRecord } from '@deepseek-ai/dsh-session'\nappendPluginRecord(session, 'plugin:a', {})\n",
+    [EXPERIMENTAL]: "import { appendPluginRecord } from '@metaworkflow/session'\nappendPluginRecord(session, 'plugin:a', {})\n",
     [RELEASE]: release,
     ...extra,
   }))
@@ -74,9 +74,9 @@ function corpus(release: string, extra: Record<string, string> = {}): Map<string
 
 describe('verify-plugin-record-callers', () => {
   it.each([
-    ['a named import', "import { appendPluginRecord } from '@deepseek-ai/dsh-session'"],
-    ['an aliased import', "import { appendPluginRecord as write } from '@deepseek-ai/dsh-session'"],
-    ['a re-export', "export { appendPluginRecord } from '@deepseek-ai/dsh-session'"],
+    ['a named import', "import { appendPluginRecord } from '@metaworkflow/session'"],
+    ['an aliased import', "import { appendPluginRecord as write } from '@metaworkflow/session'"],
+    ['a re-export', "export { appendPluginRecord } from '@metaworkflow/session'"],
     ['a namespace member call', "S.appendPluginRecord(session, 'plugin:a', {})"],
     ['a destructured binding', 'const { appendPluginRecord: write } = S'],
     ['an element access', "S['appendPluginRecord'](session, 'plugin:a', {})"],
@@ -127,7 +127,7 @@ describe('verify-plugin-record-callers', () => {
       '/** Plugin state uses {@link appendPluginRecord} in experimental packages. */',
       "const message = 'call appendPluginRecord only from experimental packages'",
       'const appendPluginRecords = 1',
-      "export * from '@deepseek-ai/dsh-session'",
+      "export * from '@metaworkflow/session'",
     ].join('\n')
     expect(checkPluginRecordCallers(corpus(source))).toEqual([])
   })
@@ -195,8 +195,8 @@ describe('verify-plugin-record-callers', () => {
 
   it('accepts declared names through renamed imports, inferred aliases, and namespace calls', () => {
     const root = declaredRepository([
-      "import { appendPluginRecord as write } from '@deepseek-ai/dsh-session'",
-      "import * as session from '@deepseek-ai/dsh-session'",
+      "import { appendPluginRecord as write } from '@metaworkflow/session'",
+      "import * as session from '@metaworkflow/session'",
       'const alias = write',
       "write({}, 'plugin:bridge/state', { value: 1 })",
       "alias({}, 'plugin:bridge/state', { value: 2 })",
@@ -207,7 +207,7 @@ describe('verify-plugin-record-callers', () => {
 
   it('rejects undeclared literal names, partially declared unions, and dynamic strings', () => {
     const root = declaredRepository([
-      "import { appendPluginRecord as write } from '@deepseek-ai/dsh-session'",
+      "import { appendPluginRecord as write } from '@metaworkflow/session'",
       "declare const union: 'plugin:bridge/state' | 'plugin:bridge/missing'",
       'declare const dynamic: string',
       "write({}, 'plugin:bridge/missing', {})",
@@ -225,14 +225,14 @@ describe('verify-plugin-record-callers', () => {
 
   it('does not authorize a production write with a test-only declaration', () => {
     const root = declaredRepository([
-      "import { appendPluginRecord } from '@deepseek-ai/dsh-session'",
-      "import type { PluginRecordMap } from '@deepseek-ai/dsh-session/types'",
+      "import { appendPluginRecord } from '@metaworkflow/session'",
+      "import type { PluginRecordMap } from '@metaworkflow/session/types'",
       "const key = 'plugin:bridge/test-only' as const",
       'appendPluginRecord({}, key, {})',
     ].join('\n'), {
       'packages/experimental/bridge/tests/records.spec.ts': [
         'export {}',
-        "declare module '@deepseek-ai/dsh-session/types' {",
+        "declare module '@metaworkflow/session/types' {",
         "  interface PluginRecordMap { 'plugin:bridge/test-only': object }",
         '}',
       ].join('\n'),
@@ -242,12 +242,12 @@ describe('verify-plugin-record-callers', () => {
 
   it('accepts finite generic keys and ignores test writes and unrelated function names', () => {
     const root = declaredRepository([
-      "import { appendPluginRecord } from '@deepseek-ai/dsh-session'",
+      "import { appendPluginRecord } from '@metaworkflow/session'",
       "function write<K extends 'plugin:bridge/state'>(key: K): void { appendPluginRecord({}, key, { value: 1 }) }",
       'function other(type: string): void {}',
       "other('plugin:bridge/missing')",
     ].join('\n'), {
-      'packages/experimental/bridge/tests/records.spec.ts': "import { appendPluginRecord } from '@deepseek-ai/dsh-session'\nappendPluginRecord({}, 'plugin:test/state', {})\n",
+      'packages/experimental/bridge/tests/records.spec.ts': "import { appendPluginRecord } from '@metaworkflow/session'\nappendPluginRecord({}, 'plugin:test/state', {})\n",
     })
     expect(checkDeclaredPluginRecordWrites(root, readRepositorySources(root))).toEqual([])
   })
@@ -260,14 +260,14 @@ describe('verify-plugin-record-callers', () => {
 
   it('rejects a test declaration imported transitively by production', () => {
     const root = declaredRepository([
-      "import { appendPluginRecord } from '@deepseek-ai/dsh-session'",
+      "import { appendPluginRecord } from '@metaworkflow/session'",
       "import type { Fixture } from '../tests/fixture.ts'",
       'declare const data: Fixture',
       "appendPluginRecord({}, 'plugin:bridge/test-only', data)",
     ].join('\n'), {
       'packages/experimental/bridge/tests/fixture.ts': [
         'export interface Fixture { value: number }',
-        "declare module '@deepseek-ai/dsh-session/types' {",
+        "declare module '@metaworkflow/session/types' {",
         "  interface PluginRecordMap { 'plugin:bridge/test-only': Fixture }",
         '}',
       ].join('\n'),
@@ -279,18 +279,18 @@ describe('verify-plugin-record-callers', () => {
 
   it('keeps compiler faces separate and rejects unconfigured writer source', () => {
     const compilerOptions = { module: 'NodeNext', moduleResolution: 'NodeNext', strict: true, noEmit: true,
-      paths: { '@deepseek-ai/dsh-session': ['./packages/core/session/src/index.ts'],
-        '@deepseek-ai/dsh-session/types': ['./packages/core/session/src/types.ts'] } }
+      paths: { '@metaworkflow/session': ['./packages/core/session/src/index.ts'],
+        '@metaworkflow/session/types': ['./packages/core/session/src/types.ts'] } }
     const root = declaredRepository('export {}\n', {
       'tsconfig.host.json': JSON.stringify({ compilerOptions, include: ['packages/core/**/src/**/*.ts'] }),
       'tsconfig.client.json': JSON.stringify({ compilerOptions, include: ['packages/**/src/**/*.ts'] }),
-      'packages/experimental/bridge/src/client.ts': "import { appendPluginRecord } from '@deepseek-ai/dsh-session'\nappendPluginRecord({}, 'plugin:bridge/state', { value: 1 })\n",
+      'packages/experimental/bridge/src/client.ts': "import { appendPluginRecord } from '@metaworkflow/session'\nappendPluginRecord({}, 'plugin:bridge/state', { value: 1 })\n",
       'packages/experimental/bridge/tsdown.config.ts': 'const broken: number = "config is not source"\n',
       'packages/experimental/bridge/examples/hook.js': 'export const hook = value => value\n',
     })
     expect(checkDeclaredPluginRecordWrites(root, readRepositorySources(root))).toEqual([])
     writeFileSync(join(root, 'packages/experimental/bridge/examples/write.ts'),
-      "import { appendPluginRecord } from '@deepseek-ai/dsh-session'\nappendPluginRecord({}, 'plugin:bridge/state', { value: 1 })\n")
+      "import { appendPluginRecord } from '@metaworkflow/session'\nappendPluginRecord({}, 'plugin:bridge/state', { value: 1 })\n")
     const errors = checkDeclaredPluginRecordWrites(root, readRepositorySources(root))
     expect(errors).toHaveLength(1)
     expect(errors[0]?.reason).toContain('must be included in a Host or Client compiler face')
@@ -298,7 +298,7 @@ describe('verify-plugin-record-callers', () => {
 
   it('checks call, apply, and bound arguments without rejecting declared forwarding', () => {
     const root = declaredRepository([
-      "import { appendPluginRecord as write } from '@deepseek-ai/dsh-session'",
+      "import { appendPluginRecord as write } from '@metaworkflow/session'",
       "write.call(undefined, {}, 'plugin:bridge/missing', {})",
       "write.apply(undefined, [{}, 'plugin:bridge/missing', {}])",
       "const missing = [{}, 'plugin:bridge/missing', {}] as const",

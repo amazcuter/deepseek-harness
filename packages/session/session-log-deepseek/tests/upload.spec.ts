@@ -9,11 +9,11 @@ import SessionStore, {
   type CreateSessionOptions,
   type SessionEvent,
   type SessionHeader,
-} from '@deepseek-ai/dsh-session'
-import { createSessionFormatCatalogWithChildren } from '@deepseek-ai/dsh-session-format-catalog'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import { createDeveloperMessage, createAssistantMessage, createSystemMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@metaworkflow/session'
+import { createSessionFormatCatalogWithChildren } from '@metaworkflow/session-format-catalog'
+import DeepSeekLlmApiExtensionRegistry from '@metaworkflow/deepseek-llm-api-extensions'
+import { createDeveloperMessage, createAssistantMessage, createSystemMessage, createUserMessage } from '@metaworkflow/llm'
+import type { JsonValue } from '@metaworkflow/util-values'
 import * as SessionLogDeepSeek from '../src/index.ts'
 import type { DeepSeekSessionLogExtension, DeepSeekSessionLogWireEvent, DeepSeekSessionLogWireSurfaceOp } from '../src/types.ts'
 
@@ -96,7 +96,7 @@ describe('incremental DeepSeek session-log upload', () => {
       message: createDeveloperMessage({ content: [{ type: 'tool-removal', toolName: 'search' }], source: { kind: 'tool-registry' } }),
     }, { surfaceOp: { op: 'replace', startSeq: first.seq, endSeq: first.seq }, sourceEventSeqs: [first.seq] })
     const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
-    expect(prepared.fields.dsh_session_log?.events).toEqual(session.snapshotEvents())
+    expect(prepared.fields.mwf_session_log?.events).toEqual(session.snapshotEvents())
   })
 
   it('uploads Assistant provider metadata only through its embedded stream', async () => {
@@ -113,7 +113,7 @@ describe('incremental DeepSeek session-log upload', () => {
     const prepared = await ctx.deepseekLlmApiExtensions.prepare({
       body: body(), signal: SIGNAL, sessionId: session.id,
     })
-    expect(prepared.fields.dsh_session_log?.events).toEqual([{
+    expect(prepared.fields.mwf_session_log?.events).toEqual([{
       type: assistant.type,
       seq: Number(assistant.seq),
       time: assistant.time,
@@ -133,7 +133,7 @@ describe('incremental DeepSeek session-log upload', () => {
       turn: 1, step: 3, message: createSystemMessage('new head'),
     }, { surfaceOp: { op: 'replace', startSeq: head.seq, endSeq: head.seq }, sourceEventSeqs: [head.seq] })
     const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
-    expect(prepared.fields.dsh_session_log?.events).toEqual(session.snapshotEvents())
+    expect(prepared.fields.mwf_session_log?.events).toEqual(session.snapshotEvents())
   })
 
   it.each(['extension/event', 'tool/code-dispatch', 'tool/code-dispatch-start'])('uploads opaque ignorable %s without interpreting its metadata', async (type) => {
@@ -148,7 +148,7 @@ describe('incremental DeepSeek session-log upload', () => {
       } as unknown as SessionEvent
       const { ctx, session } = await harness('wire-opaque', [event])
       const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
-      expect(prepared.fields.dsh_session_log?.events[0]).toStrictEqual(event)
+      expect(prepared.fields.mwf_session_log?.events[0]).toStrictEqual(event)
       expect(session.deriveMessages()).toEqual([])
     }
   })
@@ -174,7 +174,7 @@ describe('incremental DeepSeek session-log upload', () => {
     const prepared = await ctx.deepseekLlmApiExtensions.prepare({
       body: body(), signal: SIGNAL, sessionId: session.id,
     })
-    expect(prepared.fields).not.toHaveProperty('dsh_session_log')
+    expect(prepared.fields).not.toHaveProperty('mwf_session_log')
   })
 
   it('uploads the full first prefix, records acceptance, then sends only the appended suffix', async () => {
@@ -183,7 +183,7 @@ describe('incremental DeepSeek session-log upload', () => {
     session.append('step/start', { turn: 1, step: 1 })
 
     const first = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
-    const firstPayload = first.fields.dsh_session_log
+    const firstPayload = first.fields.mwf_session_log
     expect(firstPayload).toMatchObject({
       sessionFormatVersion: SESSION_FORMAT_VERSION,
       afterSeq: -1,
@@ -200,9 +200,9 @@ describe('incremental DeepSeek session-log upload', () => {
 
     session.append('step/end', { turn: 1, step: 1 })
     const second = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
-    expect(second.fields.dsh_session_log).toMatchObject({ afterSeq: 1, throughSeq: 3 })
-    expect(second.fields.dsh_session_log?.events).toHaveLength(2)
-    expect(second.fields.dsh_session_log?.events[0]).toMatchObject({
+    expect(second.fields.mwf_session_log).toMatchObject({ afterSeq: 1, throughSeq: 3 })
+    expect(second.fields.mwf_session_log?.events).toHaveLength(2)
+    expect(second.fields.mwf_session_log?.events[0]).toMatchObject({
       type: 'session-log-deepseek/delivery-accepted',
       seq: 2,
     })
@@ -220,7 +220,7 @@ describe('incremental DeepSeek session-log upload', () => {
     const resumedPayload = await resumed.ctx.deepseekLlmApiExtensions.prepare({
       body: body(), signal: SIGNAL, sessionId: resumed.session.id,
     })
-    expect(resumedPayload.fields.dsh_session_log?.afterSeq).toBe(0)
+    expect(resumedPayload.fields.mwf_session_log?.afterSeq).toBe(0)
 
     const fork = await harness('child', seed, {
       inheritedEventCount: SessionLogOffset(seed.length),
@@ -228,7 +228,7 @@ describe('incremental DeepSeek session-log upload', () => {
     })
     expect(SessionLogDeepSeek.acceptedThrough(fork.session)).toBe(-1)
     const forkPayload = await fork.ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: fork.session.id })
-    expect(forkPayload.fields.dsh_session_log).toMatchObject({ afterSeq: -1, throughSeq: fork.session.seq - 1 })
+    expect(forkPayload.fields.mwf_session_log).toMatchObject({ afterSeq: -1, throughSeq: fork.session.seq - 1 })
   })
 
   it('uploads a migrated V3 log from the beginning before resuming current-generation acknowledgements', async () => {
@@ -248,16 +248,16 @@ describe('incremental DeepSeek session-log upload', () => {
     ctx.effect(() => ctx.sessions.enter(session))
 
     const first = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: id })
-    expect(first.fields.dsh_session_log).toMatchObject({ sessionFormatVersion: SESSION_FORMAT_VERSION, afterSeq: -1 })
-    expect(first.fields.dsh_session_log?.events[0]?.seq).toBe(0)
-    expect(first.fields.dsh_session_log?.events[1]).toMatchObject({ data: { sessionFormatVersion: 3, throughSeq: 0 } })
+    expect(first.fields.mwf_session_log).toMatchObject({ sessionFormatVersion: SESSION_FORMAT_VERSION, afterSeq: -1 })
+    expect(first.fields.mwf_session_log?.events[0]?.seq).toBe(0)
+    expect(first.fields.mwf_session_log?.events[1]).toMatchObject({ data: { sessionFormatVersion: 3, throughSeq: 0 } })
     const throughSeq = session.seq - 1
     await first.accept()
     expect(session.snapshotEvents().at(-1)?.data).toEqual({ sessionId: id, sessionFormatVersion: SESSION_FORMAT_VERSION, throughSeq })
 
     const second = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: id })
-    expect(second.fields.dsh_session_log?.afterSeq).toBe(throughSeq)
-    expect(second.fields.dsh_session_log?.events.map(event => event.seq)).toEqual([throughSeq + 1])
+    expect(second.fields.mwf_session_log?.afterSeq).toBe(throughSeq)
+    expect(second.fields.mwf_session_log?.events.map(event => event.seq)).toEqual([throughSeq + 1])
     expect(session.eventAt(SessionSeq(1))?.data).toMatchObject({ sessionFormatVersion: 3, throughSeq: 0 })
   })
 
@@ -396,7 +396,7 @@ describe('incremental DeepSeek session-log upload', () => {
     const first = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
     await first.accept()
     const current = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
-    expect(current.fields.dsh_session_log).toMatchObject({
+    expect(current.fields.mwf_session_log).toMatchObject({
       afterSeq: 0,
       throughSeq: 1,
       events: [{ type: 'session-log-deepseek/delivery-accepted' }],
@@ -407,7 +407,7 @@ describe('incremental DeepSeek session-log upload', () => {
     const { ctx, session } = await harness('direct-events')
     session.append('turn/start', { turn: 1 })
     const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: {}, signal: SIGNAL, sessionId: session.id })
-    expect(prepared.fields.dsh_session_log?.events).toEqual(session.snapshotEvents())
+    expect(prepared.fields.mwf_session_log?.events).toEqual(session.snapshotEvents())
   })
 
   it('translates logical brands and isSeeded into the raw upload DTO', async () => {
@@ -452,7 +452,7 @@ describe('incremental DeepSeek session-log upload', () => {
     const prepared = await ctx.deepseekLlmApiExtensions.prepare({
       body: body(), signal: SIGNAL, sessionId: session.id,
     })
-    const wire = JSON.parse(JSON.stringify(prepared.fields.dsh_session_log)) as Record<string, unknown>
+    const wire = JSON.parse(JSON.stringify(prepared.fields.mwf_session_log)) as Record<string, unknown>
     expect(wire.session).toMatchObject({
       version: SESSION_FORMAT_VERSION,
       id: 'wire-child',
@@ -513,7 +513,7 @@ describe('incremental DeepSeek session-log upload', () => {
     const prepared = await ctx.deepseekLlmApiExtensions.prepare({
       body: body(), signal: SIGNAL, sessionId: session.id,
     })
-    const events = prepared.fields.dsh_session_log?.events ?? []
+    const events = prepared.fields.mwf_session_log?.events ?? []
 
     expect(events[0]).not.toHaveProperty('surfaceOp')
     expect(events[0]).not.toHaveProperty('sourceEventSeqs')
@@ -571,10 +571,10 @@ describe('incremental DeepSeek session-log upload', () => {
     const { ctx, session, disposeUpload } = await harness('hmr')
     session.append('turn/start', { turn: 1 })
     expect((await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })).fields)
-      .toHaveProperty('dsh_session_log')
+      .toHaveProperty('mwf_session_log')
     await disposeUpload()
     expect((await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })).fields)
-      .not.toHaveProperty('dsh_session_log')
+      .not.toHaveProperty('mwf_session_log')
   })
 })
 
@@ -600,7 +600,7 @@ describe('byte-bounded DeepSeek session-log upload', () => {
   }
 
   async function prepareField(ctx: Context, session: Session): Promise<DeepSeekSessionLogExtension | undefined> {
-    return (await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })).fields.dsh_session_log
+    return (await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })).fields.mwf_session_log
   }
 
   /** Mount the contribution with one byte limit around `run`. */
@@ -658,7 +658,7 @@ describe('byte-bounded DeepSeek session-log upload', () => {
       const values: DeepSeekSessionLogExtension[] = []
       for (let request = 0; request < 10 && SessionLogDeepSeek.acceptedThrough(session) < full.throughSeq; request++) {
         const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
-        values.push(prepared.fields.dsh_session_log!)
+        values.push(prepared.fields.mwf_session_log!)
         await prepared.accept()
       }
       return values
@@ -683,13 +683,13 @@ describe('byte-bounded DeepSeek session-log upload', () => {
     const limit = bytes(prefix(full, 1)) - 1
     await withMaxBytes(ctx, limit, async () => {
       const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
-      expect(prepared.fields).not.toHaveProperty('dsh_session_log')
+      expect(prepared.fields).not.toHaveProperty('mwf_session_log')
       await prepared.accept()
       session.append('turn/start', { turn: 1 })
       expect(await prepareField(ctx, session)).toBeUndefined()
     })
     expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)
-    const warning = `session-log-deepseek: event 0 of session "bounded-oversized" needs a ${String(limit + 1)}-byte dsh_session_log field,`
+    const warning = `session-log-deepseek: event 0 of session "bounded-oversized" needs a ${String(limit + 1)}-byte mwf_session_log field,`
       + ` above maxBytes ${String(limit)}; this session's upload stays at event 0 until maxBytes admits it`
     expect(warnings).toEqual([[warning]])
   })
@@ -713,7 +713,7 @@ describe('byte-bounded DeepSeek session-log upload', () => {
     try {
       for (let request = 0; request < 2; request++) {
         const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
-        expect(prepared.fields).not.toHaveProperty('dsh_session_log')
+        expect(prepared.fields).not.toHaveProperty('mwf_session_log')
         await prepared.accept()
       }
     } finally {
@@ -722,7 +722,7 @@ describe('byte-bounded DeepSeek session-log upload', () => {
     // One serialization attempt per request: the warning reuses the measured size.
     expect(overflows).toBe(2)
     expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)
-    const warning = 'session-log-deepseek: event 0 of session "bounded-string-limit" is too large to serialize into a dsh_session_log field;'
+    const warning = 'session-log-deepseek: event 0 of session "bounded-string-limit" is too large to serialize into a mwf_session_log field;'
       + " this session's upload stays at event 0"
     expect(warnings).toEqual([[warning]])
   })

@@ -2,41 +2,41 @@
 # a separate SDK child runtime. Both runtimes persist their request headers.
 
 - id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+  name: '@metaworkflow/llm-deepseek-api-key'
   disabled: true
 
 - id: tool-subagent
-  name: '@deepseek-ai/dsh-tool-subagent'
+  name: '@metaworkflow/tool-subagent'
   disabled: true
 
 - id: sdk-jsonrpc-server
-  name: '@deepseek-ai/dsh-sdk-jsonrpc-server'
+  name: '@metaworkflow/sdk-jsonrpc-server'
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@deepseek-ai/dsh-session-persistence-jsonl'
+  name: '@metaworkflow/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
+    root: !!js mwfHomePath('sessions')
     compression: none
 
 - insert:
     - id: mock-llm
       name: '../../../packages/subagent/subagent-dsh-sdk/tests/fixtures/loader/mock-delegating-llm.ts'
-      disabled: !!js process.env.DSH_SNAPSHOT !== 'record'
+      disabled: !!js process.env.MWF_SNAPSHOT !== 'record'
 
     - id: subagent-dsh-sdk
-      name: '@deepseek-ai/dsh-subagent-dsh-sdk'
+      name: '@metaworkflow/subagent-dsh-sdk'
       config:
         profile: sdk
-        patches: !!js JSON.parse(process.env.DSH_TEST_CHILD_PATCHES ?? '[]')
-        dshHome: !!js process.env.DSH_TEST_CHILD_HOME
+        patches: !!js JSON.parse(process.env.MWF_TEST_CHILD_PATCHES ?? '[]')
+        mwfHome: !!js process.env.MWF_TEST_CHILD_HOME
         provider: mock
         model: mock-routed
         env:
-          DSH_TELEMETRY_DISABLED: '1'
+          MWF_TELEMETRY_DISABLED: '1'
 
     - id: subagent-model-selection-settings
-      name: '@deepseek-ai/dsh-tool-subagent/model-selection-settings'
+      name: '@metaworkflow/tool-subagent/model-selection-settings'
       config:
         enabled: true
         allowedModels:
@@ -46,16 +46,16 @@
     - id: tool-subagent-dsh-sdk
       name: '../../../packages/subagent/subagent-dsh-sdk/tests/fixtures/loader/scoped-tool-subagent.ts'
       config:
-        provider: dsh-sdk
+        provider: mwf-sdk
         toolName: subagent
         agentOptions:
           maxTokens: 777
         maxDepth: 'provider-managed'
 
     - id: sdk-jsonrpc-server-dynamic-live
-      name: '@deepseek-ai/dsh-sdk-jsonrpc-server'
+      name: '@metaworkflow/sdk-jsonrpc-server'
       inject: [sdkAppStartup, loader]
-      disabled: !!js process.env.DSH_SNAPSHOT !== 'record'
+      disabled: !!js process.env.MWF_SNAPSHOT !== 'record'
       config:
         maxTokensAsSuccess: true
 

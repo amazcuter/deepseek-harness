@@ -3,13 +3,13 @@ description: "Host half of open-in-app: resolving installed editors, Git GUIs, t
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-host-open-in-app
+# @metaworkflow/host-open-in-app
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Use `dsh-host-open-in-app` with its [browser companion](../../client/ui-open-in-app/README.md) to let users open a workspace directory in an installed editor, Git GUI, terminal, or file manager. It offers a fixed application catalog and shows only entries that the host can verify; newly installed applications appear after restart, while missing launchers are removed when detected. Requests require the deployment's browser authentication and host-origin trust checks. Detection and launch commands use configurable deadlines and do not pass inherited credentials to launched applications.
+Use `mwf-host-open-in-app` with its [browser companion](../../client/ui-open-in-app/README.md) to let users open a workspace directory in an installed editor, Git GUI, terminal, or file manager. It offers a fixed application catalog and shows only entries that the host can verify; newly installed applications appear after restart, while missing launchers are removed when detected. Requests require the deployment's browser authentication and host-origin trust checks. Detection and launch commands use configurable deadlines and do not pass inherited credentials to launched applications.
 
 ## Table of Contents
 
@@ -25,16 +25,16 @@ Use `dsh-host-open-in-app` with its [browser companion](../../client/ui-open-in-
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the package in a composition that carries `webServer`, `connection`, and `subprocess`, normally beside its browser surface [`dsh-client-ui-open-in-app`](../../client/ui-open-in-app/README.md); the pair puts an "Open In..." split button in the Web Session header whenever the host resolved at least one installed catalog application.
+Mount the package in a composition that carries `webServer`, `connection`, and `subprocess`, normally beside its browser surface [`mwf-client-ui-open-in-app`](../../client/ui-open-in-app/README.md); the pair puts an "Open In..." split button in the Web Session header whenever the host resolved at least one installed catalog application.
 
 ### When to choose it
 
-Choose it for a Web deployment whose users work beside a local editor, Git GUI, terminal, or file manager and want the workspace directory opened there in one click. Avoid it for opening one path with the OS-default application from host code — that is `dsh-apiproxy`'s `openPath`; this package's subject is *which* application, with per-application resolution and launchers.
+Choose it for a Web deployment whose users work beside a local editor, Git GUI, terminal, or file manager and want the workspace directory opened there in one click. Avoid it for opening one path with the OS-default application from host code — that is `mwf-apiproxy`'s `openPath`; this package's subject is *which* application, with per-application resolution and launchers.
 
 ### Minimal configuration
 
 ```yaml
-- name: '@deepseek-ai/dsh-host-open-in-app'
+- name: '@metaworkflow/host-open-in-app'
   config:
     probeTimeoutMs: 10000
     iconTimeoutMs: 10000
@@ -47,7 +47,7 @@ Choose it for a Web deployment whose users work beside a local editor, Git GUI, 
 | `iconTimeoutMs` | required | Per-command deadline in milliseconds for icon-extraction host commands (`plutil`/`sips` on macOS, the PowerShell extraction on Windows). |
 | `launchWatchMs` | required | Early-failure watch window per launch: a launcher still running when the window closes counts as launched and keeps running, so this bounds how long the open route holds a successful launch. |
 
-The three deadlines are independent so tuning one operation never changes another's response time; timeouts are failure bounds, not latency budgets, so the conservative resolution/icon values cost nothing when commands are healthy. The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-host-open-in-app) is the exhaustive source for every accepted field.
+The three deadlines are independent so tuning one operation never changes another's response time; timeouts are failure bounds, not latency budgets, so the conservative resolution/icon values cost nothing when commands are healthy. The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowhost-open-in-app) is the exhaustive source for every accepted field.
 
 ### The catalog and how it resolves
 
@@ -77,9 +77,9 @@ Linux desktop-entry fields and icons use the shared [native-command](../../util/
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The package splits into a data table and three roles. [`src/catalog.ts`](src/catalog.ts) is the compile-time table: each entry's per-platform locator chain (`fixed`, `app`, `xcode`, `cli`, `file`, `scan`, `app-paths`, `install-record`, `github-desktop`, `desktop`) plus, on Linux, the desktop-entry id owning its icon. [`src/resolver.ts`](src/resolver.ts) resolves the table against this host: one pass yields a map of catalog id to verified launch (primary and optional fallback argv plus the icon source), sharing one batched Windows-registry read; argv launches spawn detached with a credential-scrubbed environment (`scrubbedParentEnv`) plus explicit adapter entries, and keep Windows GUI processes visible unless the adapter hides a CLI process that launches the GUI separately. `shell-open` launches (the file managers) run the OS shell's open verb through `dsh-native-command`'s path opener under the same watch window, and a spawn `ENOENT` is classified as `missing` so the routes can refresh a stale entry. [`src/icons.ts`](src/icons.ts) extracts icons per platform: `plutil`/`sips` over the resolved bundle on macOS, a generated PowerShell `ExtractAssociatedIcon` script over the resolved executable on Windows (positional `-File` args keep paths out of command-line parsing), and desktop-entry/hicolor/pixmaps filesystem lookup on Linux.
+The package splits into a data table and three roles. [`src/catalog.ts`](src/catalog.ts) is the compile-time table: each entry's per-platform locator chain (`fixed`, `app`, `xcode`, `cli`, `file`, `scan`, `app-paths`, `install-record`, `github-desktop`, `desktop`) plus, on Linux, the desktop-entry id owning its icon. [`src/resolver.ts`](src/resolver.ts) resolves the table against this host: one pass yields a map of catalog id to verified launch (primary and optional fallback argv plus the icon source), sharing one batched Windows-registry read; argv launches spawn detached with a credential-scrubbed environment (`scrubbedParentEnv`) plus explicit adapter entries, and keep Windows GUI processes visible unless the adapter hides a CLI process that launches the GUI separately. `shell-open` launches (the file managers) run the OS shell's open verb through `mwf-native-command`'s path opener under the same watch window, and a spawn `ENOENT` is classified as `missing` so the routes can refresh a stale entry. [`src/icons.ts`](src/icons.ts) extracts icons per platform: `plutil`/`sips` over the resolved bundle on macOS, a generated PowerShell `ExtractAssociatedIcon` script over the resolved executable on Windows (positional `-File` args keep paths out of command-line parsing), and desktop-entry/hicolor/pixmaps filesystem lookup on Linux.
 
-[`src/index.ts`](src/index.ts) registers the three routes on `ctx.webServer`: `GET /open-in-app/apps` (the resolution map's keys), `GET /open-in-app/icon/<id>` (the extracted icon, cached in memory per process), and `POST /open-in-app/open` (launches the map's verified launcher directly — never a re-detection). Every route asks the composition's `connection` service for a rejection first; the complete trust story — the Host/Origin fence and browser authentication — has one home in the [`src/index.ts`](src/index.ts) module comment. On top of that fence the open route validates its body at the wire: an `application/json` media type, a 64 KiB ceiling, a resolved-available catalog id, and an absolute path naming an existing directory. Resolution and icon commands run through [`@deepseek-ai/dsh-native-command`](../../util/native-command/README.md) (argv, never a shell) under their respective deadlines; PATH names go through `ctx.subprocess.resolveExecutable()` in-process.
+[`src/index.ts`](src/index.ts) registers the three routes on `ctx.webServer`: `GET /open-in-app/apps` (the resolution map's keys), `GET /open-in-app/icon/<id>` (the extracted icon, cached in memory per process), and `POST /open-in-app/open` (launches the map's verified launcher directly — never a re-detection). Every route asks the composition's `connection` service for a rejection first; the complete trust story — the Host/Origin fence and browser authentication — has one home in the [`src/index.ts`](src/index.ts) module comment. On top of that fence the open route validates its body at the wire: an `application/json` media type, a 64 KiB ceiling, a resolved-available catalog id, and an absolute path naming an existing directory. Resolution and icon commands run through [`@metaworkflow/native-command`](../../util/native-command/README.md) (argv, never a shell) under their respective deadlines; PATH names go through `ctx.subprocess.resolveExecutable()` in-process.
 
 </details>
 
@@ -88,10 +88,10 @@ The package splits into a data table and three roles. [`src/catalog.ts`](src/cat
 <a id="further-exploration"></a>
 ## Further Exploration
 
-- [dsh-client-ui-open-in-app](../../client/ui-open-in-app/README.md) — the browser split button consuming these routes.
-- [dsh-subprocess](../../subprocess/subprocess/README.md) — the capability providing in-process PATH resolution and the scrubbed child environment.
-- [dsh-native-command](../../util/native-command/README.md) — the no-shell host command runner for resolution and icon commands.
-- [dsh-host-webserver](../webserver/README.md) — the route registry carrying the three HTTP endpoints.
+- [mwf-client-ui-open-in-app](../../client/ui-open-in-app/README.md) — the browser split button consuming these routes.
+- [mwf-subprocess](../../subprocess/subprocess/README.md) — the capability providing in-process PATH resolution and the scrubbed child environment.
+- [mwf-native-command](../../util/native-command/README.md) — the no-shell host command runner for resolution and icon commands.
+- [mwf-host-webserver](../webserver/README.md) — the route registry carrying the three HTTP endpoints.
 - [Host package map](../README.md) — the GUI-host family this package belongs to.
 
 -----

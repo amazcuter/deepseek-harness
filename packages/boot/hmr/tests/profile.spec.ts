@@ -6,8 +6,8 @@ import { pathToFileURL } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Timer from '@deepseek-ai/cordis-plugin-timer'
-import { boot, initProfile, readProfileManifest, readProfilePatches, type ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import { withFileLock } from '@deepseek-ai/dsh-atomic-write'
+import { boot, initProfile, readProfileManifest, readProfilePatches, type ProfileContext } from '@metaworkflow/app-boot'
+import { withFileLock } from '@metaworkflow/atomic-write'
 import { FSWatcher } from 'chokidar'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import Hmr from '../src/index.ts'
@@ -107,16 +107,16 @@ it('ignores dependency-only manifest changes and reloads a changed bundle list',
   const manifestPath = join(f.dir, 'package.json')
   const manifest = readProfileManifest('test', f.dir)
   manifest.dependencies = { added: '1.0.0' }
-  delete manifest.dsh!.profile!.bundles
+  delete manifest.mwf!.profile!.bundles
   writeFileSync(manifestPath, JSON.stringify(manifest))
   f.emit(2, manifestPath)
   await f.drain()
   expect(update).not.toHaveBeenCalled()
   const packageDir = join(f.dir, 'node_modules', 'added')
   mkdirSync(packageDir, { recursive: true })
-  writeFileSync(join(packageDir, 'package.json'), JSON.stringify({ name: 'added', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+  writeFileSync(join(packageDir, 'package.json'), JSON.stringify({ name: 'added', mwf: { bundle: { patch: './cordis.patch.yml' } } }))
   writeFileSync(join(packageDir, 'cordis.patch.yml'), '- insert:\n    - id: bundled\n      name: cordis:probe\n      disabled: true\n')
-  manifest.dsh!.profile!.bundles = ['added']
+  manifest.mwf!.profile!.bundles = ['added']
   writeFileSync(manifestPath, JSON.stringify(manifest))
   f.emit(2, manifestPath)
   await f.drain()

@@ -1,6 +1,6 @@
 {
-  "name": "@deepseek-ai/dsh-client-modules",
-  "description": "Client module system, dual-face: node half composes the __DSH_BOOT__ entry graph (incremental dsh.client scan, bundle route, index tap, webPlugins service); browser half is the lazy-CJS module table the vendored cordis Loader consumes as its internal seam",
+  "name": "@metaworkflow/client-modules",
+  "description": "Client module system, dual-face: node half composes the __MWF_BOOT__ entry graph (incremental mwf.client scan, bundle route, index tap, webPlugins service); browser half is the lazy-CJS module table the vendored cordis Loader consumes as its internal seam",
   "version": "0.2.1-rc.2",
   "publishConfig": {
     "access": "public"
@@ -26,7 +26,7 @@
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json"
   },
-  "dsh": {
+  "mwf": {
     "client": {
       "platform": "web",
       "inject": [],
@@ -40,10 +40,10 @@
   "license": "MIT",
   "devDependencies": {
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-host-webserver": "workspace:*",
+    "@metaworkflow/host-webserver": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-package-manifest": "workspace:*",
-    "@deepseek-ai/dsh-client-store": "workspace:*"
+    "@metaworkflow/package-manifest": "workspace:*",
+    "@metaworkflow/client-store": "workspace:*"
   },
   "files": [
     "locale/*.json",

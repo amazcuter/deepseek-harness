@@ -70,7 +70,7 @@
 /* The full-viewport overlay blocks background clicks above the painted mask too. */
 .mask {
   position: absolute;
-  inset: var(--dsh-frame-chrome-top, 0px) 0 0;
+  inset: var(--mwf-frame-chrome-top, 0px) 0 0;
   background: var(--dsw-alias-bg-mask-1);
   backdrop-filter: var(--dsw-mask-blur);
 }
@@ -87,7 +87,7 @@
   z-index: 1;
   display: flex;
   width: 800px;
-  height: min(800px, calc(100vh - 2 * max(24px, var(--dsh-frame-overlay-top, 24px))));
+  height: min(800px, calc(100vh - 2 * max(24px, var(--mwf-frame-overlay-top, 24px))));
   max-width: calc(100vw - 48px);
   border-radius: var(--dsw-radius-panel);
   overflow: hidden;
@@ -98,8 +98,8 @@
      elevation choice sits with the surface; the custom properties inherit
      down to whichever descendant scrolls (see ui-theme
      styles/scrollbar.css for the rebinding contract). */
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --mwf-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --mwf-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
 .panel:focus {

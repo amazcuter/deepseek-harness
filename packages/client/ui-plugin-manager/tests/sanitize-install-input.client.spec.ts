@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 import { sanitizeInstallInput } from '../src/client/sanitize-install-input.ts'
 
-it.each(['dsh-example', '@scope/plugin', '@scope/plugin@1.2.3', 'plugin@latest'])('retains a registry identifier: %s', (spec) => {
+it.each(['mwf-example', '@scope/plugin', '@scope/plugin@1.2.3', 'plugin@latest'])('retains a registry identifier: %s', (spec) => {
   expect(sanitizeInstallInput(spec)).toBe(spec)
 })
 

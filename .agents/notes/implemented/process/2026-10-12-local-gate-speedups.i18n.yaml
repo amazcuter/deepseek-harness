@@ -3,11 +3,11 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-10-12-local-gate-speedups.md
 /agent-note-local-gate-hook-and-test-speed-ups:
-  en: d8edb2c26730e9af
-  zh: fb69bf2e7b602d4c
+  en: 2ad55f8f740be40e
+  zh: 8b3a643dce4bb769
 /agent-note-local-gate-hook-and-test-speed-ups/problem:
-  en: 1e2163ec378c44ff
-  zh: d93cb5970896fccb
+  en: 003ead40bed3616d
+  zh: 21138fb5a390e630
 /agent-note-local-gate-hook-and-test-speed-ups/decision:
   en: 9984b4ad646bfaf2
   zh: 753287ae67e29605
@@ -15,14 +15,14 @@
   en: 7430353afba96352
   zh: 6d2a09619a67ecba
 /agent-note-local-gate-hook-and-test-speed-ups/decision/1-type-checks-generate-typert-declarations-without-bundling:
-  en: 4dc48e24a3323b7d
-  zh: 7c88325160a41d12
+  en: 62263a26f38b26eb
+  zh: 534b24c7844ea7ae
 /agent-note-local-gate-hook-and-test-speed-ups/decision/2-the-pre-commit-hook-does-not-regenerate-third-party-notices:
-  en: e2e344f184621172
-  zh: 97d8785aaf9105bf
+  en: f9287463181a7c3f
+  zh: 5dc6eeaf223b91b8
 /agent-note-local-gate-hook-and-test-speed-ups/decision/3-local-default-worker-budget:
-  en: e9649c40d67e26e0
-  zh: c99f22a41c4fc4af
+  en: 610f4401da25a6dd
+  zh: 99e9e591cd202a36
 /agent-note-local-gate-hook-and-test-speed-ups/decision/4-repository-reference-candidates-resolve-against-one-object-listing:
   en: 2c945250337c88cf
   zh: d4bfa34cc858782b
@@ -33,8 +33,8 @@
   en: 2f0d35b0a688c938
   zh: 7184fd260c066a01
 /agent-note-local-gate-hook-and-test-speed-ups/decision/7-cli-help-reads-run-concurrently-doc-graph-probes-are-memoized:
-  en: 965503ba8a31c039
-  zh: fe02a394a677d018
+  en: ec55d341973e6114
+  zh: 6d36f23f6fd93957
 /agent-note-local-gate-hook-and-test-speed-ups/decision/8-type-model-spec-ts-runs-against-an-in-memory-workspace:
   en: d519ec362903aa2f
   zh: f49ee6547cb954f6
@@ -42,8 +42,8 @@
   en: 7c9388dc859e0f93
   zh: 5df1fc58eb7a46e8
 /agent-note-local-gate-hook-and-test-speed-ups/alternatives-considered:
-  en: 763d94734b8967cf
-  zh: abe980d486e1d7da
+  en: b7eacaf3f00b9e00
+  zh: 61405c5cab68d1aa
 /agent-note-local-gate-hook-and-test-speed-ups/consequences:
   en: ca00b04567d09408
   zh: 97011043c60f4bc9

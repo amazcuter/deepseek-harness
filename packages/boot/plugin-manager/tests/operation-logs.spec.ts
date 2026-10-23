@@ -4,7 +4,7 @@ import type { FileHandle } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it, onTestFinished, vi } from 'vitest'
-import { initProfile } from '@deepseek-ai/dsh-app-boot'
+import { initProfile } from '@metaworkflow/app-boot'
 import { runProfilePnpm } from '../src/operations.ts'
 
 const observed = vi.hoisted(() => {

@@ -1,19 +1,19 @@
-- name: '@deepseek-ai/dsh-session'
-- name: '@deepseek-ai/dsh-system-prompt'
-- name: '@deepseek-ai/dsh-tools'
-- name: '@deepseek-ai/dsh-fs-local'
-- name: '@deepseek-ai/dsh-session-projection'
-- name: '@deepseek-ai/dsh-working-directory'
-- name: '@deepseek-ai/dsh-tool-fs'
-- name: '@deepseek-ai/dsh-session-query-sqlite'
+- name: '@metaworkflow/session'
+- name: '@metaworkflow/system-prompt'
+- name: '@metaworkflow/tools'
+- name: '@metaworkflow/fs-local'
+- name: '@metaworkflow/session-projection'
+- name: '@metaworkflow/working-directory'
+- name: '@metaworkflow/tool-fs'
+- name: '@metaworkflow/session-query-sqlite'
   config:
     path: ':memory:'
     openAt: never
-- name: '@deepseek-ai/dsh-session-reference'
+- name: '@metaworkflow/session-reference'
   config:
     maxReferenceBytes: 360
 - name: './source-session.ts'
-- name: '@deepseek-ai/dsh-spill-local'
+- name: '@metaworkflow/spill-local'
   config:
     root: '{{spillRoot}}'
     cleanupPeriodDays: 0

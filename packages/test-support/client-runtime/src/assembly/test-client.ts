@@ -2,18 +2,18 @@
  * Whole-client test carrier: boots an {@link AssemblyPlan} through the
  * production `bootClient` over an in-process module table, with a
  * `RemoteMock` bound to that client's Connection plugin instance.
- * @module @deepseek-ai/dsh-client-test-runtime/src/assembly/test-client
+ * @module @metaworkflow/client-test-runtime/src/assembly/test-client
  */
 import { Context, type Plugin } from '@deepseek-ai/cordis'
 import type { Entry } from '@deepseek-ai/cordis-plugin-loader'
-import { tearDownEntryFiber } from '@deepseek-ai/dsh-client-modules/client'
+import { tearDownEntryFiber } from '@metaworkflow/client-modules/client'
 import {
   installConnection,
   type ConnectionHandle,
-} from '@deepseek-ai/dsh-client-connection/client'
-import { bootClient } from '@deepseek-ai/dsh-client-web/src/boot-client.ts'
-import { mountClient } from '@deepseek-ai/dsh-client-web/src/mount.ts'
-import type { RemoteMock } from '@deepseek-ai/dsh-remote-mock'
+} from '@metaworkflow/client-connection/client'
+import { bootClient } from '@metaworkflow/client-web/src/boot-client.ts'
+import { mountClient } from '@metaworkflow/client-web/src/mount.ts'
+import type { RemoteMock } from '@metaworkflow/remote-mock'
 import { act } from '@testing-library/react'
 import { createInProcessModules, loadPluginModules } from './modules.ts'
 import { assertPlan, graphFromRoster, type AssemblyPlan } from './roster.ts'
@@ -21,7 +21,7 @@ import { REMOTES_PACKAGE, remoteNamespacesOf, remoteProxiesPlugin } from './remo
 import { allowAllAccessPlugin } from '../access.ts'
 
 /** The remote-access row: it mounts its own generated Remote contribution and publishes the access Hooks. */
-const REMOTE_ACCESS_PACKAGE = '@deepseek-ai/dsh-api-remote-access'
+const REMOTE_ACCESS_PACKAGE = '@metaworkflow/api-remote-access'
 
 /**
  * Rows whose generated Remote contributions exist only in built `lib/`. The
@@ -71,7 +71,7 @@ class SharedJsdomShims {
 
 const sharedJsdomShims = new SharedJsdomShims()
 
-const CONNECTION_PACKAGE = '@deepseek-ai/dsh-client-connection'
+const CONNECTION_PACKAGE = '@metaworkflow/client-connection'
 
 /** Default readiness budget; the mock answers `$events` immediately, so a miss means a boot-time fixture is absent. */
 const DEFAULT_CONNECT_TIMEOUT_MS = 5_000
@@ -188,12 +188,12 @@ export class TestClient {
    * `installConnection`, while this path supplies the mock carrier, uses
    * default recovery timings, and captures the current page hostname once for
    * later reloads. A caller-provided Connection row remains unchanged and owns
-   * its readiness behavior. The `@deepseek-ai/dsh-api-remotes` row is
+   * its readiness behavior. The `@metaworkflow/api-remotes` row is
    * dropped from the roster: its generated Remote clients exist only in built
    * `lib/`, and the `remote.<ns>` services the roster injects (plus the
    * namespaces the mock has rules for at this point) are provided as
    * contract-free proxies over the same Connection instead. The
-   * `@deepseek-ai/dsh-api-remote-access` row, which mounts its own generated
+   * `@metaworkflow/api-remote-access` row, which mounts its own generated
    * contribution, is dropped too, and allow-all access Hooks replace it. A
    * `provide` entry for either row is refused. On any failure the context is disposed, an owned
    * mount removed, and this client's hold on the shims released before the

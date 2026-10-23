@@ -1,9 +1,9 @@
 import { byteResult } from './fixtures.client.ts'
 /** HTML metadata and keyed slot contributions share one identity and unwind with their fiber. */
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { createSnapshotStore } from '@metaworkflow/client-store'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
+import { sessionFileAddress } from '@metaworkflow/util-workspace-path'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
 import { apply, HTML_BODY_ID, htmlBodyDefinition } from '../src/client/html/index.ts'
 import { HtmlBody } from '../src/client/html/HtmlBody.tsx'
@@ -62,11 +62,11 @@ describe('HTML registration', () => {
     const injected = registration?.inject()
     expect(typeof injected?.readRelated).toBe('function')
     const signal = new AbortController().signal
-    await injected?.readRelated('dsh-resource://file/session/explicit-session/sub/index.html', '../app.js', signal)
+    await injected?.readRelated('mwf-resource://file/session/explicit-session/sub/index.html', '../app.js', signal)
     expect(readRelated).toHaveBeenLastCalledWith('explicit-session', '../app.js', { baseFile: 'sub/index.html' }, signal)
     await injected?.readRelated(sessionFileAddress('absolute-session', '/workspace/index.html'), './app.js', signal)
     expect(readRelated).toHaveBeenLastCalledWith('absolute-session', './app.js', { baseFile: '/workspace/index.html' }, signal)
-    expect(() => injected?.readRelated('dsh-resource://file/absolute/workspace/index.html', './app.js', signal))
+    expect(() => injected?.readRelated('mwf-resource://file/absolute/workspace/index.html', './app.js', signal))
       .toThrow('not a session file address')
     expect(readRelated).toHaveBeenCalledTimes(2)
     await dispose()

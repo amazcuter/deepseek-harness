@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment'
-import type { AttachmentStore, ImageMediaType } from '@deepseek-ai/dsh-attachment'
+import { AttachmentId, ImageVariantId } from '@metaworkflow/attachment'
+import type { AttachmentStore, ImageMediaType } from '@metaworkflow/attachment'
 import {
   ToolCallId,
   contentHasFile,
@@ -147,7 +147,7 @@ describe('model-facing image access', () => {
       height: 1536,
       name: 'source "map".png',
     }
-    const access = { readonlyPath: '/tmp/.dsh/attachments/v1/objects/bb/object' }
+    const access = { readonlyPath: '/tmp/.mwf/attachments/v1/objects/bb/object' }
     const version = {
       variantId: ImageVariantId(`sha256:${'c'.repeat(64)}`),
       attachment,
@@ -162,7 +162,7 @@ describe('model-facing image access', () => {
     }
     expect(requestImageHandleText(attachment, version, access)).toBe(
       `Image "source \\"map\\".png" (${attachment.attachmentId}); request preview 923x692px.`
-      + ' Normalized copy (read-only; may be resized or re-encoded): "/tmp/.dsh/attachments/v1/objects/bb/object" (2048x1536px, image/png).'
+      + ' Normalized copy (read-only; may be resized or re-encoded): "/tmp/.mwf/attachments/v1/objects/bb/object" (2048x1536px, image/png).'
       + ' Source dimensions, format, and byte size may differ.'
       + ' Copy to a writable path ending in .png before editing.',
     )
@@ -171,9 +171,9 @@ describe('model-facing image access', () => {
   it('bridges a provider host object only through the mounted filesystem mapping', () => {
     const attachment = image(1).attachment
     const attachments = {
-      imageHostPath: () => '/host/.dsh/attachments/object',
+      imageHostPath: () => '/host/.mwf/attachments/object',
     } as unknown as AttachmentStore
-    const mapped = (hostPath: string): string | undefined => hostPath === '/host/.dsh/attachments/object'
+    const mapped = (hostPath: string): string | undefined => hostPath === '/host/.mwf/attachments/object'
       ? '/workspace/.attachments/object'
       : undefined
     expect(resolveImageAttachmentAccess(
@@ -356,11 +356,11 @@ describe('file projection', () => {
   })
 
   it('renders the handle with the read path or the explicit no-path fallback', () => {
-    const withPath = fileHandleText(fileBlock('notes.pdf').attachment, '/home/.dsh/attachments/v1/files/ab/x/notes.pdf')
+    const withPath = fileHandleText(fileBlock('notes.pdf').attachment, '/home/.mwf/attachments/v1/files/ab/x/notes.pdf')
     expect(withPath).toContain('"notes.pdf"')
     expect(withPath).toContain('42 bytes')
     expect(withPath).toContain('sha256:abababab')
-    expect(withPath).toContain('"/home/.dsh/attachments/v1/files/ab/x/notes.pdf"')
+    expect(withPath).toContain('"/home/.mwf/attachments/v1/files/ab/x/notes.pdf"')
     expect(withPath).toContain('include this saved path in the delegation prompt')
     expect(withPath).toContain('only subagents sharing this execution environment can read it')
     const withoutPath = fileHandleText(fileBlock('notes.pdf').attachment, undefined)

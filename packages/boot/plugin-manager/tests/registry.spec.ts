@@ -75,10 +75,10 @@ describe('registryPlan', () => {
 })
 
 describe('attributeFailure', () => {
-  const name = parseInstallSpec('dsh-x')
-  const git = parseInstallSpec('github:acme/dsh-x')
-  const tarball = parseInstallSpec('https://cdn.example.com/dsh-x-1.0.0.tgz')
-  const registryLog = 'ERR_PNPM_META_FETCH_FAIL  GET https://registry.npmjs.org/dsh-x: getaddrinfo ENOTFOUND registry.npmjs.org'
+  const name = parseInstallSpec('mwf-x')
+  const git = parseInstallSpec('github:acme/mwf-x')
+  const tarball = parseInstallSpec('https://cdn.example.com/mwf-x-1.0.0.tgz')
+  const registryLog = 'ERR_PNPM_META_FETCH_FAIL  GET https://registry.npmjs.org/mwf-x: getaddrinfo ENOTFOUND registry.npmjs.org'
 
   it('lays a failure another registry can change at the registry: unreachable, or a copy it lacks', () => {
     for (const kind of ['network', 'timeout', 'not-found', 'no-matching-version'] as const) {
@@ -93,9 +93,9 @@ describe('attributeFailure', () => {
   })
 
   it('lays a failure whose error line names the host a git or tarball spec is fetched from at that host', () => {
-    expect(attributeFailure('network', 'fatal: unable to access \'https://github.com/acme/dsh-x/\': Could not resolve host: github.com', git)).toBe('spec-host')
+    expect(attributeFailure('network', 'fatal: unable to access \'https://github.com/acme/mwf-x/\': Could not resolve host: github.com', git)).toBe('spec-host')
     expect(attributeFailure('network', 'ssh: Could not resolve hostname GITHUB.COM: nodename nor servname provided', git)).toBe('spec-host')
-    expect(attributeFailure('network', 'ERR_PNPM_FETCH_502  GET https://cdn.example.com/dsh-x-1.0.0.tgz: Bad Gateway', tarball)).toBe('spec-host')
+    expect(attributeFailure('network', 'ERR_PNPM_FETCH_502  GET https://cdn.example.com/mwf-x-1.0.0.tgz: Bad Gateway', tarball)).toBe('spec-host')
     // The same specs' dependencies still come from the registry.
     expect(attributeFailure('network', registryLog, git)).toBe('registry')
     expect(attributeFailure('network', registryLog, tarball)).toBe('registry')
@@ -104,7 +104,7 @@ describe('attributeFailure', () => {
 
   it('reads the host only off error lines, not off a warning that links to it', () => {
     const log = [
-      'WARN  deprecated left-pad@1.0.0: see https://github.com/acme/dsh-x#readme',
+      'WARN  deprecated left-pad@1.0.0: see https://github.com/acme/mwf-x#readme',
       'ERR_PNPM_META_FETCH_FAIL  GET https://registry.npmjs.org/left-pad: ETIMEDOUT',
     ].join('\n')
     expect(attributeFailure('network', log, git)).toBe('registry')

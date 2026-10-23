@@ -1,6 +1,6 @@
 - insert:
     - id: skill-office
-      name: '@deepseek-ai/dsh-skill-office'
+      name: '@metaworkflow/skill-office'
       disabled: false
       config:
         assetRoot: !!js process.cwd() + '/office-skills'

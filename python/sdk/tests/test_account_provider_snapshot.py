@@ -12,17 +12,17 @@ ROOT = Path(__file__).resolve().parents[3]
 CLI = ROOT / 'apps' / 'cli' / 'lib' / 'bin.js'
 
 
-@pytest.mark.skipif(not CLI.exists(), reason='requires the built dsh profile runtime')
+@pytest.mark.skipif(not CLI.exists(), reason='requires the built mwf profile runtime')
 def test_account_provider_signout_snapshot(tmp_path: Path) -> None:
     with DeepSeekHarness(
-        dsh_bin=str(CLI),
-        dsh_home=str(tmp_path / 'home'),
+        mwf_bin=str(CLI),
+        mwf_home=str(tmp_path / 'home'),
         cwd=str(tmp_path),
         profile='sdk',
         patches=(str(ROOT / 'snapshots' / 'sdk' / 'account-provider-signout' / 'cordis.yml'),),
         provider='deepseek-account',
         model='deepseek-v4-flash',
-        env={'DSH_TELEMETRY_DISABLED': '1', 'DSH_SNAPSHOT': 'replay'},
+        env={'MWF_TELEMETRY_DISABLED': '1', 'MWF_SNAPSHOT': 'replay'},
     ) as harness:
         result = harness.run('Reply with exactly: SDK snapshot')
     ending = next(event for event in reversed(result.events) if event['type'] == 'turn/end')

@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, ConsoleMessage, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createMessage, createUserMessage } from '@metaworkflow/llm'
 import { acknowledgeReloadConnectionLoss, launchWebScaffold, watchConsole, type WebScaffold } from './scaffold.ts'
 import {
   connectFreshWorkspace, newEnglishPage, saveFailureShot, ZH_BROWSER_LOCALE,
@@ -137,7 +137,7 @@ async function ensureExpanded(page: Page, column: Locator): Promise<void> {
 async function resetSidebar(page: Page): Promise<Locator> {
   await page.evaluate(() => {
     for (const key of Object.keys(localStorage)) {
-      if (key.startsWith('dsh.sidebar-right.v1.')) localStorage.removeItem(key)
+      if (key.startsWith('mwf.sidebar-right.v1.')) localStorage.removeItem(key)
     }
   })
   await page.reload({ waitUntil: 'load' })

@@ -5,60 +5,60 @@
 /:
   en: 34b851d97ea0313e
   zh: 2fa00063647b6eee
-/deepseek-ai-dsh-mcp-resources:
-  en: 81abc44a56e1c7d3
-  zh: 34bb6d70ea0219a0
-/deepseek-ai-dsh-mcp-resources/summary:
-  en: 03c61c0b7beab085
-  zh: 4c5efe7fa7d8da36
-/deepseek-ai-dsh-mcp-resources/table-of-contents:
+/metaworkflow-mcp-resources:
+  en: db4934b798265cd1
+  zh: 0ab7c8b85a82e377
+/metaworkflow-mcp-resources/summary:
+  en: 86605688563097b7
+  zh: e7f69c56f11f9f28
+/metaworkflow-mcp-resources/table-of-contents:
   en: d152484eb41ac6b4
   zh: 725b47765ee8f30b
-/deepseek-ai-dsh-mcp-resources/use-this-package:
-  en: 6df1a242b8679b3d
-  zh: 9dd9363d22d8a660
-/deepseek-ai-dsh-mcp-resources/use-this-package/server-configuration:
-  en: ec0195a4ad06b3ab
-  zh: 0b5c41a4f8ff511e
-/deepseek-ai-dsh-mcp-resources/use-this-package/discover-and-read:
+/metaworkflow-mcp-resources/use-this-package:
+  en: 5a4d087277de9b78
+  zh: e6b899b5680fb4c6
+/metaworkflow-mcp-resources/use-this-package/server-configuration:
+  en: b31243a60784beb3
+  zh: 110f878d454ac3d9
+/metaworkflow-mcp-resources/use-this-package/discover-and-read:
   en: f7fb6597acd3c5dc
   zh: 9c59219fb4ab00d9
-/deepseek-ai-dsh-mcp-resources/understand-the-implementation:
-  en: ab308dbe70e82838
-  zh: 1eb73edc14c76516
-/deepseek-ai-dsh-mcp-resources/further-exploration:
-  en: 742e63ef8514fa7d
-  zh: cdadb4baa5275eb0
-/deepseek-ai-dsh-mcp-resources/model-experience:
+/metaworkflow-mcp-resources/understand-the-implementation:
+  en: b476750eb33b0dcc
+  zh: 54c147b6a4fdace8
+/metaworkflow-mcp-resources/further-exploration:
+  en: 01146b1a9a0420eb
+  zh: cbdf3df7dc42f5d3
+/metaworkflow-mcp-resources/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-mcp-resources/model-experience/shared-resource-tools:
+/metaworkflow-mcp-resources/model-experience/shared-resource-tools:
   en: 520e0b6cb35e4285
   zh: 20a323f87e6d12fc
-/deepseek-ai-dsh-mcp-resources/model-experience/shared-resource-tools/what-the-model-sees:
-  en: a4bcd3734a1fbd07
-  zh: abc25fb23ebaf485
-/deepseek-ai-dsh-mcp-resources/model-experience/shared-resource-tools/token-effect:
+/metaworkflow-mcp-resources/model-experience/shared-resource-tools/what-the-model-sees:
+  en: 74fe27040b12e66c
+  zh: a621a3569f253ef3
+/metaworkflow-mcp-resources/model-experience/shared-resource-tools/token-effect:
   en: 92682e15ca9e90a5
   zh: 3487ef2adb89c9e4
-/deepseek-ai-dsh-mcp-resources/model-experience/shared-resource-tools/kv-cache-effect:
+/metaworkflow-mcp-resources/model-experience/shared-resource-tools/kv-cache-effect:
   en: fdb450babcdf877b
   zh: f013ae46ce9e1125
-/deepseek-ai-dsh-mcp-resources/model-experience/resource-results:
+/metaworkflow-mcp-resources/model-experience/resource-results:
   en: f46ae3151a215b4d
   zh: 8d15019792d3fe61
-/deepseek-ai-dsh-mcp-resources/model-experience/resource-results/what-the-model-sees:
+/metaworkflow-mcp-resources/model-experience/resource-results/what-the-model-sees:
   en: 62d0a18c52283474
   zh: 70b2fbea70c98818
-/deepseek-ai-dsh-mcp-resources/model-experience/resource-results/token-effect:
+/metaworkflow-mcp-resources/model-experience/resource-results/token-effect:
   en: e6fb5043a1ccc6ff
   zh: d15d2e7b5986d614
-/deepseek-ai-dsh-mcp-resources/model-experience/resource-results/kv-cache-effect:
+/metaworkflow-mcp-resources/model-experience/resource-results/kv-cache-effect:
   en: ea0dfc069bf175c0
   zh: 3e1465e56ff79764
-/deepseek-ai-dsh-mcp-resources/known-limitations-and-deferred-work:
+/metaworkflow-mcp-resources/known-limitations-and-deferred-work:
   en: 58d13dc99946c11d
   zh: 4099c46a1ca60512
-/deepseek-ai-dsh-mcp-resources/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-mcp-resources/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-10-05-product-package-classification.md
 /agent-note-require-product-use-or-an-explicit-package-classification:
-  en: 8caa2edff065f7db
-  zh: 163ee0f31c7adc6a
+  en: 701b1448ecb1e5ba
+  zh: fdacbc058c1b81ac
 /agent-note-require-product-use-or-an-explicit-package-classification/problem:
   en: 748eb2bf5f645911
   zh: b123aec22395193a
 /agent-note-require-product-use-or-an-explicit-package-classification/decision:
-  en: 8678a01d48195e8f
-  zh: 9052cc7f64ed452f
+  en: 63ca7870be9fe96f
+  zh: 5300bffec94572c7
 /agent-note-require-product-use-or-an-explicit-package-classification/alternatives-considered:
   en: 67177e349ecb70de
   zh: e8263b9445f46ded

@@ -93,7 +93,7 @@ describe('snapshot manifest', () => {
       'platform: posix',
       'permission: workspace-write',
       'environment:',
-      '  DSH_SNAPSHOT_FAILURE: enabled',
+      '  MWF_SNAPSHOT_FAILURE: enabled',
       'workspace:',
       '  setup: fixed-mtimes',
       '  final: true',
@@ -124,7 +124,7 @@ describe('snapshot manifest', () => {
       replay: { override: true },
       platform: 'posix',
       permission: 'workspace-write',
-      environment: { DSH_SNAPSHOT_FAILURE: 'enabled' },
+      environment: { MWF_SNAPSHOT_FAILURE: 'enabled' },
       workspace: { setup: 'fixed-mtimes', final: true, parent: 'outside-temp' },
       input: {
         task: 'Rejected before persistence.',

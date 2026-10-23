@@ -13,10 +13,10 @@ import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { act, cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
-import { bootInjections, orderByModuleGraph } from '@deepseek-ai/dsh-client-modules'
-import type { ClientModuleLoaderTarget, WebBootEntry, WebBootGraph } from '@deepseek-ai/dsh-client-modules/client'
-import type { RemoteMock } from '@deepseek-ai/dsh-remote-mock'
-import { AppWebEntry } from '@deepseek-ai/dsh-client-web'
+import { bootInjections, orderByModuleGraph } from '@metaworkflow/client-modules'
+import type { ClientModuleLoaderTarget, WebBootEntry, WebBootGraph } from '@metaworkflow/client-modules/client'
+import type { RemoteMock } from '@metaworkflow/remote-mock'
+import { AppWebEntry } from '@metaworkflow/client-web'
 import {
   createAssembledRemote, type AssembledRemote, type AssembledRemoteOptions,
 } from './assembled-remote.ts'
@@ -36,7 +36,7 @@ interface AssembledBootOptions {
 interface ClientPackageManifest {
   name?: string
   exports?: Record<string, string | { default?: string }>
-  dsh?: {
+  mwf?: {
     client?: {
       platform?: string
       inject?: string[]
@@ -71,7 +71,7 @@ const workspacePackageManifests = new Map(globSync('packages/*/*/package.json', 
   if (pkg.name === undefined) throw new Error(`assembled boot: workspace package has no name: ${path}`)
   return [pkg.name, path]
 }))
-const appBoot = await import(pathToFileURL(webBundleResolver.resolve('@deepseek-ai/dsh-app-boot')).href) as unknown as BootComposition
+const appBoot = await import(pathToFileURL(webBundleResolver.resolve('@metaworkflow/app-boot')).href) as unknown as BootComposition
 
 function resolvePackageManifest(specifier: string): string | undefined {
   return workspacePackageManifests.get(specifier)
@@ -81,7 +81,7 @@ function resolveClientExport(packagePath: string, pkg: ClientPackageManifest): s
   const declared = pkg.exports?.['./client']
   const relative = typeof declared === 'string' ? declared : declared?.default
   if (relative === undefined) {
-    throw new Error(`assembled boot: ${pkg.name ?? packagePath} declares dsh.client without a ./client export`)
+    throw new Error(`assembled boot: ${pkg.name ?? packagePath} declares mwf.client without a ./client export`)
   }
   return resolve(dirname(packagePath), relative)
 }
@@ -90,10 +90,10 @@ function resolveClientExport(packagePath: string, pkg: ClientPackageManifest): s
 const comboReference = (ids: readonly string[], rev: string): string =>
   `plugins/??${ids.map(id => `${id}/client.js`).join(',')}&rev=${rev}`
 
-/** Derive the assembled browser graph from the same bundle patches and package declarations as `dsh web`. */
+/** Derive the assembled browser graph from the same bundle patches and package declarations as `mwf web`. */
 function loadAssembledPlugins(): readonly AssembledPlugin[] {
   const entries = appBoot.composeEntries(BUNDLE_LAYERS.map((layer) => {
-    const declared = (JSON.parse(readFileSync(layer.manifest, 'utf8')) as { dsh: { bundle: { patch: string | string[] } } }).dsh.bundle
+    const declared = (JSON.parse(readFileSync(layer.manifest, 'utf8')) as { mwf: { bundle: { patch: string | string[] } } }).mwf.bundle
     return appBoot.bundlePatchPaths(layer.dir, declared).flatMap(patch => appBoot.loadOverlayPatches('assembled boot', patch))
   }))
   const plugins = new Map<string, AssembledPlugin>()
@@ -102,7 +102,7 @@ function loadAssembledPlugins(): readonly AssembledPlugin[] {
     const packagePath = resolvePackageManifest(entry.name)
     if (packagePath === undefined) continue
     const pkg = JSON.parse(readFileSync(packagePath, 'utf8')) as ClientPackageManifest
-    const declaration = pkg.dsh?.client
+    const declaration = pkg.mwf?.client
     if (declaration?.platform !== 'web') continue
     if (pkg.name !== entry.name) {
       throw new Error(`assembled boot: ${entry.name} resolved package ${pkg.name ?? '<unnamed>'}`)
@@ -127,7 +127,7 @@ function loadAssembledPlugins(): readonly AssembledPlugin[] {
 
 const PLUGINS = loadAssembledPlugins()
 
-const BOOTSTRAP_IDS = ['@deepseek-ai/dsh-client-modules'] as const
+const BOOTSTRAP_IDS = ['@metaworkflow/client-modules'] as const
 
 /** Build the fixture graph after applying per-scenario package exclusions. */
 function bootGraph(plugins: readonly AssembledPlugin[]): WebBootGraph {
@@ -176,9 +176,9 @@ function bundleTable(graph: WebBootGraph, plugins: readonly AssembledPlugin[]): 
 }
 
 interface FixtureWindow extends Window {
-  __DSH_BOOT__?: WebBootGraph
+  __MWF_BOOT__?: WebBootGraph
   __ModuleLoader__?: ClientModuleLoaderTarget
-  __DSH_TRANSPORT__?: { readonly rpc: RemoteMock['rpc'] }
+  __MWF_TRANSPORT__?: { readonly rpc: RemoteMock['rpc'] }
 }
 
 class ResizeObserverStub {
@@ -250,9 +250,9 @@ export function installAssembledBootEnv(): void {
     unmount = undefined
     mountedRemote = undefined
     cleanup()
-    delete win.__DSH_BOOT__
+    delete win.__MWF_BOOT__
     delete win.__ModuleLoader__
-    delete win.__DSH_TRANSPORT__
+    delete win.__MWF_TRANSPORT__
     document.body.innerHTML = ''
     document.head.querySelectorAll('style[data-plugin]').forEach((style) => { style.remove() })
     document.title = ''
@@ -280,15 +280,15 @@ export function mountAssembledApp(options: AssembledBootOptions = {}): Assembled
   const plugins = PLUGINS.filter(plugin => !excluded.has(plugin.id))
   const remote = createAssembledRemote(options.remote)
   mountedRemote = remote.mock
-  win.__DSH_TRANSPORT__ = { rpc: remote.mock.rpc }
+  win.__MWF_TRANSPORT__ = { rpc: remote.mock.rpc }
   history.replaceState(null, '', '/')
   const root = document.createElement('div')
   root.id = 'root'
   document.body.appendChild(root)
   const graph = bootGraph(plugins)
   const bundles = bundleTable(graph, plugins)
-  win.__DSH_BOOT__ = graph
-  const [facadeRow] = bootInjections(win.__DSH_BOOT__)
+  win.__MWF_BOOT__ = graph
+  const [facadeRow] = bootInjections(win.__MWF_BOOT__)
   if (facadeRow?.kind !== 'script') throw new Error('missing injected ModuleLoader facade row')
   ;(0, eval)(facadeRow.text)
   // Mirror the blocking Host-injected bootstrap batch before the Vite entry calls create().
@@ -349,7 +349,7 @@ export function hasClass(el: Element, name: string): boolean {
 
 /**
  * Whether this run rewrites its golden instead of comparing against it, set by
- * the snapshot gate's `DSH_SNAPSHOT` mode (`record` re-runs the scenarios from
+ * the snapshot gate's `MWF_SNAPSHOT` mode (`record` re-runs the scenarios from
  * scratch, `refresh` re-derives the expected text from the existing ones).
  */
-export const REFRESHING_GOLDEN = process.env.DSH_SNAPSHOT === 'record' || process.env.DSH_SNAPSHOT === 'refresh'
+export const REFRESHING_GOLDEN = process.env.MWF_SNAPSHOT === 'record' || process.env.MWF_SNAPSHOT === 'refresh'

@@ -203,7 +203,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
  * the header's creation-time value. In a child Session, an occurrence
  * before its first own `subagent/descriptor` marks an independent spawn
  * selection that cold resume restores instead of joining the parent's
- * composition (`dsh-subagent` README, "Restoring child composition").
+ * composition (`mwf-subagent` README, "Restoring child composition").
  */
 'agent-preset/selected': { agentPreset: string }
 ```
@@ -341,7 +341,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
   commandId: CommandId
   kind: 'success' | 'error'
   text?: string
-  sourceEventSeq?: import('@deepseek-ai/dsh-session/types').SessionSeq
+  sourceEventSeq?: import('@metaworkflow/session/types').SessionSeq
 }
 ```
 
@@ -892,11 +892,11 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
 /** Records that the configured endpoint accepted one delivery through `throughSeq`. */
 'session-log-deepseek/delivery-accepted': {
   /** Session identity the accepted delivery carried; inherited fork markers retain the parent's id. */
-  sessionId: import('@deepseek-ai/dsh-session/types').SessionId
+  sessionId: import('@metaworkflow/session/types').SessionId
   /** Accepted Session format generation; absence identifies version 0. */
   sessionFormatVersion?: number
   /** Last canonical event included in the accepted request. */
-  throughSeq: import('@deepseek-ai/dsh-session/types').SessionSeq
+  throughSeq: import('@metaworkflow/session/types').SessionSeq
 }
 ```
 
@@ -1158,7 +1158,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
  * runtime-validates all event data with `isJsonValue`, so a non-serializable
  * `meta` is rejected at the source, and the durable log reproduces the
  * identical card on replay. Absent
- * unless the tool attaches one (e.g. `dsh-tool-fs` carries its result-time
+ * unless the tool attaches one (e.g. `mwf-tool-fs` carries its result-time
  * contextual diff here).
  */
 'tool/result': {
@@ -1244,7 +1244,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
 /**
  * Closes turn `turn` with the {@link TurnEndReason} that ended it. A turn
  * with no entered step has no `step/start` or `step/end`. The loop does not await a
- * flush at turn boundaries: `dsh-session-checkpoint-policy` owns the
+ * flush at turn boundaries: `mwf-session-checkpoint-policy` owns the
  * per-request durability checkpoint, and consumers that read storage after
  * `whenIdle()` flush themselves. Success commits the turn; rejection is
  * reported live and does not prevent later work.

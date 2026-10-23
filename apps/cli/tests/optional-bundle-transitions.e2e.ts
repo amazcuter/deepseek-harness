@@ -7,29 +7,29 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Context } from '@deepseek-ai/cordis'
-import type { Agent, AgentHandle } from '@deepseek-ai/dsh-agent'
-import type { ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import { LlmAdapter, ToolCallId, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-agent-preset-registry'
-import type {} from '@deepseek-ai/dsh-hmr'
-import type {} from '@deepseek-ai/dsh-plugin-manager'
-import type {} from '@deepseek-ai/dsh-permission-presets'
-import type {} from '@deepseek-ai/dsh-session-title-llm'
-import type {} from '@deepseek-ai/dsh-skill'
-import type {} from '@deepseek-ai/dsh-tools'
+import type { Agent, AgentHandle } from '@metaworkflow/agent'
+import type { ProfileContext } from '@metaworkflow/app-boot'
+import { LlmAdapter, ToolCallId, createUserMessage } from '@metaworkflow/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@metaworkflow/llm'
+import { SessionId } from '@metaworkflow/session'
+import type {} from '@metaworkflow/agent-preset-registry'
+import type {} from '@metaworkflow/hmr'
+import type {} from '@metaworkflow/plugin-manager'
+import type {} from '@metaworkflow/permission-presets'
+import type {} from '@metaworkflow/session-title-llm'
+import type {} from '@metaworkflow/skill'
+import type {} from '@metaworkflow/tools'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { textResponse, toolCallResponse } from '../../../packages/core/agent-loop/tests/mock-adapter.ts'
 
 const root = fileURLToPath(new URL('../../..', import.meta.url))
 const installAnchor = join(root, 'apps/cli/package.json')
 const bundles = {
-  search: '@deepseek-ai/dsh-experimental-session-search',
-  ralph: '@deepseek-ai/dsh-experimental-ralph-bundle',
-  terminal: '@deepseek-ai/dsh-experimental-terminal-bundle',
-  badge: '@deepseek-ai/dsh-experimental-badge-skill-bundle',
-  titles: '@deepseek-ai/dsh-experimental-session-titles-bundle',
+  search: '@metaworkflow/experimental-session-search',
+  ralph: '@metaworkflow/experimental-ralph-bundle',
+  terminal: '@metaworkflow/experimental-terminal-bundle',
+  badge: '@metaworkflow/experimental-badge-skill-bundle',
+  titles: '@metaworkflow/experimental-session-titles-bundle',
 } as const
 type Response = StreamChunk[] | ((request: GenerateOptions) => StreamChunk[])
 
@@ -71,21 +71,21 @@ describe.skipIf(!existsSync(join(root, 'apps/cli/lib/bin.js')))('Official option
   let originalEnvironment: Record<string, string | undefined> = {}
 
   beforeAll(async () => {
-    temporary = await mkdtemp(join(tmpdir(), 'dsh-optional-bundles-'))
+    temporary = await mkdtemp(join(tmpdir(), 'mwf-optional-bundles-'))
     workspace = join(temporary, 'workspace')
     await mkdir(workspace)
     const home = join(temporary, 'home')
     const values = {
-      DSH_HOME: home, DSH_AGENTS_HOME: join(temporary, 'agents'), DSH_BUNDLED_SKILL_DIR: join(temporary, 'skills'),
-      DSH_TELEMETRY_DISABLED: '1', TMUX: '', TMUX_PANE: '',
+      MWF_HOME: home, MWF_AGENTS_HOME: join(temporary, 'agents'), MWF_BUNDLED_SKILL_DIR: join(temporary, 'skills'),
+      MWF_TELEMETRY_DISABLED: '1', TMUX: '', TMUX_PANE: '',
     }
     originalEnvironment = Object.fromEntries(Object.keys(values).map(key => [key, process.env[key]]))
     Object.assign(process.env, values)
     const require = createRequire(import.meta.url)
-    const app = require(join(root, 'packages/boot/app-boot/lib/index.js')) as typeof import('@deepseek-ai/dsh-app-boot')
-    const cmdline = require(join(root, 'packages/boot/cmdline/lib/index.js')) as typeof import('@deepseek-ai/dsh-cmdline')
+    const app = require(join(root, 'packages/boot/app-boot/lib/index.js')) as typeof import('@metaworkflow/app-boot')
+    const cmdline = require(join(root, 'packages/boot/cmdline/lib/index.js')) as typeof import('@metaworkflow/cmdline')
     const directory = join(home, 'profiles', 'web')
-    app.initProfile(directory, ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'])
+    app.initProfile(directory, ['@metaworkflow/base', '@metaworkflow/web-app'])
     await writeFile(join(directory, 'cordis.yml'), '[]\n')
     await writeFile(join(directory, 'cordis.patch.yml'), JSON.stringify([
       { id: 'agent-default-model', config: { provider: 'bundle-test', model: 'scripted' } },
@@ -238,10 +238,10 @@ describe.skipIf(!existsSync(join(root, 'apps/cli/lib/bin.js')))('Official option
     })
     expect((await load('badge-before')).isError).toBe(true)
     await select(bundles.badge, true)
-    await turn(owner.agent, 'Load the dsh badge skill.', [
+    await turn(owner.agent, 'Load the mwf badge skill.', [
       toolCallResponse('badge-on', 'skill', { name: 'dsh-badge' }), textResponse('BADGE_DONE'),
     ])
-    expect(toolResult(owner.agent, 'badge-on')).toContain('powered by dsh')
+    expect(toolResult(owner.agent, 'badge-on')).toContain('powered by mwf')
     expect(toolResult(owner.agent, 'badge-on')).toContain('dsh-badge.png')
     const minimal = await agent('minimal')
     expect((await ctx.skills.list({ cwd: workspace, scope: minimal.agent })).map(skill => skill.name)).toContain('dsh-badge')
@@ -264,13 +264,13 @@ describe.skipIf(!existsSync(join(root, 'apps/cli/lib/bin.js')))('Official option
       (request) => {
         terminalId = /started terminal session (pty-\d+)/.exec(JSON.stringify(request.messages))?.[1]
         return toolCallResponse('terminal-set', 'terminal_send', {
-          sessionId: id(), text: process.platform === 'win32' ? "$env:DSH_OPTIONAL = 'TERMINAL_BUNDLE_OK'" : 'export DSH_OPTIONAL=TERMINAL_BUNDLE_OK',
+          sessionId: id(), text: process.platform === 'win32' ? "$env:MWF_OPTIONAL = 'TERMINAL_BUNDLE_OK'" : 'export MWF_OPTIONAL=TERMINAL_BUNDLE_OK',
         })
       },
       () => toolCallResponse('terminal-write', 'terminal_send', {
         sessionId: id(), text: process.platform === 'win32'
-          ? `Set-Content -NoNewline -Path '${target.replaceAll("'", "''")}' -Value $env:DSH_OPTIONAL`
-          : `printf '%s' "$DSH_OPTIONAL" > ${JSON.stringify(target)}`,
+          ? `Set-Content -NoNewline -Path '${target.replaceAll("'", "''")}' -Value $env:MWF_OPTIONAL`
+          : `printf '%s' "$MWF_OPTIONAL" > ${JSON.stringify(target)}`,
       }),
       () => toolCallResponse('terminal-close', 'terminal_close', { sessionId: id() }),
       textResponse('TERMINAL_DONE'),

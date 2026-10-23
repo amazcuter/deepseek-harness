@@ -3,13 +3,13 @@ description: "面向在 UI 命令平面中选择、组合或排查 goal 控制�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-command-goal
+# @metaworkflow/command-goal
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-command-goal` 为用户提供 `/goal` 命令，以便直接在交互式 UI 中创建、编辑、暂停、恢复、清除并查看当前 goal。命令及其直接输出留在 UI 中，不进入模型请求。接受的变更会持久化；create 或 edit 携带的有序图片或文件附件会成为一条普通用户消息，供后续 Goal Round 读取。此包适用于带命令适配器的交互式部署；没有适配器的无头与自动化应用不需要它。
+`mwf-command-goal` 为用户提供 `/goal` 命令，以便直接在交互式 UI 中创建、编辑、暂停、恢复、清除并查看当前 goal。命令及其直接输出留在 UI 中，不进入模型请求。接受的变更会持久化；create 或 edit 携带的有序图片或文件附件会成为一条普通用户消息，供后续 Goal Round 读取。此包适用于带命令适配器的交互式部署；没有适配器的无头与自动化应用不需要它。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在挂载了命令适配器的交互式部署中使用 `dsh-command-goal`——随附的 Web 客户端是参考实现。它让用户无需模型轮次即可直接控制 goal 生命周期：命令在 UI 命令平面执行，适配器直接渲染其结果。
+在挂载了命令适配器的交互式部署中使用 `mwf-command-goal`——随附的 Web 客户端是参考实现。它让用户无需模型轮次即可直接控制 goal 生命周期：命令在 UI 命令平面执行，适配器直接渲染其结果。
 
 ### 命令参考
 
@@ -54,14 +54,14 @@ kind: "package-reference"
 
 ```yaml
 - id: commands
-  name: '@deepseek-ai/dsh-commands'
+  name: '@metaworkflow/commands'
 - id: goal
-  name: '@deepseek-ai/dsh-goal'
+  name: '@metaworkflow/goal'
 - id: command-goal
-  name: '@deepseek-ai/dsh-command-goal'
+  name: '@metaworkflow/command-goal'
 ```
 
-随附的 `dsh` 基础配置启用持久 goal 栈与此命令。Web bundle 把 goal 服务与 driver 保留在 Host，禁用基础命令 producer，并在 `standard`、`code` 和 `cordis` agent preset 中挂载 producer；`minimal` 会省略它。ACP（Agent Client Protocol）自动化应用启用领域与模型工具，但不挂载命令适配器。独立的 `sdk-minimal` profile 省略完整 goal 栈，因此其结果 API 仍在一个关联的物理轮次后结束。
+随附的 `mwf` 基础配置启用持久 goal 栈与此命令。Web bundle 把 goal 服务与 driver 保留在 Host，禁用基础命令 producer，并在 `standard`、`code` 和 `cordis` agent preset 中挂载 producer；`minimal` 会省略它。ACP（Agent Client Protocol）自动化应用启用领域与模型工具，但不挂载命令适配器。独立的 `sdk-minimal` profile 省略完整 goal 栈，因此其结果 API 仍在一个关联的物理轮次后结束。
 
 -----
 

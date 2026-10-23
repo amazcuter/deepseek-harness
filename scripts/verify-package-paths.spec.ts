@@ -11,7 +11,7 @@ const start = '<!-- persistence-format-schema:start -->'
 const end = '<!-- persistence-format-schema:end -->'
 
 function scan(file: string, source: string) {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-package-paths-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-package-paths-'))
   try {
     const current = join(root, currentReference)
     mkdirSync(dirname(current), { recursive: true })

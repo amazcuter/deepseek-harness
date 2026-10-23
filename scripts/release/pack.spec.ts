@@ -26,7 +26,7 @@ function write(path: string, content: string): void {
 }
 
 function fixture(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-release-pack-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-release-pack-'))
   roots.push(root)
   write(join(root, 'package.json'), JSON.stringify({ name: '@deepseek-ai/pack-root', private: true, version: '1.2.3' }))
   write(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - vendor/*\n  - native/*\n  - packages/*/*\n  - apps/*\n')
@@ -48,7 +48,7 @@ function packageFixture(root: string, directory: string, name: string, additions
     "const fs = require('node:fs');",
     "const path = require('node:path');",
     "const manifest = require('./package.json');",
-    "fs.appendFileSync(path.join(process.env.DSH_PACK_FIXTURE, 'hooks.log'), `${manifest.name}:${process.argv[2]}\\n`);",
+    "fs.appendFileSync(path.join(process.env.MWF_PACK_FIXTURE, 'hooks.log'), `${manifest.name}:${process.argv[2]}\\n`);",
     '',
   ].join('\n'))
 }
@@ -60,7 +60,7 @@ function packGate(root: string, args: string[] = []): Gate {
     displayCommand: 'pnpm exec node release pack fixture',
     command: process.execPath,
     args: [pnpmEntry, '--dir', root, 'exec', process.execPath, '--import', tsxHook, packScript, '--family', 'vendor', '--out', 'packed', ...args],
-    env: { npm_execpath: pnpmEntry, DSH_PACK_FIXTURE: root, DSH_CLIENT_COMMIT_HASH: commit },
+    env: { npm_execpath: pnpmEntry, MWF_PACK_FIXTURE: root, MWF_CLIENT_COMMIT_HASH: commit },
   }
 }
 
@@ -152,7 +152,7 @@ describe('release pack CLI', () => {
       write(join(root, directory, 'hook.cjs'), [
         "const { get } = require('node:http');",
         "const { name } = require('./package.json');",
-        'const url = `${process.env.DSH_PACK_COORDINATOR}/${process.argv[2]}?name=${encodeURIComponent(name)}&pid=${process.pid}`;',
+        'const url = `${process.env.MWF_PACK_COORDINATOR}/${process.argv[2]}?name=${encodeURIComponent(name)}&pid=${process.pid}`;',
         'const request = get(url, { agent: false }, response => {',
         '  response.resume();',
         "  response.on('end', () => { if (response.statusCode !== 200) process.exitCode = 1; });",
@@ -212,7 +212,7 @@ describe('release pack CLI', () => {
       const address = server.address()
       if (address === null || typeof address === 'string') throw new Error('pack coordinator has no TCP address')
       const gate = packGate(root, ['--concurrency', '2'])
-      gate.env = { ...gate.env, DSH_PACK_COORDINATOR: `http://127.0.0.1:${address.port}` }
+      gate.env = { ...gate.env, MWF_PACK_COORDINATOR: `http://127.0.0.1:${address.port}` }
       pending = runGate(gate, controller.signal)
 
       await vi.waitFor(() => { expect(started).toHaveLength(2) }, { timeout: 30_000, interval: 25 })
@@ -306,29 +306,29 @@ describe('release pack CLI', () => {
 
   it('validates every parallel tarball before recording the publish order', async () => {
     const root = fixture()
-    packageFixture(root, 'packages/util/alpha', '@deepseek-ai/alpha')
-    packageFixture(root, 'packages/util/zebra', '@deepseek-ai/zebra', { files: ['lib/index.js', 'src/index.ts'] })
+    packageFixture(root, 'packages/util/alpha', '@metaworkflow/alpha')
+    packageFixture(root, 'packages/util/zebra', '@metaworkflow/zebra', { files: ['lib/index.js', 'src/index.ts'] })
     write(join(root, 'packages/util/zebra/src/index.ts'), 'export const source = 1\n')
     write(join(root, 'apps/web/dist/index.html'), '<main></main>')
-    writeClientBuildRecord(root, officialClientBuildEnvironment(root, { DSH_CLIENT_COMMIT_HASH: commit }))
+    writeClientBuildRecord(root, officialClientBuildEnvironment(root, { MWF_CLIENT_COMMIT_HASH: commit }))
 
-    const result = await runPack(root, ['--family', 'dsh', '--concurrency', '8'])
+    const result = await runPack(root, ['--family', 'mwf', '--concurrency', '8'])
 
     expect(result.status).not.toBe(0)
-    expect(result.stderr).toContain('@deepseek-ai/zebra publishes source file package/src/index.ts')
+    expect(result.stderr).toContain('@metaworkflow/zebra publishes source file package/src/index.ts')
     expect(readdirSync(join(root, 'packed')).filter(name => name.endsWith('.tgz'))).toHaveLength(2)
     expect(existsSync(join(root, 'packed', PUBLISH_ORDER_FILE))).toBe(false)
   })
 
   it.each(['dependencies', 'optionalDependencies', 'peerDependencies'])(
-    'rejects nonexact DSH %s in the produced tarball before recording publication', async (section) => {
+    'rejects nonexact MWF %s in the produced tarball before recording publication', async (section) => {
       const root = fixture()
-      packageFixture(root, 'packages/util/probe', '@deepseek-ai/dsh-probe', { [section]: { '@deepseek-ai/dsh-library': '^1.2.3' } })
+      packageFixture(root, 'packages/util/probe', '@metaworkflow/probe', { [section]: { '@metaworkflow/library': '^1.2.3' } })
       write(join(root, 'apps/web/dist/index.html'), '<main></main>')
-      writeClientBuildRecord(root, officialClientBuildEnvironment(root, { DSH_CLIENT_COMMIT_HASH: commit }))
-      const result = await runPack(root, ['--family', 'dsh'])
+      writeClientBuildRecord(root, officialClientBuildEnvironment(root, { MWF_CLIENT_COMMIT_HASH: commit }))
+      const result = await runPack(root, ['--family', 'mwf'])
       expect(result.status).not.toBe(0)
-      expect(result.stderr).toContain(`packed ${section}.@deepseek-ai/dsh-library must equal 1.2.3`)
+      expect(result.stderr).toContain(`packed ${section}.@metaworkflow/library must equal 1.2.3`)
       expect(existsSync(join(root, 'packed', PUBLISH_ORDER_FILE))).toBe(false)
     },
   )
@@ -346,7 +346,7 @@ describe('release pack CLI', () => {
       "const path = require('node:path');",
       "process.on('SIGTERM', () => {});",
       'setInterval(() => {}, 1000);',
-      "fs.writeFileSync(path.join(process.env.DSH_PACK_FIXTURE, 'hook-ready.json'), JSON.stringify({ hook: process.ppid, child: process.pid }));",
+      "fs.writeFileSync(path.join(process.env.MWF_PACK_FIXTURE, 'hook-ready.json'), JSON.stringify({ hook: process.ppid, child: process.pid }));",
       '',
     ].join('\n'))
     const controller = new AbortController()

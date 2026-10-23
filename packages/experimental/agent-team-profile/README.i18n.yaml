@@ -5,48 +5,48 @@
 /:
   en: e263a0edd266210f
   zh: c5779bf7f64631d3
-/deepseek-ai-dsh-experimental-agent-team-profile:
-  en: 3deb4b95d9e58c8d
-  zh: 0ba043a54428445e
-/deepseek-ai-dsh-experimental-agent-team-profile/summary:
-  en: 3ca34df3ee31841d
-  zh: a413140d89be2d05
-/deepseek-ai-dsh-experimental-agent-team-profile/table-of-contents:
+/metaworkflow-experimental-agent-team-profile:
+  en: b289fdafe260f051
+  zh: 0d5ed9522e9ed5c2
+/metaworkflow-experimental-agent-team-profile/summary:
+  en: c276812b49eb343e
+  zh: f08341ba1ab02d98
+/metaworkflow-experimental-agent-team-profile/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-experimental-agent-team-profile/use-this-package:
+/metaworkflow-experimental-agent-team-profile/use-this-package:
   en: bbff250eba0f1b89
   zh: 0a618f05cc88ee2b
-/deepseek-ai-dsh-experimental-agent-team-profile/use-this-package/install-into-a-profile:
-  en: 97ef5916c04bf2a1
-  zh: 51f9d2bc3fca7936
-/deepseek-ai-dsh-experimental-agent-team-profile/use-this-package/what-you-get:
-  en: f0e95e60095fc5cb
-  zh: 8c36603b423475d0
-/deepseek-ai-dsh-experimental-agent-team-profile/understand-the-implementation:
-  en: cac23b0774e00717
-  zh: 4446c09b6525587a
-/deepseek-ai-dsh-experimental-agent-team-profile/further-exploration:
-  en: 2513c5cb830db597
-  zh: de3df83cb9fd2340
-/deepseek-ai-dsh-experimental-agent-team-profile/model-experience:
+/metaworkflow-experimental-agent-team-profile/use-this-package/install-into-a-profile:
+  en: d21b66b7a8b3dfc6
+  zh: f18bcaf50d124153
+/metaworkflow-experimental-agent-team-profile/use-this-package/what-you-get:
+  en: a7f4195ba35ca09c
+  zh: 95610daee985ed38
+/metaworkflow-experimental-agent-team-profile/understand-the-implementation:
+  en: 9d2ec7db14d5bbd3
+  zh: f68560f81c4976fd
+/metaworkflow-experimental-agent-team-profile/further-exploration:
+  en: bc2b1850e6f5226a
+  zh: afc1863659f90bf0
+/metaworkflow-experimental-agent-team-profile/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-experimental-agent-team-profile/model-experience/team-policy-and-tools:
+/metaworkflow-experimental-agent-team-profile/model-experience/team-policy-and-tools:
   en: 8e1e365ff3b0dfb2
   zh: c6c91fbf1e1df934
-/deepseek-ai-dsh-experimental-agent-team-profile/model-experience/team-policy-and-tools/what-the-model-sees:
-  en: f54dc1725b90365b
-  zh: 5a505996f7684231
-/deepseek-ai-dsh-experimental-agent-team-profile/model-experience/team-policy-and-tools/token-effect:
-  en: da8c178179ba50ba
-  zh: c53d5863bc14be79
-/deepseek-ai-dsh-experimental-agent-team-profile/model-experience/team-policy-and-tools/kv-cache-effect:
-  en: ac4c8d0ba492fa6a
-  zh: 16d4a05f2e719651
-/deepseek-ai-dsh-experimental-agent-team-profile/known-limitations-and-deferred-work:
-  en: 0413821c2fc20bea
-  zh: 53e135425dd82e12
-/deepseek-ai-dsh-experimental-agent-team-profile/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-experimental-agent-team-profile/model-experience/team-policy-and-tools/what-the-model-sees:
+  en: 68bc68a376bb7719
+  zh: 6b6c496f73b16f2d
+/metaworkflow-experimental-agent-team-profile/model-experience/team-policy-and-tools/token-effect:
+  en: 4cb1fc0f155e9c91
+  zh: 34e6249de341b281
+/metaworkflow-experimental-agent-team-profile/model-experience/team-policy-and-tools/kv-cache-effect:
+  en: d020ba366c5b80fd
+  zh: 035a0b046cf1111e
+/metaworkflow-experimental-agent-team-profile/known-limitations-and-deferred-work:
+  en: ad4caf6f785051d1
+  zh: d86d643cc98464fe
+/metaworkflow-experimental-agent-team-profile/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

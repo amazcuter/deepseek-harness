@@ -1,14 +1,14 @@
 ---
-description: "浏览全部已捕获 DSH alpha/RC tag 之间的 Session 持久化类型变化，并离线校验历史快照。"
+description: "浏览全部已捕获 MWF alpha/RC tag 之间的 Session 持久化类型变化，并离线校验历史快照。"
 ---
 
-# DSH 预发行版本的持久化变化
+# MWF 预发行版本的持久化变化
 
 [English](README.md) | 中文
 
 ## 概述
 
-本归档提供 26 个 DSH alpha/RC tag 及其 25 次相邻转换的近似历史视图。每个版本包含简要说明、源码 tag、before/after 摘要以及变化类型的完整快照，供阅读和格式校验使用。它不确认历史运行时兼容性，也不替代[当前源码的确认记录](../README.zh.md)。
+本归档提供 26 个 MWF alpha/RC tag 及其 25 次相邻转换的近似历史视图。每个版本包含简要说明、源码 tag、before/after 摘要以及变化类型的完整快照，供阅读和格式校验使用。它不确认历史运行时兼容性，也不替代[当前源码的确认记录](../README.zh.md)。
 
 ## 目录
 
@@ -23,7 +23,7 @@ description: "浏览全部已捕获 DSH alpha/RC tag 之间的 Session 持久化
 <a id="releases"></a>
 ## 已归档版本
 
-[清单](manifest.json)记录了 2026-09-12 捕获的全部 DSH alpha/RC tag：16 个有发行记录，最早的 10 个只有 tag。版本按语义版本顺序排列；不存在的 tag 不补造。首条记录是历史起点，变化数包含其所有根。
+[清单](manifest.json)记录了 2026-09-12 捕获的全部 MWF alpha/RC tag：16 个有发行记录，最早的 10 个只有 tag。版本按语义版本顺序排列；不存在的 tag 不补造。首条记录是历史起点，变化数包含其所有根。
 
 <!-- persistence-release-index:start -->
 

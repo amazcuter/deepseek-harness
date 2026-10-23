@@ -3,7 +3,7 @@ description: "Native macOS helper protocol, input semantics, shared-service life
 kind: "package-reference"
 ---
 
-# dsh-cua native helper
+# mwf-cua native helper
 
 English | [中文](README.zh.md)
 
@@ -23,9 +23,9 @@ This macOS 14+ JSON-lines helper uses Swift 6, AppKit, Accessibility, CoreGraphi
 <a id="build-and-service"></a>
 ## Build and service
 
-Build with `swift build --package-path packages/experimental/cua-macos/native --configuration release`. The binary is `.build/release/dsh-cua-native` beneath this directory. The Host runs `--ensure-shared` as a managed startup command; the serving process then belongs to its connected clients and exits after the last connection finishes cleanup. The `.build/` directory is not committed.
+Build with `swift build --package-path packages/experimental/cua-macos/native --configuration release`. The binary is `.build/release/mwf-cua-native` beneath this directory. The Host runs `--ensure-shared` as a managed startup command; the serving process then belongs to its connected clients and exits after the last connection finishes cleanup. The `.build/` directory is not committed.
 
-The shared service uses an owner-only Unix socket under `/tmp/dsh-cua-<uid>`, keyed by the executable SHA-256. A version lock elects one process; an additional real-executable-path lock excludes a different build at the same path. The first frame is protocol-1 `hello` with the runtime key and this connection’s byte, AX, operation, screenshot, event-spacing and cleanup limits. `ready` reports the verified runtime key, PID and instance ID. Every connection owns an independent AXWorker. The stdin/stdout entry is a diagnostic proxy to this service.
+The shared service uses an owner-only Unix socket under `/tmp/mwf-cua-<uid>`, keyed by the executable SHA-256. A version lock elects one process; an additional real-executable-path lock excludes a different build at the same path. The first frame is protocol-1 `hello` with the runtime key and this connection’s byte, AX, operation, screenshot, event-spacing and cleanup limits. `ready` reports the verified runtime key, PID and instance ID. Every connection owns an independent AXWorker. The stdin/stdout entry is a diagnostic proxy to this service.
 
 AppKit runs on the main event loop. Blocking AX and input use each connection’s serial actor; all connections share a FIFO for complete desktop operations. Socket writes do not hold that operation slot. A request cancellation waits for native work to stop; it does not cancel the connection’s lifetime latch. Screenshot timeout ends only the request. An unfinished system capture retains the single capture slot until its real callback arrives, rejects new captures with CAPTURE_BUSY and leaves AX/input available. Only an operation or cleanup that cannot stop can invalidate the shared process. The proxy accepts `--max-request-bytes`, `--max-response-bytes`, `--ax-timeout-ms`, `--timeout-ms`, `--screenshot-timeout-ms`, `--shutdown-grace-ms` and `--text-event-interval-ms`; the Host sets the same limits in hello. An AX deadline bounds an individual system call. Cancellation can follow partial input, and uncertain input is never replayed automatically.
 

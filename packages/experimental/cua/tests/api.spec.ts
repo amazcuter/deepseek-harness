@@ -1,7 +1,7 @@
 /** App and window behavior over a fixture operation dispatcher, without desktop access. */
 import { Buffer } from 'node:buffer'
 import { describe, expect, it, vi } from 'vitest'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { JsonValue } from '@metaworkflow/util-values'
 import { createCuaApi } from '../src/api.ts'
 import type { CuaApp, CuaOperation, CuaScreenshot } from '../src/types.ts'
 

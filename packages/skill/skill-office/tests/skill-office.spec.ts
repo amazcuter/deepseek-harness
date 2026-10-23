@@ -5,8 +5,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import SkillRegistry from '@deepseek-ai/dsh-skill'
-import * as SkillOffice from '@deepseek-ai/dsh-skill-office'
+import SkillRegistry from '@metaworkflow/skill'
+import * as SkillOffice from '@metaworkflow/skill-office'
 import { isSea } from 'node:sea'
 import { execa } from 'execa'
 import { describe, expect, it, vi } from 'vitest'
@@ -46,7 +46,7 @@ describe('bundled Office skills', () => {
       expect(catalog.map(skill => skill.name)).toEqual(names)
       for (const skill of catalog) {
         expect(skill.description.length).toBeLessThanOrEqual(500)
-        expect(skill).toMatchObject({ source: 'bundled', provider: 'dsh-office', invocation: { modelInvocable: true, userInvocable: true } })
+        expect(skill).toMatchObject({ source: 'bundled', provider: 'mwf-office', invocation: { modelInvocable: true, userInvocable: true } })
         const loaded = await ctx.skills.get(skill.name)
         expect(loaded?.resourceBase).toEqual({ kind: 'directory', path: join(assets, skill.name).split(sep).join('/') })
         const raw = await readFile(join(assets, skill.name, 'SKILL.md'), 'utf8')
@@ -62,15 +62,15 @@ describe('bundled Office skills', () => {
   })
 
   it('loads relocated resources through a real cordis.yml composition', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-office-skills-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-office-skills-'))
     const ctx = new Context()
     try {
       const external = join(root, '中文 assets')
       await cp(assets, external, { recursive: true })
       const configPath = join(root, 'cordis.yml')
       await writeFile(configPath, [
-        "- name: '@deepseek-ai/dsh-skill'",
-        "- name: '@deepseek-ai/dsh-skill-office'",
+        "- name: '@metaworkflow/skill'",
+        "- name: '@metaworkflow/skill-office'",
         '  config:',
         `    assetRoot: ${JSON.stringify(external)}`,
         '',
@@ -79,8 +79,8 @@ describe('bundled Office skills', () => {
       await ctx.plugin(Loader)
       ctx.loader.builtins.include = Include
       const modules = new Map<string, unknown>([
-        ['@deepseek-ai/dsh-skill', SkillRegistry],
-        ['@deepseek-ai/dsh-skill-office', SkillOffice],
+        ['@metaworkflow/skill', SkillRegistry],
+        ['@metaworkflow/skill-office', SkillOffice],
       ])
       ctx.loader.internal = {
         version: 'v2',
@@ -112,7 +112,7 @@ describe('bundled Office skills', () => {
     ['description: "Quoted: description"', '\r\n', 'Quoted: description'],
     ['description: >-\n  Folded\n  description', '\n', 'Folded description'],
   ])('parses frontmatter %s and leaves body metadata-like lines intact', async (header, newline, description) => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-office-metadata-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-office-metadata-'))
     const ctx = new Context()
     try {
       await cp(assets, root, { recursive: true })
@@ -130,7 +130,7 @@ describe('bundled Office skills', () => {
   })
 
   it('rejects relative resource paths and incomplete asset trees before registration', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-office-invalid-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-office-invalid-'))
     const ctx = new Context()
     try {
       await ctx.plugin(SkillRegistry)

@@ -3,7 +3,7 @@ description: "Frozen released-v0 Session header, event, and packed-row decoder w
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-session-format-v0-to-v1
+# @metaworkflow/session-format-v0-to-v1
 
 English | [中文](README.zh.md)
 
@@ -27,7 +27,7 @@ This package restores released v0 Session JSONL by decoding each physical row an
 
 ### When to use it
 
-Persistence obtains this edge through `dsh-session-format-catalog`; feature compositions do not mount it. Import it directly only when assembling or testing the static released-format catalog.
+Persistence obtains this edge through `mwf-session-format-catalog`; feature compositions do not mount it. Import it directly only when assembling or testing the static released-format catalog.
 
 ### Entry point
 

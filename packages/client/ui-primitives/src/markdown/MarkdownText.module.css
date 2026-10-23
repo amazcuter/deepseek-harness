@@ -207,7 +207,7 @@
    already the hover that re-enables scrolling. */
 .tableScroll:global(.md-table-wide) {
   overflow-x: hidden;
-  padding-bottom: var(--dsh-scrollbar-width, 5px);
+  padding-bottom: var(--mwf-scrollbar-width, 5px);
 }
 
 .tableScroll:global(.md-table-wide):hover,
@@ -330,8 +330,8 @@
 
 .compact {
   max-width: 100%;
-  font-size: var(--dsh-content-font-size-secondary, 13px);
-  line-height: calc(20px + var(--dsh-content-font-delta-secondary, 0px));
+  font-size: var(--mwf-content-font-size-secondary, 13px);
+  line-height: calc(20px + var(--mwf-content-font-delta-secondary, 0px));
   color: var(--dsw-alias-label-tertiary);
 }
 

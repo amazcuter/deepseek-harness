@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import type { HostObservable, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type { SerializedElement, SerializedNode, SurfaceSnapshot } from '@deepseek-ai/dsh-experimental-claude-code-mods/types'
+import type { HostObservable, PropsLocale, PropsRuntime } from '@metaworkflow/client-ui-slots'
+import type { SerializedElement, SerializedNode, SurfaceSnapshot } from '@metaworkflow/experimental-claude-code-mods/types'
 import { NS } from './locales.ts'
 import css from './Band.module.css'
 

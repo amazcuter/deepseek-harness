@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/terminal.md
 /persistent-pty-sessions:
-  en: 5debd6ec3dc43d0b
-  zh: 716307c837310aaa
+  en: 7eaf03ec7c725dcb
+  zh: 426331f8c326184a
 /persistent-pty-sessions/identity-and-readiness:
   en: d2b0f4a2ea428e95
   zh: 732e30b50b24a1cd

@@ -1,20 +1,20 @@
 /** Operations available to the isolated native welcome renderer. */
 
-import type { AccountView, SignInAttemptId } from '@deepseek-ai/dsh-deepseek-account/types'
-import type { ProductEventMap } from '@deepseek-ai/dsh-client-product-analytics/types'
+import type { AccountView, SignInAttemptId } from '@metaworkflow/deepseek-account/types'
+import type { ProductEventMap } from '@metaworkflow/client-product-analytics/types'
 import type { DesktopLocale } from './locale.ts'
 
 /** Private native welcome channels, installed only while its window exists. */
 export const WELCOME_IPC = {
-  saveApiKey: 'dsh-welcome:save-api-key',
-  analytics: 'dsh-welcome:analytics',
-  analyticsEnabled: 'dsh-welcome:analytics-enabled',
-  skip: 'dsh-welcome:skip',
-  start: 'dsh-welcome:start',
-  cancel: 'dsh-welcome:cancel',
-  copyLink: 'dsh-welcome:copy-link',
-  state: 'dsh-welcome:state',
-  takeNotice: 'dsh-welcome:take-notice',
+  saveApiKey: 'mwf-welcome:save-api-key',
+  analytics: 'mwf-welcome:analytics',
+  analyticsEnabled: 'mwf-welcome:analytics-enabled',
+  skip: 'mwf-welcome:skip',
+  start: 'mwf-welcome:start',
+  cancel: 'mwf-welcome:cancel',
+  copyLink: 'mwf-welcome:copy-link',
+  state: 'mwf-welcome:state',
+  takeNotice: 'mwf-welcome:take-notice',
 } as const
 
 /** Credential writes return a safe outcome without exposing Host diagnostics. */

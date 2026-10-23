@@ -28,7 +28,7 @@ vi.mock('node:timers/promises', async importOriginal => ({
   setTimeout: vi.fn(),
 }))
 
-const CHANNEL = 'dsh-0-2-1-alpha-1'
+const CHANNEL = 'mwf-0-2-1-alpha-1'
 const ABSENT: CommandResult = { status: 1, stdout: '', stderr: 'npm error code E404' }
 const SUCCESS: CommandResult = { status: 0, stdout: '', stderr: '' }
 const CONFLICT: CommandResult = { status: 1, stdout: '', stderr: 'npm error code E409 Failed to save packument' }
@@ -41,7 +41,7 @@ interface PackedFixture {
 }
 
 function packedRelease(versions: readonly string[]): { directory: string; packages: PackedFixture[] } {
-  const directory = mkdtempSync(join(tmpdir(), 'dsh-publish-channel-'))
+  const directory = mkdtempSync(join(tmpdir(), 'mwf-publish-channel-'))
   onTestFinished(() => { rmSync(directory, { recursive: true, force: true }) })
   const packages = versions.map((version, index) => {
     const name = `@deepseek-ai/release-fixture-${String(index)}`
@@ -111,10 +111,10 @@ describe('release publication channels', () => {
   it.each([
     ['vendor', '1.0.6', undefined],
     ['vendor', '1.0.6-alpha.1', 'next'],
-    ['dsh', '0.2.1', undefined],
-    ['dsh', '0.2.1-alpha.1', 'alpha'],
-    ['dsh', '0.2.1-canary.1', 'canary'],
-    ['dsh', '0.2.1-rc.1', 'next'],
+    ['mwf', '0.2.1', undefined],
+    ['mwf', '0.2.1-alpha.1', 'alpha'],
+    ['mwf', '0.2.1-canary.1', 'canary'],
+    ['mwf', '0.2.1-rc.1', 'next'],
   ] as const)('uses the default %s channel for %s when no override is supplied', async (family, version, tag) => {
     const fixture = packedRelease([version])
     const [entry] = fixture.packages
@@ -150,11 +150,11 @@ describe('release publication channels', () => {
     ]))
   })
 
-  it('uses an explicit channel instead of the dsh prerelease default', async () => {
+  it('uses an explicit channel instead of the mwf prerelease default', async () => {
     const fixture = packedRelease(['0.2.1-alpha.1'])
     registry()
 
-    await publishRelease('dsh', fixture.directory, CHANNEL)
+    await publishRelease('mwf', fixture.directory, CHANNEL)
 
     expect(attemptEchoed).toHaveBeenCalledExactlyOnceWith('npm', ['publish', fixture.packages[0]!.path, '--tag', CHANNEL])
   })

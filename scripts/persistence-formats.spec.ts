@@ -79,7 +79,7 @@ function saveReference(root: string, version: number, currentVersion: number, sn
 }
 
 function fixture(currentVersion = 3): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-persistence-formats-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-persistence-formats-'))
   temporary.push(root)
   mkdirSync(join(root, 'packages/core/session/src'), { recursive: true })
   mkdirSync(join(root, 'docs/persistence-changes/historical-formats'), { recursive: true })
@@ -273,7 +273,7 @@ describe('complete persistence format references', () => {
     expect(() => loadPersistenceFormats(root)).toThrow(error)
   })
 
-  it('rejects a source tag outside the DSH release namespace', () => {
+  it('rejects a source tag outside the MWF release namespace', () => {
     const root = fixture()
     editPair(root, 0, 'tag: dsh-v0.1.0-rc.5', 'tag: latest')
     expect(() => loadPersistenceFormats(root)).toThrow('invalid source tag')

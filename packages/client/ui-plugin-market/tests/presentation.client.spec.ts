@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { MarketListingEntry, MarketListingVersion } from '@deepseek-ai/dsh-api-remotes/client'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import type { MarketListingEntry, MarketListingVersion } from '@metaworkflow/api-remotes/client'
+import type { LocalizedText } from '@metaworkflow/package-manifest'
 import { declaredQuery, displayDeclarations, indexLabel, INITIAL_QUERY, presentedVersion, sourceFacts, withText } from '../src/client/presentation.ts'
 
 const resolveText = (text: LocalizedText): string => typeof text === 'string' ? text : text.zh ?? text.en
@@ -63,12 +63,12 @@ describe('presentedVersion', () => {
 describe('sourceFacts', () => {
   it('names the npm package and registry, or the Git repository, commit, and directory', () => {
     const commit = 'abcdef0'.padEnd(40, '1')
-    expect(sourceFacts('dsh-a', release('1.0.0'))).toEqual([{ kind: 'package', value: 'dsh-a@1.0.0' }])
+    expect(sourceFacts('mwf-a', release('1.0.0'))).toEqual([{ kind: 'package', value: 'mwf-a@1.0.0' }])
     const registry = release('1.0.0', { source: { type: 'npm', registry: 'https://registry.example:8443/npm/' } })
-    expect(sourceFacts('dsh-a', registry)).toEqual([{ kind: 'package', value: 'dsh-a@1.0.0' }, { kind: 'registry', value: 'https://registry.example:8443/npm/' }])
+    expect(sourceFacts('mwf-a', registry)).toEqual([{ kind: 'package', value: 'mwf-a@1.0.0' }, { kind: 'registry', value: 'https://registry.example:8443/npm/' }])
     const git = release('1.0.0', { source: { type: 'git', url: 'https://github.com/o/r', commit } })
-    expect(sourceFacts('dsh-a', git)).toEqual([{ kind: 'repository', value: 'https://github.com/o/r' }, { kind: 'commit', value: commit }])
-    expect(sourceFacts('dsh-a', release('1.0.0', { source: { type: 'git', url: 'https://github.com/o/r', commit, path: 'packages/a' } })).at(-1))
+    expect(sourceFacts('mwf-a', git)).toEqual([{ kind: 'repository', value: 'https://github.com/o/r' }, { kind: 'commit', value: commit }])
+    expect(sourceFacts('mwf-a', release('1.0.0', { source: { type: 'git', url: 'https://github.com/o/r', commit, path: 'packages/a' } })).at(-1))
       .toEqual({ kind: 'directory', value: 'packages/a' })
   })
 })

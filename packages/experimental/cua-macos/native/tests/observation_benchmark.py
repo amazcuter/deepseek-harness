@@ -377,7 +377,7 @@ def main():
     owned = []
     failure = None
     try:
-        with tempfile.TemporaryDirectory(prefix="dsh-cua-observation-") as temporary:
+        with tempfile.TemporaryDirectory(prefix="mwf-cua-observation-") as temporary:
             work = Path(temporary)
             binary = work / "observation-fixture"
             environment = {key: value for key, value in os.environ.items() if key in {"PATH", "LANG", "LC_ALL"}}

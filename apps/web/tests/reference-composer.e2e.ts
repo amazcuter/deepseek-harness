@@ -8,16 +8,16 @@ import { join } from 'node:path'
 import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { abbreviateHomePath } from '@deepseek-ai/dsh-util-workspace-path'
+import { createUserMessage } from '@metaworkflow/llm'
+import { abbreviateHomePath } from '@metaworkflow/util-workspace-path'
 import {
   SESSION_FORMAT_VERSION,
   Session,
   SessionId,
   SessionSeq,
-} from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-session-reference/types'
-import type {} from '@deepseek-ai/dsh-session-title'
+} from '@metaworkflow/session'
+import type {} from '@metaworkflow/session-reference/types'
+import type {} from '@metaworkflow/session-title'
 import {
   assertFixtureInventory,
   captureStableAria,

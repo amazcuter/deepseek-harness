@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-08-08-windows-acl-restricted-token-sandbox.md
 /agent-note-windows-sandbox-rung-raw-acl-restricted-tokens-over-mxc-and-appcontainer:
-  en: cfc871213b6d8360
-  zh: 18ff96c2272fee09
+  en: 6a164959fe263ad0
+  zh: 147750e5480d9cd5
 /agent-note-windows-sandbox-rung-raw-acl-restricted-tokens-over-mxc-and-appcontainer/problem:
   en: f62d87b7623a9904
   zh: 48bbb7c35298f96c
 /agent-note-windows-sandbox-rung-raw-acl-restricted-tokens-over-mxc-and-appcontainer/decision:
-  en: 125dea7427047966
-  zh: 1e459b1106597695
+  en: 033cf8b5d56b81bd
+  zh: 7d14c81d2824acc5
 /agent-note-windows-sandbox-rung-raw-acl-restricted-tokens-over-mxc-and-appcontainer/acl-diagnosis-and-recovery:
   en: a5bcdf2a6133abfe
   zh: 477d4915d61945e3
@@ -30,11 +30,11 @@
   en: e2c573d90c4ddeb9
   zh: f0259213e1321722
 /agent-note-windows-sandbox-rung-raw-acl-restricted-tokens-over-mxc-and-appcontainer/consequences:
-  en: dd43744417f207a5
-  zh: d7b4fee1e2d87b60
+  en: c309530cf2f672e5
+  zh: 0a73d817e1cf19de
 /agent-note-windows-sandbox-rung-raw-acl-restricted-tokens-over-mxc-and-appcontainer/testing:
   en: b223cb2cf13193c9
   zh: 61ddd0a0b99f8f56
 /agent-note-windows-sandbox-rung-raw-acl-restricted-tokens-over-mxc-and-appcontainer/related:
-  en: dd16f0c5815df991
-  zh: df3c1cf511ee52bf
+  en: c086e72787d792b8
+  zh: 58f9ef638bfc696a

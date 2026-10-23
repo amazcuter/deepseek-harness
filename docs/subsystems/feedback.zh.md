@@ -2,7 +2,7 @@
 
 [English](feedback.md) | 中文
 
-[`@deepseek-ai/dsh-message-feedback`](../../packages/feedback/message-feedback)拥有针对单条 assistant 消息的可编辑反馈。权威 Session 日志保存 `feedback/message-put` 和 `feedback/message-delete`；不可变的 Session 级备注仍使用 `feedback/record`，由 [`@deepseek-ai/dsh-command-feedback`](../../packages/feedback/command-feedback) 连同两种反馈共用的 `FeedbackCategory` 分类表一起拥有。三者都是仅写日志的事件，绝不进入模型上下文。
+[`@metaworkflow/message-feedback`](../../packages/feedback/message-feedback)拥有针对单条 assistant 消息的可编辑反馈。权威 Session 日志保存 `feedback/message-put` 和 `feedback/message-delete`；不可变的 Session 级备注仍使用 `feedback/record`，由 [`@metaworkflow/command-feedback`](../../packages/feedback/command-feedback) 连同两种反馈共用的 `FeedbackCategory` 分类表一起拥有。三者都是仅写日志的事件，绝不进入模型上下文。
 
 来源：[`packages/feedback/message-feedback/src/types.ts`](../../packages/feedback/message-feedback/src/types.ts)
 
@@ -290,11 +290,11 @@ fork 种子可以包含父 Session 的反馈事件，但 payload 保留父级 `s
 
 插件释放会关闭操作接纳，并排空已进入各 Session 队列的工作。
 
-默认情况下，[`session-log-deepseek`](../../packages/session/session-log-deepseek/README.zh.md) 会在后续符合条件的 DeepSeek 请求中，把反馈作为普通 `dsh_session_log` 后缀的一部分传送；组合可用 `enabled: false` 禁用它。记录反馈不会触发 LLM 请求，也不会单独上传 `dsh_feedback`。对于非 DeepSeek 路由，[OTel 后端](../../packages/session/session-telemetry-otel/README.zh.md)可以将权威日志前缀释放至已记录的反馈。命令确认文本确认记录并标识 Session 与匿名用户，不报告遥测策略或投递结果。
+默认情况下，[`session-log-deepseek`](../../packages/session/session-log-deepseek/README.zh.md) 会在后续符合条件的 DeepSeek 请求中，把反馈作为普通 `mwf_session_log` 后缀的一部分传送；组合可用 `enabled: false` 禁用它。记录反馈不会触发 LLM 请求，也不会单独上传 `mwf_feedback`。对于非 DeepSeek 路由，[OTel 后端](../../packages/session/session-telemetry-otel/README.zh.md)可以将权威日志前缀释放至已记录的反馈。命令确认文本确认记录并标识 Session 与匿名用户，不报告遥测策略或投递结果。
 
 ## Web 界面
 
-[`@deepseek-ai/dsh-client-ui-message-feedback`](../../packages/client/ui-message-feedback) 是浏览器侧消费方。`@deepseek-ai/dsh-api-remotes` 挂载生成的 `messageFeedback` 与 `sessionFeedback` 贡献，因此该插件调用 `ctx.remote.messageFeedback` 与 `ctx.remote.sessionFeedback`，不接触传输层。
+[`@metaworkflow/client-ui-message-feedback`](../../packages/client/ui-message-feedback) 是浏览器侧消费方。`@metaworkflow/api-remotes` 挂载生成的 `messageFeedback` 与 `sessionFeedback` 贡献，因此该插件调用 `ctx.remote.messageFeedback` 与 `ctx.remote.sessionFeedback`，不接触传输层。
 
 控件是 `conversation.chat.assistant-actions` list slot 的 `feedback` 条目（order 10），该 slot 由 `ui-conversation` 声明，并渲染在已定稿助手消息的 IconActions 行内。`AssistantMessageNode` 携带来自 `assistant/message` 事件的可选 `messageId`。被中断冻结的部分输出没有该字段，渲染点在字段缺失时跳过该 slot。该操作栏每个 Turn 渲染一次，位于收尾的助手消息上：Host 接受每条 append-origin 步骤消息作为目标，但多步骤 Turn 中较早的步骤渲染的是工具行而非可评分正文，因此 UI 暴露的范围比 Host 约定允许的更窄。
 

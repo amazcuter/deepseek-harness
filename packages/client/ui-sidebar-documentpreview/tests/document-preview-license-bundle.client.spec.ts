@@ -46,7 +46,7 @@ function runPnpm(args: string[], cwd: string, timeout: number): string {
 describe('published document preview licenses', () => {
   it.skipIf(!existsSync(bundlePath))('keeps bundled licenses in the packed lazy chunks', ({ task }) => {
     expect(existsSync(pdfChunkPath)).toBe(true)
-    const output = mkdtempSync(join(tmpdir(), 'dsh-document-preview-pack-'))
+    const output = mkdtempSync(join(tmpdir(), 'mwf-document-preview-pack-'))
     try {
       const packed = JSON.parse(runPnpm([
         'pack', '--json', '--pack-destination', output,
@@ -96,7 +96,7 @@ describe('published document preview licenses', () => {
         factory: (resolve: (specifier: string) => unknown) => { ExcelBody: unknown }
       }) => {
         const loaded = registration.factory((specifier) => {
-          if (specifier === '@deepseek-ai/dsh-client-ui-primitives') return {}
+          if (specifier === '@metaworkflow/client-ui-primitives') return {}
           if (specifier === 'react' || specifier === 'react/jsx-runtime' || specifier === 'react-dom') return require(specifier)
           throw new Error(`Unexpected browser dependency: ${specifier}`)
         })

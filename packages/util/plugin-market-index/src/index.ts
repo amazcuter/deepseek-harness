@@ -1,10 +1,10 @@
 /**
  * Plugin market index format 1: JSON validation, relative icon resolution, and install arguments.
  * The format is defined by the plugin market index format Agent Note; readers and generators share this validator.
- * @module @deepseek-ai/dsh-plugin-market-index
+ * @module @metaworkflow/plugin-market-index
  */
 
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import type { LocalizedText } from '@metaworkflow/package-manifest'
 import semver from 'semver'
 import type {
   MarketDeclaration, MarketEngines, MarketIndex, MarketIndexMetadata, MarketInstallTarget, MarketPlugin, MarketPluginMetadata,
@@ -207,13 +207,13 @@ function source(value: unknown, path: string): MarketSource {
 
 function engines(value: unknown, path: string): MarketEngines {
   const object = objectAt(value, path)
-  const dsh = optional(object, 'dsh', path, (member, at) => {
+  const mwf = optional(object, 'mwf', path, (member, at) => {
     const range = stringAt(member, at)
     if (range.startsWith('workspace:')) fail(at, 'must not be a workspace: range')
     if (semver.validRange(range) === null) fail(at, 'must be a SemVer range')
     return range
   })
-  return dsh === undefined ? {} : { dsh }
+  return mwf === undefined ? {} : { mwf }
 }
 
 function icon(value: unknown, path: string, indexUrl: URL): string {

@@ -4,16 +4,16 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi, type Mock } from 'vitest'
 import { Context, LoggerLevel } from '@deepseek-ai/cordis'
-import LlmRuntime from '@deepseek-ai/dsh-llm'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import type { DeepSeekLlmApiExtensionRequest } from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import * as DeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
+import LlmRuntime from '@metaworkflow/llm'
+import DeepSeekLlmApiExtensionRegistry from '@metaworkflow/deepseek-llm-api-extensions'
+import type { DeepSeekLlmApiExtensionRequest } from '@metaworkflow/deepseek-llm-api-extensions'
+import { SessionId } from '@metaworkflow/session'
+import * as DeepSeek from '@metaworkflow/llm-deepseek-api-key'
 import { adapter, assemble, options, sse, textEvents } from './helpers.ts'
 
-declare module '@deepseek-ai/dsh-deepseek-llm-api-extensions' {
+declare module '@metaworkflow/deepseek-llm-api-extensions' {
   interface DeepSeekLlmApiExtensionMap {
-    dsh_messages_test: { value: string }
+    mwf_messages_test: { value: string }
   }
 }
 
@@ -26,9 +26,9 @@ afterEach(async () => {
 })
 
 async function boot() {
-  const home = await mkdtemp(join(tmpdir(), 'dsh-messages-extensions-'))
+  const home = await mkdtemp(join(tmpdir(), 'mwf-messages-extensions-'))
   cleanup.push(() => rm(home, { recursive: true, force: true }))
-  vi.stubEnv('DSH_HOME', home)
+  vi.stubEnv('MWF_HOME', home)
   vi.stubEnv('DEEPSEEK_API_KEY', 'test-key')
   const ctx = new Context()
   cleanup.push(() => ctx.fiber.dispose())
@@ -72,7 +72,7 @@ describe('Messages request extensions', () => {
     const ctx = await boot()
     let request: DeepSeekLlmApiExtensionRequest | undefined
     const accepted = vi.fn()
-    ctx.deepseekLlmApiExtensions.register('dsh_messages_test', {
+    ctx.deepseekLlmApiExtensions.register('mwf_messages_test', {
       prepare: (value) => {
         request = value
         return { value: { value: 'inventory' }, accept: accepted }
@@ -92,27 +92,27 @@ describe('Messages request extensions', () => {
       sessionId: 'session-parity', purpose: 'compaction',
       body: { thinking: { type: 'enabled' }, messages: [{ role: 'user', content: [{ type: 'text', text: 'hello' }] }] },
     })
-    expect(request?.body).not.toHaveProperty('dsh_messages_test')
+    expect(request?.body).not.toHaveProperty('mwf_messages_test')
     expect(fetch.mock.calls[0]?.[0]).toBe('https://messages.example.test/root/v1/messages')
     const body = fetch.mock.calls[0]?.[1]?.body
     if (typeof body !== 'string') throw new Error('Expected a serialized Messages request')
-    expect(JSON.parse(body)).toMatchObject({ dsh_messages_test: { value: 'inventory' } })
+    expect(JSON.parse(body)).toMatchObject({ mwf_messages_test: { value: 'inventory' } })
   })
 
   it('sends the request without a field whose preparation throws', async () => {
     const ctx = await boot()
-    ctx.deepseekLlmApiExtensions.register('dsh_messages_test', { prepare() { throw new Error('inventory unavailable') } })
+    ctx.deepseekLlmApiExtensions.register('mwf_messages_test', { prepare() { throw new Error('inventory unavailable') } })
     const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(sse(textEvents)))
     vi.stubGlobal('fetch', fetch)
     const result = await assemble(ctx.llm.stream(options()))
     expect(result.assembler.finish.kind).toBe('stop')
-    expect(sentBody(fetch)).not.toHaveProperty('dsh_messages_test')
+    expect(sentBody(fetch)).not.toHaveProperty('mwf_messages_test')
   })
 
   it.each(['http', 'transport', 'stream'] as const)('records acceptance only for HTTP success despite a later %s failure', async (failure) => {
     const ctx = await boot()
     const accept = vi.fn()
-    ctx.deepseekLlmApiExtensions.register('dsh_messages_test', { prepare: () => ({ value: { value: 'log' }, accept }) })
+    ctx.deepseekLlmApiExtensions.register('mwf_messages_test', { prepare: () => ({ value: { value: 'log' }, accept }) })
     vi.stubGlobal('fetch', vi.fn<typeof globalThis.fetch>().mockImplementation(() => {
       if (failure === 'transport') return Promise.reject(new Error('connection lost'))
       if (failure === 'http') return Promise.resolve(Response.json({ error: { message: 'rejected' } }, { status: 400 }))
@@ -128,7 +128,7 @@ describe('Messages request extensions', () => {
     const warnings: unknown[][] = []
     ctx.logger.exporter({ levels: { default: LoggerLevel.WARN }, export: (message) => { if (message.type === 'warn') warnings.push(message.args) } })
     const failure = new Error('watermark storage failed')
-    ctx.deepseekLlmApiExtensions.register('dsh_messages_test', {
+    ctx.deepseekLlmApiExtensions.register('mwf_messages_test', {
       prepare: () => ({ value: { value: 'log' }, accept() { throw failure } }),
     })
     vi.stubGlobal('fetch', vi.fn<typeof globalThis.fetch>().mockImplementation(() => Promise.resolve(new Response(sse(textEvents)))))
@@ -148,20 +148,20 @@ describe('Messages request extensions', () => {
     const warnings: unknown[][] = []
     ctx.logger.exporter({ levels: { default: LoggerLevel.WARN }, export: (message) => { if (message.type === 'warn') warnings.push(message.args) } })
     const accept = vi.fn()
-    ctx.deepseekLlmApiExtensions.register('dsh_messages_test', { prepare: () => ({ value: { value: 'log' }, accept }) })
+    ctx.deepseekLlmApiExtensions.register('mwf_messages_test', { prepare: () => ({ value: { value: 'log' }, accept }) })
     const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(() => Promise.resolve(new Response(sse(textEvents))))
     vi.stubGlobal('fetch', fetch)
-    const { result, overflow } = await withSerializationOverflow('dsh_messages_test', async () => {
+    const { result, overflow } = await withSerializationOverflow('mwf_messages_test', async () => {
       await assemble(ctx.llm.stream(options()))
       return await assemble(ctx.llm.stream(options()))
     })
-    expect(JSON.stringify({ dsh_messages_test: { value: 'log' } })).toBe('{"dsh_messages_test":{"value":"log"}}')
+    expect(JSON.stringify({ mwf_messages_test: { value: 'log' } })).toBe('{"mwf_messages_test":{"value":"log"}}')
     expect(result.assembler.finish.kind).toBe('stop')
     expect(accept).not.toHaveBeenCalled()
     expect(sentBody(fetch)).toMatchObject({ messages: [{ role: 'user', content: [{ type: 'text', text: 'hello' }] }] })
-    expect(sentBody(fetch)).not.toHaveProperty('dsh_messages_test')
+    expect(sentBody(fetch)).not.toHaveProperty('mwf_messages_test')
     expect(warnings).toEqual([[
-      'llm-deepseek: sending route "deepseek-official/deepseek-v4-flash" without request extension fields dsh_messages_test'
+      'llm-deepseek: sending route "deepseek-official/deepseek-v4-flash" without request extension fields mwf_messages_test'
         + ' because they failed to serialize: %o',
       overflow,
     ]])
@@ -170,14 +170,14 @@ describe('Messages request extensions', () => {
   it('omits unserializable extension fields when the adapter has no reporter', async () => {
     const accept = vi.fn(() => Promise.resolve())
     const llm = adapter({ baseURL: 'https://messages.example.test' }, {
-      prepareExtensions: () => Promise.resolve({ fields: { dsh_messages_test: { value: 'log' } }, accept }),
+      prepareExtensions: () => Promise.resolve({ fields: { mwf_messages_test: { value: 'log' } }, accept }),
     })
     const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(sse(textEvents)))
     vi.stubGlobal('fetch', fetch)
-    const { result } = await withSerializationOverflow('dsh_messages_test', () => assemble(llm.stream(options())))
+    const { result } = await withSerializationOverflow('mwf_messages_test', () => assemble(llm.stream(options())))
     expect(result.assembler.finish.kind).toBe('stop')
     expect(accept).not.toHaveBeenCalled()
-    expect(sentBody(fetch)).not.toHaveProperty('dsh_messages_test')
+    expect(sentBody(fetch)).not.toHaveProperty('mwf_messages_test')
   })
 
   it('fails the request without reporting omitted fields when the base body cannot serialize', async () => {
@@ -185,7 +185,7 @@ describe('Messages request extensions', () => {
     const warnings: unknown[][] = []
     ctx.logger.exporter({ levels: { default: LoggerLevel.WARN }, export: (message) => { if (message.type === 'warn') warnings.push(message.args) } })
     const accept = vi.fn()
-    ctx.deepseekLlmApiExtensions.register('dsh_messages_test', { prepare: () => ({ value: { value: 'log' }, accept }) })
+    ctx.deepseekLlmApiExtensions.register('mwf_messages_test', { prepare: () => ({ value: { value: 'log' }, accept }) })
     const fetch = vi.fn<typeof globalThis.fetch>()
     vi.stubGlobal('fetch', fetch)
     const { result, attempts } = await withSerializationOverflow('messages', () => assemble(ctx.llm.stream(options())))

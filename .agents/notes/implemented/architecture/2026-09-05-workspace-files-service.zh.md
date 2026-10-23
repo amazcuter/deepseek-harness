@@ -8,11 +8,11 @@ Status: implemented
 
 Web 客户端需要从一个未必在 Host 机器上的浏览器查看会话工作区里的文件：agent 产出的文件、`read` 工具行点名的路径，之后还有文件树，以及既不小也不是文本的文件预览。唯一一个经线路读取工作区文件的端点以 `workspace-file.ts` 住在 Session Controller 上，与它毫无关系的会话生命周期为邻。它在一个总字节上限之下返回整个文件，因此大日志连一部分都看不了、二进制根本看不了；它没有 `stat`、没有列举、没有变更信号，预览不重读就无法得知 agent 已改写文件；其结果还以 Host 的 `url` 命名文件，而 Client 上没有任何东西把这种拼法当地址用。
 
-两个约束框定了这项服务。经 `ctx.fs` 的文件读取使用 Session 组合后的文件系统后端，其读取权限可能延伸到工作区外，而目录树与变更流消费方以工作区为根。服务为普通文件保留后端的读取决策，同时执行文件类型与有界缓冲检查；`list` 与 `changes` 保留工作区包含限制。另外 `dsh-fs` 只暴露一种原始字节读取 `readBytes(target, signal, maxBytes)`，它拒绝任何比上限更长的文件：对模型整体摄入的图片是正确的，对大文件的一个窗口则毫无用处。
+两个约束框定了这项服务。经 `ctx.fs` 的文件读取使用 Session 组合后的文件系统后端，其读取权限可能延伸到工作区外，而目录树与变更流消费方以工作区为根。服务为普通文件保留后端的读取决策，同时执行文件类型与有界缓冲检查；`list` 与 `changes` 保留工作区包含限制。另外 `mwf-fs` 只暴露一种原始字节读取 `readBytes(target, signal, maxBytes)`，它拒绝任何比上限更长的文件：对模型整体摄入的图片是正确的，对大文件的一个窗口则毫无用处。
 
 ## Decision
 
-`packages/api/workspace-files`（`@deepseek-ai/dsh-api-workspace-files`）同时拥有 Host 服务 `ctx.workspaceFiles`、`workspaceFiles` Remote 命名空间，以及将 `stat` 与 `changes` 转成[资源模型](2026-09-05-client-resource-model.zh.md)实时元数据的 Client `file` 提供者；包组织方式由[双面包组织](../../../../packages/api/workspace-files/README.zh.md)规定。文件方法从工作区根解析相对路径，但继承 Session 文件系统后端的读取权限；`list` 与 `changes` 仍限于工作区。[工作区文件读取权限](2026-09-09-workspace-file-read-authority.zh.md)拥有这一分层及其安全后果。结果以文件在文件系统执行环境中的绝对路径命名文件，内容则受页、字节窗口或整文件上限约束。字节窗口依托 `dsh-fs` 新增的 seam `FileSystem.readByteRange`，由每个提供者实现。Session Controller 不再携带任何工作区文件代码。
+`packages/api/workspace-files`（`@metaworkflow/api-workspace-files`）同时拥有 Host 服务 `ctx.workspaceFiles`、`workspaceFiles` Remote 命名空间，以及将 `stat` 与 `changes` 转成[资源模型](2026-09-05-client-resource-model.zh.md)实时元数据的 Client `file` 提供者；包组织方式由[双面包组织](../../../../packages/api/workspace-files/README.zh.md)规定。文件方法从工作区根解析相对路径，但继承 Session 文件系统后端的读取权限；`list` 与 `changes` 仍限于工作区。[工作区文件读取权限](2026-09-09-workspace-file-read-authority.zh.md)拥有这一分层及其安全后果。结果以文件在文件系统执行环境中的绝对路径命名文件，内容则受页、字节窗口或整文件上限约束。字节窗口依托 `mwf-fs` 新增的 seam `FileSystem.readByteRange`，由每个提供者实现。Session Controller 不再携带任何工作区文件代码。
 
 ### 包拓扑
 
@@ -20,8 +20,8 @@ Web 客户端需要从一个未必在 Host 机器上的浏览器查看会话工�
 
 | 面 | 包 | 文件 | 依赖 |
 |---|---|---|---|
-| Host | `api/workspace-files/tsconfig.host.json` | `src/index.ts`（`WorkspaceFiles`、`Config`、围栏、切页器）、`src/changes.ts`（`WorkspaceChangeFeed`）、`src/types.ts`（线路类型、错误码） | `dsh-fs`、`dsh-sandbox-policy`、`dsh-typert-protocol`、`dsh-session`、`dsh-session-persistence` |
-| Client | `api/workspace-files/tsconfig.client.json` | `src/client/index.ts`（插件体）、`provider.ts`、`change-feed.ts`、`remote.ts`、`types.ts`，以及共享的 `src/types.ts` | `dsh-api-gateway/client`、`dsh-session/types`、`dsh-client-resources`、`dsh-client-ui-slots`、`dsh-util-workspace-path`、`dsh-typert-protocol`，以及本包生成的 `./remote` |
+| Host | `api/workspace-files/tsconfig.host.json` | `src/index.ts`（`WorkspaceFiles`、`Config`、围栏、切页器）、`src/changes.ts`（`WorkspaceChangeFeed`）、`src/types.ts`（线路类型、错误码） | `mwf-fs`、`mwf-sandbox-policy`、`mwf-typert-protocol`、`mwf-session`、`mwf-session-persistence` |
+| Client | `api/workspace-files/tsconfig.client.json` | `src/client/index.ts`（插件体）、`provider.ts`、`change-feed.ts`、`remote.ts`、`types.ts`，以及共享的 `src/types.ts` | `mwf-api-gateway/client`、`mwf-session/types`、`mwf-client-resources`、`mwf-client-ui-slots`、`mwf-util-workspace-path`、`mwf-typert-protocol`，以及本包生成的 `./remote` |
 
 `api/remotes` 和两个根聚合分别引用匹配的 Host/Client 叶子。包导出 `.`、`./client`、`./types`、`./typert` 和 `./remote`，web-app 中单个 `workspace-files` 条目供应两面。Client 插件注入 `['resources', 'remote', 'remote.workspaceFiles']`；资源模型直接从协议包取结果类型，Sidebar 参数声明归文本预览，因此 Client 编译图不再反向依赖 Remote 装配或右栏 UI。
 
@@ -46,7 +46,7 @@ Web 客户端需要从一个未必在 Host 机器上的浏览器查看会话工�
 
 ### 线路上的路径
 
-离开服务的路径词汇有两套，每个方法只用其中一套。`read`、`readBytes`、`stat` 与 `changes` 以 `absolutePath` 命名文件：它在文件系统执行环境中、符号链接已解析的绝对路径（`ctx.fs.processPath(target)`），因此 Client 提供者按绝对路径把变更帧匹配到已打开的地址：Client 把地址路径原样交给 Host，并只按成功的 `stat.absolutePath` 绑定跟随者，不读取会话摘要的 cwd。`list` 说工作区路径——与其 `path` 参数相同的语法，绝对或相对根——因为其消费方是一棵以根为起点的树。该字段叫 `absolutePath` 而不叫 `url`，因为它不是资源地址；地址语法归 `dsh-util-workspace-path` 所有，与资源模型一并描述。`read`、`readBytes`、`stat` 与 `list` 的输入路径是绝对路径或相对会话工作区根的路径，从不相对后端自己的 cwd；带 `baseFile` 的 `readBytes` 从基准文件所在目录解析目标。
+离开服务的路径词汇有两套，每个方法只用其中一套。`read`、`readBytes`、`stat` 与 `changes` 以 `absolutePath` 命名文件：它在文件系统执行环境中、符号链接已解析的绝对路径（`ctx.fs.processPath(target)`），因此 Client 提供者按绝对路径把变更帧匹配到已打开的地址：Client 把地址路径原样交给 Host，并只按成功的 `stat.absolutePath` 绑定跟随者，不读取会话摘要的 cwd。`list` 说工作区路径——与其 `path` 参数相同的语法，绝对或相对根——因为其消费方是一棵以根为起点的树。该字段叫 `absolutePath` 而不叫 `url`，因为它不是资源地址；地址语法归 `mwf-util-workspace-path` 所有，与资源模型一并描述。`read`、`readBytes`、`stat` 与 `list` 的输入路径是绝对路径或相对会话工作区根的路径，从不相对后端自己的 cwd；带 `baseFile` 的 `readBytes` 从基准文件所在目录解析目标。
 
 `version` 是消费者只比较是否相等、从不解析的不透明字符串：本地后端由设备、inode、大小及纳秒级 mtime 与 ctime 导出，因此内容不变的重写也会改变它。`offset` 在 `read` 上指行、在 `readBytes` 上指字节；两套单位从不混用，二者的 `eof` 都表示窗口到达了文件末尾。
 
@@ -83,9 +83,9 @@ Web 客户端需要从一个未必在 Host 机器上的浏览器查看会话工�
 
 四个字段，都是可在 `cordis.yml` 中修改、经校验的正整数，此外没有其他可调项：`maxBytes`（默认 2,097,152，即 2 MiB）是单页文本与单个字节窗口的含上限；`maxLines`（默认 5,000）是页的缺省与最大行数；`maxEntries`（默认 2,000）是返回目录条目数的上限；`maxFileBytes`（默认 33,554,432，即 32 MiB）限制全文及关联文件读取。分页和开窗读取不限制整个文件的大小。
 
-### `dsh-fs` 中的 `readByteRange` seam
+### `mwf-fs` 中的 `readByteRange` seam
 
-大文件的字节窗口需要一种以窗口为界的文件系统读取，而 `FileSystem` 只有以整文件为界的 `readBytes(target, signal, maxBytes)`。因此 `dsh-fs` 新增第二个原始字节原语：
+大文件的字节窗口需要一种以窗口为界的文件系统读取，而 `FileSystem` 只有以整文件为界的 `readBytes(target, signal, maxBytes)`。因此 `mwf-fs` 新增第二个原始字节原语：
 
 ```ts ignore-check
 abstract readByteRange(target: FsTarget, range: { offset: number; length: number }, signal?: AbortSignal): Promise<Uint8Array>
@@ -107,7 +107,7 @@ Client 导出向 `ctx.resources` 注册一个 `ResourceProvider<'file'>`，存�
 
 ### 相关记录
 
-[资源模型](2026-09-05-client-resource-model.zh.md)拥有 `ctx.resources`、`useResource`、`dsh-resource://<type>/…` 地址语法以及"每个地址一份资源"的推理；[文本预览与文件树](../../../../packages/client/ui-sidebar-documentpreview/README.zh.md)是 `read`、`list` 与 `file` 提供者随包交付的消费方；[右侧 Sidebar 停靠基础设施](../feature/2026-09-04-right-sidebar-docking-infrastructure.zh.md)是它们打开进去的界面；[历史工作区文件链接](../../archived/feature/2026-07-31-web-workspace-file-links.md)是经 HTTP 供文件被否决之处。任何在这套体系上扩展的人都经 `remote.workspaceFiles` 触达同样的五个方法、经 `useResource<'file'>` 触达同样的 `file` 资源；线路类型以 `@deepseek-ai/dsh-api-workspace-files/types` 发布。[工作区文件读取权限](2026-09-09-workspace-file-read-authority.zh.md)负责 Host 读取权限与 HTML 安全取舍；[Document Preview](2026-09-08-document-preview-operations.zh.md)负责内容加载和逐 tab 新鲜度。
+[资源模型](2026-09-05-client-resource-model.zh.md)拥有 `ctx.resources`、`useResource`、`mwf-resource://<type>/…` 地址语法以及"每个地址一份资源"的推理；[文本预览与文件树](../../../../packages/client/ui-sidebar-documentpreview/README.zh.md)是 `read`、`list` 与 `file` 提供者随包交付的消费方；[右侧 Sidebar 停靠基础设施](../feature/2026-09-04-right-sidebar-docking-infrastructure.zh.md)是它们打开进去的界面；[历史工作区文件链接](../../archived/feature/2026-07-31-web-workspace-file-links.md)是经 HTTP 供文件被否决之处。任何在这套体系上扩展的人都经 `remote.workspaceFiles` 触达同样的五个方法、经 `useResource<'file'>` 触达同样的 `file` 资源；线路类型以 `@metaworkflow/api-workspace-files/types` 发布。[工作区文件读取权限](2026-09-09-workspace-file-read-authority.zh.md)负责 Host 读取权限与 HTML 安全取舍；[Document Preview](2026-09-08-document-preview-operations.zh.md)负责内容加载和逐 tab 新鲜度。
 
 ## Alternatives considered
 
@@ -140,7 +140,7 @@ Client 导出向 `ctx.resources` 注册一个 `ResourceProvider<'file'>`，存�
 
 ## Testing
 
-`packages/api/workspace-files/tests` 中的 Host spec 覆盖 live 与 cold subagent Session 的 header-only scope 解析、部署 fallback、缺失身份与 lookup 释放；分页读取（整文件、嵌套路径、空文件、多字节 UTF-8、行窗口边界、缺省与拒绝的 limit、保留回车）；字节窗口（缺省、中段与尾窗、越界与空文件、`Uint8Array` 往返、版本、上限、坏范围以及无大小时的 `eof`）；`stat`；工作区外读取及后端拒绝；`list` 的包含、截断、目录链接、目标已消失的链接与 `not-directory`；以及由 `fs/observed` 驱动并按根过滤的 `changes`。Client spec 覆盖提供者帧、变更流、不支持地址及注册与释放。`fs/fs` 与 `fs-local` spec 钉住 `readByteRange`；`dsh-util-workspace-path` spec 钉住文件地址语法。connection fixture 为 web e2e 套件提供 `stat`、分页 `read`、`list` 与一帧可选启用的 `changes`。
+`packages/api/workspace-files/tests` 中的 Host spec 覆盖 live 与 cold subagent Session 的 header-only scope 解析、部署 fallback、缺失身份与 lookup 释放；分页读取（整文件、嵌套路径、空文件、多字节 UTF-8、行窗口边界、缺省与拒绝的 limit、保留回车）；字节窗口（缺省、中段与尾窗、越界与空文件、`Uint8Array` 往返、版本、上限、坏范围以及无大小时的 `eof`）；`stat`；工作区外读取及后端拒绝；`list` 的包含、截断、目录链接、目标已消失的链接与 `not-directory`；以及由 `fs/observed` 驱动并按根过滤的 `changes`。Client spec 覆盖提供者帧、变更流、不支持地址及注册与释放。`fs/fs` 与 `fs-local` spec 钉住 `readByteRange`；`mwf-util-workspace-path` spec 钉住文件地址语法。connection fixture 为 web e2e 套件提供 `stat`、分页 `read`、`list` 与一帧可选启用的 `changes`。
 
 ## Deferred
 

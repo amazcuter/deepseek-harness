@@ -91,7 +91,7 @@ Stage 1 preserves the following behavior. Later stages must preserve the same fa
 
 ### Enforcement and completion
 
-`verify-logical-session-access` reports production bindings of the concrete `Session` class outside its owning package. Its enforcement is switchable: the checked-in default is `warn`, under which the gate prints every finding as a warning, writes one GitHub Actions `::warning` annotation per finding, and exits 0, so branches that still bind the class merge while their consumers migrate; `DSH_LOGICAL_SESSION_ACCESS=enforce` fails the gate on any finding for one run, and changing the checked-in default to `enforce`, once no in-flight branch binds the class, makes the gate reject every remaining binding. The package keeps the public class and static constructors only for external source compatibility. Repository production code has no allowlist and uses `LogicalSession`; compatibility tests keep the old imports and constructors working until a separate removal decision names ecosystem evidence and a release boundary.
+`verify-logical-session-access` reports production bindings of the concrete `Session` class outside its owning package. Its enforcement is switchable: the checked-in default is `warn`, under which the gate prints every finding as a warning, writes one GitHub Actions `::warning` annotation per finding, and exits 0, so branches that still bind the class merge while their consumers migrate; `MWF_LOGICAL_SESSION_ACCESS=enforce` fails the gate on any finding for one run, and changing the checked-in default to `enforce`, once no in-flight branch binds the class, makes the gate reject every remaining binding. The package keeps the public class and static constructors only for external source compatibility. Repository production code has no allowlist and uses `LogicalSession`; compatibility tests keep the old imports and constructors working until a separate removal decision names ecosystem evidence and a release boundary.
 
 Stage 1 is complete when production code uses only the public logical session interface and detached construction functions, the deprecated `Session` entries have focused compatibility tests but no production consumer, the access gate has no migration allowlist, generated API documentation is current, and the snapshot and SDK outputs remain unchanged.
 
@@ -144,8 +144,8 @@ The proposal preserves the shipped [handle-based persistence decision](../../imp
 - [Cleanup dependency lifetimes](2026-10-09-cordis-cleanup-dependency-lifetimes.md) adds the graceful-teardown requirement for the stage 4 enqueue ownership change: retain writers and required listeners until producers finish publishing final events.
 - [Sessions subsystem](../../../../docs/subsystems/session.md) defines the shipped session API and event semantics.
 - [Session persistence subsystem](../../../../docs/subsystems/persistence.md) defines the shipped durable format and lifecycle.
-- [`@deepseek-ai/dsh-session`](../../../../packages/core/session/README.md) owns the session package contract.
-- [`@deepseek-ai/dsh-session-persistence`](../../../../packages/session/session-persistence/README.md) owns the current persistence service contract.
+- [`@metaworkflow/session`](../../../../packages/core/session/README.md) owns the session package contract.
+- [`@metaworkflow/session-persistence`](../../../../packages/session/session-persistence/README.md) owns the current persistence service contract.
 
 ## Alternatives considered
 

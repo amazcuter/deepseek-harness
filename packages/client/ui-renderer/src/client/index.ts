@@ -18,7 +18,7 @@ export type {
   ChainRenderOpts, HostObservable, RenderOpts, SnapshotSelectorHook, SlotRenderer,
   ScopedStandardSourceBinding, SlotRendererHost, SlotScopeAdapter,
   StandardSourceBinding, StoreInstanceLike,
-} from '@deepseek-ai/dsh-client-ui-slots'
+} from '@metaworkflow/client-ui-slots'
 
 /** Mount operation exposed to the framework-free boot kernel. */
 export interface UiRendererService {
@@ -63,14 +63,14 @@ function BootHandoff(props: { app: () => ReactNode; boot: BootSnapshot }): React
   if (ready) return props.app()
   return createElement('div', {
     className: props.boot.className,
-    'data-dsh-boot': '',
+    'data-mwf-boot': '',
     dangerouslySetInnerHTML: { __html: props.boot.html },
   })
 }
 
 /** Mount React while preserving the framework-free boot DOM through hydration. */
 function mountApp(container: HTMLElement, app: () => ReactNode): Root {
-  const boot = container.querySelector<HTMLElement>(':scope > [data-dsh-boot]')
+  const boot = container.querySelector<HTMLElement>(':scope > [data-mwf-boot]')
   if (boot !== null) {
     return hydrateRoot(container, createElement(BootHandoff, {
       app,

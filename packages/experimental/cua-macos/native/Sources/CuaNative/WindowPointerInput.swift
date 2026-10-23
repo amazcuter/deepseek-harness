@@ -1,4 +1,4 @@
-// Pointer event fields and pacing follow DSH's MIT-licensed Cua Driver adaptation.
+// Pointer event fields and pacing follow MWF's MIT-licensed Cua Driver adaptation.
 import CoreGraphics
 import Dispatch
 import Foundation

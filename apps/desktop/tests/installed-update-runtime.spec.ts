@@ -11,7 +11,7 @@ const versions = ['0.1.6-nightly.20260914.1', '0.1.6-nightly.20260914.2'] as con
 const source = { version: '0.1.5-rc.2', commit: 'a'.repeat(40), dirtyFiles: [] }
 
 async function fixture<T>(body: (directory: string) => Promise<T>): Promise<T> {
-  const directory = await mkdtemp(join(tmpdir(), 'dsh-update-materials-'))
+  const directory = await mkdtemp(join(tmpdir(), 'mwf-update-materials-'))
   try { return await body(directory) }
   finally { await rm(directory, { recursive: true, force: true }) }
 }
@@ -26,14 +26,14 @@ describe('installed-update runtime preparation', () => {
       const result = await prepareInstalledUpdateRuntime(join(run.root, 'run.json'), original)
       expect(result).toMatchObject({ signed: false, bootTested: false })
       for (const version of versions) {
-        const runtime = join(run.root, version, 'dsh')
+        const runtime = join(run.root, version, 'mwf')
         const descriptor = await verifyDesktopRuntime(runtime, version)
         expect(descriptor.sharedPackages.find(entry => entry.name === '@deepseek-ai/cordis')?.version).toBe(source.version)
-        expect(descriptor.sharedPackages.find(entry => entry.name === '@deepseek-ai/dsh')?.version).toBe(version)
-        const metadata = JSON.parse(await readFile(join(runtime, 'node_modules/@deepseek-ai/dsh/package.json'), 'utf8')) as {
+        expect(descriptor.sharedPackages.find(entry => entry.name === '@metaworkflow/cli')?.version).toBe(version)
+        const metadata = JSON.parse(await readFile(join(runtime, 'node_modules/@metaworkflow/cli/package.json'), 'utf8')) as {
           dependencies: Record<string, string>
         }
-        expect(metadata.dependencies['@deepseek-ai/dsh-desktop-host']).toBe(version)
+        expect(metadata.dependencies['@metaworkflow/desktop-host']).toBe(version)
         expect(metadata.dependencies['@deepseek-ai/cordis']).toBe(source.version)
       }
       expect(await readFile(join(original, 'desktop-runtime.json'))).toEqual(before)

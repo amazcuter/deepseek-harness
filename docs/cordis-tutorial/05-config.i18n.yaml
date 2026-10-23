@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cordis-tutorial/05-config.md
 /5-configuration:
-  en: 6867b9ed15839cf1
-  zh: 97425aab3396a458
+  en: 87a57826e018656a
+  zh: 877f69c69ff46c28
 /5-configuration/a-configurable-plugin:
   en: 1fcc4b1a64c6e6bb
   zh: 85444447b593f18f
@@ -15,5 +15,5 @@
   en: ee367f4db7e8598c
   zh: c1f17caebad9cc0a
 /5-configuration/computed-config-values:
-  en: dbd47e8aa99fb2e0
-  zh: dc441f610416909d
+  en: 4bd94e70ccf6e71a
+  zh: 2dfd6cea995636b7

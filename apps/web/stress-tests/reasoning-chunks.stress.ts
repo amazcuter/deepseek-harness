@@ -8,8 +8,8 @@
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { expect, it, onTestFailed } from 'vitest'
-import { LlmAdapter, type GenerateOptions, type StreamChunk } from '@deepseek-ai/dsh-llm'
-import type {} from '@deepseek-ai/dsh-agent-default-model'
+import { LlmAdapter, type GenerateOptions, type StreamChunk } from '@metaworkflow/llm'
+import type {} from '@metaworkflow/agent-default-model'
 import { launchWebScaffold, watchConsole, type WebScaffold } from '../tests/scaffold.ts'
 import {
   connectFreshWorkspace, newEnglishPage, saveFailureShot, writeComposerDraft,
@@ -138,7 +138,7 @@ it('keeps the browser responsive while rendering 100,000 reasoning chunks', asyn
       'reasoning stress adapter',
     )
     await scaffold.ctx.agentDefaultModel.saveSelection({ provider: PROVIDER, model: MODEL })
-    browser = await chromium.launch({ headless: process.env.DSH_WEB_STRESS_HEADFUL !== '1' })
+    browser = await chromium.launch({ headless: process.env.MWF_WEB_STRESS_HEADFUL !== '1' })
     page = await newEnglishPage(browser)
     const activePage = page
     const tripwire = watchConsole(activePage)

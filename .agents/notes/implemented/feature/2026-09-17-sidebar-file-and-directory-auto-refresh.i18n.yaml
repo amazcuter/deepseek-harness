@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-17-sidebar-file-and-directory-auto-refresh.md
 /agent-note-on-demand-watching-and-automatic-refresh-for-sidebar-previews-and-file-trees:
-  en: 8dfe4436b064776d
-  zh: acb3f1e2fae231f4
+  en: c9afdb3437487694
+  zh: b285e2423b9447b3
 /agent-note-on-demand-watching-and-automatic-refresh-for-sidebar-previews-and-file-trees/problem:
   en: f7e7751fe98be91e
   zh: e1d6c4f042c7d75d
@@ -69,5 +69,5 @@
   en: 8faa05de777dea21
   zh: 2f0b1ff65bdba75b
 /agent-note-on-demand-watching-and-automatic-refresh-for-sidebar-previews-and-file-trees/relationship-to-existing-agent-notes:
-  en: b397ea36155793e9
-  zh: bfe74e82b0256cfa
+  en: b57846034a38cff1
+  zh: 681cfdcef5fe9809

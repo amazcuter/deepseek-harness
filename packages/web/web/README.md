@@ -3,13 +3,13 @@ description: "The web access service (ctx.web): how deployments and plugin autho
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-web
+# @metaworkflow/web
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Use `dsh-web` to search the web or fetch a URL without tying callers to a specific vendor. It selects a usable backend for each operation and gives callers consistent cancellation, errors, and result limits. Choose it for plugins or tools that call `ctx.web.search()` or `ctx.web.fetch()`; the shipped `dsh-tool-web` tools load it for you. A search or fetch requires a configured, usable provider because this package does not make network requests on its own.
+Use `mwf-web` to search the web or fetch a URL without tying callers to a specific vendor. It selects a usable backend for each operation and gives callers consistent cancellation, errors, and result limits. Choose it for plugins or tools that call `ctx.web.search()` or `ctx.web.fetch()`; the shipped `mwf-tool-web` tools load it for you. A search or fetch requires a configured, usable provider because this package does not make network requests on its own.
 
 ## Table of Contents
 
@@ -25,20 +25,20 @@ Use `dsh-web` to search the web or fetch a URL without tying callers to a specif
 <a id="use-this-package"></a>
 ## Use this package
 
-A composition that needs web access loads the `dsh-web` service and mounts at least one backend — a search provider and/or a fetch provider — and plugin or tool authors then call `ctx.web.search()` and `ctx.web.fetch()` directly. The service resolves the backend for each call, so callers never see provider ids unless they configured one.
+A composition that needs web access loads the `mwf-web` service and mounts at least one backend — a search provider and/or a fetch provider — and plugin or tool authors then call `ctx.web.search()` and `ctx.web.fetch()` directly. The service resolves the backend for each call, so callers never see provider ids unless they configured one.
 
 ### When to choose it
 
-Choose the service when a plugin or tool must search or fetch without hard-coding a vendor; a deployment that only uses the shipped `web_search`/`web_fetch` tools gets it for free through `dsh-tool-web`. You do not need it when the composition never reaches the web. The service adds no network access of its own: without at least one usable provider, every call fails with a structured `WebError`.
+Choose the service when a plugin or tool must search or fetch without hard-coding a vendor; a deployment that only uses the shipped `web_search`/`web_fetch` tools gets it for free through `mwf-tool-web`. You do not need it when the composition never reaches the web. The service adds no network access of its own: without at least one usable provider, every call fails with a structured `WebError`.
 
 ### Minimal configuration
 
-Load the service and let a single mounted backend auto-select, or pin a provider id with `searchProvider`/`fetchProvider`. The environment variables `$DSH_WEB_SEARCH_PROVIDER` and `$DSH_WEB_FETCH_PROVIDER` feed the same fields and are not a separate priority chain.
+Load the service and let a single mounted backend auto-select, or pin a provider id with `searchProvider`/`fetchProvider`. The environment variables `$MWF_WEB_SEARCH_PROVIDER` and `$MWF_WEB_FETCH_PROVIDER` feed the same fields and are not a separate priority chain.
 
 ```yaml
-- name: '@deepseek-ai/dsh-web'
-- name: '@deepseek-ai/dsh-web-search-exa'
-- name: '@deepseek-ai/dsh-web-fetch-http'
+- name: '@metaworkflow/web'
+- name: '@metaworkflow/web-search-exa'
+- name: '@metaworkflow/web-fetch-http'
 ```
 
 | Field | Default | Meaning |
@@ -46,7 +46,7 @@ Load the service and let a single mounted backend auto-select, or pin a provider
 | `searchProvider` | (unset) | Pinned search provider id; unset auto-selects when exactly one is usable |
 | `fetchProvider` | (unset) | Pinned fetch provider id; unset auto-selects when exactly one is usable |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-web) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowweb) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Searching and fetching
 
@@ -125,9 +125,9 @@ Read these pages when the package-level contract is not enough. They move from t
 
 - [Web subsystem](../../../docs/subsystems/web.md) — the exhaustive search/fetch requests and results, provider availability, and error codes.
 - [Web package map](../README.md) — the six-package family and each role.
-- [dsh-tool-web](../tool-web/README.md) — the model-facing `web_search` and `web_fetch` tools over this service.
-- [dsh-web-fetch-http](../web-fetch-http/README.md) — the shipped anonymous HTTP(S) fetch backend.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-web) — every accepted config field and its source declaration.
+- [mwf-tool-web](../tool-web/README.md) — the model-facing `web_search` and `web_fetch` tools over this service.
+- [mwf-web-fetch-http](../web-fetch-http/README.md) — the shipped anonymous HTTP(S) fetch backend.
+- [Generated configuration catalog](../../../docs/config-catalog.md#metaworkflowweb) — every accepted config field and its source declaration.
 - [Web capability seam decision](../../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.md) — why search and fetch share one provider-selection service.
 
 -----
@@ -135,7 +135,7 @@ Read these pages when the package-level contract is not enough. They move from t
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through `dsh-tool-web`, which renders the seam's normalized search results and fetch bodies to the model while this service contributes no prompt or schema.
+Indirectly, through `mwf-tool-web`, which renders the seam's normalized search results and fetch bodies to the model while this service contributes no prompt or schema.
 
 #### KV Cache effect
 

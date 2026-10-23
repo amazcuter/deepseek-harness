@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { createUserMessage, ToolCallId  } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import { SessionId, type SessionEvent } from '@deepseek-ai/dsh-session'
-import { defineContentToolFixture } from '@deepseek-ai/dsh-tools'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import * as RepeatToolGuard from '@deepseek-ai/dsh-repeat-tool-reminder'
-import type { Config } from '@deepseek-ai/dsh-repeat-tool-reminder'
+import { createUserMessage, ToolCallId  } from '@metaworkflow/llm'
+import type { ContextFormed } from '@metaworkflow/llm'
+import { SessionId, type SessionEvent } from '@metaworkflow/session'
+import { defineContentToolFixture } from '@metaworkflow/tools'
+import type { Agent } from '@metaworkflow/agent'
+import AgentLoop from '@metaworkflow/agent-loop'
+import { mountAgentLoopTestDependencies } from '@metaworkflow/agent-loop-testkit'
+import * as RepeatToolGuard from '@metaworkflow/repeat-tool-reminder'
+import type { Config } from '@metaworkflow/repeat-tool-reminder'
 import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

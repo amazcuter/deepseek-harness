@@ -19,7 +19,7 @@ export async function authenticateStream(socket: Socket, capability: string, tim
   if (signal?.aborted) { socket.destroy(); signal.throwIfAborted() }
   const stream = connect({
     ...SSH_STREAM_TLS_OPTIONS, socket, rejectUnauthorized: true,
-    pskCallback: () => ({ psk: Buffer.from(capability, 'hex'), identity: 'dsh-stream' }),
+    pskCallback: () => ({ psk: Buffer.from(capability, 'hex'), identity: 'mwf-stream' }),
     // PSK proves peer identity without an X.509 certificate or hostname.
     checkServerIdentity: () => undefined,
   })

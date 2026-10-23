@@ -10,7 +10,7 @@ A directly reached Web listener needs to encrypt launch tokens and session cooki
 
 ## Decision
 
-WebServer owns optional TLS through `tls: { certFile, keyFile }`, exposed by `dsh web` as paired `--tls-cert` and `--tls-key` flags. Certificate and unencrypted private-key PEM files are loaded before binding; unreadable, empty, invalid, or mismatched material fails activation without an HTTP fallback. HTTP remains the default. Both transports share routing, upgrades, and disposal; disposal also owns incomplete TLS handshakes.
+WebServer owns optional TLS through `tls: { certFile, keyFile }`, exposed by `mwf web` as paired `--tls-cert` and `--tls-key` flags. Certificate and unencrypted private-key PEM files are loaded before binding; unreadable, empty, invalid, or mismatched material fails activation without an HTTP fallback. HTTP remains the default. Both transports share routing, upgrades, and disposal; disposal also owns incomplete TLS handshakes.
 
 `webServer.protocol` is the source for the bind-address URL, the non-loopback plain-HTTP warning, and Connection's `Secure` cookie attribute. Neither forwarded headers nor `publicUrl` control encryption or that attribute. Explicit Host-port grants normalize under the listener's scheme, while Origin comparison uses the Origin's HTTP(S) scheme so HTTPS proxies can retain HTTP upstreams. TLS grants no additional Host authority and does not replace authentication.
 

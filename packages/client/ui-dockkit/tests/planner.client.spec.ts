@@ -52,7 +52,7 @@ describe('planner determinism', () => {
 
     planSetExpanded(state, true)
     planSplitPane(state, mint, undefined, seedTab)
-    planOpenContent(state, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    planOpenContent(state, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     planFloatTab(state, mint, firstTab(getPane(state, state.rootId)))
     expect(frozen(state)).toBe(before)
   })
@@ -96,9 +96,9 @@ describe('planPlaceTab', () => {
     const { state, minter } = seededState()
     const mint = minter.next
     const paneId = getPane(state, state.rootId).id
-    const b = planOpenContent(state, mint, { contentId: 'dsh-resource://file/session/s/b.txt', title: 'b', kind: 'file' })
+    const b = planOpenContent(state, mint, { contentId: 'mwf-resource://file/session/s/b.txt', title: 'b', kind: 'file' })
     const withB = applyAll(state, b.ops)
-    const c = planOpenContent(withB, mint, { contentId: 'dsh-resource://file/session/s/c.txt', title: 'c', kind: 'file' })
+    const c = planOpenContent(withB, mint, { contentId: 'mwf-resource://file/session/s/c.txt', title: 'c', kind: 'file' })
     const withC = applyAll(withB, c.ops)
     const a = getPane(withC, paneId).tabs[0]
     if (a === undefined) throw new Error('fixture: seeded tab missing')
@@ -164,7 +164,7 @@ describe('planDropTab on the tab\'s own pane', () => {
   it('splits without a backfill when the pane keeps another tab, factory or not', () => {
     const { state, minter } = seededState()
     const mint = minter.next
-    const opened = planOpenContent(state, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const opened = planOpenContent(state, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     const two = applyAll(state, opened.ops)
     const target = getPane(two, two.rootId).id
     expect(planDropTab(two, mint, opened.tabId, target, 'right')
@@ -182,7 +182,7 @@ describe('floating panes as planner arguments', () => {
   function withFloat(): { state: LayoutState; mint: Mint; floatId: PaneId; tabId: TabId } {
     const { state, minter } = seededState()
     const mint = minter.next
-    const opened = planOpenContent(state, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const opened = planOpenContent(state, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     const docked = applyAll(state, opened.ops)
     const floated = planFloatTab(docked, mint, opened.tabId)
     return { state: applyAll(docked, floated.ops), mint, floatId: floated.paneId, tabId: opened.tabId }
@@ -251,38 +251,38 @@ describe('planOpenContent placement and identity', () => {
   it('identifies content by (kind, contentId): the same address under another kind opens another tab', () => {
     const { state, minter } = seededState()
     const mint = minter.next
-    const first = planOpenContent(state, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const first = planOpenContent(state, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     const opened = applyAll(state, first.ops)
-    expect(findContentTab(opened, 'dsh-resource://file/session/s/a.txt')).toBe(first.tabId)
-    expect(findContentTab(opened, 'dsh-resource://file/session/s/a.txt', 'file')).toBe(first.tabId)
-    expect(findContentTab(opened, 'dsh-resource://file/session/s/a.txt', 'hex')).toBeUndefined()
+    expect(findContentTab(opened, 'mwf-resource://file/session/s/a.txt')).toBe(first.tabId)
+    expect(findContentTab(opened, 'mwf-resource://file/session/s/a.txt', 'file')).toBe(first.tabId)
+    expect(findContentTab(opened, 'mwf-resource://file/session/s/a.txt', 'hex')).toBeUndefined()
     // The pane-level lookup answers for one pane only.
     const [pane] = dockPaneIds(opened)
     if (pane === undefined) throw new Error('expected a docked pane')
-    expect(findPaneContentTab(opened, pane, 'dsh-resource://file/session/s/a.txt')).toBe(first.tabId)
-    expect(findPaneContentTab(opened, pane, 'dsh-resource://file/session/s/a.txt', 'hex')).toBeUndefined()
-    expect(findPaneContentTab(opened, pane, 'dsh-resource://file/session/s/nowhere.txt')).toBeUndefined()
-    const again = planOpenContent(opened, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    expect(findPaneContentTab(opened, pane, 'mwf-resource://file/session/s/a.txt')).toBe(first.tabId)
+    expect(findPaneContentTab(opened, pane, 'mwf-resource://file/session/s/a.txt', 'hex')).toBeUndefined()
+    expect(findPaneContentTab(opened, pane, 'mwf-resource://file/session/s/nowhere.txt')).toBeUndefined()
+    const again = planOpenContent(opened, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     expect(again.ops.map(op => op.type)).toEqual(['focusTab'])
-    const other = planOpenContent(opened, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'hex' })
+    const other = planOpenContent(opened, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'hex' })
     expect(other.ops.map(op => op.type)).toEqual(['openTab'])
   })
 
   it('opens another tab when told not to reveal the existing one', () => {
     const { state, minter } = seededState()
     const mint = minter.next
-    const opened = applyAll(state, planOpenContent(state, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' }).ops)
-    const copy = planOpenContent(opened, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file', revealIfOpened: false })
+    const opened = applyAll(state, planOpenContent(state, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' }).ops)
+    const copy = planOpenContent(opened, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file', revealIfOpened: false })
     expect(copy.ops.map(op => op.type)).toEqual(['openTab'])
     const both = applyAll(opened, copy.ops)
-    expect(Object.values(both.tabs).filter(tab => tab.contentId === 'dsh-resource://file/session/s/a.txt')).toHaveLength(2)
+    expect(Object.values(both.tabs).filter(tab => tab.contentId === 'mwf-resource://file/session/s/a.txt')).toHaveLength(2)
   })
 
   it('seats a new tab at an explicit strip slot', () => {
     const { state, minter } = seededState()
     const mint = minter.next
     const paneId = getPane(state, state.rootId).id
-    const planned = planOpenContent(state, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file', paneId, index: 0 })
+    const planned = planOpenContent(state, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file', paneId, index: 0 })
     expect(planned.ops[0]).toMatchObject({ type: 'openTab', paneId, index: 0 })
     expect(getPane(applyAll(state, planned.ops), paneId).tabs[0]).toBe(planned.tabId)
   })
@@ -314,7 +314,7 @@ describe('one undo behaviour across both embeddings', () => {
     }
     run(planSetExpanded(state, true))
     run(planSplitPane(state, mint, undefined, seedTab))
-    const opened = planOpenContent(state, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const opened = planOpenContent(state, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     run(opened.ops)
     const copy = planDuplicateTab(state, mint, opened.tabId)
     run(copy.ops)
@@ -329,7 +329,7 @@ describe('one undo behaviour across both embeddings', () => {
     const controller = new DockController({ makeInitialTab: seedTab, makePaneTab: seedTab })
     controller.setExpanded(true)
     controller.splitPane()
-    const opened = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const opened = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     const copy = controller.duplicateTab(opened)
     controller.focusTab(opened)
     controller.focusTab(copy)
@@ -391,7 +391,7 @@ describe('planned intents survive replay', () => {
     }
     push(planSetExpanded(current, true))
     push(planSplitPane(current, mint, undefined, seedTab))
-    const opened = planOpenContent(current, mint, { contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const opened = planOpenContent(current, mint, { contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     push(opened.ops)
     const second = getSplit(current, current.rootId).children[1]
     if (second === undefined) throw new Error('expected a second pane')
@@ -401,6 +401,6 @@ describe('planned intents survive replay', () => {
     push(planUnfloatPane(current, floated.paneId))
 
     expect(applyAll(state, ops)).toEqual(current)
-    expect(fileTab(asTab('t'), 'dsh-resource://file/session/s/a.txt', 'a.txt').kind).toBe('file')
+    expect(fileTab(asTab('t'), 'mwf-resource://file/session/s/a.txt', 'a.txt').kind).toBe('file')
   })
 })

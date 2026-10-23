@@ -13,7 +13,7 @@ import { fixture } from './workspace-update-adapters.mjs'
 import { DesktopUpdateHttpExecutor } from '../../lib/types/update-http-executor.js'
 import { desktopUpdateReadyConfirmation, resolveDesktopLocale } from '../../lib/types/locale.js'
 
-const root = process.env.DSH_WORKSPACE_UPDATE_ROOT
+const root = process.env.MWF_WORKSPACE_UPDATE_ROOT
 assert.ok(root)
 const interactive = process.argv.includes('--interactive')
 const application = join(root, 'app')
@@ -29,8 +29,8 @@ const hooks = registerHooks({ resolve(specifier, context, next) {
 } })
 const server = await createUpdateServer()
 server.select('healthy', '0.1.6-nightly.1')
-process.env.DSH_DESKTOP_APP_ID = 'com.deepseek.qualification'
-process.env.DSH_DESKTOP_MANDATORY_UPDATE_CONFIG = JSON.stringify({ origin: new URL(server.url).origin,
+process.env.MWF_DESKTOP_APP_ID = 'com.deepseek.qualification'
+process.env.MWF_DESKTOP_MANDATORY_UPDATE_CONFIG = JSON.stringify({ origin: new URL(server.url).origin,
   allowedPageOrigins: ['https://downloads.example.com'], intervalMs: 600_000, timeoutMs: 5000, maxBackoffMs: 600_000, jitter: 0 })
 const config = join(root, 'app-update.yml')
 await writeFile(config, 'updaterCacheDirName: private-workspace-cache\n')
@@ -97,8 +97,8 @@ async function documentReady(window, expression) {
   })`))
 }
 async function windowAt(url) {
-  if (process.platform === 'win32' && url === 'dsh-app://shell/mandatory-update.html') {
-    return mandatoryFrameDriver(await windowAt('dsh-app://app/'))
+  if (process.platform === 'win32' && url === 'mwf-app://shell/mandatory-update.html') {
+    return mandatoryFrameDriver(await windowAt('mwf-app://app/'))
   }
   const existing = BrowserWindow.getAllWindows().find(window => window.webContents.getURL() === url)
   if (existing) return existing
@@ -117,7 +117,7 @@ async function windowAt(url) {
 }
 async function control(action) {
   const { url } = JSON.parse(await readFile(join(root, 'host-control.json'), 'utf8'))
-  const response = await fetch(`${url}/${action}`, { method: 'POST', headers: { 'x-qualification-token': process.env.DSH_WORKSPACE_UPDATE_TOKEN } })
+  const response = await fetch(`${url}/${action}`, { method: 'POST', headers: { 'x-qualification-token': process.env.MWF_WORKSPACE_UPDATE_TOKEN } })
   assert.equal(response.status, 200, response.status === 200 ? undefined : await response.text())
   return response.json()
 }
@@ -165,7 +165,7 @@ async function dialogWith(message) {
   let found
   await waitFor(async () => {
     for (const window of BrowserWindow.getAllWindows()) {
-      if (window.webContents.getURL() !== 'dsh-app://shell/update-dialog.html') continue
+      if (window.webContents.getURL() !== 'mwf-app://shell/update-dialog.html') continue
       try {
         const ready = await window.webContents.executeJavaScript(`document.getElementById('title')?.textContent === ${JSON.stringify(message)} && !!document.querySelector('#actions button')`)
         if (ready) { found = window; return true }
@@ -182,8 +182,8 @@ async function qualify() {
     console.log('workspace qualification: compiled main module loaded')
     await fixture.ready.promise
     console.log('workspace qualification: Host process ready')
-    mainWindow = await windowAt('dsh-app://app/')
-    await documentReady(mainWindow, `document.querySelector('[class*="frame"]') && window.dshDesktop?.updates`)
+    mainWindow = await windowAt('mwf-app://app/')
+    await documentReady(mainWindow, `document.querySelector('[class*="frame"]') && window.mwfDesktop?.updates`)
     assert.equal(mainWindow.isVisible(), true, 'Workspace qualification requires a visible application window')
     console.log('workspace qualification: workspace document ready')
     const acknowledgeNotice = `[...document.querySelectorAll('button')].find(button => button.textContent.trim() === '继续')`
@@ -249,7 +249,7 @@ async function qualify() {
     await press(mainWindow, `document.querySelector('button[data-error="true"]')`)
     await server.arrived()
     await documentReady(mainWindow, `document.querySelector('button[aria-disabled="true"]')`)
-    assert.equal(BrowserWindow.getAllWindows().some(window => window.webContents.getURL() === 'dsh-app://shell/update-dialog.html'), false)
+    assert.equal(BrowserWindow.getAllWindows().some(window => window.webContents.getURL() === 'mwf-app://shell/update-dialog.html'), false)
     await screenshot(mainWindow, 'downloading.png')
     server.release()
     const confirmation = desktopUpdateReadyConfirmation(messages, '0.1.6-nightly.1', process.platform)
@@ -282,7 +282,7 @@ async function qualify() {
     server.policy('force')
     checkMenu.click()
     console.log('workspace qualification: mandatory check dispatched')
-    const mandatory = await windowAt('dsh-app://shell/mandatory-update.html')
+    const mandatory = await windowAt('mwf-app://shell/mandatory-update.html')
     console.log('workspace qualification: mandatory window loaded')
     await documentReady(mandatory, `document.getElementById('title')?.textContent === '需要更新'`)
     console.log('workspace qualification: mandatory title rendered')
@@ -308,7 +308,7 @@ async function qualify() {
     await screenshot(mandatory, 'mandatory-block.png')
     server.policy('failure')
     checkMenu.click()
-    await waitFor(async () => (await mandatory.webContents.executeJavaScript('window.dshMandatoryUpdate.status()')).policy.error === 'unavailable', 'retained policy failure')
+    await waitFor(async () => (await mandatory.webContents.executeJavaScript('window.mwfMandatoryUpdate.status()')).policy.error === 'unavailable', 'retained policy failure')
     assert.equal(await mandatory.webContents.executeJavaScript("document.getElementById('error').hidden"), true)
     assert.equal((await control('status')).queued, 1)
     await screenshot(mandatory, 'mandatory-retained-error.png')
@@ -349,11 +349,11 @@ async function qualify() {
 
     server.policy('force')
     checkMenu.click()
-    let forcedRecovery = await windowAt('dsh-app://shell/mandatory-update.html')
+    let forcedRecovery = await windowAt('mwf-app://shell/mandatory-update.html')
     await waitFor(() => mainWindow.isEnabled(), 'ordinary modal releases the main window for recovery')
     await press(forcedRecovery, `document.getElementById('update')`)
     await documentReady(forcedRecovery, `document.getElementById('update')?.textContent === ${JSON.stringify(messages.installAndRestart)}`)
-    assert.equal(BrowserWindow.getAllWindows().some(window => window.webContents.getURL() === 'dsh-app://shell/update-dialog.html'), false)
+    assert.equal(BrowserWindow.getAllWindows().some(window => window.webContents.getURL() === 'mwf-app://shell/update-dialog.html'), false)
     const forcedHost = fixture.host
     await control('hold-shutdown')
     await press(forcedRecovery, `document.getElementById('update')`)

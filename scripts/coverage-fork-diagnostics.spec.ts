@@ -25,7 +25,7 @@ afterEach(async () => {
 })
 
 async function fixture(exitCode: number, early = false): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-coverage-fork-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-coverage-fork-'))
   roots.push(root)
   await mkdir(join(root, 'workers'))
   // The public pool's distPath selects a plain Node protocol fixture, not a nested Vitest run.
@@ -129,14 +129,14 @@ const cancel: WorkerRequest = { __vitest_worker_request__: true, type: 'cancel' 
 const stop: WorkerRequest = { __vitest_worker_request__: true, type: 'stop' }
 
 async function configuredPool(pool: 'stock' | 'diagnostic', outcome: 'exit' | 'pass', signal: AbortSignal) {
-  const cacheDir = await mkdtemp(join(tmpdir(), 'dsh-configured-fork-cache-'))
+  const cacheDir = await mkdtemp(join(tmpdir(), 'mwf-configured-fork-cache-'))
   roots.push(cacheDir)
   const controller = new AbortController()
   const result = runGate({
     id: `fork-${pool}`, label: 'fork fixture', displayCommand: 'Vitest pool fixture',
     command: process.execPath,
     args: [resolve('node_modules/vitest/vitest.mjs'), 'run', '--config', 'scripts/fixtures/coverage-fork.config.ts'],
-    env: { DSH_TEST_FORK_POOL: pool, DSH_TEST_FORK_OUTCOME: outcome, DSH_TEST_FORK_CACHE: cacheDir },
+    env: { MWF_TEST_FORK_POOL: pool, MWF_TEST_FORK_OUTCOME: outcome, MWF_TEST_FORK_CACHE: cacheDir },
   }, AbortSignal.any([signal, controller.signal]))
   let settled = false
   cleanups.push(async () => {

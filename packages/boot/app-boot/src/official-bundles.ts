@@ -1,6 +1,6 @@
-/** Official bundles offered without installing their provider runtimes in the DSH distribution. */
+/** Official bundles offered without installing their provider runtimes in the MWF distribution. */
 
-import type { PluginLocalizedMeta } from '@deepseek-ai/dsh-package-manifest'
+import type { PluginLocalizedMeta } from '@metaworkflow/package-manifest'
 
 export { ON_DEMAND_BUNDLES } from './official-bundle-packages.ts'
 

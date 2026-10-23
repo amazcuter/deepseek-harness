@@ -1,6 +1,6 @@
 /**
  * End-to-end runner tests: spawn the REAL runner entry through tsx (exactly
- * the argv shape dsh-sandbox-local's confine() builds), with piped stdio
+ * the argv shape mwf-sandbox-local's confine() builds), with piped stdio
  * inherited through the runner into the confined child — the same chain a
  * production confined execution walks.
  */
@@ -12,7 +12,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { resolvePwshPath } from '@deepseek-ai/dsh-pwsh-local'
+import { resolvePwshPath } from '@metaworkflow/pwsh-local'
 import { AclWriteGrant, tempWriteSid, workspaceWriteSid } from '../src/index.ts'
 
 const isWin32 = process.platform === 'win32'
@@ -48,10 +48,10 @@ describe.skipIf(!isWin32 || !pwshAvailable())('windows-acl runner', () => {
   let publicProbeDir: string | undefined
 
   beforeAll(() => {
-    scratchRoot = mkdtempSync(join(tmpdir(), 'dsh-acl-runner-'))
+    scratchRoot = mkdtempSync(join(tmpdir(), 'mwf-acl-runner-'))
     writableDir = join(scratchRoot, 'writable')
     mkdirSync(writableDir)
-    isolatedTemp = mkdtempSync(join(tmpdir(), 'dsh-acl-runner-temp-'))
+    isolatedTemp = mkdtempSync(join(tmpdir(), 'mwf-acl-runner-temp-'))
     secretFile = join(scratchRoot, 'secret.txt')
     writeFileSync(secretFile, 'top secret - must stay readable to prove the read boundary')
     escapeFile = join(scratchRoot, 'escaped.txt')
@@ -62,7 +62,7 @@ describe.skipIf(!isWin32 || !pwshAvailable())('windows-acl runner', () => {
       throw new Error(`icacls Everyone grant failed: ${worldGrant.stdout}\n${worldGrant.stderr}`)
     }
     try {
-      publicProbeDir = mkdtempSync(join(process.env.PUBLIC ?? 'C:\\Users\\Public', 'dsh-acl-public-'))
+      publicProbeDir = mkdtempSync(join(process.env.PUBLIC ?? 'C:\\Users\\Public', 'mwf-acl-public-'))
     } catch {
       publicProbeDir = undefined
     }
@@ -530,7 +530,7 @@ describe.skipIf(!isWin32 || !pwshAvailable())('windows-acl runner', () => {
   it('a FullControl open inside a granted root still works for files (the deny inherits to containers only)', () => {
     // The ambient-delete deny is 0x40, a member of FILE_ALL_ACCESS: inheriting
     // it onto files would deny every GENERIC_ALL/FullControl open by the user,
-    // Administrators, SYSTEM, or the DSH host. Directories inside a granted
+    // Administrators, SYSTEM, or the MWF host. Directories inside a granted
     // root keep the deny (that is where FILE_DELETE_CHILD is evaluated), so a
     // FullControl open of a DIRECTORY is the documented cost of the deny.
     const granted = join(scratchRoot, 'fullcontrol-root')

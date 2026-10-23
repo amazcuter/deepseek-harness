@@ -61,7 +61,7 @@ function fixtureSignature(
 
 describe('translation pairing index reads', () => {
   it('reads staged bytes independently of the working tree', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-pairing-index-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-translation-pairing-index-'))
     try {
       execFileSync('git', ['init', '--quiet', root], {
         env: { ...process.env, GIT_DEFAULT_HASH: 'sha1' },
@@ -80,7 +80,7 @@ describe('translation pairing index reads', () => {
   })
 
   it('lists exact index files without treating a directory prefix as one entry', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-pairing-index-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-translation-pairing-index-'))
     try {
       execFileSync('git', ['init', '--quiet', root], {
         env: { ...process.env, GIT_DEFAULT_HASH: 'sha1' },
@@ -167,7 +167,7 @@ describe('translation pairing switchers', () => {
   })
 
   it('excludes only the header switcher from the structural links', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-switcher-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-translation-switcher-'))
     try {
       writeFileSync(join(root, 'guide.md'), '# Guide\n')
       writeFileSync(join(root, 'guide.zh.md'), '# 指南\n')
@@ -179,7 +179,7 @@ describe('translation pairing switchers', () => {
           repoRoot: root, sourcePath: 'guide.zh.md',
           isTranslationPairSource: fixturePairSource, markdown,
         },
-      ).links).toEqual(['dsh-translation-target:guide.md'])
+      ).links).toEqual(['mwf-translation-target:guide.md'])
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -301,7 +301,7 @@ describe('translation pairing records', () => {
   })
 
   it.each([
-    ['a space that unlinks a heading', '# [Guide](a%20b.md)\n\nBody.\n', '# [指南](a%20b.zh.md)\n\n正文。\n', ['/guide-dsh-translation-target-docs-a-b-md']],
+    ['a space that unlinks a heading', '# [Guide](a%20b.md)\n\nBody.\n', '# [指南](a%20b.zh.md)\n\n正文。\n', ['/guide-mwf-translation-target-docs-a-b-md']],
     ['a pipe that turns a paragraph into a table', '# Guide\n\nSee [a](a%7Cb.md)\n| --- | --- |\n', '# 指南\n\n参见 [a](a%7Cb.zh.md)\n| --- | --- |\n', ['/guide']],
     ['a title', '# Guide\n\nSee [bar](bar.md "Bar").\n', '# 指南\n\n参见[bar](bar.zh.md "Bar")。\n', ['/guide']],
     ['a destination on the next line', '# Guide\n\nSee [bar](\nbar.md).\n', '# 指南\n\n参见[bar](\nbar.zh.md)。\n', ['/guide']],
@@ -351,7 +351,7 @@ describe('translation pairing records', () => {
       paths,
       record(en.replace(heading, english), zh.replace(heading === 'Intro.' ? '简介。' : '事件表。', chinese)),
     )
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-pairing-merge-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-translation-pairing-merge-'))
     try {
       writeFileSync(join(root, 'base'), renderTranslationPairingRecord(paths, record(en, zh)))
       writeFileSync(join(root, 'current'), edit('Intro.', 'New intro.', '新简介。'))
@@ -428,7 +428,7 @@ describe('translation structural signature', () => {
   })
 
   it('treats target-locale siblings as one semantic link target', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-structure-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-translation-structure-'))
     try {
       writeFileSync(join(root, 'reference.md'), '# Reference\n')
       writeFileSync(join(root, 'reference.zh.md'), '# 参考\n')
@@ -443,7 +443,7 @@ describe('translation structural signature', () => {
   })
 
   it('includes reference-style document links but excludes image-only definitions', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-structure-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-translation-structure-'))
     try {
       writeFileSync(join(root, 'reference.md'), '# Reference\n')
       writeFileSync(join(root, 'reference.zh.md'), '# 参考\n')
@@ -463,14 +463,14 @@ describe('translation structural signature', () => {
           repoRoot: root, sourcePath: 'guide.md',
           isTranslationPairSource: fixturePairSource, markdown,
         },
-      ).links).toEqual(['dsh-translation-target:reference.md'])
+      ).links).toEqual(['mwf-translation-target:reference.md'])
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
   })
 
   it('compares the first duplicate reference definition that CommonMark resolves', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-structure-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-translation-structure-'))
     try {
       for (const name of ['reference', 'different', 'other']) {
         writeFileSync(join(root, `${name}.md`), `# ${name}\n`)
@@ -481,7 +481,7 @@ describe('translation structural signature', () => {
       const source = fixtureSignature(root, 'guide.md', sourceMarkdown, 'guide.zh.md')
       const counterpart = fixtureSignature(root, 'guide.zh.md', counterpartMarkdown, 'guide.md')
       expect(translationStructureDiff(source, counterpart)).toEqual([
-        'link target #1 diverges between the pair: "dsh-translation-target:reference.md" vs "dsh-translation-target:different.md"',
+        'link target #1 diverges between the pair: "mwf-translation-target:reference.md" vs "mwf-translation-target:different.md"',
       ])
     } finally {
       rmSync(root, { recursive: true, force: true })

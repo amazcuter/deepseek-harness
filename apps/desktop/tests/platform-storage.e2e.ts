@@ -21,7 +21,7 @@ const hasDisplay = process.platform !== 'linux' || Boolean(process.env.DISPLAY |
 
 // Linux Electron needs a display server; the test runs under xvfb in headless environments.
 it.skipIf(!hasDisplay)('retains dismissed notices across view and process restarts without sharing accounts', { retry: 0 }, async () => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-platform-storage-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-platform-storage-'))
   const server = createServer((_request, response) => {
     response.setHeader('content-type', 'text/html')
     response.end(`<!doctype html><html><body><script>
@@ -54,7 +54,7 @@ it.skipIf(!hasDisplay)('retains dismissed notices across view and process restar
       const result = await execa(electron, [fixture, builtView, userData, origin, phase], {
         // The unbundled tsc artifact reads the client version from the environment; the packaged
         // build inlines the same value at bundle time.
-        env: { ELECTRON_RUN_AS_NODE: undefined, DSH_CLIENT_VERSION: '1.2.3' },
+        env: { ELECTRON_RUN_AS_NODE: undefined, MWF_CLIENT_VERSION: '1.2.3' },
         timeout: 45_000, forceKillAfterDelay: 5_000, reject: false,
       })
       expect(result.timedOut, result.stderr).toBe(false)

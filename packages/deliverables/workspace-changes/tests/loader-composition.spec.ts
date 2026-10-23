@@ -11,10 +11,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import * as WorkspaceChangesPlugin from '@deepseek-ai/dsh-workspace-changes'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import LocalSubprocessRuntime from '@metaworkflow/subprocess-local'
+import LocalFileSystem from '@metaworkflow/fs-local'
+import * as WorkspaceChangesPlugin from '@metaworkflow/workspace-changes'
 import { changes, endTurn, git, startTurn, toolCall } from './support.ts'
 
 let root: string | undefined
@@ -29,13 +29,13 @@ afterEach(async () => {
 
 describe('real Loader composition', () => {
   it('loads the shipped rows and records a turn’s changes', async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-workspace-changes-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-workspace-changes-loader-'))
     const cwd = join(root, 'ws')
     await writeFile(join(root, 'cordis.yml'), [
-      "- name: '@deepseek-ai/dsh-session'",
-      "- name: '@deepseek-ai/dsh-subprocess-local'",
-      "- name: '@deepseek-ai/dsh-fs-local'",
-      "- name: '@deepseek-ai/dsh-workspace-changes'",
+      "- name: '@metaworkflow/session'",
+      "- name: '@metaworkflow/subprocess-local'",
+      "- name: '@metaworkflow/fs-local'",
+      "- name: '@metaworkflow/workspace-changes'",
       '',
     ].join('\n'))
     context = new Context()
@@ -43,10 +43,10 @@ describe('real Loader composition', () => {
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@deepseek-ai/dsh-session', SessionStore],
-      ['@deepseek-ai/dsh-subprocess-local', LocalSubprocessRuntime],
-      ['@deepseek-ai/dsh-fs-local', LocalFileSystem],
-      ['@deepseek-ai/dsh-workspace-changes', WorkspaceChangesPlugin],
+      ['@metaworkflow/session', SessionStore],
+      ['@metaworkflow/subprocess-local', LocalSubprocessRuntime],
+      ['@metaworkflow/fs-local', LocalFileSystem],
+      ['@metaworkflow/workspace-changes', WorkspaceChangesPlugin],
     ])
     context.loader.internal = {
       version: 'v2',

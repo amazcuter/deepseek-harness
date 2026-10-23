@@ -30,7 +30,7 @@ describe.skipIf(MODE === 'record').each([false, true])('web e2e: native credenti
     page = await browser.newPage({ viewport: { width: 1440, height: 960 }, locale: ZH_BROWSER_LOCALE })
     // The shared menu golden uses the Linux shortcut profile on every test host.
     await page.addInitScript(() => { Object.defineProperty(navigator, 'platform', { value: 'Linux x86_64' }) })
-    if (desktop) await page.addInitScript(() => { Object.defineProperty(globalThis, 'dshDesktop', { value: { protocolVersion: 1 } }) })
+    if (desktop) await page.addInitScript(() => { Object.defineProperty(globalThis, 'mwfDesktop', { value: { protocolVersion: 1 } }) })
     tripwire = watchConsole(page)
   })
 

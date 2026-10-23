@@ -6,8 +6,8 @@
 # instance consulted in that order, so the guards that yield when idle come
 # before Token Weather, which draws whenever it has a reading.
 #
-#   pnpm dsh web --patch ./packages/experimental/claude-code-mods/cordis.source.patch.yml
-#   pnpm dsh --profile headless --patch ./packages/experimental/claude-code-mods/cordis.source.patch.yml "task"
+#   pnpm mwf web --patch ./packages/experimental/claude-code-mods/cordis.source.patch.yml
+#   pnpm mwf --profile headless --patch ./packages/experimental/claude-code-mods/cordis.source.patch.yml "task"
 - insert:
     - id: claude-code-mods
       name: './src/index.ts'

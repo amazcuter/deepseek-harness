@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-09-06-packed-install-private-npm-cache.md
 /agent-note-packed-install-verification-owns-its-npm-cache:
-  en: 54d54ee850476cb9
-  zh: 8d666e40eb2372f0
+  en: a8854d887fb86038
+  zh: e7cce5d3d0e36c04
 /agent-note-packed-install-verification-owns-its-npm-cache/problem:
   en: 5cd500387242a7cc
   zh: 75de2c0049631634
 /agent-note-packed-install-verification-owns-its-npm-cache/decision:
-  en: 8a9ead906e1148d6
-  zh: 6a5b911fc5849be2
+  en: b348691810226a8a
+  zh: 15e220e8311bc323
 /agent-note-packed-install-verification-owns-its-npm-cache/alternatives-considered:
   en: b2637475da22cec0
   zh: 5c0e3979caf44461

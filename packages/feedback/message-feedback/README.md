@@ -3,7 +3,7 @@ description: "Canonical Session-log ratings, categories, and notes for finalized
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-message-feedback
+# @metaworkflow/message-feedback
 
 English | [中文](README.zh.md)
 
@@ -22,7 +22,7 @@ This service records positive or negative ratings, an optional category from the
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount `dsh-message-feedback` alongside `sessions` and `sessionPersistence`. It needs no storage-domain service. The Web bundle supplies the browser consumer and a note limit of 8192 bytes.
+Mount `mwf-message-feedback` alongside `sessions` and `sessionPersistence`. It needs no storage-domain service. The Web bundle supplies the browser consumer and a note limit of 8192 bytes.
 
 ### Configuration
 

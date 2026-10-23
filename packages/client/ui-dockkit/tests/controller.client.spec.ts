@@ -83,7 +83,7 @@ describe('splitting', () => {
   it('names the pane a new tab lands in: the active pane, or the first docked one while a panel floats', () => {
     const { controller, paneId } = expanded()
     expect(controller.activeDockPaneId()).toBe(paneId)
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     const floatId = controller.floatTab(tabId)
     expect(controller.getSnapshot().state.activePaneId).toBe(floatId)
     expect(controller.activeDockPaneId()).toBe(paneId)
@@ -105,29 +105,29 @@ describe('splitting', () => {
 describe('tab identity', () => {
   it('focuses the existing tab when the same content is opened twice', () => {
     const { controller, paneId } = expanded()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const first = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     controller.splitPane()
-    const again = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const again = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     expect(again).toBe(first)
     const state = controller.getSnapshot().state
     expect(getPane(state, paneId).activeTabId).toBe(first)
     expect(state.activePaneId).toBe(paneId)
-    expect(Object.values(state.tabs).filter(tab => tab.contentId === 'dsh-resource://file/session/s/a.txt')).toHaveLength(1)
+    expect(Object.values(state.tabs).filter(tab => tab.contentId === 'mwf-resource://file/session/s/a.txt')).toHaveLength(1)
   })
 
   it('opens an explicit second copy beside the original', () => {
     const { controller, paneId } = expanded()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const first = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     const copy = controller.duplicateTab(first)
     expect(copy).not.toBe(first)
     const state = controller.getSnapshot().state
-    expect(state.tabs[copy]?.contentId).toBe('dsh-resource://file/session/s/a.txt')
+    expect(state.tabs[copy]?.contentId).toBe('mwf-resource://file/session/s/a.txt')
     expect(getPane(state, paneId).tabs.indexOf(copy)).toBe(getPane(state, paneId).tabs.indexOf(first) + 1)
   })
 
   it('closes a tab and leaves the pane in place', () => {
     const { controller, paneId } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     controller.closeTab(tabId)
     const state = controller.getSnapshot().state
     expect(state.tabs[tabId]).toBeUndefined()
@@ -138,7 +138,7 @@ describe('tab identity', () => {
 describe('drops', () => {
   it('moves a tab into the pane under the pointer', () => {
     const { controller, paneId } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     controller.splitPane()
     const target = getSplit(controller.getSnapshot().state, controller.getSnapshot().state.rootId).children[1]
     if (target === undefined) throw new Error('expected a second pane')
@@ -151,7 +151,7 @@ describe('drops', () => {
 
   it('rejects a centre drop on the tab own pane', () => {
     const { controller, paneId } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     const before = controller.ops.length
     expect(controller.dropTab(tabId, paneId, 'center')).toBe(false)
     expect(controller.ops).toHaveLength(before)
@@ -159,7 +159,7 @@ describe('drops', () => {
 
   it('splits on an edge drop and lands the tab in the new pane', () => {
     const { controller, paneId } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     expect(controller.dropTab(tabId, paneId, 'bottom')).toBe(true)
     const state = controller.getSnapshot().state
     const root = getSplit(state, state.rootId)
@@ -172,7 +172,7 @@ describe('drops', () => {
 
   it('refuses an edge drop once the grid is full', () => {
     const { controller, paneId } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     controller.splitPane()
     controller.splitPane()
     controller.splitPane()
@@ -183,7 +183,7 @@ describe('drops', () => {
 
   it('reorders inside one pane', () => {
     const { controller, paneId } = expanded()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const first = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     controller.reorderTab(first, 0)
     expect(getPane(controller.getSnapshot().state, paneId).tabs[0]).toBe(first)
   })
@@ -192,7 +192,7 @@ describe('drops', () => {
 describe('explicit tab placement', () => {
   it('reorders when the slot is in the tab own pane', () => {
     const { controller, paneId } = expanded()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const first = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     expect(controller.placeTab(first, paneId, 0)).toBe(true)
     expect(getPane(controller.getSnapshot().state, paneId).tabs[0]).toBe(first)
     expect(controller.ops.at(-1)?.type).toBe('reorderTab')
@@ -200,7 +200,7 @@ describe('explicit tab placement', () => {
 
   it('reports no change when the slot is where the tab already sits', () => {
     const { controller, paneId } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     const index = getPane(controller.getSnapshot().state, paneId).tabs.indexOf(tabId)
     const before = controller.ops.length
     expect(controller.placeTab(tabId, paneId, index)).toBe(false)
@@ -209,7 +209,7 @@ describe('explicit tab placement', () => {
 
   it('moves across panes into the requested slot', () => {
     const { controller, paneId } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     controller.splitPane()
     const target = getSplit(controller.getSnapshot().state, controller.getSnapshot().state.rootId).children[1]
     if (target === undefined) throw new Error('expected a second pane')
@@ -221,7 +221,7 @@ describe('explicit tab placement', () => {
 
   it('returns a floating tab when placed into a docked strip', () => {
     const { controller, paneId } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     const floatId = controller.floatTab(tabId)
     expect(controller.placeTab(tabId, paneId, 0)).toBe(true)
     const state = controller.getSnapshot().state
@@ -232,8 +232,8 @@ describe('explicit tab placement', () => {
 
   it('refuses a floating pane as the destination', () => {
     const { controller } = expanded()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
-    const second = controller.openContent({ contentId: 'dsh-resource://file/session/s/b.txt', title: 'b.txt', kind: 'text-preview' })
+    const first = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const second = controller.openContent({ contentId: 'mwf-resource://file/session/s/b.txt', title: 'b.txt', kind: 'text-preview' })
     const floatId = controller.floatTab(first)
     const before = controller.ops.length
     expect(controller.placeTab(second, floatId, 0)).toBe(false)
@@ -244,8 +244,8 @@ describe('explicit tab placement', () => {
 describe('floating', () => {
   it('takes a tab out and cascades each new panel', () => {
     const { controller, paneId } = expanded()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
-    const second = controller.openContent({ contentId: 'dsh-resource://file/session/s/b.txt', title: 'b.txt', kind: 'text-preview' })
+    const first = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const second = controller.openContent({ contentId: 'mwf-resource://file/session/s/b.txt', title: 'b.txt', kind: 'text-preview' })
     const firstFloat = controller.floatTab(first)
     const secondFloat = controller.floatTab(second)
     const state = controller.getSnapshot().state
@@ -259,7 +259,7 @@ describe('floating', () => {
 
   it('is unaffected by collapsing the column', () => {
     const { controller } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     const floatId = controller.floatTab(tabId)
     controller.setExpanded(false)
     const state = controller.getSnapshot().state
@@ -270,7 +270,7 @@ describe('floating', () => {
 
   it('sends a floating panel back into the grid', () => {
     const { controller, paneId } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     const floatId = controller.floatTab(tabId)
     controller.unfloatPane(floatId)
     const state = controller.getSnapshot().state
@@ -280,7 +280,7 @@ describe('floating', () => {
 
   it('treats a centre drop from a floating panel as a return', () => {
     const { controller, paneId } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     const floatId = controller.floatTab(tabId)
     expect(controller.dropTab(tabId, paneId, 'center')).toBe(true)
     const state = controller.getSnapshot().state
@@ -291,7 +291,7 @@ describe('floating', () => {
 
   it('records net drag and resize results', () => {
     const { controller } = expanded()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const tabId = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
     const floatId = controller.floatTab(tabId)
     controller.moveFloat(floatId, 300, 210)
     controller.resizeFloat(floatId, { x: 300, y: 210, width: 500, height: 400 })
@@ -302,8 +302,8 @@ describe('floating', () => {
 
   it('raises a panel to the top when focused', () => {
     const { controller } = expanded()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
-    const second = controller.openContent({ contentId: 'dsh-resource://file/session/s/b.txt', title: 'b.txt', kind: 'text-preview' })
+    const first = controller.openContent({ contentId: 'mwf-resource://file/session/s/a.txt', title: 'a.txt', kind: 'text-preview' })
+    const second = controller.openContent({ contentId: 'mwf-resource://file/session/s/b.txt', title: 'b.txt', kind: 'text-preview' })
     const firstFloat = controller.floatTab(first)
     const secondFloat = controller.floatTab(second)
     controller.focusPane(firstFloat)

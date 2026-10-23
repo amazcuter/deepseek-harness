@@ -19,7 +19,7 @@ final class AxlessFixture: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window = NSWindow(contentRect: NSRect(x: 120, y: 120, width: 360, height: 180),
                           styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.delegate = self
-        window.title = "DSH AXless window fixture"
+        window.title = "MWF AXless window fixture"
         window.isReleasedWhenClosed = false
         window.animationBehavior = .none
         window.collectionBehavior = [.canJoinAllApplications, .stationary]
@@ -92,7 +92,7 @@ final class AxlessFixture: NSObject, NSApplicationDelegate, NSWindowDelegate {
 }
 let app = NSApplication.shared
 app.setActivationPolicy(.regular)
-let statePath = CommandLine.arguments.dropFirst().first ?? Bundle.main.object(forInfoDictionaryKey: "DSHFixtureStatePath") as? String
+let statePath = CommandLine.arguments.dropFirst().first ?? Bundle.main.object(forInfoDictionaryKey: "MWFFixtureStatePath") as? String
 guard let statePath else { fatalError("Fixture requires a state path") }
 let fixture = AxlessFixture(statePath: statePath)
 app.delegate = fixture

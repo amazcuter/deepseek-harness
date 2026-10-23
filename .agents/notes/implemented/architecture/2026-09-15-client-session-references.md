@@ -145,7 +145,7 @@ Scoped business objects capture their binding before awaiting work. They do not 
 
 The existing `uiWorkspace` implementation directly owns the main-area reference and target. Its navigation methods update that owner rather than calling a receiver registered by Conversation. `ui-session` derives the root Provider binding from the source marker; the main Conversation and associated right Sidebar only inherit the Provider and neither depend on `uiWorkspace` nor see the main reference. An independent Sidebar Conversation establishes a nested Provider from its own reference and overrides only that subtree's binding. The main reference is not a global standard prop, subtree Hook, or default value for ID-based lookup.
 
-The main view privately persists its target identity and subagent address under `dsh.sessions.current`, never a reference. Startup restoration, initial Workspace selection, and clearing an archived main target remain UI responsibilities. Archiving or removing catalog metadata does not revoke independent references held by other consumers.
+The main view privately persists its target identity and subagent address under `mwf.sessions.current`, never a reference. Startup restoration, initial Workspace selection, and clearing an archived main target remain UI responsibilities. Archiving or removing catalog metadata does not revoke independent references held by other consumers.
 
 | UI behavior | Final rule |
 | --- | --- |

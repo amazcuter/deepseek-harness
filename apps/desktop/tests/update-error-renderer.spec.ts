@@ -32,7 +32,7 @@ it.each(['en', 'zh-CN'])('keeps ordinary diagnostics folded, text-only, and keyb
   const respond = vi.fn(async () => {})
   let publish!: (view: UpdateDialogView | null) => void
   const api: UpdateDialogApi = { status: async () => state, respond, subscribe: (listener) => { publish = listener; return () => {} } }
-  Object.defineProperty(p.dom.window, 'dshUpdateDialog', { value: api })
+  Object.defineProperty(p.dom.window, 'mwfUpdateDialog', { value: api })
   p.run()
   await expect.poll(() => p.element('dialog').hidden).toBe(false)
   const disclosure = p.element('technical-details') as HTMLDetailsElement
@@ -86,7 +86,7 @@ it('keeps mandatory diagnostics expandable without clearing the block or authori
   const unsubscribe = vi.fn()
   const api: MandatoryUpdateApi = { status: async () => initial, action,
     subscribe: (listener) => { publish = listener; return unsubscribe } }
-  Object.defineProperty(p.dom.window, 'dshMandatoryUpdate', { value: api })
+  Object.defineProperty(p.dom.window, 'mwfMandatoryUpdate', { value: api })
   p.run()
   await expect.poll(() => p.element('error').textContent).toBe(locale.messages.updateStopFailed)
   const disclosure = p.element('technical-details') as HTMLDetailsElement
@@ -133,7 +133,7 @@ function mandatoryPage(update: MandatoryUpdateView['update']) {
     policy: { blocking: true, checking: false, title: '需要更新', page: 'https://downloads.example.com/desktop' }, update }
   const action = vi.fn(async () => {})
   let publish!: (view: MandatoryUpdateView) => void
-  Object.defineProperty(p.dom.window, 'dshMandatoryUpdate', { value: {
+  Object.defineProperty(p.dom.window, 'mwfMandatoryUpdate', { value: {
     status: async () => initial, action, subscribe: (listener: typeof publish) => { publish = listener; return () => {} },
   } satisfies MandatoryUpdateApi })
   p.run()
@@ -224,7 +224,7 @@ it.each(['en', 'zh-CN'])('records mandatory update guidance and actions across i
   let publish!: (view: MandatoryUpdateView) => void
   const api: MandatoryUpdateApi = { status: async () => base, action: async () => {},
     subscribe: (listener) => { publish = listener; return () => {} } }
-  Object.defineProperty(p.dom.window, 'dshMandatoryUpdate', { value: api })
+  Object.defineProperty(p.dom.window, 'mwfMandatoryUpdate', { value: api })
   p.run()
   await expect.poll(() => p.element('title').textContent).toBe(locale.messages.mandatoryTitle)
   const states: MandatoryUpdateView[] = [base,

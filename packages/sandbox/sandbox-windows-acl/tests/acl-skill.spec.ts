@@ -3,7 +3,7 @@
 import { Context } from '@deepseek-ai/cordis'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import SkillRegistry from '@deepseek-ai/dsh-skill'
+import SkillRegistry from '@metaworkflow/skill'
 import { describe, expect, it } from 'vitest'
 import { ACL_DIAGNOSIS_SKILL, registerAclDiagnosisSkill } from '../src/acl-skill.ts'
 
@@ -25,7 +25,7 @@ describe('bundled Windows ACL diagnosis skill', () => {
       expect(entry.description.length).toBeLessThanOrEqual(500)
       expect(entry).toMatchObject({
         source: 'bundled',
-        provider: 'dsh-windows-acl',
+        provider: 'mwf-windows-acl',
         invocation: { modelInvocable: true, userInvocable: true },
       })
 

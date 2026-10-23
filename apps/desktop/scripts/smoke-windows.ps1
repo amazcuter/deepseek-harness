@@ -8,7 +8,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $desktopRoot = Split-Path $PSScriptRoot -Parent
 $fixtureRoot = Join-Path $desktopRoot 'tests/fixtures'
-$scratch = [System.IO.Directory]::CreateTempSubdirectory('dsh-desktop-native-').FullName
+$scratch = [System.IO.Directory]::CreateTempSubdirectory('mwf-desktop-native-').FullName
 
 function Invoke-Checked([string]$Executable, [string[]]$Arguments) {
   & $Executable @Arguments | Out-Host

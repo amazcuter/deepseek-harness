@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-24-session-inspector.md
 /agent-note-session-inspector-data-ownership-and-navigation:
-  en: bf781f92c7d025d3
-  zh: bff723de610cadfb
+  en: 255b0ce47429bfb7
+  zh: 674b1327067fa41a
 /agent-note-session-inspector-data-ownership-and-navigation/problem:
   en: 701a51da8516dda5
   zh: 5c816c6d0123e332
 /agent-note-session-inspector-data-ownership-and-navigation/decision:
-  en: 3cce35b9d81d0639
-  zh: cffb09878c9a50b4
+  en: 0c6a996848b2bdad
+  zh: 56d81d2887b24706
 /agent-note-session-inspector-data-ownership-and-navigation/runtime-diagnostics:
-  en: 3a31de3a4ec96a1d
-  zh: d231917978c34ef6
+  en: f1000256b2c27e58
+  zh: 6fcb0395b3bd7e20
 /agent-note-session-inspector-data-ownership-and-navigation/alternatives-considered:
   en: 64658e4c356224cb
   zh: ceabef316dca2457
 /agent-note-session-inspector-data-ownership-and-navigation/consequences:
-  en: a19bcffa41bcbf4d
-  zh: e6eb665efc5e838b
+  en: 80e92fa51a2c5685
+  zh: 41935845c029accc
 /agent-note-session-inspector-data-ownership-and-navigation/testing:
   en: ff09aac1983cef78
   zh: c3b5669826b5777b

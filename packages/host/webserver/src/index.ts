@@ -1,5 +1,5 @@
 /**
- * @deepseek-ai/dsh-host-webserver — node:http route registration — node:https
+ * @metaworkflow/host-webserver — node:http route registration — node:https
  * when `tls` names a certificate and key — with optional gzip, index injection,
  * and one fallback seat. It knows no harness concepts and serves no files; the
  * composing application owns dist serving. Electron uses file:// plus IPC

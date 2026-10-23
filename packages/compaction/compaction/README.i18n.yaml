@@ -5,81 +5,81 @@
 /:
   en: 5c47c9629036f119
   zh: 7730d7468a38b38d
-/deepseek-ai-dsh-compaction:
-  en: bc4cc254f61e84cb
-  zh: d08be13940dd3779
-/deepseek-ai-dsh-compaction/summary:
-  en: 8cde722f68374b24
-  zh: 11f5aff0d0ecd573
-/deepseek-ai-dsh-compaction/table-of-contents:
+/metaworkflow-compaction:
+  en: 248c3c527fd03f8a
+  zh: 515bae7df0a4660e
+/metaworkflow-compaction/summary:
+  en: e7be90c0209b0369
+  zh: 6f36aa07d20ba284
+/metaworkflow-compaction/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-compaction/use-this-package:
+/metaworkflow-compaction/use-this-package:
   en: 7d1dad97626dbd2e
   zh: 075fef4e1844ad12
-/deepseek-ai-dsh-compaction/use-this-package/when-to-choose-it:
-  en: 19c39a458294769b
-  zh: fd7534068f49e2af
-/deepseek-ai-dsh-compaction/use-this-package/what-condensation-looks-like:
+/metaworkflow-compaction/use-this-package/when-to-choose-it:
+  en: 3fb923cbfd11e081
+  zh: 18a3e875649c9643
+/metaworkflow-compaction/use-this-package/what-condensation-looks-like:
   en: 0abbee3a3b929a90
   zh: 334736dffe93488d
-/deepseek-ai-dsh-compaction/use-this-package/turning-condensation-on:
-  en: 8213b79c776f1a75
-  zh: 481c0dffd342426a
-/deepseek-ai-dsh-compaction/use-this-package/implementing-a-backend:
-  en: 280b5fda4c9b9c8b
-  zh: 764ca79fccf98279
-/deepseek-ai-dsh-compaction/use-this-package/recognizing-condensed-history:
+/metaworkflow-compaction/use-this-package/turning-condensation-on:
+  en: da27e2c60e068a06
+  zh: f368e42ffb3dc238
+/metaworkflow-compaction/use-this-package/implementing-a-backend:
+  en: be664d995829c32a
+  zh: e6e60023d6ba819a
+/metaworkflow-compaction/use-this-package/recognizing-condensed-history:
   en: 35502487f2850f05
   zh: 333d2b86cc1d6eb0
-/deepseek-ai-dsh-compaction/understand-the-implementation:
+/metaworkflow-compaction/understand-the-implementation:
   en: 321c3dc665ea03ff
   zh: f0fa408cde7b0454
-/deepseek-ai-dsh-compaction/understand-the-implementation/design-philosophy:
-  en: 226e05fde1f7ad54
-  zh: 4b0f671d68aee872
-/deepseek-ai-dsh-compaction/understand-the-implementation/service-api:
-  en: d742d41c7eb5d406
-  zh: 6ff26c23eba5dd59
-/deepseek-ai-dsh-compaction/understand-the-implementation/manual-failure-taxonomy:
-  en: 81449c88ba52f445
-  zh: 2cdcce236bfbf284
-/deepseek-ai-dsh-compaction/understand-the-implementation/tool-pairing-boundaries:
+/metaworkflow-compaction/understand-the-implementation/design-philosophy:
+  en: 3301c0dea62eb020
+  zh: a7d2909f2375b1df
+/metaworkflow-compaction/understand-the-implementation/service-api:
+  en: 6b3311926053d06d
+  zh: a9c19b8bb3107b14
+/metaworkflow-compaction/understand-the-implementation/manual-failure-taxonomy:
+  en: 47c2f4a94870a3b7
+  zh: ac475002339555c5
+/metaworkflow-compaction/understand-the-implementation/tool-pairing-boundaries:
   en: 15dad68a04d6c86b
   zh: 3b95acf1b7e503bf
-/deepseek-ai-dsh-compaction/understand-the-implementation/the-surface-contract:
-  en: 28980d8259e59700
-  zh: c452e0bb4b778824
-/deepseek-ai-dsh-compaction/understand-the-implementation/source-map:
+/metaworkflow-compaction/understand-the-implementation/the-surface-contract:
+  en: cb48af9307efd999
+  zh: 6a7521ef4130db94
+/metaworkflow-compaction/understand-the-implementation/source-map:
   en: 076448ecc9911baf
   zh: 1b671f96fb217d5e
-/deepseek-ai-dsh-compaction/understand-the-implementation/locking-and-serialization:
+/metaworkflow-compaction/understand-the-implementation/locking-and-serialization:
   en: 68caa51bed28bada
   zh: 3f8261f9dcba95ed
-/deepseek-ai-dsh-compaction/understand-the-implementation/events:
-  en: dc5faf71b27cc340
-  zh: 065f8339009c1a3a
-/deepseek-ai-dsh-compaction/further-exploration:
-  en: b12341c6424d7960
-  zh: 09fe5b30a599146f
-/deepseek-ai-dsh-compaction/model-experience:
+/metaworkflow-compaction/understand-the-implementation/events:
+  en: a08c3b61d3272db9
+  zh: 1bcecc0758152885
+/metaworkflow-compaction/further-exploration:
+  en: 17fabde8a78867c5
+  zh: ce6a9d6ffe1c67a9
+/metaworkflow-compaction/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-compaction/model-experience/conversation-history-when-a-backend-is-invoked:
+/metaworkflow-compaction/model-experience/conversation-history-when-a-backend-is-invoked:
   en: 94de97ed1e85db85
   zh: c8e37d8050609e63
-/deepseek-ai-dsh-compaction/model-experience/conversation-history-when-a-backend-is-invoked/what-the-model-sees:
+/metaworkflow-compaction/model-experience/conversation-history-when-a-backend-is-invoked/what-the-model-sees:
   en: 3c4875a13da17814
   zh: 9b257950a9e2c7c1
-/deepseek-ai-dsh-compaction/model-experience/conversation-history-when-a-backend-is-invoked/token-effect:
+/metaworkflow-compaction/model-experience/conversation-history-when-a-backend-is-invoked/token-effect:
   en: be91f4a4bbb9338b
   zh: 2b5de31d4d7caff1
-/deepseek-ai-dsh-compaction/model-experience/conversation-history-when-a-backend-is-invoked/kv-cache-effect:
+/metaworkflow-compaction/model-experience/conversation-history-when-a-backend-is-invoked/kv-cache-effect:
   en: 40ba838a2309c44a
   zh: c609fc1587a0d666
-/deepseek-ai-dsh-compaction/known-limitations-and-deferred-work:
+/metaworkflow-compaction/known-limitations-and-deferred-work:
   en: fee9ba06d3e5f35c
   zh: 2bb5241e2447d15d
-/deepseek-ai-dsh-compaction/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-compaction/known-limitations-and-deferred-work/dev-note:
   en: 270e23ae6414aff0
   zh: c6d219b8a547dbca

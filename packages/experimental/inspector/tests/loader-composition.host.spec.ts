@@ -7,10 +7,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
 import Include from '@deepseek-ai/cordis-plugin-include'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import WebServer from '@deepseek-ai/dsh-host-webserver'
-import { HostConnectionService } from '@deepseek-ai/dsh-client-connection'
-import { composeEntries, loadOverlayPatches } from '@deepseek-ai/dsh-app-boot'
-import type { BrowserAuth } from '@deepseek-ai/dsh-client-connection/src/browser-auth.ts'
+import WebServer from '@metaworkflow/host-webserver'
+import { HostConnectionService } from '@metaworkflow/client-connection'
+import { composeEntries, loadOverlayPatches } from '@metaworkflow/app-boot'
+import type { BrowserAuth } from '@metaworkflow/client-connection/src/browser-auth.ts'
 import open from 'open'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as Inspector from '../src/index.ts'
@@ -31,14 +31,14 @@ afterEach(async () => {
 
 describe('experimental Inspector through a real Loader composition', () => {
   it.each([false, true])('starts inspection with --inspect=%s and opens Chrome only when requested', async (flag) => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-inspector-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-inspector-loader-'))
     const configPath = join(root, 'cordis.yml')
-    const entries = composeEntries([loadOverlayPatches('dsh', fileURLToPath(
+    const entries = composeEntries([loadOverlayPatches('mwf', fileURLToPath(
       new URL('../../inspector-profile/cordis.patch.yml', import.meta.url),
     ))])
     const inspector = entries.find(entry => entry.id === 'experimental-inspector')!
     await writeFile(configPath, JSON.stringify([
-      { name: '@deepseek-ai/dsh-host-webserver', config: { host: '127.0.0.1', port: 0 } },
+      { name: '@metaworkflow/host-webserver', config: { host: '127.0.0.1', port: 0 } },
       { name: 'fixture:connection' },
     ]))
 
@@ -56,9 +56,9 @@ describe('experimental Inspector through a real Loader composition', () => {
     })
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@deepseek-ai/dsh-host-webserver', WebServer],
+      ['@metaworkflow/host-webserver', WebServer],
       ['fixture:connection', (ctx: Context) => { new HostConnectionService(ctx, [], {} as BrowserAuth) }],
-      ['@deepseek-ai/dsh-experimental-inspector', Inspector],
+      ['@metaworkflow/experimental-inspector', Inspector],
     ])
     context.loader.internal = {
       version: 'v2',
@@ -80,7 +80,7 @@ describe('experimental Inspector through a real Loader composition', () => {
       .filter(entry => entry.fiber === undefined && !entry.disabled))
       .toEqual([])
     const inspectorEntry = [...context.loader.entries()]
-      .find(entry => entry.options.name === '@deepseek-ai/dsh-experimental-inspector')
+      .find(entry => entry.options.name === '@metaworkflow/experimental-inspector')
     expect(inspectorEntry?.disabled).toBe(false)
     expect(open).toHaveBeenCalledTimes(flag ? 1 : 0)
     const connection = context.connection as HostConnectionService

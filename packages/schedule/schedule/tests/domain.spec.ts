@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SessionLogOffset } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { SessionLogOffset } from '@metaworkflow/session'
+import type { SessionEvent } from '@metaworkflow/session'
 import {
   ScheduleId,
   ScheduleInputError,

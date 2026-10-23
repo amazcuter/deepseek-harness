@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cookbook/maintaining-dsh-code-review.md
 /maintaining-the-dsh-code-review-skill:
-  en: 7356eb0a9cc41144
-  zh: 3194fbcf27f4fac1
+  en: e1566ceb50cbe7e5
+  zh: f79d7d89b2969ce3
 /maintaining-the-dsh-code-review-skill/what-the-maintainer-receives:
-  en: 1c4d0f340591ca39
-  zh: 81bd728a7c2296cb
+  en: 61a84896bf49cd97
+  zh: f26a944eb59e690a
 /maintaining-the-dsh-code-review-skill/what-the-operator-does-with-a-candidate-diff:
-  en: 1423d67e7c440cc6
-  zh: bc6d30d6615377f5
+  en: 9df3ce99252d9759
+  zh: bc45f44d3fcfbad4
 /maintaining-the-dsh-code-review-skill/when-a-run-produces-no-candidate:
   en: feb6d261939d6c19
   zh: 044d8238cd6537d3
 /maintaining-the-dsh-code-review-skill/interruptions-and-handoff:
-  en: f6e8cab2266e6a3e
-  zh: e6e950fa8807bfb4
+  en: 58d2ddf8db6fa6ab
+  zh: f0eccc72a8d9a5df
 /maintaining-the-dsh-code-review-skill/where-the-operator-s-private-setup-lives:
   en: ae06145764738c16
   zh: d527b944db8c52be

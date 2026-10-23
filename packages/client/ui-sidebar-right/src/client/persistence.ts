@@ -1,10 +1,10 @@
 /** Validated current-layout snapshots; undo history belongs to the live window. */
 import { z } from 'zod'
-import { EMPTY_HISTORY, type LayoutState } from '@deepseek-ai/dsh-client-ui-dockkit'
+import { EMPTY_HISTORY, type LayoutState } from '@metaworkflow/client-ui-dockkit'
 import type { SurfaceState } from './stores.ts'
 
 /** Persistence namespace shared by scoped stores and startup discovery. */
-export const sidebarPersistence = 'dsh.sidebar-right.v1'
+export const sidebarPersistence = 'mwf.sidebar-right.v1'
 
 const paneId = z.string().regex(/^(?:pane|float)[1-9][0-9]*$/u)
 const splitId = z.string().regex(/^split[1-9][0-9]*$/u)

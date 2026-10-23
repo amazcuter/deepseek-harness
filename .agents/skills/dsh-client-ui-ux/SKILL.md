@@ -60,7 +60,7 @@ Use [dsh-responsive-ui](../dsh-responsive-ui/SKILL.md) for responsive layouts, t
 
 ## Platform window adaptation
 
-- Any new header element or full page must account for macOS and Windows window chrome. On macOS the titlebar clearance is `--dsh-frame-top-clearance`, consumed by Menu, Modal, and overlay primitives as their top safe margin — **never change the global variable to fix one page**. Add a scoped `[data-platform='darwin']` override on the page's own inset instead, and assert the override in the page's stylesheet spec.
+- Any new header element or full page must account for macOS and Windows window chrome. On macOS the titlebar clearance is `--mwf-frame-top-clearance`, consumed by Menu, Modal, and overlay primitives as their top safe margin — **never change the global variable to fix one page**. Add a scoped `[data-platform='darwin']` override on the page's own inset instead, and assert the override in the page's stylesheet spec.
 - State the intended total offset (clearance + page inset) when reviewing, so two pages aligning to "the same top spacing" agree on the sum, not just one addend.
 
 ## Spacing review

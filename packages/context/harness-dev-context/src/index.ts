@@ -1,22 +1,22 @@
 /**
- * @deepseek-ai/dsh-harness-dev-context — model context for an agent that can
+ * @metaworkflow/harness-dev-context — model context for an agent that can
  * inspect and extend the DeepSeek Harness serving its Web GUI. It registers
  * path- and URL-free prompt sections and states the current implementation
  * checkout and Web GUI URL as runtime context, so a process started from
  * another checkout, port, or installation leaves the system prompt unchanged.
  * A Session whose admitted prompt holds the paragraphs that embedded those
  * values keeps them verbatim, so resuming it never rewrites its logged prompt.
- * @module @deepseek-ai/dsh-harness-dev-context
+ * @module @metaworkflow/harness-dev-context
  */
 
 import { fileURLToPath } from 'node:url'
 import type { Context } from '@deepseek-ai/cordis'
 import { z as zod } from 'zod'
-import type {} from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-web-app'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-session-projection'
-import type { AssembleContext } from '@deepseek-ai/dsh-system-prompt'
+import type {} from '@metaworkflow/agent'
+import type {} from '@metaworkflow/web-app'
+import type { SessionEvent } from '@metaworkflow/session'
+import type {} from '@metaworkflow/session-projection'
+import type { AssembleContext } from '@metaworkflow/system-prompt'
 
 /** Stable Cordis plugin name. */
 export const name = 'harness-dev-context'
@@ -35,7 +35,7 @@ const WEB_SURFACE = 'app:web-surface'
 
 const HARNESS_SOURCE_GUIDANCE = 'The checkout location and current working directory are separate values and may differ; '
   + 'never infer the working directory from the checkout path. Use pwd to determine the current working directory. '
-  + 'Use this checkout only to inspect or extend DSH itself.'
+  + 'Use this checkout only to inspect or extend MWF itself.'
 
 const HARNESS_SOURCE_PROMPT = `The runtime context names the DeepSeek Harness implementation checkout. ${HARNESS_SOURCE_GUIDANCE}`
 
@@ -45,7 +45,7 @@ const WEB_SURFACE_GUIDANCE = 'When the user refers to "this page", "this GUI", o
   + '`pnpm run dev:web` is also running from this same checkout to rebuild their bundles; verify that watcher before promising automatic updates. '
   + 'Every other change — the apps/web shell and plain packages — requires rebuilding the affected Web artifacts and verifying this existing URL after a page refresh. '
   + 'Starting another server does not update this GUI. '
-  + 'The apps/web Vite entry builds the shell but is not a standalone application because only dsh web injects window.__DSH_BOOT__. '
+  + 'The apps/web Vite entry builds the shell but is not a standalone application because only mwf web injects window.__MWF_BOOT__. '
   + 'Do not start a replacement server unless the user asks; if one is needed, use a managed background job and verify its exact URL.'
 
 const WEB_SURFACE_PROMPT = `You are interacting with the user through the DeepSeek Harness Web GUI whose URL the runtime context names. ${WEB_SURFACE_GUIDANCE}`
@@ -60,7 +60,7 @@ const LEGACY_SOURCE = {
   prefix: 'The DeepSeek Harness implementation checkout is at ',
   suffix: '. The checkout location and current working directory are separate values and may differ; '
     + 'never infer the working directory from this path. Use pwd to determine the current working directory. '
-    + 'Use this checkout only to inspect or extend DSH itself.',
+    + 'Use this checkout only to inspect or extend MWF itself.',
 }
 // The frozen copy repeats today's guidance on purpose; the two may diverge.
 /* jscpd:ignore-start */
@@ -72,7 +72,7 @@ const LEGACY_WEB_SURFACE = {
     + '`pnpm run dev:web` is also running from this same checkout to rebuild their bundles; verify that watcher before promising automatic updates. '
     + 'Every other change — the apps/web shell and plain packages — requires rebuilding the affected Web artifacts and verifying this existing URL after a page refresh. '
     + 'Starting another server does not update this GUI. '
-    + 'The apps/web Vite entry builds the shell but is not a standalone application because only dsh web injects window.__DSH_BOOT__. '
+    + 'The apps/web Vite entry builds the shell but is not a standalone application because only mwf web injects window.__MWF_BOOT__. '
     + 'Do not start a replacement server unless the user asks; if one is needed, use a managed background job and verify its exact URL.',
 }
 /* jscpd:ignore-end */
@@ -85,7 +85,7 @@ const legacyPromptSchema = zod.object({ source: zod.string().nullable(), web: zo
 /** Value-bearing paragraphs of the latest nonempty system prompt a Session committed; `null` where it has none. */
 type LegacyPrompt = zod.infer<typeof legacyPromptSchema>
 
-declare module '@deepseek-ai/dsh-session-projection/types' {
+declare module '@metaworkflow/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Value-bearing harness-source and Web-surface paragraphs of the latest nonempty admitted system prompt. */
     harnessDevLegacyPrompt: LegacyPrompt

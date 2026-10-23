@@ -1,4 +1,4 @@
-/** Compatibility checks at the composition entry points DSH owns; no Loader instrumentation. */
+/** Compatibility checks at the composition entry points MWF owns; no Loader instrumentation. */
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, extname, isAbsolute, join } from 'node:path'
@@ -60,19 +60,19 @@ function manifestOf(ctx: Context, name: string, parentURL: string): object | und
   }
 }
 
-/** Prepare profile or preset rows before the owning DSH caller passes them to Loader.
+/** Prepare profile or preset rows before the owning MWF caller passes them to Loader.
  * Only a compatibility conflict denies a row: an entry whose manifest cannot be resolved keeps
  * the Loader's own import failure. A denied ordinary row gains `disabled`; a native Include that
  * reaches a denied plugin is denied as a whole, because its file is never rewritten.
  * @param ctx Context carrying launcher-owned profile facts; non-profile contexts retain their rows.
  * @param entries Complete effective entry list, after patch composition.
  * @param parentURL Resolution base of the tree that will import these rows.
- * @param binName Diagnostic prefix for a denied row; defaults to `dsh`.
+ * @param binName Diagnostic prefix for a denied row; defaults to `mwf`.
  * @returns Detached rows with incompatible entries denied; reads the profile compatibility file once.
  * @throws For malformed compatibility permissions or a profile composition without a resolution base.
  */
 export function prepareProfileEntries(
-  ctx: Context, entries: readonly EntryOptions[], parentURL: string | undefined, binName = 'dsh',
+  ctx: Context, entries: readonly EntryOptions[], parentURL: string | undefined, binName = 'mwf',
 ): EntryOptions[] {
   // Admission runs before the composed tree mounts, so no plugin-owned logger exporter exists yet;
   // composition-stage diagnostics go to stderr like the profile launcher's skipped-bundle report.
@@ -108,7 +108,7 @@ function preflight(
       // Requirement metadata that cannot be read or validated is refused rather than silently admitted.
       /* v8 ignore next -- every reader and parser used here rejects with an Error. */
       const detail = error instanceof Error ? error.message : String(error)
-      return `its declared dsh requirements cannot be validated: ${detail}`
+      return `its declared mwf requirements cannot be validated: ${detail}`
     }
   }
   const deny = (row: EntryOptions, reason: string): void => {
@@ -174,11 +174,11 @@ function preflight(
  * @param ctx Profile context prepared by the launcher.
  * @param patches Original ordered profile patches; these remain unchanged.
  * @param parentURL Root Include's resolution base.
- * @param binName Diagnostic prefix for a denied row; defaults to `dsh`.
+ * @param binName Diagnostic prefix for a denied row; defaults to `mwf`.
  * @returns One prepared insertion patch for profiles, or the original patches for non-profile callers.
  */
 export function prepareProfilePatches(
-  ctx: Context, patches: PatchOptions[], parentURL: string, binName = 'dsh',
+  ctx: Context, patches: PatchOptions[], parentURL: string, binName = 'mwf',
 ): PatchOptions[] {
   if (ctx.get('profileContext') === undefined) return patches
   const entries = applyEntryPatches([], patches, patchWarning(ctx))

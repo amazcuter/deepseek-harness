@@ -38,7 +38,7 @@
   color: var(--dsw-alias-label-shimmer);
   mask-image: linear-gradient(105deg, transparent 0%, black 40% 60%, transparent 100%);
   transform: translateX(-100%);
-  animation-name: dsh-row-shimmer-sweep;
+  animation-name: mwf-row-shimmer-sweep;
 }
 
 /* Semantic base colors stay on the real content; the overlay supplies one tint. */
@@ -55,7 +55,7 @@
   width: 100%;
   height: 100%;
   transform: translateX(100%);
-  animation-name: dsh-row-shimmer-highlight;
+  animation-name: mwf-row-shimmer-highlight;
 }
 
 .sweep,
@@ -66,12 +66,12 @@
   animation-iteration-count: infinite;
 }
 
-@keyframes dsh-row-shimmer-sweep {
+@keyframes mwf-row-shimmer-sweep {
   0% { transform: translateX(-100%); }
   66.6667%, 100% { transform: translateX(100%); }
 }
 
-@keyframes dsh-row-shimmer-highlight {
+@keyframes mwf-row-shimmer-highlight {
   0% { transform: translateX(100%); }
   66.6667%, 100% { transform: translateX(-100%); }
 }

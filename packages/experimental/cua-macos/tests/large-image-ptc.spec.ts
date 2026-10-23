@@ -6,27 +6,27 @@ import { pathToFileURL } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import LocalAttachmentStore from '@deepseek-ai/dsh-attachment-local'
-import ComputerUseRegistry from '@deepseek-ai/dsh-computer-use'
-import FileSystem from '@deepseek-ai/dsh-fs-local'
-import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage, resolveImageAttachmentAccess } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { resolveAdapterOptions } from '@deepseek-ai/dsh-llm-deepseek'
-import { inlineImages, prepareImages } from '@deepseek-ai/dsh-llm-deepseek/src/images.ts'
-import { serialize } from '@deepseek-ai/dsh-llm-deepseek/src/serialize.ts'
-import { resolveRequestImageTarget } from '@deepseek-ai/dsh-llm-deepseek/src/request-pricing.ts'
-import NodePtcRuntime from '@deepseek-ai/dsh-ptc-runtime-node'
-import Sandbox from '@deepseek-ai/dsh-sandbox-local'
-import SandboxPolicy from '@deepseek-ai/dsh-sandbox-policy'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SubprocessLocal from '@deepseek-ai/dsh-subprocess-local'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import WorkingDirectory from '@deepseek-ai/dsh-working-directory'
+import AgentRegistry from '@metaworkflow/agent'
+import AgentLoop from '@metaworkflow/agent-loop'
+import type { ImageAttachmentRef } from '@metaworkflow/attachment'
+import LocalAttachmentStore from '@metaworkflow/attachment-local'
+import ComputerUseRegistry from '@metaworkflow/computer-use'
+import FileSystem from '@metaworkflow/fs-local'
+import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage, resolveImageAttachmentAccess } from '@metaworkflow/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@metaworkflow/llm'
+import { resolveAdapterOptions } from '@metaworkflow/llm-deepseek'
+import { inlineImages, prepareImages } from '@metaworkflow/llm-deepseek/src/images.ts'
+import { serialize } from '@metaworkflow/llm-deepseek/src/serialize.ts'
+import { resolveRequestImageTarget } from '@metaworkflow/llm-deepseek/src/request-pricing.ts'
+import NodePtcRuntime from '@metaworkflow/ptc-runtime-node'
+import Sandbox from '@metaworkflow/sandbox-local'
+import SandboxPolicy from '@metaworkflow/sandbox-policy'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import SubprocessLocal from '@metaworkflow/subprocess-local'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRuntime from '@metaworkflow/tools'
+import WorkingDirectory from '@metaworkflow/working-directory'
 import sharp from 'sharp'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import * as NativeProvider from '../src/index.ts'
@@ -38,7 +38,7 @@ const MODEL = 'large-image-vision-fixture'
 
 // The external native substitute is a POSIX executable; it never accesses the desktop.
 it.skipIf(process.platform === 'win32')('delivers a valid PNG larger than 4 MiB through disk storage and Node PTC into the next model image request', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-cua-large-image-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-cua-large-image-'))
   const context = new Context()
   const fixture: { close?: () => Promise<void> } = {}
   onTestFinished(async () => {
@@ -72,7 +72,7 @@ it.skipIf(process.platform === 'win32')('delivers a valid PNG larger than 4 MiB 
   }
   const configPath = join(root, 'cordis.yml')
   const configs: Record<string, object> = {
-    tools: { mode: 'ptc' }, attachments: { dshHome: join(root, 'home') }, workingDirectory: { defaultDirectory: root },
+    tools: { mode: 'ptc' }, attachments: { mwfHome: join(root, 'home') }, workingDirectory: { defaultDirectory: root },
     fs: { cwd: root }, sandboxPolicy: { mode: 'danger-full-access', workspaceRoot: root }, cua: { helperPath, allowedApps: [{ 'id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'name': 'Fixture', 'executablePath': '/fixture/app' }] },
   }
   await writeFile(configPath, Object.keys(modules).flatMap(name => [

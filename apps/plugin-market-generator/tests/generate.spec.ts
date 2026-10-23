@@ -74,7 +74,7 @@ async function registry(packages: Packages) {
   return { url: `${base}/`, tarballs }
 }
 
-const BUNDLE = { dsh: { bundle: { patch: './cordis.patch.yml' } } }
+const BUNDLE = { mwf: { bundle: { patch: './cordis.patch.yml' } } }
 
 const bundleManifest = (name: string, version: string, extra: object = {}) => JSON.stringify({ name, version, ...BUNDLE, ...extra })
 
@@ -89,24 +89,24 @@ function options(registryUrl: string, cacheDir: string, lines: string[], warning
 
 it('lists every non-deprecated bundle version from the registry document and reads display fields from the highest tarball', async () => {
   const packages: Packages = {
-    'dsh-a': {
+    'mwf-a': {
       '0.9.0': { time: '2026-01-01T00:00:00.000Z' },
-      '1.0.0': { time: '2026-02-01T00:00:00.000Z', manifest: { ...BUNDLE, keywords: ['old'], engines: { dsh: '>=0.2.0' }, peerDependencies: { '@deepseek-ai/dsh': '9' } } },
+      '1.0.0': { time: '2026-02-01T00:00:00.000Z', manifest: { ...BUNDLE, keywords: ['old'], engines: { mwf: '>=0.2.0' }, peerDependencies: { '@metaworkflow/cli': '9' } } },
       '1.1.0': { time: '2026-03-01T00:00:00.000Z', manifest: { ...BUNDLE, deprecated: 'broken' } },
       '1.2.0': {
         time: '2026-04-01T00:00:00.000Z',
         manifest: {
           ...BUNDLE, deprecated: '',
-          peerDependencies: { '@deepseek-ai/dsh': '>=0.2.0', '@deepseek-ai/dsh-agent': '>=0.2.0', '@deepseek-ai/dsh-tools': '^0.2.0 || ^0.3.0', react: '18' },
+          peerDependencies: { '@metaworkflow/cli': '>=0.2.0', '@metaworkflow/agent': '>=0.2.0', '@metaworkflow/tools': '^0.2.0 || ^0.3.0', react: '18' },
         },
       },
-      '1.3.0': { time: '2026-05-01T00:00:00.000Z', manifest: { ...BUNDLE, peerDependencies: { '@deepseek-ai/dsh-agent': 'workspace:>=1' } } },
+      '1.3.0': { time: '2026-05-01T00:00:00.000Z', manifest: { ...BUNDLE, peerDependencies: { '@metaworkflow/agent': 'workspace:>=1' } } },
       '1.4.0': { manifest: BUNDLE },
       '2.0.0-rc.1': {
         time: '2026-06-01T00:00:00.000Z',
         manifest: { ...BUNDLE, author: { name: 'Jane Doe', email: 'jane@example.com' } },
         tarball: await pack({
-          'package.json': bundleManifest('dsh-a', '2.0.0-rc.1', { author: { name: 'Jane Doe' }, icon: 'icon.png', homepage: 'https://example.com/dsh-a', repository: { type: 'git', url: 'git+https://github.com/jane/plugins.git', directory: 'packages/a' }, keywords: ['alpha', '', 'alpha'] }),
+          'package.json': bundleManifest('mwf-a', '2.0.0-rc.1', { author: { name: 'Jane Doe' }, icon: 'icon.png', homepage: 'https://example.com/mwf-a', repository: { type: 'git', url: 'git+https://github.com/jane/plugins.git', directory: 'packages/a' }, keywords: ['alpha', '', 'alpha'] }),
           'locale/en.json': JSON.stringify({ meta: { title: 'Alpha' } }),
           'locale/zh.json': JSON.stringify({ meta: { title: '甲' } }),
           'locale/x_y.json': '{}',
@@ -115,72 +115,72 @@ it('lists every non-deprecated bundle version from the registry document and rea
         }),
       },
     },
-    'dsh-b': { '1.0.0': { time: '2026-06-02T00:00:00.000Z', manifest: { ...BUNDLE, author: 'Bob' }, tarball: await pack({ 'package.json': bundleManifest('dsh-b', '1.0.0') }) } },
+    'mwf-b': { '1.0.0': { time: '2026-06-02T00:00:00.000Z', manifest: { ...BUNDLE, author: 'Bob' }, tarball: await pack({ 'package.json': bundleManifest('mwf-b', '1.0.0') }) } },
     'plain-lib': { '1.0.0': { time: '2026-06-01T00:00:00.000Z' } },
-    'dsh-imposter': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest('dsh-other', '1.0.0') }) } },
-    'dsh-tampered': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest('dsh-tampered', '1.0.0') }), integrity: 'sha512-AAAA' } },
-    'dsh-unsigned': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE } },
-    'dsh-huge': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: 'oversized', integrity: 'sha512-AAAA' } },
-    'dsh-bomb': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest('dsh-bomb', '1.0.0'), 'zeros.bin': new Uint8Array(2 << 20) }) } },
-    'dsh-no-tarball': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, integrity: 'sha512-AAAA' } },
-    'dsh-unpublished': {},
-    'dsh-missing': 404,
+    'mwf-imposter': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest('mwf-other', '1.0.0') }) } },
+    'mwf-tampered': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest('mwf-tampered', '1.0.0') }), integrity: 'sha512-AAAA' } },
+    'mwf-unsigned': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE } },
+    'mwf-huge': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: 'oversized', integrity: 'sha512-AAAA' } },
+    'mwf-bomb': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest('mwf-bomb', '1.0.0'), 'zeros.bin': new Uint8Array(2 << 20) }) } },
+    'mwf-no-tarball': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, integrity: 'sha512-AAAA' } },
+    'mwf-unpublished': {},
+    'mwf-missing': 404,
   }
   const server = await registry(packages)
   const cacheDir = scratch()
   const warnings: string[] = []
-  const lines = ['dsh-a', 'dsh-b', 'plain-lib', 'dsh-imposter', 'dsh-tampered', 'dsh-unsigned', 'dsh-huge', 'dsh-bomb', 'dsh-no-tarball', 'dsh-unpublished', 'dsh-missing']
+  const lines = ['mwf-a', 'mwf-b', 'plain-lib', 'mwf-imposter', 'mwf-tampered', 'mwf-unsigned', 'mwf-huge', 'mwf-bomb', 'mwf-no-tarball', 'mwf-unpublished', 'mwf-missing']
   const first = await generate(options(server.url, cacheDir, lines, warnings))
   const npm = { type: 'npm', registry: server.url }
   expect(first.index).toMatchObject({ format: 1, title: 'Test Market', description: 'For tests' })
   expect(first.index.plugins).toEqual([
     {
-      name: 'dsh-a', title: { en: 'Alpha', zh: '甲' }, icon: expect.stringMatching(/^icons\/[0-9a-f]{16}\.png$/u) as string, author: 'Jane Doe', homepage: 'https://example.com/dsh-a',
+      name: 'mwf-a', title: { en: 'Alpha', zh: '甲' }, icon: expect.stringMatching(/^icons\/[0-9a-f]{16}\.png$/u) as string, author: 'Jane Doe', homepage: 'https://example.com/mwf-a',
       repository: { url: 'https://github.com/jane/plugins', directory: 'packages/a' },
       metadata: { keywords: ['alpha', '', 'alpha'] },
       versions: [
         { version: '2.0.0-rc.1', publishTimestamp: 1780272000, source: npm },
-        { version: '1.2.0', publishTimestamp: 1775001600, source: npm, engines: { dsh: '>=0.2.0 <0.3.0-0 || >=0.2.0 >=0.3.0 <0.4.0-0' } },
-        { version: '1.0.0', publishTimestamp: 1769904000, source: npm, engines: { dsh: '>=0.2.0' } },
+        { version: '1.2.0', publishTimestamp: 1775001600, source: npm, engines: { mwf: '>=0.2.0 <0.3.0-0 || >=0.2.0 >=0.3.0 <0.4.0-0' } },
+        { version: '1.0.0', publishTimestamp: 1769904000, source: npm, engines: { mwf: '>=0.2.0' } },
       ],
     },
-    { name: 'dsh-b', title: 'dsh-b', versions: [{ version: '1.0.0', publishTimestamp: 1780358400, source: npm }] },
+    { name: 'mwf-b', title: 'mwf-b', versions: [{ version: '1.0.0', publishTimestamp: 1780358400, source: npm }] },
   ])
   expect(existsSync(first.icons.get(first.index.plugins[0]?.icon ?? '') ?? '')).toBe(true)
-  expect(server.tarballs.filter(path => path.includes('dsh-a'))).toEqual(['/tarballs/dsh-a/2.0.0-rc.1.tgz'])
+  expect(server.tarballs.filter(path => path.includes('mwf-a'))).toEqual(['/tarballs/mwf-a/2.0.0-rc.1.tgz'])
   expect(first.failures).toEqual([
-    'dsh-imposter: dsh-imposter@1.0.0: tarball package.json does not name dsh-imposter@1.0.0',
-    'dsh-tampered: dsh-tampered@1.0.0: tarball does not match its registry integrity',
-    'dsh-unsigned: dsh-unsigned@1.0.0: registry lists no tarball with integrity',
-    `dsh-huge: dsh-huge@1.0.0: tarball exceeds ${1 << 20} bytes`,
-    `dsh-bomb: dsh-bomb@1.0.0: unpacked tarball exceeds ${1 << 20} bytes`,
-    'dsh-no-tarball: dsh-no-tarball@1.0.0: tarball answered HTTP 404',
-    'dsh-missing: dsh-missing: registry answered HTTP 404',
+    'mwf-imposter: mwf-imposter@1.0.0: tarball package.json does not name mwf-imposter@1.0.0',
+    'mwf-tampered: mwf-tampered@1.0.0: tarball does not match its registry integrity',
+    'mwf-unsigned: mwf-unsigned@1.0.0: registry lists no tarball with integrity',
+    `mwf-huge: mwf-huge@1.0.0: tarball exceeds ${1 << 20} bytes`,
+    `mwf-bomb: mwf-bomb@1.0.0: unpacked tarball exceeds ${1 << 20} bytes`,
+    'mwf-no-tarball: mwf-no-tarball@1.0.0: tarball answered HTTP 404',
+    'mwf-missing: mwf-missing: registry answered HTTP 404',
   ])
   expect(warnings).toEqual(expect.arrayContaining([
-    'dsh-a: dsh-a@1.3.0 skipped: DSH range "workspace:>=1" is not a valid SemVer range',
-    'dsh-a@2.0.0-rc.1: locale file locale/x_y.json ignored: its name is not a language id',
-    'plain-lib: no published version declares dsh.bundle',
-    'dsh-unpublished: no published version declares dsh.bundle',
+    'mwf-a: mwf-a@1.3.0 skipped: MWF range "workspace:>=1" is not a valid SemVer range',
+    'mwf-a@2.0.0-rc.1: locale file locale/x_y.json ignored: its name is not a language id',
+    'plain-lib: no published version declares mwf.bundle',
+    'mwf-unpublished: no published version declares mwf.bundle',
   ]))
 
   // Unchanged version lists come from the cache; a failing source keeps its last result for the same registry only.
-  packages['dsh-b'] = 500
+  packages['mwf-b'] = 500
   const downloads = server.tarballs.length
   const second = await generate(options(server.url, cacheDir, lines, warnings))
   expect(server.tarballs.length - downloads).toBe(5)
   expect(second.index.plugins).toEqual(first.index.plugins)
-  expect(warnings).toContain('dsh-b: dsh-b: registry answered HTTP 500; keeping the last successful result')
-  const mirror = await generate(options(`${server.url}mirror/`, cacheDir, ['dsh-b'], warnings))
-  expect([mirror.index.plugins, mirror.failures]).toEqual([[], ['dsh-b: dsh-b: registry answered HTTP 503']])
+  expect(warnings).toContain('mwf-b: mwf-b: registry answered HTTP 500; keeping the last successful result')
+  const mirror = await generate(options(`${server.url}mirror/`, cacheDir, ['mwf-b'], warnings))
+  expect([mirror.index.plugins, mirror.failures]).toEqual([[], ['mwf-b: mwf-b: registry answered HTTP 503']])
 })
 
 it('keeps packages with absent or invalid keywords and preserves empty keywords in generated and cached output', async () => {
   const cases = [
-    { name: 'dsh-absent', fields: {}, metadata: undefined },
-    { name: 'dsh-empty', fields: { keywords: [] }, metadata: { keywords: [] } },
-    { name: 'dsh-mixed', fields: { keywords: ['valid', 1] }, metadata: undefined },
-    { name: 'dsh-nonarray', fields: { keywords: 'search' }, metadata: undefined },
+    { name: 'mwf-absent', fields: {}, metadata: undefined },
+    { name: 'mwf-empty', fields: { keywords: [] }, metadata: { keywords: [] } },
+    { name: 'mwf-mixed', fields: { keywords: ['valid', 1] }, metadata: undefined },
+    { name: 'mwf-nonarray', fields: { keywords: 'search' }, metadata: undefined },
   ]
   const packages: Packages = Object.fromEntries(await Promise.all(cases.map(async ({ name, fields }) => [name, {
     '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest(name, '1.0.0', fields) }) },
@@ -193,11 +193,11 @@ it('keeps packages with absent or invalid keywords and preserves empty keywords 
   expect(first.index.plugins.map(({ name, metadata }) => ({ name, metadata })))
     .toEqual(cases.map(({ name, metadata }) => ({ name, metadata })))
   for (const plugin of first.index.plugins) {
-    if (plugin.name !== 'dsh-empty') expect(plugin).not.toHaveProperty('metadata')
+    if (plugin.name !== 'mwf-empty') expect(plugin).not.toHaveProperty('metadata')
   }
   expect(warnings.sort()).toEqual([
-    'dsh-mixed@1.0.0: package.json keywords must be an array of strings; it is omitted',
-    'dsh-nonarray@1.0.0: package.json keywords must be an array of strings; it is omitted',
+    'mwf-mixed@1.0.0: package.json keywords must be an array of strings; it is omitted',
+    'mwf-nonarray@1.0.0: package.json keywords must be an array of strings; it is omitted',
   ])
   const cached = await generate(opts)
   expect(cached).toEqual(first)
@@ -207,35 +207,35 @@ it('keeps packages with absent or invalid keywords and preserves empty keywords 
 })
 
 it('rebuilds a cached record the index format rejects', async () => {
-  const server = await registry({ 'dsh-a': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest('dsh-a', '1.0.0') }) } } })
+  const server = await registry({ 'mwf-a': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest('mwf-a', '1.0.0') }) } } })
   const cacheDir = scratch()
-  const first = await generate(options(server.url, cacheDir, ['dsh-a'], []))
+  const first = await generate(options(server.url, cacheDir, ['mwf-a'], []))
   const results = join(cacheDir, 'results')
   for (const record of ['{', JSON.stringify({ plugins: [{ name: 'Bad Name', versions: [] }] })]) {
     for (const file of readdirSync(results)) writeFileSync(join(results, file), record)
-    expect((await generate(options(server.url, cacheDir, ['dsh-a'], []))).index.plugins).toEqual(first.index.plugins)
+    expect((await generate(options(server.url, cacheDir, ['mwf-a'], []))).index.plugins).toEqual(first.index.plugins)
   }
   expect(server.tarballs).toHaveLength(3)
 })
 
 it('keeps the first source of a repeated package name', async () => {
-  const tarball = await pack({ 'package.json': bundleManifest('dsh-a', '1.0.0') })
-  const server = await registry({ 'dsh-a': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball } } })
+  const tarball = await pack({ 'package.json': bundleManifest('mwf-a', '1.0.0') })
+  const server = await registry({ 'mwf-a': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball } } })
   const warnings: string[] = []
-  const source = { kind: 'npm' as const, line: 'dsh-a', name: 'dsh-a' }
-  const result = await generate({ ...options(server.url, scratch(), [], warnings), recordRegistry: false, sources: [source, { ...source, line: 'dsh-a ' }] })
-  expect(result.index.plugins.map(entry => [entry.name, entry.versions[0]?.source])).toEqual([['dsh-a', { type: 'npm' }]])
-  expect(warnings).toEqual(['dsh-a: listed by more than one source; keeping the first'])
+  const source = { kind: 'npm' as const, line: 'mwf-a', name: 'mwf-a' }
+  const result = await generate({ ...options(server.url, scratch(), [], warnings), recordRegistry: false, sources: [source, { ...source, line: 'mwf-a ' }] })
+  expect(result.index.plugins.map(entry => [entry.name, entry.versions[0]?.source])).toEqual([['mwf-a', { type: 'npm' }]])
+  expect(warnings).toEqual(['mwf-a: listed by more than one source; keeping the first'])
 })
 
 it('writes the index and icons once, keeps the cache beside the input, and removes only stale generated icon files', async () => {
   const server = await registry({
-    'dsh-a': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest('dsh-a', '1.0.0', { icon: 'i.png' }), 'i.png': new Uint8Array(20000) }) } },
+    'mwf-a': { '1.0.0': { time: '2026-06-01T00:00:00.000Z', manifest: BUNDLE, tarball: await pack({ 'package.json': bundleManifest('mwf-a', '1.0.0', { icon: 'i.png' }), 'i.png': new Uint8Array(20000) }) } },
   })
   const lists = scratch()
   const out = join(scratch(), 'site')
   const list = join(lists, 'plugins.txt')
-  writeFileSync(list, 'dsh-a\n')
+  writeFileSync(list, 'mwf-a\n')
   const args = ['--input', list, '--output', join(out, 'index.json'), '--title', 'T', '--registry', server.url]
   expect(await main(args)).toBe(0)
   const written = readFileSync(join(out, 'index.json'), 'utf8')
@@ -249,7 +249,7 @@ it('writes the index and icons once, keeps the cache beside the input, and remov
   expect(readFileSync(join(out, 'index.json'), 'utf8')).toBe(written)
   expect(['0123456789abcdef.png', 'keep.txt', 'fedcba9876543210.svg', icon.slice('icons/'.length)].map(name => existsSync(join(out, 'icons', name))))
     .toEqual([false, true, true, true])
-  writeFileSync(list, 'dsh-gone\n')
+  writeFileSync(list, 'mwf-gone\n')
   const other = join(scratch(), 'index.json')
   expect(await main(['--input', list, '--output', other, '--title', 'T', '--description', 'D', '--registry', server.url, '--concurrency', '2', '--cache', join(lists, 'other-cache')])).toBe(1)
   expect((JSON.parse(readFileSync(other, 'utf8')) as { description: string }).description).toBe('D')

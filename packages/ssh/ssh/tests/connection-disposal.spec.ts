@@ -25,7 +25,7 @@ vi.mock('node:tls', async importOriginal => ({
 // These transport-only tests own no filesystem or native process; cleanup
 // settles in microtasks so it cannot hide an unjoined control command.
 vi.mock('node:fs/promises', () => ({
-  mkdtemp: async () => '/virtual/dsh-ssh-test',
+  mkdtemp: async () => '/virtual/mwf-ssh-test',
   rm: async () => {},
 }))
 
@@ -110,7 +110,7 @@ async function setup(phase: 'connect' | 'authenticate', pauseControl?: 'forward'
   const socket = phase === 'connect' ? rawSocket : secureSocket
   const ctx = new Context()
   const fiber = ctx.plugin(SshConnection, {
-    host: 'hermetic-test', launch: { kind: 'node-script', node: '/usr/bin/node' }, helper: '/opt/dsh/helper.js', helperHash: 'a'.repeat(64), workspace: '/workspace',
+    host: 'hermetic-test', launch: { kind: 'node-script', node: '/usr/bin/node' }, helper: '/opt/mwf/helper.js', helperHash: 'a'.repeat(64), workspace: '/workspace',
     requestTimeoutMs: 10_000, maxFrameBytes: 4096, maxPending: holdHeartbeat ? 1 : 8, leaseMs: 30_000,
   })
   onTestFinished(async () => {

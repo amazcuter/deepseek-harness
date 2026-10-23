@@ -18,7 +18,7 @@ function record(value: unknown): value is Record<string, unknown> {
 
 /**
  * Read shell settings, creating the default document exclusively when missing.
- * @param userData - Electron's userData directory, independent of DSH_HOME.
+ * @param userData - Electron's userData directory, independent of MWF_HOME.
  * @returns Validated settings, or defaults when reading, creating or validating fails; changes require a restart.
  */
 export function readDesktopSettings(userData: string): DesktopSettings {

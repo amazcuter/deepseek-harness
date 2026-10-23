@@ -3,13 +3,13 @@ description: "为必须限制返回上下文量的工具提供有界的面向模
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-output-retention
+# @metaworkflow/output-retention
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `dsh-output-retention` 限制工具返回给模型的项或文本量，并报告省略了什么。`ItemRetainer` 保留有序的头部窗口，并可报告精确的省略项数；`TextRetainer` 保留 head、tail 或 head-and-tail 字节窗口，且不会返回因切割而无效的 UTF-8。`formatRetentionNotice` 添加一致的省略子句，各工具则提供自己的恢复指引。`truncateWithoutSplittingSurrogatePair` 按字符预算截断预览时，不会在切口留下孤立的高位代理项。分组、行号、spill 文件与提供方错误仍归工具负责；消费方直接导入本库，而不通过 `cordis.yml` 加载。
+使用 `mwf-output-retention` 限制工具返回给模型的项或文本量，并报告省略了什么。`ItemRetainer` 保留有序的头部窗口，并可报告精确的省略项数；`TextRetainer` 保留 head、tail 或 head-and-tail 字节窗口，且不会返回因切割而无效的 UTF-8。`formatRetentionNotice` 添加一致的省略子句，各工具则提供自己的恢复指引。`truncateWithoutSplittingSurrogatePair` 按字符预算截断预览时，不会在切口留下孤立的高位代理项。分组、行号、spill 文件与提供方错误仍归工具负责；消费方直接导入本库，而不通过 `cordis.yml` 加载。
 
 ## 目录
 
@@ -30,7 +30,7 @@ kind: "package-library"
 ### 限制项列表
 
 ```ts
-import { ItemRetainer } from '@deepseek-ai/dsh-output-retention'
+import { ItemRetainer } from '@metaworkflow/output-retention'
 
 declare const globMaxResults: number
 declare const candidates: AsyncIterable<{ path: string }>
@@ -46,7 +46,7 @@ const { items, truncated, omitted } = retainer.finish()
 ### 限制文本流
 
 ```text
-import { TextRetainer } from '@deepseek-ai/dsh-output-retention'
+import { TextRetainer } from '@metaworkflow/output-retention'
 
 const out = new TextRetainer({ kind: 'headTail', headBytes: headCap, tailBytes: tailCap })
 child.stdout.on('data', (chunk: Buffer) => { out.push(chunk) })
@@ -58,11 +58,11 @@ const { text, omittedBytes } = out.finish()
 ### 构建省略页脚
 
 ```ts
-import { formatRetentionNotice } from '@deepseek-ai/dsh-output-retention'
+import { formatRetentionNotice } from '@metaworkflow/output-retention'
 
 declare const grepMaxMatches: number
 declare const items: { length: number }
-import type { Omitted } from '@deepseek-ai/dsh-output-retention'
+import type { Omitted } from '@metaworkflow/output-retention'
 
 declare const omitted: Omitted
 

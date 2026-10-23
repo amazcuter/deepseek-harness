@@ -1,65 +1,65 @@
-# TypeScript SDK snapshot patch for automatic DSH SDK failure notices.
+# TypeScript SDK snapshot patch for automatic MWF SDK failure notices.
 
 - id: skill-filesystem
-  name: '@deepseek-ai/dsh-skill-filesystem'
+  name: '@metaworkflow/skill-filesystem'
   config:
     includeDefaultRoots: false
 
 - id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+  name: '@metaworkflow/llm-deepseek-api-key'
   config:
     thinking: enabled
     reasoningEffort: max
 
 - id: session-persistence-jsonl
-  name: '@deepseek-ai/dsh-session-persistence-jsonl'
+  name: '@metaworkflow/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
-    compression: !!js "process.env.DSH_SNAPSHOT === undefined ? 'zstd' : 'none'"
+    root: !!js mwfHomePath('sessions')
+    compression: !!js "process.env.MWF_SNAPSHOT === undefined ? 'zstd' : 'none'"
 
 - id: session-log-deepseek
-  name: '@deepseek-ai/dsh-session-log-deepseek'
+  name: '@metaworkflow/session-log-deepseek'
   config:
     enabled: true
 
 - insert:
     - id: subagent-dsh-sdk-diagnostic
-      name: '@deepseek-ai/dsh-subagent-dsh-sdk'
+      name: '@metaworkflow/subagent-dsh-sdk'
       config:
-        providerName: dsh-sdk-diagnostic
+        providerName: mwf-sdk-diagnostic
         profile: sdk
         patches:
-          - !!js process.env.DSH_TEST_CHILD_PATCH
-        dshHome: !!js dshHomePath('children/first')
+          - !!js process.env.MWF_TEST_CHILD_PATCH
+        mwfHome: !!js mwfHomePath('children/first')
         provider: mock
         model: mock-echo
         env:
-          DSH_TELEMETRY_DISABLED: '1'
-          DSH_TEST_CHILD_FAILURE: '1'
+          MWF_TELEMETRY_DISABLED: '1'
+          MWF_TEST_CHILD_FAILURE: '1'
     - id: tool-subagent-dsh-sdk-diagnostic
-      name: '@deepseek-ai/dsh-tool-subagent'
+      name: '@metaworkflow/tool-subagent'
       config:
-        provider: dsh-sdk-diagnostic
-        toolName: subagent_dsh_sdk
+        provider: mwf-sdk-diagnostic
+        toolName: subagent_mwf_sdk
         maxDepth: provider-managed
-    - id: subagent-dsh-sdk-diagnostic-second
-      name: '@deepseek-ai/dsh-subagent-dsh-sdk'
+    - id: subagent-mwf-sdk-diagnostic-second
+      name: '@metaworkflow/subagent-dsh-sdk'
       config:
-        providerName: dsh-sdk-diagnostic-second
+        providerName: mwf-sdk-diagnostic-second
         profile: sdk
         patches:
-          - !!js process.env.DSH_TEST_CHILD_PATCH
-        dshHome: !!js dshHomePath('children/second')
+          - !!js process.env.MWF_TEST_CHILD_PATCH
+        mwfHome: !!js mwfHomePath('children/second')
         provider: mock
         model: mock-echo
         env:
-          DSH_TELEMETRY_DISABLED: '1'
-          DSH_TEST_CHILD_FAILURE: '1'
-    - id: tool-subagent-dsh-sdk-diagnostic-second
-      name: '@deepseek-ai/dsh-tool-subagent'
+          MWF_TELEMETRY_DISABLED: '1'
+          MWF_TEST_CHILD_FAILURE: '1'
+    - id: tool-subagent-mwf-sdk-diagnostic-second
+      name: '@metaworkflow/tool-subagent'
       config:
-        provider: dsh-sdk-diagnostic-second
-        toolName: subagent_dsh_sdk_second
+        provider: mwf-sdk-diagnostic-second
+        toolName: subagent_mwf_sdk_second
         maxDepth: provider-managed
     - id: await-external-subagents
       name: '../../../packages/test-support/session-snapshot/tests/fixtures/subagent-settlement-barrier.ts'

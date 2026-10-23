@@ -10,7 +10,7 @@ Best-effort Loader reconcile 会保留可用 plugin，但应用仍需一组最�
 
 ## 决策
 
-DSH 在 vendored Cordis 之外持有启动严格语义。App-boot 用一份全局稳定 entry id list 审计已结算的初始 tree。List 中存在、启用且未 active 的 entry 会使启动 reject，并拆卸应用。List 中缺失或禁用的 id 不产生影响。Bootstrap Include 按 entry 身份被视为 required，因为根配置缺失或无效会阻止应用组装。其他 inactive entry 输出一次 warning，并让成功 sibling 继续运行。
+MWF 在 vendored Cordis 之外持有启动严格语义。App-boot 用一份全局稳定 entry id list 审计已结算的初始 tree。List 中存在、启用且未 active 的 entry 会使启动 reject，并拆卸应用。List 中缺失或禁用的 id 不产生影响。Bootstrap Include 按 entry 身份被视为 required，因为根配置缺失或无效会阻止应用组装。其他 inactive entry 输出一次 warning，并让成功 sibling 继续运行。
 
 Required id 为 `agent-loop`、`webserver`、`modules`、`connection`、`headless-runner`、`acp` 和 `sdk-jsonrpc-server`。它们分别代表共享 Agent 执行、应用 endpoint，以及 Web 启动与传输。即使 HTTP server 不依赖它们也能监听，Web 仍需要客户端模块注册表和经过认证的连接。通过注入已成为必需项的 provider 不需要单列：它们缺失时，已列出的消费方会保持 pending 或失败。
 
@@ -28,7 +28,7 @@ Required id 为 `agent-loop`、`webserver`、`modules`、`connection`、`headles
 
 ## 后果
 
-稳定的 required entry id 是应用 assembly 的一部分。重命名时必须同步更新 list 与测试。Optional plugin failure 会保留在 Loader state 和 stderr 中，但不会拆卸 active sibling。Required failure 将所有 inactive entry 合并到一份诊断中，区分失败插件与等待服务的插件，并标记 required entry。App-boot 拆卸 root 后，`StartupError` 仍以 cause 保留原始失败。CLI 仅输出其消息一次，并以退出码 1 结束，避免重复的包装堆栈，同时保留插件堆栈、嵌套原因和聚合错误成员。CLI 将原始错误、未激活条目的元数据及启动警告、错误记录保存到直接位于 `$DSH_HOME/logs/` 下的唯一报告中，保留简洁终端输出省略的导入错误和错误属性。写入失败时，完整报告回退到 stderr，退出码仍为 1。其他异常继续作为未处理异常抛出。
+稳定的 required entry id 是应用 assembly 的一部分。重命名时必须同步更新 list 与测试。Optional plugin failure 会保留在 Loader state 和 stderr 中，但不会拆卸 active sibling。Required failure 将所有 inactive entry 合并到一份诊断中，区分失败插件与等待服务的插件，并标记 required entry。App-boot 拆卸 root 后，`StartupError` 仍以 cause 保留原始失败。CLI 仅输出其消息一次，并以退出码 1 结束，避免重复的包装堆栈，同时保留插件堆栈、嵌套原因和聚合错误成员。CLI 将原始错误、未激活条目的元数据及启动警告、错误记录保存到直接位于 `$MWF_HOME/logs/` 下的唯一报告中，保留简洁终端输出省略的导入错误和错误属性。写入失败时，完整报告回退到 stderr，退出码仍为 1。其他异常继续作为未处理异常抛出。
 
 简洁的终端报告突出失败插件；单独文件保存原始诊断，不受默认 logger 缓冲区记录数限制。原始错误值保持完整，因此报告附带分享提醒，不会静默脱敏字段。独立的 exporter 生命周期覆盖应用的异步资源释放。CLI 等待 stderr 写入完成后明确退出，因为失败插件可能留下 stdin 或其他打开的句柄。
 

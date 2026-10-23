@@ -4,16 +4,16 @@ import { join } from 'node:path'
 import { setImmediate } from 'node:timers/promises'
 import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import WorkingDirectory, { type Config as WorkingDirectoryConfig } from '@deepseek-ai/dsh-working-directory'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
-import { renderContextSnapshot, renderPrompt } from '@deepseek-ai/dsh-system-prompt'
-import * as WorkingDirectoryTool from '@deepseek-ai/dsh-tool-working-directory'
+import LocalFileSystem from '@metaworkflow/fs-local'
+import WorkingDirectory, { type Config as WorkingDirectoryConfig } from '@metaworkflow/working-directory'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@metaworkflow/agent-loop-testkit'
+import { SessionId } from '@metaworkflow/session'
+import { ToolCallId } from '@metaworkflow/llm'
+import { renderContextSnapshot, renderPrompt } from '@metaworkflow/system-prompt'
+import * as WorkingDirectoryTool from '@metaworkflow/tool-working-directory'
 
 async function fixture(config?: (root: string) => WorkingDirectoryConfig) {
-  const root = await realpath(await mkdtemp(join(tmpdir(), 'dsh-working-directory-')))
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'mwf-working-directory-')))
   const ctx = new Context()
   try {
     await mountAgentLoopTestDependencies(ctx, { systemPrompt: { includeRuntimeContext: false } })

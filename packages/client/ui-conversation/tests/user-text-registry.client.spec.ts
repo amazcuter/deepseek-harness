@@ -2,7 +2,7 @@ import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, expectTypeOf, it, onTestFinished, vi } from 'vitest'
 import type {
   UserTextDataMap, UserTextEvaluator, UserTextNode, UserTextRule,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
+} from '@metaworkflow/client-ui-conversation/client'
 import { UserTextRegistry } from '../src/client/conversation/user-text-registry.ts'
 
 type JsonValue = string | number | null | readonly string[] | { readonly value: string }
@@ -12,7 +12,7 @@ interface AnnotationData {
   readonly nested?: { readonly values: readonly (string | number | boolean | null)[] }
 }
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@metaworkflow/client-ui-conversation/client' {
   interface UserTextDataMap {
     'test.annotation': AnnotationData
     'test.json': { readonly value: JsonValue }
@@ -273,7 +273,7 @@ describe('sessionReferenceRule', () => {
     const { sessionReferenceRule } = await import('../src/client/user-text/session-reference-rule.ts')
     const { registry } = setup()
     registry.register(sessionReferenceRule)
-    const wire = '@[查看并分析图片](dsh-session:InNlc3Npb24tNDM0)'
+    const wire = '@[查看并分析图片](mwf-session:InNlc3Npb24tNDM0)'
     const text = `看看 ${wire} 的结论`
     const nodes = registry.createEvaluator()({ text, facts: {} })
     expect(nodes).toEqual([
@@ -303,7 +303,7 @@ describe('sessionReferenceRule', () => {
     const { sessionReferenceRule } = await import('../src/client/user-text/session-reference-rule.ts')
     const { registry } = setup()
     registry.register(sessionReferenceRule)
-    const text = '@[a](dsh-session:x)'
+    const text = '@[a](mwf-session:x)'
     expect(registry.createEvaluator()({ text, facts: { sessionLabels: ['[a]'] } })).toEqual([
       { id: 'session', start: 0, end: text.length, data: { label: 'a' } },
     ])

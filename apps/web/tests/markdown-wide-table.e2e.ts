@@ -22,13 +22,13 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createMessage, createUserMessage } from '@metaworkflow/llm'
 import {
   SESSION_FORMAT_VERSION,
   Session,
   SessionId,
-} from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-session-title'
+} from '@metaworkflow/session'
+import type {} from '@metaworkflow/session-title'
 import {
   assertFixtureInventory,
   compareOrRefreshGolden,
@@ -221,7 +221,7 @@ async function awaitTableLayout(target: Page): Promise<void> {
       && element.getAnimations().every(animation =>
         animation.playState === 'finished' || animation.playState === 'idle')
       && root !== null
-      && root.style.getPropertyValue('--dsh-conversation-column-width') === `${String(root.offsetWidth)}px`
+      && root.style.getPropertyValue('--mwf-conversation-column-width') === `${String(root.offsetWidth)}px`
   }, undefined, { timeout: 10_000 })
 }
 

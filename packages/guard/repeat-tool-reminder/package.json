@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-repeat-tool-reminder",
+  "name": "@metaworkflow/repeat-tool-reminder",
   "description": "Repeat-tool-call guard plugin: advisory reminders when an agent loops on identical tool calls",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -32,18 +32,18 @@
     "@deepseek-ai/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/agent-loop": "workspace:*",
+    "@metaworkflow/agent-loop-testkit": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-session-projection": "workspace:*"
+    "@metaworkflow/session-projection": "workspace:*"
   }
 }

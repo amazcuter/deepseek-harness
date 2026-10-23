@@ -16,7 +16,7 @@ it.each([null, 'failure', {}, { errors: null }, { errors: [null] }, { errors: [7
 })
 
 it('formats compiler source locations and reports unavailable source files', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-hmr-diagnostics-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-hmr-diagnostics-'))
   const file = join(root, 'broken.ts')
   writeFileSync(file, 'const broken = ;\n')
   const ctx = new Context()

@@ -1,6 +1,6 @@
 /** Web transport delegates module and entry changes to the page-owned controller. */
 import { Context } from '@deepseek-ai/cordis'
-import type { ClientModuleLoader } from '@deepseek-ai/dsh-client-modules/client'
+import type { ClientModuleLoader } from '@metaworkflow/client-modules/client'
 import { afterEach, expect, it, vi } from 'vitest'
 import { apply, inject } from '../src/client/index.ts'
 
@@ -67,7 +67,7 @@ it('reads the event stream through the page transport when the shell provides on
     })
     return Promise.resolve(new Response(body, { status: 200, headers: { 'content-type': 'text/event-stream' } }))
   })
-  vi.stubGlobal('__DSH_TRANSPORT__', { fetch })
+  vi.stubGlobal('__MWF_TRANSPORT__', { fetch })
   const eventSource = vi.fn()
   vi.stubGlobal('EventSource', eventSource)
   const errors = vi.spyOn(ctx.logger, 'error').mockImplementation(() => {})
@@ -96,7 +96,7 @@ it.each([
   const ctx = new Context()
   provideModules(ctx, vi.fn(), vi.fn())
   const errors = vi.spyOn(ctx.logger, 'error').mockImplementation(() => {})
-  vi.stubGlobal('__DSH_TRANSPORT__', { fetch: () => Promise.resolve(respond()) })
+  vi.stubGlobal('__MWF_TRANSPORT__', { fetch: () => Promise.resolve(respond()) })
   const fiber = ctx.plugin({ apply, inject })
   try {
     await fiber.await()
@@ -116,7 +116,7 @@ it('stays silent when disposal aborts a page-transport request in flight', async
   const fetch = vi.fn((_input: string, init: RequestInit) => new Promise<Response>((_resolve, reject) => {
     init.signal?.addEventListener('abort', () => { reject(new DOMException('aborted', 'AbortError')) })
   }))
-  vi.stubGlobal('__DSH_TRANSPORT__', { fetch })
+  vi.stubGlobal('__MWF_TRANSPORT__', { fetch })
   const fiber = ctx.plugin({ apply, inject })
   await fiber.await()
   await vi.waitFor(() => { expect(fetch).toHaveBeenCalledOnce() })

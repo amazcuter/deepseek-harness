@@ -3,8 +3,8 @@
 import { useMemo, useSyncExternalStore } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
+import { makeTranslate } from '@metaworkflow/client-test-runtime'
+import type { TabId } from '@metaworkflow/client-ui-dockkit'
 import type { PdfDocument } from '../src/client/pdf/document.ts'
 import type { renderPdfPage } from '../src/client/pdf/document.ts'
 import type { openPdf } from '../src/client/pdf/runtime.ts'
@@ -90,7 +90,7 @@ function harness() {
     const bytes = useMemo(() => new TextEncoder().encode(data), [data])
     // The PDF body reads these standard seats; the remaining framework seats are unused here.
     const props = {
-      resourceAddress: 'dsh-resource://file/session/s/report.pdf',
+      resourceAddress: 'mwf-resource://file/session/s/report.pdf',
       content: kind === 'bytes' ? { kind, data: bytes } : { kind, text: '', pages: [], eof: true }, wrap: false,
       useTabInfo: () => ({ tab: { id: tabId, signal: controller.signal } }),
       useStore, actions: instance.actions, retainTab: vi.fn(), t: makeTranslate(en),

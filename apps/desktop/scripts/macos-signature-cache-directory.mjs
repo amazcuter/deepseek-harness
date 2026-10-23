@@ -9,7 +9,7 @@ import { dirname, isAbsolute, join, resolve } from 'node:path'
  */
 export function validateMacOSSignatureCacheDirectory(path) {
   if (!path || path.includes('\0') || !isAbsolute(path)) {
-    throw new Error('DSH_DESKTOP_MACOS_SIGNATURE_CACHE_DIR must be a nonempty absolute directory')
+    throw new Error('MWF_DESKTOP_MACOS_SIGNATURE_CACHE_DIR must be a nonempty absolute directory')
   }
   const root = resolve(path)
   for (let ancestor = root; ; ancestor = dirname(ancestor)) {
@@ -33,6 +33,6 @@ export function validateMacOSSignatureCacheDirectory(path) {
  * @returns Selected cache directory; only the default may be created later by the signer.
  */
 export function resolveMacOSSignatureCacheDirectory(environment, targetBuildRoot) {
-  const selected = environment.DSH_DESKTOP_MACOS_SIGNATURE_CACHE_DIR
+  const selected = environment.MWF_DESKTOP_MACOS_SIGNATURE_CACHE_DIR
   return selected === undefined ? join(targetBuildRoot, 'signature-cache') : validateMacOSSignatureCacheDirectory(selected)
 }

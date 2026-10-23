@@ -12,11 +12,11 @@ Status: implemented
 
 ## Decision
 
-[`packages/client/resources`](../../../../packages/client/resources/README.zh.md)（`@deepseek-ai/dsh-client-resources`）提供 `ctx.resources` 与 `useResource` 全局标准 hook。消费方活读的任何东西都是**资源**，资源只由其**地址**标识，地址的协议命名唯一一个把它变成帧流的**提供方**。
+[`packages/client/resources`](../../../../packages/client/resources/README.zh.md)（`@metaworkflow/client-resources`）提供 `ctx.resources` 与 `useResource` 全局标准 hook。消费方活读的任何东西都是**资源**，资源只由其**地址**标识，地址的协议命名唯一一个把它变成帧流的**提供方**。
 
 ### 地址
 
-资源地址是 `dsh-resource://<type>/…` 形式的 URL。host 是协议键——`ResourceProtocolMap` 的键——路径归协议拥有者。`RESOURCE_SCHEME = 'dsh-resource'` 是唯一的 scheme 常量；`protocolOf(address)` 用 `new URL` 解析字串，要求 `protocol === 'dsh-resource:'`，返回小写 host；解析器拒绝的字串、其它 scheme 或空 host 返回 `undefined`。`dsh-resource` 不是 URL 规范里的特殊 scheme，解析器会保留 host 的大小写并把路径当作不透明串，所以小写化是显式做的，每段路径由定义它的协议做百分号编码。需要作用域的协议把作用域编进路径：`dsh-resource://file/session/<sessionId>/<path>`，`session/<sessionId>` 命名由其 Host 工作区解析相对或绝对路径的 Session（[语法](../../../../packages/util/workspace-path/README.zh.md)）。其它任何 scheme——`sidebar://guide`——是导航地址：它命名一个 tab 而非数据，模型对它回答 `none`（[tab 类型与导航](../../../../packages/client/ui-sidebar-right/README.zh.md)）。
+资源地址是 `mwf-resource://<type>/…` 形式的 URL。host 是协议键——`ResourceProtocolMap` 的键——路径归协议拥有者。`RESOURCE_SCHEME = 'mwf-resource'` 是唯一的 scheme 常量；`protocolOf(address)` 用 `new URL` 解析字串，要求 `protocol === 'mwf-resource:'`，返回小写 host；解析器拒绝的字串、其它 scheme 或空 host 返回 `undefined`。`mwf-resource` 不是 URL 规范里的特殊 scheme，解析器会保留 host 的大小写并把路径当作不透明串，所以小写化是显式做的，每段路径由定义它的协议做百分号编码。需要作用域的协议把作用域编进路径：`mwf-resource://file/session/<sessionId>/<path>`，`session/<sessionId>` 命名由其 Host 工作区解析相对或绝对路径的 Session（[语法](../../../../packages/util/workspace-path/README.zh.md)）。其它任何 scheme——`sidebar://guide`——是导航地址：它命名一个 tab 而非数据，模型对它回答 `none`（[tab 类型与导航](../../../../packages/client/ui-sidebar-right/README.zh.md)）。
 
 ### 服务
 
@@ -65,7 +65,7 @@ type UseResource = <P extends ResourceProtocol>(address: string) => ResourceSnap
 
 **以抛错表达失败，并把非 `RemoteFailure` 的抛出包装成 `gateway/internal`。** 被否：Remote 面从不 reject，所以提供方抛出的任何东西都是 bug，包装它就是把 bug 藏起来不让肇事者看见的 fallback。失败是 `ok: false` 帧；抛出就冒出来。
 
-**`file:/<scope>/<id>/<path>`，再到把作用域放在 authority 位的 `file://<scope>/<id>/<path>`。** 两版更早的语法。单斜杠形态不是平台解析器接受的 URL，每个消费方都得手工解析。把作用域移到 authority 位使它成为 URL，却让每个资源协议各占一个 scheme——`file://`、将来的 `chat://`、`terminal://`——scheme 的集合随协议集合增长，`file://` 地址不再是它在别处的含义，区分资源地址与导航地址需要一张清单。单一 scheme `dsh-resource://<type>/…` 让这个判断只需一次比较，host 留给协议命名，其它所有 scheme 留给导航。
+**`file:/<scope>/<id>/<path>`，再到把作用域放在 authority 位的 `file://<scope>/<id>/<path>`。** 两版更早的语法。单斜杠形态不是平台解析器接受的 URL，每个消费方都得手工解析。把作用域移到 authority 位使它成为 URL，却让每个资源协议各占一个 scheme——`file://`、将来的 `chat://`、`terminal://`——scheme 的集合随协议集合增长，`file://` 地址不再是它在别处的含义，区分资源地址与导航地址需要一张清单。单一 scheme `mwf-resource://<type>/…` 让这个判断只需一次比较，host 留给协议命名，其它所有 scheme 留给导航。
 
 **手写 scheme 前缀解析代替 URL 解析器。** 第一版 `protocolOf` 用正则匹配 scheme。地址成为 URL 后被否：解析器已经决定合法性与大小写，它拒绝的字串应读作「无协议」而不是被解析一半。
 

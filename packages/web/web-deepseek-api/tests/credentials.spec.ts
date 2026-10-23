@@ -4,11 +4,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import LocalCredentialProvider from '@deepseek-ai/dsh-credentials-local'
-import { DSH_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
-import WebRuntime from '@deepseek-ai/dsh-web'
-import * as webApiPlugin from '@deepseek-ai/dsh-web-deepseek-api'
+import { credentialRef } from '@metaworkflow/credentials'
+import LocalCredentialProvider from '@metaworkflow/credentials-local'
+import { MWF_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot } from '@metaworkflow/launch-environment'
+import WebRuntime from '@metaworkflow/web'
+import * as webApiPlugin from '@metaworkflow/web-deepseek-api'
 
 const BASE = 'https://api.deepseek.test/v1/tools'
 
@@ -28,7 +28,7 @@ function captureAuthorization(): () => (string | null)[] {
  * @param environment - launch-environment variables.
  */
 async function mount(ctx: Context, config: Record<string, unknown>, environment: Record<string, string>): Promise<void> {
-  ctx.provide(DSH_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot([{ source: 'process', values: environment }]))
+  ctx.provide(MWF_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot([{ source: 'process', values: environment }]))
   await ctx.plugin(WebRuntime, { searchProvider: 'deepseek-search-api' })
   await ctx.plugin(webApiPlugin, { baseURL: BASE, ...config })
 }
@@ -38,7 +38,7 @@ afterEach(() => { vi.unstubAllGlobals() })
 describe('web-deepseek-api API-key resolution', () => {
   it('resolves the referenced credential for each request, so a stored or rotated key needs no restart', async () => {
     const authorization = captureAuthorization()
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-web-deepseek-api-credentials-'))
+    const dir = await mkdtemp(join(tmpdir(), 'mwf-web-deepseek-api-credentials-'))
     const ctx = new Context()
     try {
       await ctx.plugin(LocalCredentialProvider, { path: join(dir, '.credentials.yaml'), watch: false })

@@ -1,7 +1,7 @@
 /** Independent work-details preferences backed by the same Host configuration form. */
 
-import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { ConfigForm } from '@deepseek-ai/dsh-client-ui-settings/client'
+import { createSnapshotStore, type SnapshotStore } from '@metaworkflow/client-store'
+import type { ConfigForm } from '@metaworkflow/client-ui-settings/client'
 import type { CollapseTiming } from './presentation-policy.ts'
 import {
   COLLAPSE_TIMING_FIELD, DEFAULT_COLLAPSE_TIMING,

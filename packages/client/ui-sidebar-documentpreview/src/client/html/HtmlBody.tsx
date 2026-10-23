@@ -1,8 +1,8 @@
 /** Static or interactive HTML in an opaque iframe, without parent application access. */
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { InjectFace, PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
+import type { InjectFace, PropsLocale } from '@metaworkflow/client-ui-slots'
+import type { ObservableSnapshot } from '@metaworkflow/client-store'
 import type { DocumentPreviewProps } from '../document/contract.ts'
 import { LoadingIndicator } from '../LoadingIndicator.tsx'
 import { createHtmlDocument } from './bootstrap.ts'
@@ -82,7 +82,7 @@ export function HtmlBody({
     if (!interactivePreview) setResources([])
   }, [interactivePreview, setResources])
   if (content.kind !== 'bytes') return null
-  const frameName = `dsh-sidebar-html-${tab.id}`
+  const frameName = `mwf-sidebar-html-${tab.id}`
   if (!interactivePreview) return <BasicHtmlFrame data={content.data} frameName={frameName} t={t} />
   return <HtmlFrame key={resourceAddress} data={content.data} resourceAddress={resourceAddress}
     readRelated={readRelated} signal={tab.signal} frameName={frameName} addResource={addResource} setResources={setResources} t={t} />

@@ -3,7 +3,7 @@ description: "冻结的已发布 v0 会话标头、事件与打包行解码器�
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-session-format-v0-to-v1
+# @metaworkflow/session-format-v0-to-v1
 
 [English](README.md) | 中文
 
@@ -27,7 +27,7 @@ kind: "package-library"
 
 ### 何时使用
 
-持久化通过 `dsh-session-format-catalog` 获取该迁移边；功能组合不会挂载它。只有在装配或测试静态已发布格式目录时，才直接导入本包。
+持久化通过 `mwf-session-format-catalog` 获取该迁移边；功能组合不会挂载它。只有在装配或测试静态已发布格式目录时，才直接导入本包。
 
 ### 入口
 

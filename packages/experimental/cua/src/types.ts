@@ -1,6 +1,6 @@
 /** Native application objects independent of evaluator ownership and persistence. */
-import type { Branded } from '@deepseek-ai/dsh-brand'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { Branded } from '@metaworkflow/brand'
+import type { JsonValue } from '@metaworkflow/util-values'
 import type { z } from 'zod'
 import type { ActionResult, CapabilitiesResult, FoundAppsResult, HoverResult, Request, ScreenshotResult, ShowResult, WindowsResult } from './protocol.ts'
 

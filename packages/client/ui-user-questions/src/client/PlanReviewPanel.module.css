@@ -3,7 +3,7 @@
   justify-content: center;
   /* Sides = clearance + 16px: the card lands on the shared content width
      (input card - 32) at every viewport. */
-  padding: 6px calc(var(--dsh-composer-side-clearance) + 16px) 10px;
+  padding: 6px calc(var(--mwf-composer-side-clearance) + 16px) 10px;
 }
 
 .card {
@@ -11,7 +11,7 @@
   overflow: hidden;
   flex-direction: column;
   width: 100%;
-  max-width: var(--dsh-chat-content-width);
+  max-width: var(--mwf-chat-content-width);
   --dsw-elevation-stroke-color: var(--dsw-alias-border-l2);
   border: 0;
   border-radius: var(--dsw-radius-xl);

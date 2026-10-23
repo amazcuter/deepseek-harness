@@ -41,10 +41,10 @@
  * directories, token/grant/spawn errors) prints `windows-acl-run: <detail>`
  * to stderr and exits 127 — the seam's RUNNER_FAILURE_RULES matches that
  * signature. The child is NEVER spawned unrestricted.
- * @module @deepseek-ai/dsh-sandbox-windows-acl/runner
+ * @module @metaworkflow/sandbox-windows-acl/runner
  */
 
-import { SUBPROCESS_CONTROL_ENV, SUBPROCESS_CONTROL_FD } from '@deepseek-ai/dsh-subprocess/control'
+import { SUBPROCESS_CONTROL_ENV, SUBPROCESS_CONTROL_FD } from '@metaworkflow/subprocess/control'
 import { closeSync, existsSync, mkdtempSync, rmSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -154,7 +154,7 @@ async function main(): Promise<number> {
         privateTempSid = tempWriteSid(privateTempDir)
         if (parsed.tempWriteSid !== privateTempSid) fail('--temp-write-sid does not match --temp')
       } else {
-        ownedTempDir = mkdtempSync(join(parsed.temp, 'dsh-'))
+        ownedTempDir = mkdtempSync(join(parsed.temp, 'mwf-'))
         privateTempDir = ownedTempDir
         privateTempSid = tempWriteSid(privateTempDir)
       }

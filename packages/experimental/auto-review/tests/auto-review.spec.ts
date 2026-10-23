@@ -1,10 +1,10 @@
 import { externalTestParent } from '../../../subagent/subagent/tests/external-activation-helpers.ts'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { provideWorkingDirectoryFixture } from '@metaworkflow/agent-loop-testkit'
 import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent-instructions'
-import { compactCheckpointSource, CompactionId } from '@deepseek-ai/dsh-compaction'
+import type { Agent } from '@metaworkflow/agent'
+import type {} from '@metaworkflow/agent-instructions'
+import { compactCheckpointSource, CompactionId } from '@metaworkflow/compaction'
 import LlmRuntime, {
   createMessage,
   createSystemMessage,
@@ -16,34 +16,34 @@ import LlmRuntime, {
   type GenerateOptions,
   type StreamChunk,
   type ToolSchema,
-} from '@deepseek-ai/dsh-llm'
+} from '@metaworkflow/llm'
 import PermissionPresetService, {
   AUTO_PRESET,
   type Config as PermissionConfig,
-} from '@deepseek-ai/dsh-permission-presets'
+} from '@metaworkflow/permission-presets'
 import SessionStore, {
   SessionId,
   SessionLogOffset,
   type Session,
-} from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+} from '@metaworkflow/session'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
 import SubagentRuntime, {
   NO_START_CAPABILITIES,
   SUBAGENT_DESCRIPTOR_VERSION,
   type SubagentStartRequest,
-} from '@deepseek-ai/dsh-subagent'
-import type {} from '@deepseek-ai/dsh-shell'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import * as ToolSubagent from '@deepseek-ai/dsh-tool-subagent'
+} from '@metaworkflow/subagent'
+import type {} from '@metaworkflow/shell'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import * as ToolSubagent from '@metaworkflow/tool-subagent'
 import ToolRuntime, {
   defineContentToolFixture,
   RUN_CODE_NAME,
   TOOL_ABORTED_BEFORE_DISPATCH,
   type PreToolDecision,
   type ToolExecutionToken,
-} from '@deepseek-ai/dsh-tools'
-import ApprovalService, { setApprovalPolicy, type ApprovalOutcome } from '@deepseek-ai/dsh-user-approval'
-import * as AutoReview from '@deepseek-ai/dsh-experimental-auto-review'
+} from '@metaworkflow/tools'
+import ApprovalService, { setApprovalPolicy, type ApprovalOutcome } from '@metaworkflow/user-approval'
+import * as AutoReview from '@metaworkflow/experimental-auto-review'
 
 const EXPECTED_REVIEW_POLICY = `REVIEW_POLICY
 You are the final authorization reviewer for exactly one pending tool call. Your decision replaces human approval for this call. If you allow it, the call executes immediately with full host access and no later confirmation.

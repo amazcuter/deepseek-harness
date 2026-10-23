@@ -4,8 +4,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
-import type { SubprocessHandle } from '@deepseek-ai/dsh-subprocess'
-import LocalSubprocess from '@deepseek-ai/dsh-subprocess-local'
+import type { SubprocessHandle } from '@metaworkflow/subprocess'
+import LocalSubprocess from '@metaworkflow/subprocess-local'
 import { afterEach, expect, it, vi } from 'vitest'
 import { Config } from '../src/config.ts'
 import { SenseVoiceWorker } from '../src/recognizer.ts'
@@ -17,7 +17,7 @@ const cleanup: Array<() => Promise<void>> = []
 afterEach(async () => { for (const close of cleanup.splice(0).reverse()) await close(); vi.clearAllMocks() })
 
 async function fixture(overrides: Partial<Config> = {}) {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-speech-test-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-speech-test-'))
   cleanup.push(async () => { await rm(root, { recursive: true, force: true }) })
   const ctx = new Context()
   cleanup.push(async () => { await ctx.fiber.dispose() })

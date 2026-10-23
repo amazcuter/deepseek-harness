@@ -13,4 +13,4 @@ const api: MandatoryUpdateApi = {
     return () => { ipcRenderer.off(MANDATORY_IPC.state, handle) }
   },
 }
-if (location.href === 'dsh-app://shell/mandatory-update.html') contextBridge.exposeInMainWorld('dshMandatoryUpdate', api)
+if (location.href === 'mwf-app://shell/mandatory-update.html') contextBridge.exposeInMainWorld('mwfMandatoryUpdate', api)

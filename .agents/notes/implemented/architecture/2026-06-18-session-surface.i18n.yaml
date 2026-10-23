@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-06-18-session-surface.md
 /agent-note-session-surface-an-ordered-projection-over-the-event-log:
-  en: 9ea7a8765e7f3259
-  zh: 17e0d51645f01edd
+  en: 457b4231ae67e5b4
+  zh: 44a3e30d388f0fa7
 /agent-note-session-surface-an-ordered-projection-over-the-event-log/problem:
   en: 4f7a9d20d71a6ab3
   zh: 958abbdfefec4f21
@@ -15,23 +15,23 @@
   en: 788fc16ecdedc252
   zh: 14d05c2a1272de5d
 /agent-note-session-surface-an-ordered-projection-over-the-event-log/decision/surfaceop-two-operations:
-  en: ff075eec0881094a
-  zh: 1f7768f28b8996d5
+  en: 46d39224c0b185bf
+  zh: 1e47e4112703b5f6
 /agent-note-session-surface-an-ordered-projection-over-the-event-log/decision/surfacemanager-delta-based-not-full-rebuild:
   en: 0b10fd9c5166d17b
   zh: 02de01f70c03f70e
 /agent-note-session-surface-an-ordered-projection-over-the-event-log/decision/persistence:
-  en: 9bb1f81b86b24760
-  zh: fe4948645dd0c66d
+  en: 286f1a3c8016ccba
+  zh: 88679db1644b9944
 /agent-note-session-surface-an-ordered-projection-over-the-event-log/decision/crash-recovery:
   en: ee71f9c0f12b6a0e
   zh: 403b1723f808391d
 /agent-note-session-surface-an-ordered-projection-over-the-event-log/decision/invariants:
-  en: 98f39e77083d67b7
-  zh: 634a9227fc2a7ec9
+  en: 1dcc7d94dd9c0524
+  zh: 022e1a44f223e6d2
 /agent-note-session-surface-an-ordered-projection-over-the-event-log/alternatives-considered:
   en: 193157129e65e487
   zh: a0a73b8a9cbd78e6
 /agent-note-session-surface-an-ordered-projection-over-the-event-log/consequences:
-  en: 801b67f8da564a22
-  zh: 3c0433ed07083050
+  en: 486b52f64456c86a
+  zh: 30c21ff7ff969263

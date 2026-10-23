@@ -1,13 +1,13 @@
 // Web e2e scenario: fresh round trip. A real chromium types a prompt into the
 // real composer; the wire, Remote gateway, agent loop, and the REAL bash tool (echo
-// in the temp workspace) all run; the model adapter is dsh-llm-replay (keyless)
+// in the temp workspace) all run; the model adapter is mwf-llm-replay (keyless)
 // or the live adapter (record). Drive steps run in every mode and wait only
 // on generic completion (whenTurnSettled — never model-content selectors, so
 // record cannot hang on a live model answering differently); assertion steps
 // run in replay/refresh only. Streaming fidelity is asserted from the durable
 // embedded Assistant stream, not transient DOM.
-// Record: DSH_SNAPSHOT=record writes the current Session generation, then a keyless
-// DSH_SNAPSHOT=refresh regenerates ui.expected.md.
+// Record: MWF_SNAPSHOT=record writes the current Session generation, then a keyless
+// MWF_SNAPSHOT=refresh regenerates ui.expected.md.
 // Suite setup (beforeAll, not per step): one fixed page clock
 // (page.clock.setFixedTime) and one routed Remote mux socket
 // (page.routeWebSocket) serve every step below, so the reconnect checkpoints
@@ -18,10 +18,10 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page, Route, WebSocketRoute } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { ToolCallId, expandAssistantStream } from '@deepseek-ai/dsh-llm'
-import { SessionId, type Session, type SessionEvent } from '@deepseek-ai/dsh-session'
-import type { SessionListValue } from '@deepseek-ai/dsh-api-session-controller/types'
-import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import { ToolCallId, expandAssistantStream } from '@metaworkflow/llm'
+import { SessionId, type Session, type SessionEvent } from '@metaworkflow/session'
+import type { SessionListValue } from '@metaworkflow/api-session-controller/types'
+import type { RemoteResult } from '@metaworkflow/typert-protocol'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureExpandedTurnProcessAria, captureStableAria,
   compareOrRefreshGolden, fixtureUserPrompts,
@@ -97,13 +97,13 @@ describe('web e2e: fresh round trip through the real assembly', () => {
       // Drift guard: the committed fixture must carry exactly the drive prompt.
       expect(fixtureUserPrompts(await readFile(FIXTURE, 'utf8'))).toEqual([PROMPT])
     }
-    const beforeReload = await page.evaluate(() => localStorage.getItem('dsh.sessions.current'))
+    const beforeReload = await page.evaluate(() => localStorage.getItem('mwf.sessions.current'))
     expect(beforeReload).not.toBeNull()
     await page.reload({ waitUntil: 'load' })
     await page.locator('[data-composer-input]').first().waitFor({ timeout: 15_000 })
     await page.getByRole('button', { name: 'Standard mode', exact: true }).waitFor({ timeout: 15_000 })
     await page.getByRole('button', { name: 'Select model, current DeepSeek-V4-Flash' }).waitFor({ timeout: 15_000 })
-    await expect.poll(() => page.evaluate(() => localStorage.getItem('dsh.sessions.current'))).toBe(beforeReload)
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('mwf.sessions.current'))).toBe(beforeReload)
     if (MODE !== 'record') {
       await compareOrRefreshGolden(BLANK_EXPECTED,
         await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd), MODE)
@@ -111,7 +111,7 @@ describe('web e2e: fresh round trip through the real assembly', () => {
     const input = page.locator('[data-composer-input]').first()
     await input.waitFor({ timeout: 10_000 })
     const sessionId = await page.evaluate(() => {
-      const selected = JSON.parse(localStorage.getItem('dsh.sessions.current')!) as { sessionId: string }
+      const selected = JSON.parse(localStorage.getItem('mwf.sessions.current')!) as { sessionId: string }
       return selected.sessionId
     }) as SessionId
     const agent = scaffold.ctx.agents.get(sessionId)
@@ -254,7 +254,7 @@ describe('web e2e: fresh round trip through the real assembly', () => {
           callId: ToolCallId('web-url-probe'),
           name: 'bash',
           arguments: {
-            command: 'printf \'%s\\n\' "$DSH_WEB_URL"',
+            command: 'printf \'%s\\n\' "$MWF_WEB_URL"',
             description: 'Print current Web runtime',
           },
           agent: handle.agent,

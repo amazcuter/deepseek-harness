@@ -167,7 +167,7 @@ def main():
                 settle_until = time.monotonic() + 5
                 while True:
                     windows = a.call("listWindows", {"appHandle": app_a})
-                    primary = next(value for value in windows if value["title"] == "DSH CUA primary fixture")
+                    primary = next(value for value in windows if value["title"] == "MWF CUA primary fixture")
                     size = [primary["bounds"]["width"], primary["bounds"]["height"]]
                     if size == json.loads(state.read_text())["primaryWindowSize"]:
                         break

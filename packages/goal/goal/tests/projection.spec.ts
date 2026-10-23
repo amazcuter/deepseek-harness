@@ -10,18 +10,18 @@
 
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import AgentRegistry, { agentEvents } from '@deepseek-ai/dsh-agent'
-import type { Agent, AgentStatus } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import SessionStore from '@deepseek-ai/dsh-session'
-import type { Session } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import GoalService, { GoalId, applyGoalProjection, foldGoal, goalProjectionDefinition } from '@deepseek-ai/dsh-goal'
-import type { GoalProjection, GoalProjectionState, GoalRef } from '@deepseek-ai/dsh-goal'
-import { unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
+import AgentRegistry, { agentEvents } from '@metaworkflow/agent'
+import type { Agent, AgentStatus } from '@metaworkflow/agent'
+import { createUserMessage } from '@metaworkflow/llm'
+import type { ContextFormed } from '@metaworkflow/llm'
+import SessionStore from '@metaworkflow/session'
+import type { Session } from '@metaworkflow/session'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import GoalService, { GoalId, applyGoalProjection, foldGoal, goalProjectionDefinition } from '@metaworkflow/goal'
+import type { GoalProjection, GoalProjectionState, GoalRef } from '@metaworkflow/goal'
+import { unsupportedInbox } from '@metaworkflow/agent-loop-testkit'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

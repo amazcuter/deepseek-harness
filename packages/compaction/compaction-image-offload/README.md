@@ -3,7 +3,7 @@ description: "The image offload executor for deployments composing compaction: w
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-compaction-image-offload
+# @metaworkflow/compaction-image-offload
 
 English | [中文](README.zh.md)
 
@@ -25,12 +25,12 @@ Image-heavy conversations continue when older images exceed a model route's budg
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this plugin in every composition that runs the agent loop with an image-capable route. The shipped `dsh` base does. Without it, an `IMAGE_OFFLOAD_REQUIRED` failure reaches ordinary recovery and ends the turn as an error. The plugin has no configuration: the DeepSeek adapter enforces its file-mode and inline-fallback budgets, the pi-ai adapter its base64 bound, and each reports the count it needs offloaded.
+Mount this plugin in every composition that runs the agent loop with an image-capable route. The shipped `mwf` base does. Without it, an `IMAGE_OFFLOAD_REQUIRED` failure reaches ordinary recovery and ends the turn as an error. The plugin has no configuration: the DeepSeek adapter enforces its file-mode and inline-fallback budgets, the pi-ai adapter its base64 bound, and each reports the count it needs offloaded.
 
 ### Minimal configuration
 
 ```yaml
-- name: '@deepseek-ai/dsh-compaction-image-offload'
+- name: '@metaworkflow/compaction-image-offload'
 ```
 
 ### What you can observe
@@ -65,7 +65,7 @@ The pure projection rejects invalid or repeated image references before Session 
 - [Dedicated image-offload events](../../../.agents/notes/implemented/architecture/2026-09-10-image-offload-events.md) — durable selections, ownership, and rejected alternatives.
 - [compaction seam](../compaction/README.md) — the neighboring summary and text-pruning operations.
 - [compaction-tool-result-pruner](../compaction-tool-result-pruner/README.md) — the sibling executor that trims tool outputs while preserving image selections.
-- [dsh-llm](../../llm/llm/README.md) — `ImageBlock.offloaded`, `IMAGE_OFFLOAD_REQUIRED`, and the placeholder projection.
+- [mwf-llm](../../llm/llm/README.md) — `ImageBlock.offloaded`, `IMAGE_OFFLOAD_REQUIRED`, and the placeholder projection.
 - [llm-deepseek adapter](../../llm/llm-deepseek/README.md) and [llm-pi-ai adapter](../../llm/llm-pi-ai/README.md) — the route budgets that report offload counts.
 
 -----

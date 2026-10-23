@@ -5,8 +5,8 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { Context } from '@deepseek-ai/cordis'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import { type ContinuableCreateSpec, type SubagentStartRequest } from '@deepseek-ai/dsh-subagent'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
+import { type ContinuableCreateSpec, type SubagentStartRequest } from '@metaworkflow/subagent'
 import { onTestFinished } from 'vitest'
 
 /**
@@ -15,7 +15,7 @@ import { onTestFinished } from 'vitest'
  */
 export async function mountLocalActivations(ctx: Context): Promise<void> {
   await mountWorkingDirectoryFixture(ctx)
-  const root = await mkdtemp(join(tmpdir(), 'dsh-local-activation-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-local-activation-'))
   onTestFinished(async () => {
     await ctx.fiber.dispose()
     await rm(root, { recursive: true, force: true })

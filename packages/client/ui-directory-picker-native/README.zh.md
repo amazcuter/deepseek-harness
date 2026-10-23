@@ -3,7 +3,7 @@ description: "原生目录选择表面：驱动本地 Desktop 或 Host 操作系
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-directory-picker-native
+# @metaworkflow/client-ui-directory-picker-native
 
 [English](README.md) | 中文
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-与 `ui-workspace` 及 Host 后端 [`dsh-host-directory-picker-native`](../../host/directory-picker-native/README.zh.md) 一起挂载本插件；一行 `cordis.yml` 随即组合出完整的原生拾取交互。当工作区添加或选择器流程发起目录请求时，用户看到操作系统的文件夹对话框；拾取的路径被工作区流程采纳，取消则关闭对话框。
+与 `ui-workspace` 及 Host 后端 [`mwf-host-directory-picker-native`](../../host/directory-picker-native/README.zh.md) 一起挂载本插件；一行 `cordis.yml` 随即组合出完整的原生拾取交互。当工作区添加或选择器流程发起目录请求时，用户看到操作系统的文件夹对话框；拾取的路径被工作区流程采纳，取消则关闭对话框。
 
 在本地 Electron 应用中，此流程使用 preload 提供的窄目录选择接口。取消和失败都不会改用 Host 选择器重试。普通 Web 使用 Host 调用；独立的浏览组合始终列出 Host 目录。
 
@@ -52,7 +52,7 @@ kind: "package-reference"
 
 当拾取面不够用时阅读以下页面。它们从浏览器半部进入 Host 后端与它所填充的 slot。
 
-- [dsh-host-directory-picker-native](../../host/directory-picker-native/README.zh.md)——本表面驱动的操作系统选择器后端。
+- [mwf-host-directory-picker-native](../../host/directory-picker-native/README.zh.md)——本表面驱动的操作系统选择器后端。
 - [ui-workspace](../ui-workspace/README.zh.md)——声明目录流程 slot 并拥有拾取对话。
 - [ui-directory-picker-browse](../ui-directory-picker-browse/README.zh.md)——面向远程与进程内部署的应用内浏览替代方案。
 - [Web 客户端架构](../../../docs/subsystems/web-client.zh.md)——浏览器插件行如何加载并注册 slot。

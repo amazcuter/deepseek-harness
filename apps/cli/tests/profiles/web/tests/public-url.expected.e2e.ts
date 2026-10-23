@@ -16,11 +16,11 @@ import { PROCESS_SHUTDOWN_TIMEOUT_MS } from '../../../../src/process-shutdown.ts
 import { materializeTlsFixture } from '../../../../../../packages/host/webserver/tests/tls-fixture.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
-const dshBin = join(repoRoot, 'apps/cli/lib/bin.js')
-const builtArtifactsExist = existsSync(dshBin)
+const mwfBin = join(repoRoot, 'apps/cli/lib/bin.js')
+const builtArtifactsExist = existsSync(mwfBin)
 
 /** Browser-facing mount the reference proxy serves and strips. */
-const MOUNT = '/tools/dsh/'
+const MOUNT = '/tools/mwf/'
 
 const NON_LOOPBACK_IPV4 = builtArtifactsExist ? await probeNonLoopbackIpv4() : undefined
 
@@ -43,7 +43,7 @@ type StoppedWeb = Awaited<WebChild>
 /** Start one keyless Web process with an outer lifetime deadline. */
 function spawnWeb(root: string, patch: string, interrupt: string, flags: string[]) {
   return execa(process.execPath, [
-    dshBin,
+    mwfBin,
     '--profile', 'web',
     '--patch', patch,
     '--no-open',
@@ -54,9 +54,9 @@ function spawnWeb(root: string, patch: string, interrupt: string, flags: string[
     env: {
       ...process.env,
       DEEPSEEK_API_KEY: 'keyless-web-public-url-no-call',
-      DSH_AGENTS_HOME: join(root, '.agents'),
-      DSH_HOME: join(root, 'home'),
-      DSH_TELEMETRY_DISABLED: '1',
+      MWF_AGENTS_HOME: join(root, '.agents'),
+      MWF_HOME: join(root, 'home'),
+      MWF_TELEMETRY_DISABLED: '1',
       NODE_NO_WARNINGS: '1',
       WEB_INTERRUPT_FILE: interrupt,
     },
@@ -77,7 +77,7 @@ interface RunningWeb {
 }
 
 /**
- * Boot the built CLI and wait for its `dsh web:` line and bound listener port.
+ * Boot the built CLI and wait for its `mwf web:` line and bound listener port.
  * The marker plugin also polls for the interrupt file and emits `SIGTERM` on
  * the child's own process, because Windows has no deliverable SIGTERM.
  */
@@ -113,7 +113,7 @@ async function bootWeb(root: string, flags: string[]): Promise<RunningWeb> {
   }
   lines.on('line', (line) => {
     if (line.startsWith('public-url-listen-port: ')) port = Number(line.slice('public-url-listen-port: '.length))
-    if (line.startsWith('dsh web: http')) startup = new URL(line.slice('dsh web: '.length))
+    if (line.startsWith('mwf web: http')) startup = new URL(line.slice('mwf web: '.length))
     announced()
   })
   void child.then((result) => {
@@ -137,7 +137,7 @@ async function bootWeb(root: string, flags: string[]): Promise<RunningWeb> {
 
 /** Boot one Web process in a private root, run `scenario`, then always stop it and remove the root. */
 async function withWeb(flags: string[], scenario: (web: RunningWeb) => Promise<void>): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-web-public-url-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-web-public-url-'))
   let web: RunningWeb | undefined
   try {
     web = await bootWeb(root, flags)
@@ -212,9 +212,9 @@ async function exchange(
   return { cookie: setCookie.split(';', 1)[0]!, setCookie }
 }
 
-describe.skipIf(!builtArtifactsExist)('dsh Web profile bind address and advertised root', () => {
+describe.skipIf(!builtArtifactsExist)('mwf Web profile bind address and advertised root', () => {
   it('serves the default advertised URL over verified TLS with Secure browser authentication', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-web-tls-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-web-tls-'))
     try {
       const tls = await materializeTlsFixture(root)
       await withWeb(['--tls-cert', tls.certFile, '--tls-key', tls.keyFile], async (web) => {
@@ -270,7 +270,7 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile bind address and advertis
   })
 
   it.skipIf(NON_LOOPBACK_IPV4 === undefined)('serves the bound address and a declared authority, refusing any other name', async () => {
-    const trustedHost = 'dsh-direct.example'
+    const trustedHost = 'mwf-direct.example'
     await withWeb(['--host', NON_LOOPBACK_IPV4!, '--trusted-host', trustedHost], async (web) => {
       expect(web.startup.origin).toBe(`http://${NON_LOOPBACK_IPV4!}:${String(web.port)}`)
       expect(web.startup.pathname).toBe('/')

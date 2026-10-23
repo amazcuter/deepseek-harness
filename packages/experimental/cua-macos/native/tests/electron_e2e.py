@@ -32,7 +32,7 @@ def main():
     if args.artifacts:
         args.artifacts.mkdir(parents=True, exist_ok=True)
     transcript = []
-    with tempfile.TemporaryDirectory(prefix='dsh-cua-electron-') as directory:
+    with tempfile.TemporaryDirectory(prefix='mwf-cua-electron-') as directory:
         root = Path(directory)
         state_path = root / 'state.json'
         # The fixture receives only launch essentials, not the harness environment.
@@ -57,7 +57,7 @@ def main():
                 deadline = time.monotonic() + 15
                 while True:
                     windows = call('listWindows', owner)
-                    selected = [window for window in windows if window['title'] == 'DSH CUA Electron fixture' and window['isOnScreen']
+                    selected = [window for window in windows if window['title'] == 'MWF CUA Electron fixture' and window['isOnScreen']
                                 and window['bounds']['width'] > 0 and window['bounds']['height'] > 0]
                     if len(selected) == 1:
                         break

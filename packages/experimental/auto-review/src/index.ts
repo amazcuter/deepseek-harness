@@ -5,13 +5,13 @@
  * Under the `ask` approval policy a reviewer denial asks the user; under
  * `never` it is final.
  *
- * @module @deepseek-ai/dsh-experimental-auto-review
+ * @module @metaworkflow/experimental-auto-review
  */
 
-import type {} from '@deepseek-ai/dsh-working-directory'
+import type {} from '@metaworkflow/working-directory'
 import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent-instructions'
+import type { Agent } from '@metaworkflow/agent'
+import type {} from '@metaworkflow/agent-instructions'
 import {
   BlockAssembler,
   type ContentBlock,
@@ -20,17 +20,17 @@ import {
   type StreamChunk,
   type ToolCallId,
   type ToolSchema,
-} from '@deepseek-ai/dsh-llm'
-import { deepFreeze } from '@deepseek-ai/dsh-util-values'
-import { AUTO_PRESET } from '@deepseek-ai/dsh-permission-presets'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-subagent'
-import type {} from '@deepseek-ai/dsh-user-approval'
+} from '@metaworkflow/llm'
+import { deepFreeze } from '@metaworkflow/util-values'
+import { AUTO_PRESET } from '@metaworkflow/permission-presets'
+import type { SessionEvent } from '@metaworkflow/session'
+import type {} from '@metaworkflow/subagent'
+import type {} from '@metaworkflow/user-approval'
 import {
   RUN_CODE_NAME,
   type PreToolDecision,
   type ToolExecution,
-} from '@deepseek-ai/dsh-tools'
+} from '@metaworkflow/tools'
 
 /** Structured error name persisted for every final reviewer denial. */
 const AUTO_REVIEW_DENIED_ERROR_NAME = 'AutoReviewDeniedError'

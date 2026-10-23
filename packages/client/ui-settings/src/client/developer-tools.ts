@@ -1,5 +1,5 @@
 /** One accepted preference drives every developer-tool consumer. */
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
+import type { ObservableSnapshot } from '@metaworkflow/client-store'
 import type { DeveloperToolsSettings } from '../developer-tools-settings.ts'
 import type { ConfigForm } from './config-form-types.ts'
 

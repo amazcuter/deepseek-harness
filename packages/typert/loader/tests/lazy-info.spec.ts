@@ -2,7 +2,7 @@
 
 import { expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import { createTypertRemoteInfo } from '@deepseek-ai/dsh-typert-protocol/remote-info'
+import { createTypertRemoteInfo } from '@metaworkflow/typert-protocol/remote-info'
 import { validateTypertManifest } from '../src/index.ts'
 
 it('validates invocation facts without selecting input policy or materializing schemas', () => {

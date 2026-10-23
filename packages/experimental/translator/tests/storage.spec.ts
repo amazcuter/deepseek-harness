@@ -1,5 +1,5 @@
 /** Successful Session translations survive remounts and restarts without another provider query. */
-import { pluginRecordOf, SessionId, type SessionEvent } from '@deepseek-ai/dsh-session'
+import { pluginRecordOf, SessionId, type SessionEvent } from '@metaworkflow/session'
 import { appendFile, readFile, writeFile } from 'node:fs/promises'
 import type { ServerResponse } from 'node:http'
 import { afterEach, describe, expect, it, vi } from 'vitest'

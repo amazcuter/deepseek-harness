@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-ui-jobs",
+  "name": "@metaworkflow/client-ui-jobs",
   "description": "Session-header background-job list with on-demand streaming record panels",
   "version": "0.2.1-rc.2",
   "type": "module",
@@ -36,16 +36,16 @@
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-api-job-controller": "workspace:*",
-    "@deepseek-ai/dsh-client-locale": "workspace:*",
-    "@deepseek-ai/dsh-client-test-runtime": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-conversation": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-primitives": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-renderer": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-session": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-slots": "workspace:*",
-    "@deepseek-ai/dsh-jobs": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
+    "@metaworkflow/api-job-controller": "workspace:*",
+    "@metaworkflow/client-locale": "workspace:*",
+    "@metaworkflow/client-test-runtime": "workspace:*",
+    "@metaworkflow/client-ui-conversation": "workspace:*",
+    "@metaworkflow/client-ui-primitives": "workspace:*",
+    "@metaworkflow/client-ui-renderer": "workspace:*",
+    "@metaworkflow/client-ui-session": "workspace:*",
+    "@metaworkflow/client-ui-slots": "workspace:*",
+    "@metaworkflow/jobs": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -55,13 +55,13 @@
     "lib/client.js",
     "lib/types/**/*.d.ts"
   ],
-  "dsh": {
+  "mwf": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-api-job-controller",
-        "@deepseek-ai/dsh-client-locale",
-        "@deepseek-ai/dsh-client-ui-conversation",
-        "@deepseek-ai/dsh-client-ui-primitives"
+        "@metaworkflow/api-job-controller",
+        "@metaworkflow/client-locale",
+        "@metaworkflow/client-ui-conversation",
+        "@metaworkflow/client-ui-primitives"
       ],
       "platform": "web"
     }

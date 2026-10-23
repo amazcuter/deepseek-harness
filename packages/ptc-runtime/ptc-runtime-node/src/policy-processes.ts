@@ -1,8 +1,8 @@
 /** Node PTC process invalidation after a committed Session file-policy change. */
 import type { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import type { SandboxExecutionPolicy, SandboxMode } from '@deepseek-ai/dsh-sandbox'
-import type {} from '@deepseek-ai/dsh-sandbox-policy'
+import type { SessionId } from '@metaworkflow/session'
+import type { SandboxExecutionPolicy, SandboxMode } from '@metaworkflow/sandbox'
+import type {} from '@metaworkflow/sandbox-policy'
 
 interface Process {
   sessionId: SessionId

@@ -5,63 +5,63 @@
 /:
   en: 3fe330c4d51197ec
   zh: 5874f3bcd419dbbc
-/deepseek-ai-dsh-typert-generator:
-  en: 572884e8456e3876
-  zh: 766da5ce0943f314
-/deepseek-ai-dsh-typert-generator/summary:
-  en: c481285bb066ad9f
-  zh: b5d9e32c7747f04a
-/deepseek-ai-dsh-typert-generator/table-of-contents:
+/metaworkflow-typert-generator:
+  en: 7ad2143eae8a7dcc
+  zh: 68660f2f662d258b
+/metaworkflow-typert-generator/summary:
+  en: bbcd2e11a8b61f66
+  zh: 2f63edf24d5662a2
+/metaworkflow-typert-generator/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-typert-generator/use-this-package:
+/metaworkflow-typert-generator/use-this-package:
   en: 949dec3bb987644a
   zh: 0ed333a6067465dc
-/deepseek-ai-dsh-typert-generator/use-this-package/publishing-typert-artifacts-from-a-package:
-  en: c7078becc8f12609
-  zh: 4b8838b559ecb677
-/deepseek-ai-dsh-typert-generator/use-this-package/ordinary-remote-metadata:
-  en: 6bb456bb03fc6617
-  zh: 029407c373b8e6a6
-/deepseek-ai-dsh-typert-generator/use-this-package/analyzing-a-workspace-statically:
+/metaworkflow-typert-generator/use-this-package/publishing-typert-artifacts-from-a-package:
+  en: e2af198266a9403e
+  zh: 7429a3952b850ec4
+/metaworkflow-typert-generator/use-this-package/ordinary-remote-metadata:
+  en: 73a7bf844abcf95a
+  zh: 822129f42619672a
+/metaworkflow-typert-generator/use-this-package/analyzing-a-workspace-statically:
   en: 8227097859169cdf
   zh: 249790ed62e8558a
-/deepseek-ai-dsh-typert-generator/use-this-package/running-generation-inside-a-tsdown-build:
+/metaworkflow-typert-generator/use-this-package/running-generation-inside-a-tsdown-build:
   en: ebcb4850a5620d93
   zh: 55f6f54265830f28
-/deepseek-ai-dsh-typert-generator/use-this-package/generating-without-a-bundler:
+/metaworkflow-typert-generator/use-this-package/generating-without-a-bundler:
   en: e1afb26aea87fe46
   zh: ed3cdfde78d87825
-/deepseek-ai-dsh-typert-generator/understand-the-implementation:
+/metaworkflow-typert-generator/understand-the-implementation:
   en: b90762df7a978580
   zh: 123ab225a2b5df2a
-/deepseek-ai-dsh-typert-generator/understand-the-implementation/design-concept:
+/metaworkflow-typert-generator/understand-the-implementation/design-concept:
   en: 0a515742229bf442
   zh: dfd2c5eddd943af9
-/deepseek-ai-dsh-typert-generator/understand-the-implementation/source-map:
+/metaworkflow-typert-generator/understand-the-implementation/source-map:
   en: 89d9205446b496a6
   zh: d7bcae876c1905ec
-/deepseek-ai-dsh-typert-generator/understand-the-implementation/analysis-and-faces:
-  en: a844aafcafbc27b6
-  zh: 8efe7d472361bbc2
-/deepseek-ai-dsh-typert-generator/understand-the-implementation/emission-and-publication-contract:
-  en: 2f6f72eecffc33c2
-  zh: ded33dbc1d9a4ea5
-/deepseek-ai-dsh-typert-generator/understand-the-implementation/catalog-projection:
+/metaworkflow-typert-generator/understand-the-implementation/analysis-and-faces:
+  en: 5d0069145cf940e8
+  zh: 08a114839455cb0d
+/metaworkflow-typert-generator/understand-the-implementation/emission-and-publication-contract:
+  en: 45017804f88acd72
+  zh: e10c9b85451a9da2
+/metaworkflow-typert-generator/understand-the-implementation/catalog-projection:
   en: e85b521a1e01ab2c
   zh: 4416dca569de0f61
-/deepseek-ai-dsh-typert-generator/further-exploration:
-  en: 6df514142eaad512
-  zh: e1ca60bd9fa30096
-/deepseek-ai-dsh-typert-generator/model-experience:
+/metaworkflow-typert-generator/further-exploration:
+  en: eaae5fe79a4aeeb8
+  zh: 540669199c0a5924
+/metaworkflow-typert-generator/model-experience:
   en: e6641e8b5e5f42ca
   zh: 2fdc0d3fde7e9216
-/deepseek-ai-dsh-typert-generator/model-experience/kv-cache-effect:
+/metaworkflow-typert-generator/model-experience/kv-cache-effect:
   en: 09310605f7d136d4
   zh: 3535ec7eba83b90f
-/deepseek-ai-dsh-typert-generator/known-limitations-and-deferred-work:
+/metaworkflow-typert-generator/known-limitations-and-deferred-work:
   en: fdc6707a82ceb4c3
   zh: 91fb8cab9fcf56bc
-/deepseek-ai-dsh-typert-generator/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-typert-generator/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

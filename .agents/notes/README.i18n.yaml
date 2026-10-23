@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/README.md
 /agent-notes:
-  en: a10991a192c7b55d
-  zh: c2e5b938ece4f366
+  en: 89eb418179da3e8f
+  zh: a12f6d0c6d316b6f
 /agent-notes/layout-and-naming:
   en: 0a517dfc15d4af0a
   zh: 324bd9e13a0295e3
@@ -12,8 +12,8 @@
   en: 055a5e49f9af3dc2
   zh: 9f7c78409cccfded
 /agent-notes/archiving-and-deletion:
-  en: 57ccc5fec461ebb0
-  zh: 69e8f9e79abc53aa
+  en: 4913f63313a7e1dd
+  zh: b008337f3f8e5913
 /agent-notes/when-to-write-one:
   en: 2beb1b94d8fb633c
   zh: 889b5542bb771205
@@ -42,5 +42,5 @@
   en: d3f18ba194dfb677
   zh: 3d202868deda2f31
 /agent-notes/the-file-format/chinese-counterparts:
-  en: d72a33b7c63722b2
-  zh: f8320c91b1f77ae6
+  en: efdee14974f60158
+  zh: cfb2139ed16c3899

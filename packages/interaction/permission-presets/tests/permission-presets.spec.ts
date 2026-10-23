@@ -3,13 +3,13 @@ import { Context } from '@deepseek-ai/cordis'
 import SessionStore, {
   Session,
   SessionId,
-} from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { SandboxMode } from '@deepseek-ai/dsh-sandbox'
-import type { ApprovalPolicy } from '@deepseek-ai/dsh-user-approval'
+} from '@metaworkflow/session'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import type { SandboxMode } from '@metaworkflow/sandbox'
+import type { ApprovalPolicy } from '@metaworkflow/user-approval'
 import PermissionPresetService, {
   AUTO_PRESET, CUSTOM_PRESET,
-} from '@deepseek-ai/dsh-permission-presets'
+} from '@metaworkflow/permission-presets'
 import { liveConfig } from '../../../settings/settings/tests/live-config.ts'
 
 const configurations = new WeakMap<Context, Awaited<ReturnType<typeof liveConfig>>>()

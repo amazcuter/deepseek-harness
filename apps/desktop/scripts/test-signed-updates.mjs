@@ -19,17 +19,17 @@ await mkdir(join(root, 'runtime'))
 const environment = Object.fromEntries(Object.entries(process.env).filter(([name]) =>
   !/KEY|SECRET|TOKEN|PASSWORD|^NODE_OPTIONS$|^ELECTRON_RUN_AS_NODE$/iu.test(name)))
 let timedOut = false
-const timeoutMs = Number(process.env.DSH_SIGNED_UPDATE_TEST_TIMEOUT_MS ?? 180_000)
+const timeoutMs = Number(process.env.MWF_SIGNED_UPDATE_TEST_TIMEOUT_MS ?? 180_000)
 assert.ok(Number.isSafeInteger(timeoutMs) && timeoutMs >= 1000 && timeoutMs <= 180_000,
-  'DSH_SIGNED_UPDATE_TEST_TIMEOUT_MS must be an integer from 1000 to 180000')
+  'MWF_SIGNED_UPDATE_TEST_TIMEOUT_MS must be an integer from 1000 to 180000')
 let termination = Promise.resolve()
 let terminationError
 let launchError
 const startedAt = new Date().toISOString()
 const child = spawn(electron, [fileURLToPath(new URL('../tests/fixtures/signed-updates.mjs', import.meta.url))], {
-  env: { ...environment, DSH_SIGNED_UPDATE_TEST_ROOT: root,
-    DSH_SIGNED_UPDATE_CERTIFICATE: paths[0], DSH_SIGNED_UPDATE_SIGNED: paths[1], DSH_SIGNED_UPDATE_UNSIGNED: paths[2],
-    DSH_SIGNED_UPDATE_OLD: paths[3] ?? '' },
+  env: { ...environment, MWF_SIGNED_UPDATE_TEST_ROOT: root,
+    MWF_SIGNED_UPDATE_CERTIFICATE: paths[0], MWF_SIGNED_UPDATE_SIGNED: paths[1], MWF_SIGNED_UPDATE_UNSIGNED: paths[2],
+    MWF_SIGNED_UPDATE_OLD: paths[3] ?? '' },
   stdio: 'inherit', windowsHide: true,
 })
 child.once('error', error => { launchError = error.message })

@@ -12,8 +12,8 @@ import { launchWebScaffold, watchConsole, type WebScaffold } from './scaffold.ts
 import { connectFreshWorkspace, newEnglishPage, PLUGIN_TOGGLE_SETTLE_MS, saveFailureShot, writeComposerDraft } from './support.ts'
 
 const BUNDLE_DIR = fileURLToPath(new URL('../../../packages/experimental/badge-skill-bundle', import.meta.url))
-const BUNDLE = '@deepseek-ai/dsh-experimental-badge-skill-bundle'
-const GLOBAL_SKILL = 'dsh-global-skill'
+const BUNDLE = '@metaworkflow/experimental-badge-skill-bundle'
+const GLOBAL_SKILL = 'mwf-global-skill'
 
 describe('web e2e: the slash menu follows plugin switches', () => {
   let scaffold: WebScaffold
@@ -26,7 +26,7 @@ describe('web e2e: the slash menu follows plugin switches', () => {
   beforeAll(async () => {
     scaffold = await launchWebScaffold({ profile: { packages: [{ dir: BUNDLE_DIR }] } })
     // The scaffold pins the skill-filesystem harness home inside its temporary world.
-    const directory = join(scaffold.workspaceCwd, '.dsh-home', 'skills', GLOBAL_SKILL)
+    const directory = join(scaffold.workspaceCwd, '.mwf-home', 'skills', GLOBAL_SKILL)
     await mkdir(directory, { recursive: true })
     await writeFile(join(directory, 'SKILL.md'), [
       '---',
@@ -62,7 +62,7 @@ describe('web e2e: the slash menu follows plugin switches', () => {
    * @returns whether the menu lists `dsh-badge` beside the global skill.
    */
   async function badgeListed(): Promise<boolean> {
-    await writeComposerDraft(page, page.locator('[data-composer-input]').first(), '/dsh-')
+    await writeComposerDraft(page, page.locator('[data-composer-input]').first(), '/mwf-')
     const menu = page.getByRole('listbox', { name: 'Trigger suggestions' })
     // The skill source answers with one list, so the global entry marks a settled skill group.
     await menu.getByRole('option', { name: new RegExp(`^${GLOBAL_SKILL} `) }).waitFor({ timeout: 10_000 })

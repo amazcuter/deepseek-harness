@@ -3,13 +3,13 @@ description: "原子文件替换与跨进程写锁，供绝不允许在磁盘上
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-atomic-write
+# @metaworkflow/atomic-write
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `dsh-atomic-write` 替换文件时，不会暴露部分内容，也不会跟随临时路径上的符号链接。它的写锁会跨进程串行化读-修改-写入循环，因此并发写入方不会用陈旧状态相互覆盖。每次替换都会在全新 inode 上使用调用方选择的权限位，从而安全地收窄现有文件的权限。这个零依赖库接受字符串和二进制字节数组；它不提供 `cordis.yml` 插件，也不保证崩溃持久性，因为它不调用 `fsync`。
+使用 `mwf-atomic-write` 替换文件时，不会暴露部分内容，也不会跟随临时路径上的符号链接。它的写锁会跨进程串行化读-修改-写入循环，因此并发写入方不会用陈旧状态相互覆盖。每次替换都会在全新 inode 上使用调用方选择的权限位，从而安全地收窄现有文件的权限。这个零依赖库接受字符串和二进制字节数组；它不提供 `cordis.yml` 插件，也不保证崩溃持久性，因为它不调用 `fsync`。
 
 ## 目录
 
@@ -30,10 +30,10 @@ kind: "package-library"
 ### 原子写入文件
 
 ```ts
-import { writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
+import { writeFileAtomic } from '@metaworkflow/atomic-write'
 
 declare const text: string
-await writeFileAtomic('/home/u/.dsh/cordis.patch.yml', text, { mode: 0o600 })
+await writeFileAtomic('/home/u/.mwf/cordis.patch.yml', text, { mode: 0o600 })
 ```
 
 父目录会按需创建，读取方只会观察到旧内容或完整的新内容。在 Windows 上，报告为 `EACCES`、`EBUSY` 或 `EPERM` 的瞬时替换干扰会在有界时间内重试；任何剩余失败都会移除临时文件，并保持目标文件不变。
@@ -43,14 +43,14 @@ await writeFileAtomic('/home/u/.dsh/cordis.patch.yml', text, { mode: 0o600 })
 对于单靠原子提交无法保证安全的读-渲染-提交循环，请在操作期间持有写锁：
 
 ```text
-import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
+import { withFileLock, writeFileAtomic } from '@metaworkflow/atomic-write'
 
 declare const render: (previous: string) => string
 declare const readCurrent: () => Promise<string>
 
-await withFileLock('/home/u/.dsh/cordis.patch.yml', async () => {
+await withFileLock('/home/u/.mwf/cordis.patch.yml', async () => {
   const previous = await readCurrent()
-  await writeFileAtomic('/home/u/.dsh/cordis.patch.yml', render(previous), { mode: 0o600 })
+  await writeFileAtomic('/home/u/.mwf/cordis.patch.yml', render(previous), { mode: 0o600 })
 })
 ```
 

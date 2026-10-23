@@ -2,9 +2,9 @@
 # The scenario workspace supplies the deterministic stdio server used by this test composition.
 - insert:
     - id: lsp
-      name: '@deepseek-ai/dsh-lsp'
+      name: '@metaworkflow/lsp'
     - id: lsp-stdio
-      name: '@deepseek-ai/dsh-lsp-stdio'
+      name: '@metaworkflow/lsp-stdio'
       config:
         servers:
           fixture:
@@ -13,9 +13,9 @@
             extensionToLanguage:
               '.ts': typescript
     - id: tool-lsp
-      name: '@deepseek-ai/dsh-tool-lsp'
+      name: '@metaworkflow/tool-lsp'
       config:
         maxLocations: 1
 
 - id: timeout-policy
-  name: '@deepseek-ai/dsh-tool-call-timeout-policy'
+  name: '@metaworkflow/tool-call-timeout-policy'

@@ -13,7 +13,7 @@ import { mkdirSync } from 'node:fs'
 import { randomUUID } from 'node:crypto'
 import { join, resolve } from 'node:path'
 import { execa } from 'execa'
-import { getDshRuntimeVersion } from '../packages/boot/app-boot/src/plugin-compatibility.ts'
+import { getMwfRuntimeVersion } from '../packages/boot/app-boot/src/plugin-compatibility.ts'
 import { generateOfficialBundleCatalog } from './gen-official-bundle-catalog.ts'
 import {
   REGISTRY_MANIFEST_FILE,
@@ -79,7 +79,7 @@ function printSummary(options: {
   readonly source: ReturnType<typeof sourceEvidence>
 }): void {
   const roots = options.entries.flatMap(name => options.artifacts.filter(artifact => artifact.name === name))
-  process.stdout.write(`Source: ${options.source.commit}${options.source.dirty ? ' (dirty worktree)' : ''}, DSH ${options.source.dshVersion}\n`)
+  process.stdout.write(`Source: ${options.source.commit}${options.source.dirty ? ' (dirty worktree)' : ''}, MWF ${options.source.mwfVersion}\n`)
   process.stdout.write(`Artifacts: ${options.directory}\n`)
   process.stdout.write(`Registry: ${options.url}\n`)
   process.stdout.write(`Packages (${String(options.artifacts.length)} archives served):\n`)
@@ -133,7 +133,7 @@ async function main(): Promise<void> {
     })
 
     // 4. The manifest is the completion marker: only a fully packed run has one.
-    const source = sourceEvidence(root, getDshRuntimeVersion())
+    const source = sourceEvidence(root, getMwfRuntimeVersion())
     const manifest = createRegistryManifest({
       buildId, source, entries, workspaceNames: selection.workspaceNames, artifacts,
     })

@@ -145,7 +145,7 @@ Conversation 的引用属于其视图所有者，不属于 Chat、Trajectory 或
 
 现有 `uiWorkspace` 实现直接持有来源为 `mainView` 的主区域引用与目标。导航方法直接更新该所有者，不调用 Conversation 注册的接收者。`ui-session` 根据来源标记把该引用对应的 binding 注入根 Provider；主 Conversation 和关联右栏只继承 Provider，既不依赖 `uiWorkspace`，也看不到主引用。独立 Sidebar Conversation 以自己的 reference 建立嵌套 Provider，并覆盖本子树的 binding。主引用不是全局标准 prop、子树 Hook 或按 ID 查询的默认值。
 
-主视图在 `dsh.sessions.current` 下私下持久化目标身份与子会话地址，不保存引用。启动恢复、初始 Workspace 选择与归档主目标后的清空仍属于 UI。归档或移除目录元数据不撤销其他使用方持有的独立引用。
+主视图在 `mwf.sessions.current` 下私下持久化目标身份与子会话地址，不保存引用。启动恢复、初始 Workspace 选择与归档主目标后的清空仍属于 UI。归档或移除目录元数据不撤销其他使用方持有的独立引用。
 
 | UI 行为 | 最终规则 |
 | --- | --- |

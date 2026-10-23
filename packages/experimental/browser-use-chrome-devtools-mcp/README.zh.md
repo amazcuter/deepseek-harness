@@ -3,7 +3,7 @@ description: "通过 Chrome DevTools MCP 操作 Chromium，为每个活动 Sessi
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-browser-use-chrome-devtools-mcp
+# @metaworkflow/experimental-browser-use-chrome-devtools-mcp
 
 [English](README.md) | 中文
 
@@ -28,8 +28,8 @@ kind: "package-reference"
 在创建或恢复 Session 前，将以下条目挂载到已提供 Agent、工具、系统提示词和工作目录服务的 profile 组合中。加载或重新加载此提供方不会接管已经活动的 Session。浏览器安装遵循上游运行时；使用 `executablePath` 选择已有 Chromium 安装。
 
 ```yaml
-- name: '@deepseek-ai/dsh-browser-use'
-- name: '@deepseek-ai/dsh-experimental-browser-use-chrome-devtools-mcp'
+- name: '@metaworkflow/browser-use'
+- name: '@metaworkflow/experimental-browser-use-chrome-devtools-mcp'
   config:
     mode: launch
     headless: true
@@ -45,7 +45,7 @@ kind: "package-reference"
 | `endpoint` | attach 时必填 | 已有浏览器调试端点 |
 | `toolCallTimeoutMs` | MCP 客户端默认值 | 单次调用超时，单位为毫秒 |
 
-[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-experimental-browser-use-chrome-devtools-mcp)列出接受的字段。浏览器模式由 profile 或 preset 选择。
+[配置目录](../../../docs/config-catalog.zh.md#metaworkflowexperimental-browser-use-chrome-devtools-mcp)列出接受的字段。浏览器模式由 profile 或 preset 选择。
 
 为整个进程配置系统提示词的 `toolOrder` 时，将浏览器工具留在 `<unlisted-tools>` 中。显式列出浏览器工具名称可能导致未获得浏览器连接的 Session 无法组装提示词。
 
@@ -102,7 +102,7 @@ kind: "package-reference"
 - 连接独占仅在此提供方实例内有效。其他进程与浏览器用户仍可修改相同页面。
 - 共享资源服务器目录可以显示继承的服务器名称，但不会授予对其他 Session 浏览器的访问权限。
 - 取消不会撤销已发送给浏览器的导航、点击或其他操作。
-- 工具 schema 跟随固定的实验依赖版本，不承诺 DSH 稳定性。
+- 工具 schema 跟随固定的实验依赖版本，不承诺 MWF 稳定性。
 - 使用统计已禁用。包括性能工具在内的其他功能保留其上游行为。
 
 <a id="dev-note"></a>

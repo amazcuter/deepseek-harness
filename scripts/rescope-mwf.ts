@@ -33,10 +33,13 @@
  * run before the generic token rules so each mapping keeps an isolated count.
  *
  * Must not match (see {@link derivedPreservedSegments}, {@link PRESERVED_LITERALS},
- * {@link PRESERVED_PATTERNS}, and {@link isRescopeExcluded}):
+ * {@link PRESERVED_RELEASED_IDENTITIES}, {@link PRESERVED_PATTERNS}, and
+ * {@link isRescopeExcluded}):
  *
  * - `.agents/notes/archived/**` (frozen records), `vendor/**`, licence text,
  *   `THIRD_PARTY_NOTICES.md`
+ * - released persistence identities: hash domain separators, persisted producer
+ *   ids, and the recorded public npm resolution
  * - the `deepseek-harness` repository name, upstream URLs, and pinned SHAs
  * - the Python distributions `deepseek-harness-sdk`, `deepseek_harness`,
  *   `deepseek-harness-runtime-bin`, `deepseek_harness_runtime` — none carries a
@@ -58,8 +61,8 @@
  */
 
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'node:fs'
-import { extname, resolve } from 'node:path'
+import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'node:fs'
+import { dirname, extname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = resolve(import.meta.dirname, '..')
@@ -99,7 +102,7 @@ const RULES: readonly Rule[] = [
     summary: 'window.__DSH_BOOT__ injection contract',
     forward: [/__DSH_BOOT__/g, '__MWF_BOOT__'],
     reverse: [/__MWF_BOOT__/g, '__DSH_BOOT__'],
-    expect: 89,
+    expect: 91,
   },
   {
     id: 'transport-contract',
@@ -133,7 +136,7 @@ const RULES: readonly Rule[] = [
     summary: '@deepseek-ai/dsh-metaworkflow-app -> @metaworkflow/app',
     forward: [/@deepseek-ai\/dsh-metaworkflow-app(?![-\w])/g, '@metaworkflow/app'],
     reverse: [/@metaworkflow\/app(?![-\w])/g, '@deepseek-ai/dsh-metaworkflow-app'],
-    expect: 11,
+    expect: 20,
   },
   {
     id: 'scoped-package',
@@ -143,7 +146,7 @@ const RULES: readonly Rule[] = [
     // `app` and `cli` are excluded so `--reverse` restores their specific names
     // even though the reversed rule order reaches this generic rule first.
     reverse: [/@metaworkflow\/(?!app(?![-\w])|cli(?![-\w]))/g, '@deepseek-ai/dsh-'],
-    expect: 28555,
+    expect: 28898,
   },
   {
     id: 'cli-package',
@@ -154,12 +157,36 @@ const RULES: readonly Rule[] = [
     expect: 274,
   },
   {
+    // A specifier written inside a regular expression literal escapes its
+    // separator (`@deepseek-ai\/dsh-<name>`), so no plain scope rule sees it and
+    // the token rules below would rename only the `dsh`. The `mwf` alternative
+    // repairs a tree where exactly that happened; it never matches pre-rename
+    // text, so the expected count is the same on both.
+    id: 'escaped-scope-slash',
+    stage: 1,
+    summary: '@deepseek-ai\\/dsh-<name> (regex-escaped) -> @metaworkflow\\/<name>',
+    forward: [/@deepseek-ai\\\/(?:dsh|mwf)-/g, '@metaworkflow\\/'],
+    // `app` and `cli` stay excluded as in `scoped-package`. The escaped CLI form
+    // `@metaworkflow\/cli` has no site, so `--reverse` leaves it alone.
+    reverse: [/@metaworkflow\\\/(?!app(?![-\w])|cli(?![-\w]))/g, '@deepseek-ai\\/dsh-'],
+    expect: 27,
+  },
+  {
+    // Windows path segments carry a bare backslash instead of `/`.
+    id: 'escaped-scope-backslash',
+    stage: 1,
+    summary: '@deepseek-ai\\dsh-<name> (path segment) -> @metaworkflow\\<name>',
+    forward: [/@deepseek-ai\\(?:dsh|mwf)-/g, '@metaworkflow\\'],
+    reverse: [/@metaworkflow\\(?!cli(?![-\w]))/g, '@deepseek-ai\\dsh-'],
+    expect: 3,
+  },
+  {
     id: 'manifest-key',
     stage: 3,
     summary: 'the quoted "dsh" metadata key and bin name',
     forward: [/(["'])dsh\1/g, '$1mwf$1'],
     reverse: [/(["'])mwf\1/g, '$1dsh$1'],
-    expect: 384,
+    expect: 385,
   },
   {
     id: 'home-path-identifier',
@@ -207,7 +234,7 @@ const RULES: readonly Rule[] = [
     summary: 'the .dsh home directory -> .mwf',
     forward: [/\.dsh(?![A-Za-z0-9])/g, '.mwf'],
     reverse: [/\.mwf(?![A-Za-z0-9])/g, '.dsh'],
-    expect: 984,
+    expect: 2,
   },
   {
     id: 'env-prefix',
@@ -215,7 +242,7 @@ const RULES: readonly Rule[] = [
     summary: 'DSH_ environment variable prefix -> MWF_',
     forward: [/DSH_/g, 'MWF_'],
     reverse: [/MWF_/g, 'DSH_'],
-    expect: 4769,
+    expect: 1,
   },
   {
     id: 'type-identifier',
@@ -229,9 +256,9 @@ const RULES: readonly Rule[] = [
     id: 'token-lowercase',
     stage: 1,
     summary: 'remaining lowercase dsh tokens (bin, paths, prose)',
-    forward: [/(?<![A-Za-z0-9])dsh/g, 'mwf'],
-    reverse: [/(?<![A-Za-z0-9])mwf/g, 'dsh'],
-    expect: 14001,
+    forward: [/(?<![A-Za-z])dsh/g, 'mwf'],
+    reverse: [/(?<![A-Za-z])mwf/g, 'dsh'],
+    expect: 31,
   },
   {
     id: 'token-uppercase',
@@ -239,7 +266,7 @@ const RULES: readonly Rule[] = [
     summary: 'remaining uppercase DSH tokens (prose, constants)',
     forward: [/DSH/g, 'MWF'],
     reverse: [/MWF/g, 'DSH'],
-    expect: 3860,
+    expect: 3885,
   },
 ]
 
@@ -325,6 +352,32 @@ const PRESERVED_SKILLS: readonly string[] = [
 const PRESERVED_LITERALS: readonly string[] = ['dsh-libreoffice-kit']
 
 /**
+ * Identities an already-published persistence format wrote down: the hash domain
+ * separators and the message-source producers that committed session logs,
+ * finalized checkpoints, and recorded snapshots quote verbatim. They are
+ * evidence of what released readers and writers produced, not brand names, so
+ * respelling one changes a persisted discriminator or a schema hash and makes a
+ * released fixture replay as a different identity.
+ *
+ * The owning sites: `scripts/persistence-schema-model.ts` (schema hash),
+ * `scripts/persistence-finalization.ts` (checkpoint record hash),
+ * `scripts/persistence-source-policy.ts` `RESERVED_SOURCE_KINDS`,
+ * `packages/session/session-title-llm/src/index.ts`, and
+ * `packages/session/session-format-v3-to-v4/src/sources.ts`
+ * (`RELEASED_SAME_NAME_PRODUCERS`, `RENAMED_PRODUCERS`).
+ *
+ * The two version suffixes are preserved as prefixes because producers write
+ * them both literally (`v1`) and by interpolation (`v${String(version)}`).
+ */
+const PRESERVED_RELEASED_IDENTITIES: readonly string[] = [
+  'dsh-persistence-schema-v',
+  'dsh-persistence-finalization-record-v',
+  'dsh-session-title-llm',
+  'dsh-compaction-basic',
+  '@deepseek-ai/dsh-system-prompt',
+]
+
+/**
  * Spans exempt from every rule. `deepseek-harness` carries the upstream
  * repository name and the Python distributions; `@local/dsh-*` are local
  * profile template names, and `dsh-v<semver>` names a published release tag that
@@ -334,6 +387,14 @@ const PRESERVED_PATTERNS: readonly RegExp[] = [
   /deepseek[-_]harness/g,
   /@local\/dsh-[a-z0-9-]+/g,
   /dsh-v\d+\.\d+\.\d+[A-Za-z0-9.-]*/g,
+  // A tag reference that spells no version — `^dsh-v\d+` inside a regular
+  // expression, `dsh-v[0-9]`, `'dsh-v'`, `dsh-v<version>` — names the
+  // historical release family, which keeps its published spelling. The rule
+  // below matches the tag only when a delimiter, another escape, or whitespace
+  // follows, so `dsh-v*` in release automation still renames.
+  /dsh-v(?=[\\()\[\]'"<\s])/g,
+  // A `dsh-*` glob over the historical release records names the same family.
+  /dsh-(?=\*)/g,
 ]
 
 /**
@@ -342,14 +403,34 @@ const PRESERVED_PATTERNS: readonly RegExp[] = [
  * names do not match until the move lands. `dsh` itself is the desktop launcher
  * file `apps/desktop/cli/dsh`, which must not shield the token everywhere.
  */
-const MOVING_SEGMENTS: readonly string[] = ['dsh', '.dsh', '.dsh-project', '--dsh-workspace--']
+const MOVING_SEGMENTS: readonly string[] = ['dsh.cmd', 'dsh', '.dsh', '.dsh-project', '--dsh-workspace--']
+
+/** Post-rename spelling of each {@link MOVING_SEGMENTS} entry, longest first. */
+const MOVING_RENAMES: readonly (readonly [string, string])[] = [
+  ['--dsh-workspace--', '--mwf-workspace--'],
+  ['.dsh-project', '.mwf-project'],
+  ['dsh.cmd', 'mwf.cmd'],
+  ['.dsh', '.mwf'],
+  ['dsh', 'mwf'],
+]
+
+/**
+ * Rename the moving segments inside a tracked path.
+ * @param file - Repository-relative path with forward-slash separators.
+ * @returns The path with every moving segment respelled.
+ */
+function movedPath(file: string): string {
+  return file.split('/')
+    .map(segment => MOVING_RENAMES.find(([from]) => from === segment)?.[1] ?? segment)
+    .join('/')
+}
 
 /** Extensions the pass reads; binaries and asset formats stay untouched. */
 const EXTENSIONS: readonly string[] = [
   '.bat', '.cjs', '.cmd', '.css', '.cts', '.example', '.html', '.js', '.json',
-  '.jsonl', '.md', '.mjs', '.mts', '.nsh', '.patch', '.ps1', '.py', '.sh',
-  '.snap', '.svg', '.swift', '.toml', '.tpl', '.ts', '.tsx', '.txt', '.xml',
-  '.yaml', '.yml',
+  '.jsonl', '.md', '.mjs', '.mts', '.nsh', '.nsi', '.patch', '.ps1', '.py',
+  '.sh', '.snap', '.svg', '.swift', '.toml', '.tpl', '.ts', '.tsx', '.txt',
+  '.xml', '.yaml', '.yml',
 ]
 
 /**
@@ -358,7 +439,9 @@ const EXTENSIONS: readonly string[] = [
  * shells, and the Docker/sshd fixture that provisions a `dsh` login.
  */
 const EXTENSIONLESS_FILES: readonly string[] = [
-  'apps/desktop/cli/dsh',
+  '.gitignore',
+  '.rgignore',
+  'apps/desktop/cli/mwf',
   'Makefile',
   'packages/ssh/ssh-helper-runtime/tests/fixtures/sshd/Dockerfile',
   'packages/ssh/ssh-helper-runtime/tests/fixtures/sshd/sshd_config',
@@ -406,16 +489,40 @@ function derivedPreservedSegments(files: readonly string[]): string[] {
 }
 
 /**
+ * The identifier form of a preserved name. The generated documentation graphs
+ * derive Mermaid node ids from package names by replacing every non-alphanumeric
+ * character with `_` (`graphNodeId` in `scripts/package-graph.ts`), so
+ * `subagent-dsh-sdk` appears as `pkg_subagent_dsh_sdk` there. Regenerating those
+ * pages reproduces the `dsh`, so the identifier is preserved with its name.
+ * @param segments - Preserved path segments.
+ * @returns The identifier spelling of each segment that differs from it.
+ */
+function generatedIdentifiers(segments: readonly string[]): string[] {
+  return segments
+    .map(segment => segment.replace(/[^A-Za-z0-9_]/g, '_'))
+    .filter(identifier => !segments.includes(identifier))
+}
+
+/**
  * Build the preserved-span alternation used to shield those names.
  * @param files - Tracked repository-relative paths.
  * @returns A global regular expression matching every preserved span.
  */
 function preservePattern(files: readonly string[]): RegExp {
-  const literals = [...derivedPreservedSegments(files), ...PRESERVED_LITERALS]
+  const segments = derivedPreservedSegments(files)
+  const literals = [...segments, ...generatedIdentifiers(segments), ...PRESERVED_LITERALS]
     .map(escapeRegExp)
-  const sources = [...literals, ...PRESERVED_PATTERNS.map(pattern => pattern.source)]
     .sort((left, right) => right.length - left.length)
-  return new RegExp(sources.join('|'), 'g')
+    .join('|')
+  // The guard keeps a preserved name from swallowing a longer token that starts
+  // with it: `dsh-doc` names a skill directory, `--dsh-dockkit-dock-layer` does not.
+  const guard = '(?![A-Za-z0-9-])'
+  const patterns = PRESERVED_PATTERNS.map(pattern => pattern.source).join('|')
+  // Released identities carry no trailing guard: a version suffix follows their
+  // preserved prefix (`-v1`, `-v${String(version)}`), which the guard would
+  // read as a longer token and leave exposed to the rules.
+  const released = PRESERVED_RELEASED_IDENTITIES.map(escapeRegExp).join('|')
+  return new RegExp(`(?:${literals})${guard}|(?:${released})|(?:${patterns})`, 'g')
 }
 
 /**
@@ -493,6 +600,10 @@ export function isRescopeExcluded(file: string): boolean {
   if (file.endsWith('.i18n.yaml')) return true // blob hashes; the pairing gate re-records them
   if (file === 'pnpm-lock.yaml') return true // `pnpm install`
   if (file === 'scripts/dependency-catalog/package-lock.json') return true // `gen-dependency-catalog --refresh`
+  // The catalog describes the recorded public npm resolution, which by design
+  // keeps the published predecessor names until `--refresh` captures a release
+  // under the renamed package; renaming it here would desynchronise the pair.
+  if (file === 'docs/dependency-catalog.json') return true // `pnpm run gen-dependency-catalog`
   if (EXTENSIONLESS_FILES.includes(file)) return false
   return !EXTENSIONS.includes(extname(file))
 }
@@ -589,6 +700,7 @@ function main(): void {
 
   const tally = new Map<string, { hits: number; files: number }>()
   const probe = new Map<string, { hits: number; files: number }>()
+  const released = new Map<string, { hits: number; files: number }>()
   const changed: string[] = []
   const residual: string[] = []
   const perDirectory = new Map<string, { hits: number; files: number }>()
@@ -598,6 +710,12 @@ function main(): void {
     const path = resolve(root, file)
     const before = readText(path)
     if (before === undefined) continue
+    for (const identity of PRESERVED_RELEASED_IDENTITIES) {
+      const occurrences = before.split(identity).length - 1
+      if (occurrences === 0) continue
+      const current = released.get(identity) ?? { hits: 0, files: 0 }
+      released.set(identity, { hits: current.hits + occurrences, files: current.files + 1 })
+    }
     const fileTally: Tally = new Map()
     const after = before.split('\n').map(line => rewriteLine(line, rules, forward, fileTally, preserve)).join('\n')
     if (after === before) continue
@@ -627,6 +745,16 @@ function main(): void {
     if (mode === 'apply') writeFileSync(path, after)
   }
 
+  // Text first, then the moves: a rewritten file keeps its content when the
+  // path changes, and `--check` on the moved tree must report nothing left.
+  if (mode === 'apply' && forward) {
+    for (const file of moving) {
+      const target = movedPath(file)
+      mkdirSync(dirname(resolve(root, target)), { recursive: true })
+      execFileSync('git', ['mv', '--', file, target], { cwd: root })
+    }
+  }
+
   const label = forward ? 'forward' : 'reverse'
   console.log(`rescope-mwf: ${mode} (${label}) over ${String(files.length)} scannable tracked files`)
   for (const rule of rules) {
@@ -636,6 +764,12 @@ function main(): void {
     console.log(`  [s${String(rule.stage)}] ${rule.id.padEnd(21)} ${String(measured.hits).padStart(6)} hit(s) in ${String(measured.files).padStart(4)} file(s)  ${rule.summary}${flag}`)
   }
   console.log(`rescope-mwf: ${String(changed.length)} file(s), ${String(totalHits)} hit(s)${mode === 'apply' ? ' written' : ' would change'}`)
+
+  console.log('rescope-mwf: released identities preserved verbatim')
+  for (const identity of PRESERVED_RELEASED_IDENTITIES) {
+    const measured = released.get(identity) ?? { hits: 0, files: 0 }
+    console.log(`  ${identity.padEnd(38)} ${String(measured.hits).padStart(6)} hit(s) in ${String(measured.files).padStart(4)} file(s)`)
+  }
 
   console.log('rescope-mwf: stage-3 probes')
   for (const { id, summary } of PROBES) {
@@ -667,6 +801,8 @@ function main(): void {
       const category = pattern.source.includes('dsh-v') ? 'historical' : 'source-or-script'
       console.log(`  ${category.padEnd(16)} ${pattern.source}  (pattern)`)
     }
+    console.log(`rescope-mwf: ${String(PRESERVED_RELEASED_IDENTITIES.length)} released identity(ies) never renamed:`)
+    for (const identity of PRESERVED_RELEASED_IDENTITIES) console.log(`  ${'released'.padEnd(16)} ${identity}`)
     console.log(`rescope-mwf: ${String(DEFERRED_RULES.length)} deferred mapping(s):`)
     for (const rule of DEFERRED_RULES) console.log(`  ${rule}`)
   }
@@ -691,6 +827,12 @@ function main(): void {
       // Pre-rename or fully landed are the only two valid states for a rule.
       if (measured === 0 || measured === rule.expect) continue
       failures.push(`rule ${rule.id}: ${String(measured)} hit(s), expected ${String(rule.expect)} or 0 (site moved since the mapping was recorded)`)
+    }
+    // A frozen identity that no longer appears is either deleted evidence or a
+    // guard that stopped covering its site; both need a human before `--apply`.
+    for (const identity of PRESERVED_RELEASED_IDENTITIES) {
+      if ((released.get(identity)?.hits ?? 0) > 0) continue
+      failures.push(`released identity ${identity}: no occurrence in the scanned corpus (evidence deleted, or the guard is stale)`)
     }
   }
   for (const failure of failures) console.error(`rescope-mwf: ${failure}`)

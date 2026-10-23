@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-session-format-v1-to-v2",
+  "name": "@metaworkflow/session-format-v1-to-v2",
   "description": "Frozen released-v1 Session codec and assistant-stream migration to v2",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -26,7 +26,7 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
-  "dsh": {
+  "mwf": {
     "sessionFormatMigration": {
       "from": 1,
       "to": 2,
@@ -39,16 +39,16 @@
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session-format": "workspace:*",
-    "@deepseek-ai/dsh-session-format-v0-to-v1": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*"
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session-format": "workspace:*",
+    "@metaworkflow/session-format-v0-to-v1": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-session": "workspace:*"
+    "@metaworkflow/session": "workspace:*"
   }
 }

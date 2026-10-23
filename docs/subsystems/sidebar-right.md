@@ -2,7 +2,7 @@
 
 English | [中文](sidebar-right.zh.md)
 
-The right Sidebar is the Web Client's per-Session docking surface: a column of panes and tabs beside the conversation in which addressed content — a workspace file, a directory tree, the product's own pages — opens, splits, floats, and closes. [`dsh-client-ui-sidebar-right`](../../packages/client/ui-sidebar-right/README.md) owns the surface, the tab-type registry, and the navigation service; [`dsh-client-ui-dockkit`](../../packages/client/ui-dockkit/README.md) is its internal layout engine; [`dsh-client-resources`](../../packages/client/resources/README.md) turns addresses into live values for any component; [`dsh-api-workspace-files`](../../packages/api/workspace-files/README.md) provides both the Host workspace service and the Client `file` resource provider.
+The right Sidebar is the Web Client's per-Session docking surface: a column of panes and tabs beside the conversation in which addressed content — a workspace file, a directory tree, the product's own pages — opens, splits, floats, and closes. [`mwf-client-ui-sidebar-right`](../../packages/client/ui-sidebar-right/README.md) owns the surface, the tab-type registry, and the navigation service; [`mwf-client-ui-dockkit`](../../packages/client/ui-dockkit/README.md) is its internal layout engine; [`mwf-client-resources`](../../packages/client/resources/README.md) turns addresses into live values for any component; [`mwf-api-workspace-files`](../../packages/api/workspace-files/README.md) provides both the Host workspace service and the Client `file` resource provider.
 
 This page is the reference for the subsystem's contracts: addresses, tab-type registration, the navigation service, the extension slots and their owner props, the resource model, the Workspace Files service, the shipped types, and what is deliberately not built. How the layout engine, the frame, and the surface fit together is in the [Agent Note](../../.agents/notes/implemented/feature/2026-09-04-right-sidebar-docking-infrastructure.md); slot mechanics are in the [Slots reference](slots.md).
 
@@ -25,7 +25,7 @@ A tab type is two registrations that share the definition's `id`: a static defin
 
 Every tab is opened by an address string, and the address is the tab's content identity. Two families exist.
 
-A **resource address** is a `dsh-resource://<type>/…` URL. The host names the resource protocol — the key of `ResourceProtocolMap` — and everything after it is the protocol's own path; one scheme serves every protocol, so adding a protocol adds a host, never a scheme. The `file` protocol's path opens with its scope: `session/<sessionId>` followed by the path relative to that session's workspace root (`dsh-resource://file/session/abc/src/notes.txt`), or `absolute` followed by the absolute path with its leading `/` dropped (`dsh-resource://file/absolute/home/ys/notes.txt`, `dsh-resource://file/absolute/C:/x/y.txt` on Windows). Every id and path segment is component-encoded, with `:` kept literal for drive letters. `fileAddressFor(sessionId, cwd, path)` builds one — a relative path or an absolute path inside the workspace becomes `session`-relative, any other absolute path becomes `absolute` — and `parseFileAddress(address)` reads it back or returns `undefined` ([grammar](../../packages/util/workspace-path/README.md)).
+A **resource address** is a `mwf-resource://<type>/…` URL. The host names the resource protocol — the key of `ResourceProtocolMap` — and everything after it is the protocol's own path; one scheme serves every protocol, so adding a protocol adds a host, never a scheme. The `file` protocol's path opens with its scope: `session/<sessionId>` followed by the path relative to that session's workspace root (`mwf-resource://file/session/abc/src/notes.txt`), or `absolute` followed by the absolute path with its leading `/` dropped (`mwf-resource://file/absolute/home/ys/notes.txt`, `mwf-resource://file/absolute/C:/x/y.txt` on Windows). Every id and path segment is component-encoded, with `:` kept literal for drive letters. `fileAddressFor(sessionId, cwd, path)` builds one — a relative path or an absolute path inside the workspace becomes `session`-relative, any other absolute path becomes `absolute` — and `parseFileAddress(address)` reads it back or returns `undefined` ([grammar](../../packages/util/workspace-path/README.md)).
 
 A **page address** is what the Sidebar records for a tab opened by kind rather than by resource: `sidebar://<kind>`, written by the Sidebar itself when `openTab(kind)` runs. Callers never build one — the guide and the file tree are opened as `openTab('guide')` and `openTab('files')` — and no other navigation address exists ([not built](#not-built)).
 
@@ -37,9 +37,9 @@ Tab identity is the pair `(kind, address)`: the registry's claim uses the addres
 
 | Field | Meaning |
 |---|---|
-| `id` | The implementation's identity, unique across every registration; a package name is the natural value (`@deepseek-ai/dsh-client-ui-sidebar-files`). It is the key the body and title register under. |
+| `id` | The implementation's identity, unique across every registration; a package name is the natural value (`@metaworkflow/client-ui-sidebar-files`). It is the key the body and title register under. |
 | `kind` | The type's discriminator: what its tabs are, and what `openTab` names. Not unique — an extension may take over a builtin's kind. The shipped kinds are `guide`, `text`, `files`. |
-| `patterns` | Optional resource-address globs the type recognizes; a page type opened by kind omits them. A pattern containing `:` matches the whole address (`dsh-resource://file/**`); one without matches the URL's path at any depth (`*.md`), and an address that is not a URL matches no such pattern. Matching is case-insensitive and does not hide dotfiles; the syntax is picomatch's POSIX dialect. |
+| `patterns` | Optional resource-address globs the type recognizes; a page type opened by kind omits them. A pattern containing `:` matches the whole address (`mwf-resource://file/**`); one without matches the URL's path at any depth (`*.md`), and an address that is not a URL matches no such pattern. Matching is case-insensitive and does not hide dotfiles; the syntax is picomatch's POSIX dialect. |
 | `priority` | One of three literal bands: `extension` (the default and the highest: a type from outside the product outranks every shipped viewer), `builtin` (types shipped with the product), `fallback` (plain-content viewers anything more specific should beat). |
 | `canOpen(address)` | Optional synchronous veto of a glob match; it runs on every routing decision. |
 | `title(address)` | The chip's text, captured into the layout record when the tab opens and never rewritten. |
@@ -54,20 +54,20 @@ One `kind` may carry one `builtin` and one `extension` registration at the same 
 
 ```ts ignore-check
 import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
+import type {} from '@metaworkflow/client-ui-sidebar-right/client'
 
 export const inject = ['sidebarRightTabs', 'slots']
 
 export function apply(ctx: Context): void {
   ctx.effect(() => ctx.sidebarRightTabs.register({
-    id: '@acme/dsh-client-ui-image',
+    id: '@acme/mwf-client-ui-image',
     kind: 'image',
     patterns: ['*.png', '*.jpg', '*.gif', '*.svg'],
-    canOpen: address => address.startsWith('dsh-resource://file/'),
+    canOpen: address => address.startsWith('mwf-resource://file/'),
     title: address => address.slice(address.lastIndexOf('/') + 1),
   }), 'image type')
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
-    { name: 'sidebar.right.pane.tab', key: '@acme/dsh-client-ui-image' },
+    { name: 'sidebar.right.pane.tab', key: '@acme/mwf-client-ui-image' },
     ImageBody,
   )), 'image body')
 }
@@ -75,7 +75,7 @@ export function apply(ctx: Context): void {
 
 ## Navigation: `ctx.sidebarRight`
 
-Two opens are the navigation controller, and every way into the column calls one of them: `openResource(address, options?)` for a `dsh-resource://` address — the conversation's file links, a tool row's line reference, a file tree's rows — and `openTab(kind, options?)` for a page — the strip's add control, a guide entry box, or an HTTP(S) link in Assistant Markdown. Both run four steps as one history entry — claim (the registry ranks the resource's types, or the named `kind`'s implementation in force answers); focus a tab already showing the same `(kind, address)`; otherwise seat a new tab; expand the column — and then record the navigation in the Tab domain ([service](../../packages/client/ui-sidebar-right/README.md#ctxsidebarright)). Content the user cannot see is not opened, so a collapsed column expands in the same step. `openResource` throws for an address outside `dsh-resource://` or one no type claims; `openTab` throws for a kind nothing registered: both are wiring mistakes, not user errors.
+Two opens are the navigation controller, and every way into the column calls one of them: `openResource(address, options?)` for a `mwf-resource://` address — the conversation's file links, a tool row's line reference, a file tree's rows — and `openTab(kind, options?)` for a page — the strip's add control, a guide entry box, or an HTTP(S) link in Assistant Markdown. Both run four steps as one history entry — claim (the registry ranks the resource's types, or the named `kind`'s implementation in force answers); focus a tab already showing the same `(kind, address)`; otherwise seat a new tab; expand the column — and then record the navigation in the Tab domain ([service](../../packages/client/ui-sidebar-right/README.md#ctxsidebarright)). Content the user cannot see is not opened, so a collapsed column expands in the same step. `openResource` throws for an address outside `mwf-resource://` or one no type claims; `openTab` throws for a kind nothing registered: both are wiring mistakes, not user errors.
 
 | Option | Meaning |
 |---|---|
@@ -126,7 +126,7 @@ A renderer that owns loading receives `{ kind: 'renderer', revision, loaded, fai
 
 ## Resource model
 
-The model is documented in [Client Resources](client-resources.md); this section states what the Sidebar relies on. A resource is one address, and a resource address is a `dsh-resource://<type>/…` URL whose lower-cased host is the protocol key. The protocol's owning client package registers one provider with `ctx.resources.register(provider)` for its own lifetime; a second provider for the same protocol throws ([provide a protocol](../../packages/client/resources/README.md#provide-a-protocol)). A provider is `{ protocol, open(address, { signal }) }`: `open` yields `RemoteResult` frames — the current state first, one frame per later change — and stops when `signal` aborts; a failure is an `{ ok: false, error }` frame, never a throw, and a throw inside the stream is a programming error the model does not catch.
+The model is documented in [Client Resources](client-resources.md); this section states what the Sidebar relies on. A resource is one address, and a resource address is a `mwf-resource://<type>/…` URL whose lower-cased host is the protocol key. The protocol's owning client package registers one provider with `ctx.resources.register(provider)` for its own lifetime; a second provider for the same protocol throws ([provide a protocol](../../packages/client/resources/README.md#provide-a-protocol)). A provider is `{ protocol, open(address, { signal }) }`: `open` yields `RemoteResult` frames — the current state first, one frame per later change — and stops when `signal` aborts; a failure is an `{ ok: false, error }` frame, never a throw, and a throw inside the stream is a programming error the model does not catch.
 
 `useResource<P>(address)` is a global standard prop on every slot component, whatever its scope. It returns `{ status, value, failure }`: `none` when the address's protocol has no provider or the address is not a resource address (`sidebar://guide` names no resource), `loading` until the first frame, `live` with the latest `ok` value, `failed` with the latest frame's failure beside the last value. ([read a resource](../../packages/client/resources/README.md#read-a-resource)).
 
@@ -136,15 +136,15 @@ A resource stays open while it has a holder — a subscribed `useResource` or a 
 
 The Host `ctx.workspaceFiles` service and generated `workspaceFiles` Remote namespace read files allowed by the Session filesystem backend: `stat(path)` returns `{ absolutePath, version, bytes? }`; `read(path, { offset?, limit? })` returns one page of lines (`offset` 1-based, `limit` capped by the configured page size) as `{ …stat, offset, text, eof }`; `readBytes(path, { range?, baseFile? })` returns a complete file under `maxFileBytes` or a byte window under `maxBytes` as `{ …stat, offset, data, eof }` with native `Uint8Array` data. Its optional `range` uses 0-based `offset` and a byte `length`; `baseFile` resolves the relative target from another file’s directory. `list(path)` remains inside the workspace root and returns a directory's direct children (`name`, `type: 'file' | 'directory' | 'other'`, `size?`) cut to the configured cap with `truncated` set. `changes(path)` watches one target; the Host determines its type and confines directories to the workspace. It yields `{ kind: 'ready' }` once subscribed, then `{ kind: 'change', change }` frames whose payload is `{ absolutePath, version }` or `{ absolutePath, absent: true }` ([README](../../packages/api/workspace-files/README.md#use-this-package)). File reads reject final symlinks and enforce transfer caps; `read` additionally requires UTF-8 text. Failures use `workspace-file/*` codes ([failures](../../packages/api/workspace-files/README.md)).
 
-[`dsh-api-workspace-files`](../../packages/api/workspace-files/README.md) registers the `file` provider, with `ResourceProtocolMap.file` directly naming `WorkspaceFileStat`. A Session address carries the authorizing Session and a relative or absolute path, passed unchanged to the Host for resolution. The provider waits for Host `ready` before stat and filters changes by `stat.absolutePath`. Bare `absolute` addresses have no authorizing Session and fail with `workspace-file/unknown-workspace`, without borrowing current or Tab Session. Any UI, including Global components, shares the observation for the same complete address. Preview's Remote callbacks use the Session in that address; `remote.workspaceFiles.readBytes` returns native bytes through Connection's binary RPC transport.
+[`mwf-api-workspace-files`](../../packages/api/workspace-files/README.md) registers the `file` provider, with `ResourceProtocolMap.file` directly naming `WorkspaceFileStat`. A Session address carries the authorizing Session and a relative or absolute path, passed unchanged to the Host for resolution. The provider waits for Host `ready` before stat and filters changes by `stat.absolutePath`. Bare `absolute` addresses have no authorizing Session and fail with `workspace-file/unknown-workspace`, without borrowing current or Tab Session. Any UI, including Global components, shares the observation for the same complete address. Preview's Remote callbacks use the Session in that address; `remote.workspaceFiles.readBytes` returns native bytes through Connection's binary RPC transport.
 
 ## Shipped types
 
 - **`guide`** — `builtin`, opened as `openTab('guide')`. A muted compass sits above one capsule per contributed `guide` entry, in `order`; short lists show registered descriptions, and every missing icon uses the shipped placeholder. Picking a capsule opens the contributing type as a page in the guide tab's place. A pane holds at most one guide tab, and the strip's add control appears only while its pane has none. A new pane receives the registered default page: the sole guide entry directly, or the guide when the entry count is not one ([guide](../../packages/client/ui-sidebar-right/README.md#the-guide)).
-- **`text`** — `fallback`, `dsh-resource://file/**`, claiming Session addresses only. Document Preview observes metadata through `useResource<'file'>`, loads content through Remote callbacks, and owns renderer selection, the toolbar, per-tab refresh, scroll, and source navigation; unknown extensions render as plain text ([README](../../packages/client/ui-sidebar-documentpreview/README.md)).
+- **`text`** — `fallback`, `mwf-resource://file/**`, claiming Session addresses only. Document Preview observes metadata through `useResource<'file'>`, loads content through Remote callbacks, and owns renderer selection, the toolbar, per-tab refresh, scroll, and source navigation; unknown extensions render as plain text ([README](../../packages/client/ui-sidebar-documentpreview/README.md)).
 - **`files`** — `builtin`, opened as `openTab('files')`. The workspace directory tree, listed lazily through `list` and watched by expanded directory, opening a file with `tab.actions.openResource(fileAddressFor(sessionId, root, path))` into its own pane ([README](../../packages/client/ui-sidebar-files/README.md)).
 - **`browser`** — multi-instance `builtin`, opened as `openTab('browser', { params: { url? } })`. Chat's [link preference](../../packages/client/ui-chat/README.md) controls whether Assistant Markdown opens HTTP(S) links here. It accepts public and loopback HTTP(S) targets under the default sandbox, rejects local files in favor of Document Preview, and uses application-known iframe history ([README](../../packages/client/ui-sidebar-browser/README.md)).
-- **`subagentchat`** — `builtin`, `dsh-resource://subagentchat/session/<child>?parent=<parent>&mode=<mode>`. An explicitly addressed subagent Conversation retained by the resource provider and rendered through the shared Conversation Factory ([README](../../packages/client/ui-subagent/README.md)).
+- **`subagentchat`** — `builtin`, `mwf-resource://subagentchat/session/<child>?parent=<parent>&mode=<mode>`. An explicitly addressed subagent Conversation retained by the resource provider and rendered through the shared Conversation Factory ([README](../../packages/client/ui-subagent/README.md)).
 
 <a id="not-built"></a>
 ## Not built

@@ -1,30 +1,30 @@
 import { fileURLToPath } from 'node:url'
-import { agentEvents, type Agent } from '@deepseek-ai/dsh-agent'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
-import { boot, loadOverlayPatches } from '@deepseek-ai/dsh-app-boot'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-skill'
-import type {} from '@deepseek-ai/dsh-tools'
-import { unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { agentEvents, type Agent } from '@metaworkflow/agent'
+import { ToolCallId } from '@metaworkflow/llm'
+import { boot, loadOverlayPatches } from '@metaworkflow/app-boot'
+import { SessionId } from '@metaworkflow/session'
+import type {} from '@metaworkflow/skill'
+import type {} from '@metaworkflow/tools'
+import { unsupportedInbox } from '@metaworkflow/agent-loop-testkit'
 
 const overlayPath = process.argv[2]
 if (overlayPath === undefined) throw new Error('dsh-badge snapshot requires an overlay path')
 const rootConfigPath = fileURLToPath(new URL('../../../../../packages/bundle/base/tests/fixtures/root.cordis.yml', import.meta.url))
 const basePatchPath = fileURLToPath(new URL('../../../../../packages/bundle/base/cordis.patch.yml', import.meta.url))
 // The fixture owns the optional provider; the base bundle has no dependency on it.
-const overlays = loadOverlayPatches('dsh-badge-snapshot', overlayPath).map(patch => patch.insert === undefined ? patch : {
+const overlays = loadOverlayPatches('mwf-badge-snapshot', overlayPath).map(patch => patch.insert === undefined ? patch : {
   ...patch,
-  insert: patch.insert.map(row => row.name === '@deepseek-ai/dsh-skill-badge'
-    ? { ...row, name: import.meta.resolve('@deepseek-ai/dsh-skill-badge') }
+  insert: patch.insert.map(row => row.name === '@metaworkflow/skill-badge'
+    ? { ...row, name: import.meta.resolve('@metaworkflow/skill-badge') }
     : row),
 })
-const ctx = await boot('dsh-badge-snapshot', rootConfigPath, [
-  ...loadOverlayPatches('dsh-badge-snapshot', basePatchPath),
+const ctx = await boot('mwf-badge-snapshot', rootConfigPath, [
+  ...loadOverlayPatches('mwf-badge-snapshot', basePatchPath),
   ...overlays,
 ])
 
 try {
-  const agentId = SessionId('dsh-badge-snapshot')
+  const agentId = SessionId('mwf-badge-snapshot')
   const session = ctx.sessions.create(agentId, { meta: { cwd: process.cwd() } })
   const agent: Agent = {
     ctx,
@@ -52,7 +52,7 @@ try {
     : undefined
   const summary = (await ctx.skills.list()).find(skill => skill.name === 'dsh-badge')
   const result = await ctx.tools.execute({
-    callId: ToolCallId('dsh-badge-snapshot'),
+    callId: ToolCallId('mwf-badge-snapshot'),
     name: 'skill',
     arguments: { name: 'dsh-badge' },
     signal: new AbortController().signal,

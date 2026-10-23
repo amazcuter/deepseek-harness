@@ -18,8 +18,8 @@ export function resolveDesktopBuildTarget(
   hostPlatform = process.platform,
   hostArch = process.arch,
 ) {
-  const platform = env.DSH_DESKTOP_TARGET_PLATFORM ?? env.npm_config_platform ?? hostPlatform
-  const arch = env.DSH_DESKTOP_TARGET_ARCH ?? env.npm_config_arch
+  const platform = env.MWF_DESKTOP_TARGET_PLATFORM ?? env.npm_config_platform ?? hostPlatform
+  const arch = env.MWF_DESKTOP_TARGET_ARCH ?? env.npm_config_arch
     ?? (platform === 'win32' || platform === 'win' ? 'x64' : hostArch)
   const os = platform === 'darwin' ? 'mac' : platform === 'win32' || platform === 'win' ? 'win' : platform
   const target = `${os}-${arch}`
@@ -38,7 +38,7 @@ function assertSupportedTarget(target) {
 /**
  * Return the mutable preparation and artifact directories owned by one release target.
  * @param {'mac-arm64' | 'mac-x64' | 'win-x64'} target - Supported Desktop target name.
- * @returns {{ root: string, artifacts: string, unsignedArtifacts: string, unnotarizedArtifacts: string, runtime: string, packageSet: string, dsh: string, dshPnpm: string, electron: string, packedDsh: string, packedVendor: string, packedLandlock: string, downloads: string }} Target paths plus the shared immutable download cache.
+ * @returns {{ root: string, artifacts: string, unsignedArtifacts: string, unnotarizedArtifacts: string, runtime: string, packageSet: string, mwf: string, mwfPnpm: string, electron: string, packedMwf: string, packedVendor: string, packedLandlock: string, downloads: string }} Target paths plus the shared immutable download cache.
  */
 export function desktopTargetBuildPaths(target) {
   assertSupportedTarget(target)
@@ -51,10 +51,10 @@ export function desktopTargetBuildPaths(target) {
     unnotarizedArtifacts: join(root, 'unnotarized-artifacts'),
     runtime: join(root, 'runtime'),
     packageSet: join(root, 'package-set'),
-    dsh: join(root, 'dsh'),
-    dshPnpm: join(root, 'dsh-pnpm'),
+    mwf: join(root, 'mwf'),
+    mwfPnpm: join(root, 'mwf-pnpm'),
     electron: join(root, 'electron'),
-    packedDsh: join(packed, 'dsh'),
+    packedMwf: join(packed, 'mwf'),
     packedVendor: join(packed, 'vendor'),
     packedLandlock: join(packed, 'landlock'),
     downloads: join(BUILD_ROOT, 'downloads'),

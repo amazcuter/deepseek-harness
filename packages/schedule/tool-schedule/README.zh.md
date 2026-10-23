@@ -3,13 +3,13 @@ description: "预设作用域的提醒管理工具（schedule_create、schedule_
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tool-schedule
+# @metaworkflow/tool-schedule
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `dsh-tool-schedule`，可通过 `schedule_create`、`schedule_list`、`schedule_update` 与 `schedule_delete` 让 agent（智能体）创建、列出、编辑和删除宿主持久提醒。本包把四个工具注册进挂载它的 preset 或 Agent 作用域，因此由组合决定哪些 agent 获得这些工具；`minimal` 不获得。每次调用都作用于调用方 Agent 的 Session，并且只管理已存储的提醒——存储、调度与投递由宿主 `@deepseek-ai/dsh-schedule` 服务负责。失败时返回一个结构化错误码，而不是存储细节。
+使用 `mwf-tool-schedule`，可通过 `schedule_create`、`schedule_list`、`schedule_update` 与 `schedule_delete` 让 agent（智能体）创建、列出、编辑和删除宿主持久提醒。本包把四个工具注册进挂载它的 preset 或 Agent 作用域，因此由组合决定哪些 agent 获得这些工具；`minimal` 不获得。每次调用都作用于调用方 Agent 的 Session，并且只管理已存储的提醒——存储、调度与投递由宿主 `@metaworkflow/schedule` 服务负责。失败时返回一个结构化错误码，而不是存储细节。
 
 ## 目录
 
@@ -29,7 +29,7 @@ kind: "package-reference"
 
 ### 何时选用
 
-当 preset 的 agent 需要在自己的 Session 中安排未来工作时选用它，并在同一进程内加载 `@deepseek-ai/dsh-schedule`：本包只是该服务面向模型的消费方。需要保持能力精简的 preset——随产品发布的例子是 `minimal`——会省略该行，其 agent 完全看不到提醒工具。
+当 preset 的 agent 需要在自己的 Session 中安排未来工作时选用它，并在同一进程内加载 `@metaworkflow/schedule`：本包只是该服务面向模型的消费方。需要保持能力精简的 preset——随产品发布的例子是 `minimal`——会省略该行，其 agent 完全看不到提醒工具。
 
 ### 四个工具
 
@@ -41,7 +41,7 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@deepseek-ai/dsh-tool-schedule'
+- name: '@metaworkflow/tool-schedule'
 ```
 
 本包不声明任何 `Config` 字段。它注入 `ctx.tools`，并在作用域解析到宿主 `ctx.schedule` 服务后注册这四个工具，因此保持该服务关闭的组合不会挂载任何提醒工具。每次调用都作用于派发该调用的 Agent 的 Session。
@@ -71,7 +71,7 @@ kind: "package-reference"
 
 - [Schedule 服务](../schedule/README.zh.md) —— 这些工具所管理的宿主任务存储、运行时与投递行为。
 - [Schedule 分组映射](../README.zh.md) —— 本组内的同级包。
-- [生成的工具目录](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-schedule) —— 模型接收的确切四个 schema。
+- [生成的工具目录](../../../docs/tool-catalog.zh.md#metaworkflowtool-schedule) —— 模型接收的确切四个 schema。
 - [Schedule 子系统](../../../docs/subsystems/schedule.zh.md) —— `ctx.schedule` 的 Cordis 接线区域与存储类型。
 - [Schedule 用户指南](../../../docs/user/guide/schedule.zh.md) —— 面向用户的提醒工作流。
 
@@ -84,7 +84,7 @@ kind: "package-reference"
 
 #### What the model sees
 
-只要本包在调用方 Agent 的作用域内可见，模型就会收到生成的 [`schedule_create`、`schedule_list`、`schedule_update` 与 `schedule_delete` schema](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-schedule)。标题指引不会改写已存标题，也不会在现有的非空和长度检查之外增加校验。
+只要本包在调用方 Agent 的作用域内可见，模型就会收到生成的 [`schedule_create`、`schedule_list`、`schedule_update` 与 `schedule_delete` schema](../../../docs/tool-catalog.zh.md#metaworkflowtool-schedule)。标题指引不会改写已存标题，也不会在现有的非空和长度检查之外增加校验。
 
 #### Token effect
 
@@ -116,7 +116,7 @@ kind: "package-reference"
 - **每次调用都需要调用方 Agent** —— 未携带 Agent 的派发返回 `internal_error`，而不会猜测某个 Session。
 - **删除不会撤回已排队的消息** —— 宿主已经投递的提醒在 `schedule_delete` 之后仍留在 Session 收件箱中。
 - **提醒时间由宿主负责** —— 这些工具不提供目标时间校正、时钟来源或投递重试；这些限制属于该服务。
-- **每个工具都拒绝被委派的调用方** —— `schedule_create`、`schedule_list`、`schedule_update` 与 `schedule_delete` 都会在派发前读取调用方 Agent 的委派深度，当该深度大于零时返回 `{ code: 'subagent_session', message: 'A delegated subagent cannot use reminders.' }`。该守卫位于本包内，读取来自 `@deepseek-ai/dsh-subagent` 的 `delegationDepthOf`，即委派封顶本身执行的同一份记账，因此在任何挂载这些工具的 preset 下都成立。
+- **每个工具都拒绝被委派的调用方** —— `schedule_create`、`schedule_list`、`schedule_update` 与 `schedule_delete` 都会在派发前读取调用方 Agent 的委派深度，当该深度大于零时返回 `{ code: 'subagent_session', message: 'A delegated subagent cannot use reminders.' }`。该守卫位于本包内，读取来自 `@metaworkflow/subagent` 的 `delegationDepthOf`，即委派封顶本身执行的同一份记账，因此在任何挂载这些工具的 preset 下都成立。
 - **被委派子 agent 拥有的 Session 不能设置提醒** —— 当 Session 的 Agent 委派深度大于零时，`ScheduleService.create` 会抛出 `ScheduleInputError`（code 为 `subagent_session`），`ScheduleService.update` 则返回非变更的 `subagent_session` 结果。委派深度正是委派封顶本身读取的同一份记账，持久化 session header 让它在冷恢复后仍然成立。这条规则在服务层而非这些工具里，因此其它进程内消费方（包括自动化任务页面）也会命中。`schedule_list` 与 `schedule_delete` 仍可服务该 Session，所以在这条规则之前存储的提醒仍可删除。
 
 <a id="dev-note"></a>

@@ -14,7 +14,7 @@ help:
 	@echo "make dev-web      pnpm run dev:web         build, serve, and rebuild Web on source edits"
 	@echo "make dev-desktop  pnpm run dev:desktop     build, then launch Desktop"
 	@echo "ARGS='--no-open --port 3081' forwards options to the launched application;"
-	@echo "the Web commands accept dsh web flags, the Desktop launcher accepts none."
+	@echo "the Web commands accept mwf web flags, the Desktop launcher accepts none."
 
 build:
 	$(PNPM) run build

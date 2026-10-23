@@ -1,6 +1,6 @@
 /**
  * Shipped creator skills: every rendered skill stays below the pruner threshold, referenced
- * files exist, templates parse, and no skill bans reading DSH sources.
+ * files exist, templates parse, and no skill bans reading MWF sources.
  */
 import { execFileSync } from 'node:child_process'
 import { lstatSync, readdirSync, readFileSync, readlinkSync, realpathSync, statSync } from 'node:fs'
@@ -9,9 +9,9 @@ import { Context } from '@deepseek-ai/cordis'
 import { fileURLToPath } from 'node:url'
 import * as yaml from 'js-yaml'
 import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
-import { codePointLength } from '@deepseek-ai/dsh-compaction-tool-result-pruner'
-import SkillRegistry, { renderSkillContent } from '@deepseek-ai/dsh-skill'
-import * as SkillFileSystem from '@deepseek-ai/dsh-skill-filesystem'
+import { codePointLength } from '@metaworkflow/compaction-tool-result-pruner'
+import SkillRegistry, { renderSkillContent } from '@metaworkflow/skill'
+import * as SkillFileSystem from '@metaworkflow/skill-filesystem'
 import { describe, expect, it } from 'vitest'
 
 const skills = fileURLToPath(new URL('../skills/', import.meta.url))
@@ -93,8 +93,8 @@ describe('the shipped creator skills', () => {
     const templates = join(skills, 'cordis-plugin-development', 'templates')
     for (const name of readdirSync(templates)) {
       const dir = join(templates, name)
-      const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as { dsh: { bundle: { patch: string } } }
-      const patch = yaml.load(readFileSync(join(dir, manifest.dsh.bundle.patch), 'utf8'), { schema: entryListSchema })
+      const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as { mwf: { bundle: { patch: string } } }
+      const patch = yaml.load(readFileSync(join(dir, manifest.mwf.bundle.patch), 'utf8'), { schema: entryListSchema })
       expect(Array.isArray(patch)).toBe(true)
       for (const file of readdirSync(dir).filter(entry => entry.endsWith('.js'))) {
         execFileSync(process.execPath, ['--check', join(dir, file)])
@@ -109,7 +109,7 @@ describe('the shipped creator skills', () => {
       const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as {
         exports: Record<string, string> & { './icon': string }
         files: string[]
-        dsh: { bundle: { patch: string } }
+        mwf: { bundle: { patch: string } }
       }
       expect(manifest).not.toHaveProperty('icon')
       expect(manifest.exports['./locale/*.json']).toBe('./locale/*.json')
@@ -123,7 +123,7 @@ describe('the shipped creator skills', () => {
         expect(locale.meta.description).toMatch(/\S/u)
       }
       const resources = new Set([...Object.values(manifest.exports).filter(file => !file.includes('*')),
-        ...locales, manifest.dsh.bundle.patch])
+        ...locales, manifest.mwf.bundle.patch])
       for (const resource of resources) {
         const file = resource.replace(/^\.\//u, '')
         expect(body('cordis-plugin-development'), file).toContain(`\`templates/${name}/${file}\``)
@@ -133,11 +133,11 @@ describe('the shipped creator skills', () => {
     }
   })
 
-  it('never forbid reading DSH package sources and never route skill files through the shell', () => {
+  it('never forbid reading MWF package sources and never route skill files through the shell', () => {
     for (const name of names) {
       for (const file of markdownFiles(join(skills, name))) {
         const text = readFileSync(file, 'utf8')
-        expect(text, file).not.toMatch(/do not read (DSH |package |DSH package )?sources/i)
+        expect(text, file).not.toMatch(/do not read (MWF |package |MWF package )?sources/i)
         // Desktop ships the skill directory inside app.asar, which only the Host process can open.
         expect(text, file).not.toMatch(/`(cat|cp|ls) /)
       }

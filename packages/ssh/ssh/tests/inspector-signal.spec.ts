@@ -4,7 +4,7 @@ import { once } from 'node:events'
 import { mkdtemp, realpath, rm } from 'node:fs/promises'
 import { createInterface } from 'node:readline'
 import { Context } from '@deepseek-ai/cordis'
-import { LocalSandboxProvider } from '@deepseek-ai/dsh-sandbox-local'
+import { LocalSandboxProvider } from '@metaworkflow/sandbox-local'
 import { describe, expect, it } from 'vitest'
 
 // This fixture has no credentials, application state, or descendants. Port zero
@@ -17,7 +17,7 @@ process.stdout.write('ready\\n');
 
 describe.skipIf(process.platform !== 'darwin')('SSH helper inspector signal hardening', () => {
   it.each([false, true])('observes actual debugger activation with SIGUSR1 disabled=%s', async (disabled) => {
-    const root = await realpath(await mkdtemp('/tmp/dsh-ssh-inspector-'))
+    const root = await realpath(await mkdtemp('/tmp/mwf-ssh-inspector-'))
     const ctx = new Context()
     const sandbox = await ctx.plugin(LocalSandboxProvider)
     const child = spawn(process.execPath, [...(disabled ? ['--disable-sigusr1'] : []), '--inspect-port=0', '-e', fixture], {

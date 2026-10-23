@@ -8,15 +8,15 @@ English | [中文](2026-10-03-pi-extensions-bridge.zh.md)
 
 Pi 1.0.0 extensions are in-process TypeScript factories `(pi: ExtensionAPI) => void`. A factory subscribes to about forty lifecycle, context, tool, and provider events, registers model tools, slash commands, model providers, and MCP servers, and talks to the user through `ctx.ui` ([extensions guide](https://github.com/earendil-works/pi/blob/v1.0.0/packages/coding-agent/docs/extensions.md), [API types](https://github.com/earendil-works/pi/blob/v1.0.0/packages/coding-agent/src/core/extensions/types.ts)). The API is published and widely used: about 11,000 npm packages carried the `pi-package` keyword in October 2026.
 
-DSH has bridges for two other ecosystems: shell hooks written for Claude Code and Codex ([hooks group](../../../../packages/experimental/README.md)) and Claude Code mods ([compatibility page](../../../../docs/subsystems/claude-code-mods.md)). Pi's extension API is broader than either. It lets one in-process module rewrite the messages of a single request, edit tool arguments, append its own durable records, and continue a finished run. Serving that API from DSH extension points answers two questions: how much of an extension written for another harness runs unchanged, and which DSH core mechanisms are narrower than Pi's.
+MWF has bridges for two other ecosystems: shell hooks written for Claude Code and Codex ([hooks group](../../../../packages/experimental/README.md)) and Claude Code mods ([compatibility page](../../../../docs/subsystems/claude-code-mods.md)). Pi's extension API is broader than either. It lets one in-process module rewrite the messages of a single request, edit tool arguments, append its own durable records, and continue a finished run. Serving that API from MWF extension points answers two questions: how much of an extension written for another harness runs unchanged, and which MWF core mechanisms are narrower than Pi's.
 
 ## Proposal
 
-Add an experimental bridge that loads unmodified Pi extension sources and serves Pi's `ExtensionAPI` from existing DSH extension points. The bridge is a capability demonstration: it runs extensions as written where an existing DSH mechanism carries the behavior, leaves the rest unserved, and lists every difference on a compatibility page. Apart from the restricted plugin records that extension state needs (row 9 of the gap table), each core gap is closed by a separate change.
+Add an experimental bridge that loads unmodified Pi extension sources and serves Pi's `ExtensionAPI` from existing MWF extension points. The bridge is a capability demonstration: it runs extensions as written where an existing MWF mechanism carries the behavior, leaves the rest unserved, and lists every difference on a compatibility page. Apart from the restricted plugin records that extension state needs (row 9 of the gap table), each core gap is closed by a separate change.
 
 ### Packages and composition
 
-- `@deepseek-ai/dsh-experimental-pi-extensions` is the Host package and provides `ctx.piExtensions`. `@deepseek-ai/dsh-experimental-client-ui-pi-extensions` is the Web package. Neither is an optional bundle; an opt-in overlay composes them, as for the Claude Code mods bridge.
+- `@metaworkflow/experimental-pi-extensions` is the Host package and provides `ctx.piExtensions`. `@metaworkflow/experimental-client-ui-pi-extensions` is the Web package. Neither is an optional bundle; an opt-in overlay composes them, as for the Claude Code mods bridge.
 - One cordis.yml row names one extension source: a file, a directory with an `index.ts` or `index.js`, or a Pi package directory whose `package.json` lists `pi.extensions`. The row also carries the extension's flag values. Row order is Pi's load order, which is also its handler dispatch order.
 - The bridge does not scan `~/.pi` or `.pi`, install packages, or decide project trust. A Pi package's skills, prompt templates, and themes are not loaded.
 
@@ -29,7 +29,7 @@ Add an experimental bridge that loads unmodified Pi extension sources and serves
 
 ### Serving the API
 
-| Pi API | DSH mechanism |
+| Pi API | MWF mechanism |
 |---|---|
 | `session_start`, `session_shutdown` | `agent/created` (awaited before the first turn), `agent/disposed` |
 | `input` (after inbox admission; see row 7), `before_agent_start` | `system-prompt/assemble` and `agent/pre-step`: claimed user messages are transformed or dropped, a returned `systemPrompt` replaces the assembled prompt for that turn, and returned messages join the step |
@@ -54,14 +54,14 @@ The Web and Desktop GUI appear to extensions as Pi's `rpc` mode with `hasUI: tru
 
 ### Built-in tool calls as Pi sees them
 
-DSH and Pi share the names `bash`, `read`, `edit`, `write`, and `grep`, but not their arguments, and Pi's `find` is DSH's `glob`. A Pi safety extension reads `event.input.path` or `event.input.command`. The bridge therefore presents each call of these six tools to handlers with Pi's name and Pi's argument names, translated from the DSH call. Other tools pass through unchanged. A test loads the registered DSH tool schemas and fails when a mapped parameter is renamed or removed, or when a tool gains a parameter the table has not classified.
+MWF and Pi share the names `bash`, `read`, `edit`, `write`, and `grep`, but not their arguments, and Pi's `find` is MWF's `glob`. A Pi safety extension reads `event.input.path` or `event.input.command`. The bridge therefore presents each call of these six tools to handlers with Pi's name and Pi's argument names, translated from the MWF call. Other tools pass through unchanged. A test loads the registered MWF tool schemas and fails when a mapped parameter is renamed or removed, or when a tool gains a parameter the table has not classified.
 
-The opposite direction uses the same table. `getActiveTools()` and `getAllTools()` report Pi names for the six tools and DSH names for every other tool, and `setActiveTools()` accepts the same names. `ctx.executeTool()` given a Pi name translates the arguments into the DSH call; an `edit` call with more than one entry in `edits` is refused, because one DSH `edit` call makes one replacement. An extension tool registered under a Pi built-in name replaces the corresponding DSH tool for that Agent, as it replaces Pi's own tool (`find` replaces `glob`).
+The opposite direction uses the same table. `getActiveTools()` and `getAllTools()` report Pi names for the six tools and MWF names for every other tool, and `setActiveTools()` accepts the same names. `ctx.executeTool()` given a Pi name translates the arguments into the MWF call; an `edit` call with more than one entry in `edits` is refused, because one MWF `edit` call makes one replacement. An extension tool registered under a Pi built-in name replaces the corresponding MWF tool for that Agent, as it replaces Pi's own tool (`find` replaces `glob`).
 
 ### Unserved features
 
-- An event DSH cannot raise is accepted at registration, never raised, and named in a warning when the extension loads.
-- A `pi` or `ctx` member DSH cannot serve throws an error naming the member.
+- An event MWF cannot raise is accepted at registration, never raised, and named in a warning when the extension loads.
+- A `pi` or `ctx` member MWF cannot serve throws an error naming the member.
 - Where Pi fails closed, the bridge does too. A `tool_call` handler that edits `event.input` gets the call denied with a reason, because the logged call would otherwise differ from the executed one.
 
 ### Extension state
@@ -74,9 +74,9 @@ Pi extensions rebuild their state on `session_start` from what they wrote earlie
 
 ### Core mechanisms narrower than Pi's
 
-Ranked by how much of Pi's API each blocks, with the GitHub issue that tracks each. Rows 1 and 3 follow from DSH rules: a request is derived from the Session log, and the log is linear. The other rows are missing extension points.
+Ranked by how much of Pi's API each blocks, with the GitHub issue that tracks each. Rows 1 and 3 follow from MWF rules: a request is derived from the Session log, and the log is linear. The other rows are missing extension points.
 
-| # | Mechanism | Pi API blocked | DSH today | Issue |
+| # | Mechanism | Pi API blocked | MWF today | Issue |
 |---|---|---|---|---|
 | 1 | Per-request rewrite of model input | `context`, `context_with_system`, `before_provider_request`, `prepareLoadout` hidden declarations | The loop derives each request from the log and freezes it; `llm/stream` listeners read it. A rewrite needs an awaited hook and a core event that every log reader applies to that request. | #5661 |
 | 2 | Tool-argument rewrite | `tool_call` editing `event.input` | `PreToolDecision` excludes input rewriting ([proposal](2026-06-30-pre-tool-input-rewrite.md)). | #5662 |
@@ -94,15 +94,15 @@ Ranked by how much of Pi's API each blocks, with the GitHub issue that tracks ea
 | 14 | Provider request hooks | `before_provider_headers`, `after_provider_response`, `provider_stream_event` | Headers, responses, and raw stream events stay inside each adapter. | #5674 |
 | 15 | Fault isolation | An extension bug stops one Pi process | An uncaught exception in the Host disposes the application for every Session. | #5675 |
 
-Terminal rendering (`ctx.ui.custom`, custom editors, renderers, shortcuts) is outside this list: DSH's GUI is not a terminal, and Pi's own `rpc` mode does not serve these either.
+Terminal rendering (`ctx.ui.custom`, custom editors, renderers, shortcuts) is outside this list: MWF's GUI is not a terminal, and Pi's own `rpc` mode does not serve these either.
 
 ## Alternatives considered
 
-**Depend on `@earendil-works/pi-coding-agent` and reuse its loader and runner.** It would reproduce Pi's handler ordering and error rules exactly and supply every helper extensions import. It was rejected because the exercise is to carry Pi's API on DSH mechanisms, not to embed Pi's harness: the runner is constructed over Pi's `SessionManager` and `ModelRegistry`, the package brings Pi's whole dependency closure, and its built-in tool factories would run Pi's own file and shell implementations outside DSH's filesystem and sandbox policy.
+**Depend on `@earendil-works/pi-coding-agent` and reuse its loader and runner.** It would reproduce Pi's handler ordering and error rules exactly and supply every helper extensions import. It was rejected because the exercise is to carry Pi's API on MWF mechanisms, not to embed Pi's harness: the runner is constructed over Pi's `SessionManager` and `ModelRegistry`, the package brings Pi's whole dependency closure, and its built-in tool factories would run Pi's own file and shell implementations outside MWF's filesystem and sandbox policy.
 
 **A wrapper module per extension, like `defineMod`.** A Pi extension is already a default-exported factory with no manifest to replace, so a wrapper adds a step for every extension and prevents loading a published Pi package directory.
 
-**Discover Pi's own locations automatically.** Loading `~/.pi/agent/extensions` and project `.pi/extensions` executes code a DSH user did not compose, which needs a project-trust decision DSH does not have. The mods bridge removed its directory loader for the same composition reason. Discovery can be a later opt-in layer.
+**Discover Pi's own locations automatically.** Loading `~/.pi/agent/extensions` and project `.pi/extensions` executes code a MWF user did not compose, which needs a project-trust decision MWF does not have. The mods bridge removed its directory loader for the same composition reason. Discovery can be a later opt-in layer.
 
 **Run extensions in a separate process per Session.** An uncaught extension error would then reach the Host as an event. Every awaited hook would become an inter-process round trip, and Pi's edit-in-place event objects would have to be reproduced by sending changes back. Deferred until real extensions show the isolation is needed.
 
@@ -110,7 +110,7 @@ Terminal rendering (`ctx.ui.custom`, custom editors, renderers, shortcuts) is ou
 
 **Run extensions for root Sessions only.** It needs an explicit filter, since `agent/created` fires for every Agent, and it lets a subagent's tool calls bypass a Pi safety extension.
 
-**Pass DSH tool names and arguments to handlers unchanged.** Pi's own `protected-paths` example reads `event.input.path`; with DSH's `file_path` it throws, and a handler written slightly differently would allow the write.
+**Pass MWF tool names and arguments to handlers unchanged.** Pi's own `protected-paths` example reads `event.input.path`; with MWF's `file_path` it throws, and a handler written slightly differently would allow the write.
 
 **Declare `pi/*` Session events and a `pi-extension` message source.** Correct attribution, but each is a required-on-read persistence type: the catalog and type history change, and a build without the bridge refuses the Session.
 
@@ -126,7 +126,7 @@ Terminal rendering (`ctx.ui.custom`, custom editors, renderers, shortcuts) is ou
 
 - Pi's MIT-licensed example extensions are committed unchanged as fixtures, and only those a test exercises. Through a real agent loop with a mock model: a permission extension denies a tool call and the model sees the reason; an extension tool is called by the model and its `details` survive a resumed Session; an extension command runs; an extension replaces the system prompt for a turn; `appendEntry` state is rebuilt on `session_start` after resume.
 - A subagent's tool call reaches the handlers of its own runtime.
-- The tool translation test fails when a mapped DSH tool parameter changes.
+- The tool translation test fails when a mapped MWF tool parameter changes.
 - A Loader composition test boots the bridge from a cordis.yml, and a disposal test shows every registration removed when the bridge unloads.
 - A recorded-Session snapshot covers an extension-denied tool call and an extension tool call.
 - `docs/subsystems/pi-extensions.md` lists every event and member with its status and every behavioral difference.

@@ -8,14 +8,14 @@ Set-StrictMode -Version Latest
 $planPath = (Resolve-Path -LiteralPath $Plan).Path
 $spec = Get-Content -LiteralPath $planPath -Raw -Encoding UTF8 | ConvertFrom-Json
 if ($spec.schemaVersion -ne 1 -or $spec.runId -cnotmatch '^[a-f0-9]{24}$' -or
-    $spec.ruleName -cne "DSH-Update-Qualification-$($spec.runId)" -or
+    $spec.ruleName -cne "MWF-Update-Qualification-$($spec.runId)" -or
     $spec.sha512Hex -cnotmatch '^[A-F0-9]{128}$' -or
     $spec.executable -notmatch '^[A-Za-z]:\\' -or
-    [IO.Path]::GetFileName($spec.executable) -cne "DSH Update Test $($spec.runId).exe" -or
+    [IO.Path]::GetFileName($spec.executable) -cne "MWF Update Test $($spec.runId).exe" -or
     [IO.Path]::GetFullPath($spec.executable) -cne $spec.executable) {
     throw 'Invalid test-only network plan; no network changes were made.'
 }
-$owner = "dsh-update-qualification:$($spec.runId):$($spec.sha512Hex)"
+$owner = "mwf-update-qualification:$($spec.runId):$($spec.sha512Hex)"
 $recordParent = Join-Path (Split-Path -Parent $planPath) 'records'
 [IO.Directory]::CreateDirectory($recordParent) | Out-Null
 $record = Join-Path $recordParent ([Guid]::NewGuid().ToString('N'))

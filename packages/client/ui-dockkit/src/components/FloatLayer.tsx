@@ -16,7 +16,7 @@
 import { useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import clsx from 'clsx'
-import { IconCloseOutlineRegular, IconPanelLeftOutlineRegular, Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
+import { IconCloseOutlineRegular, IconPanelLeftOutlineRegular, Tooltip } from '@metaworkflow/client-ui-primitives'
 import type { DockIntents, DockLabels, TabRenderer } from '../contract/adapter.ts'
 import type { FloatRect, LayoutState, PaneId, TabId, TabRecord } from '../contract/types.ts'
 import { FLOAT_MIN_SIZE } from '../engine/constraints.ts'
@@ -90,7 +90,7 @@ export function useFloatGestures(state: LayoutState, intents: DockIntents) {
     const windows = root.hasAttribute('data-windows-titlebar')
     // Desktop publishes the caption height in pixels on the root's inline style.
     const caption = windows && !root.hasAttribute('data-fullscreen')
-      ? Number.parseFloat(root.style.getPropertyValue('--dsh-windows-titlebar-height')) : 0
+      ? Number.parseFloat(root.style.getPropertyValue('--mwf-windows-titlebar-height')) : 0
     const saved = floatRect(getPane(state, paneId))
     const rect = { ...saved, y: Math.max(saved.y, windows ? caption + 20 : 0) }
     const start: FloatDrag = { mode, originX: event.clientX, originY: event.clientY, rect }
@@ -171,7 +171,7 @@ export function FloatLayer({ state, intents, labels, renderTab, renderTabTitle, 
             data-dockkit-float-active={state.activePaneId === paneId || undefined}
             style={{
               left: live.x,
-              top: `max(var(--dsh-dockkit-float-top, 0px), ${live.y}px)`,
+              top: `max(var(--mwf-dockkit-float-top, 0px), ${live.y}px)`,
               width: live.width,
               height: live.height,
               zIndex: lifted === undefined ? depth + 1 : state.floats.length + 1,

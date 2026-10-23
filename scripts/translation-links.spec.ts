@@ -20,7 +20,7 @@ afterEach(() => {
 })
 
 function fixture(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-translation-links-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-translation-links-'))
   roots.push(root)
   mkdirSync(join(root, 'docs/section'), { recursive: true })
   mkdirSync(join(root, 'packages'), { recursive: true })
@@ -192,7 +192,7 @@ describe('translation link rewriting and normalization', () => {
     const originalTree = structuredClone(tree)
 
     expect(normalizeTranslationMarkdownLinks(input, context, ['guide.md'], tree)).toBe(
-      '# 指南\n\n[English](guide.md) | 中文\n\n[行内](dsh-translation-target:docs/reference.md?view=full&amp;x=1#overview "标题")\n\n[引用][ref]\n\n[ref]: <dsh-translation-target:docs/reference.md#tail> "标注"\n[ref]: unpaired.md\n',
+      '# 指南\n\n[English](guide.md) | 中文\n\n[行内](mwf-translation-target:docs/reference.md?view=full&amp;x=1#overview "标题")\n\n[引用][ref]\n\n[ref]: <mwf-translation-target:docs/reference.md#tail> "标注"\n[ref]: unpaired.md\n',
     )
     expect(translationLinkLocaleViolations(input, context, ['guide.md'], tree)).toEqual([
       {

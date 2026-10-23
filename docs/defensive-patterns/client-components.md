@@ -199,7 +199,7 @@ The domain wrapper takes the injected hook as an argument and only reshapes its 
 ```tsx
 // The bottom layer is the standard hook, reached through the component's inject face.
 function useChatMessages(useResource: UseResource, id: string) {
-  const resource = useResource<'chat'>(`dsh-resource://chat/${id}`)
+  const resource = useResource<'chat'>(`mwf-resource://chat/${id}`)
   return resource.status === 'live' && resource.value !== undefined
     ? { messages: resource.value.messages, loading: false }
     : { messages: [], loading: true }

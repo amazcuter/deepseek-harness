@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-27-handle-based-session-persistence.md
 /agent-note-handle-based-session-persistence:
-  en: ca49a1cfae00a590
-  zh: f1fe21b5dbaf0d68
+  en: 09142b619a052ae9
+  zh: db70ff9a46df2485
 /agent-note-handle-based-session-persistence/problem:
   en: e4a62db37d44cc11
   zh: 860058651d2817de
 /agent-note-handle-based-session-persistence/decision:
-  en: 52184217a0939497
-  zh: 404783efc001e6cc
+  en: 9cefa56ef4aaa156
+  zh: c392ad87cd398848
 /agent-note-handle-based-session-persistence/alternatives-considered:
   en: f3f7a3abe905c97d
   zh: 28018bc45290a455
@@ -18,5 +18,5 @@
   en: 5917a573cbdc5fa4
   zh: 3c3769070539a0a9
 /agent-note-handle-based-session-persistence/related:
-  en: 0ff54c05c2a64c07
-  zh: f3bd6a5d1f37563f
+  en: b045f61ee7e56427
+  zh: dbe33d34681f5ab4

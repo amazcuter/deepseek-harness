@@ -1,12 +1,12 @@
 /** Account-token authentication, the account model listing, and version gating for the DeepSeek account route. */
 import type {} from '@deepseek-ai/cordis-plugin-loader'
 import type { Context } from '@deepseek-ai/cordis'
-import { ACCOUNT_QUOTA_EXCEEDED_CODE, APP_IDENTITY, LlmError, QUOTA_EXCEEDED_CODE } from '@deepseek-ai/dsh-llm'
-import type {} from '@deepseek-ai/dsh-deepseek-account'
-import { launchEnvironmentOf } from '@deepseek-ai/dsh-launch-environment'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
-import { catalogModelInfo, registerDeepSeekProvider, resolveAdapterOptions } from '@deepseek-ai/dsh-llm-deepseek'
-import type { DeepSeekRequestAuth, ResolvedDeepSeekOptions } from '@deepseek-ai/dsh-llm-deepseek'
+import { ACCOUNT_QUOTA_EXCEEDED_CODE, APP_IDENTITY, LlmError, QUOTA_EXCEEDED_CODE } from '@metaworkflow/llm'
+import type {} from '@metaworkflow/deepseek-account'
+import { launchEnvironmentOf } from '@metaworkflow/launch-environment'
+import { assertNever } from '@metaworkflow/util-values'
+import { catalogModelInfo, registerDeepSeekProvider, resolveAdapterOptions } from '@metaworkflow/llm-deepseek'
+import type { DeepSeekRequestAuth, ResolvedDeepSeekOptions } from '@metaworkflow/llm-deepseek'
 import { AccountModelCatalog } from './catalog.ts'
 import type { CatalogView } from './catalog.ts'
 import { Config, plainAccountOptions, resolveAccountOptions } from './config.ts'
@@ -21,7 +21,7 @@ export const inject = ['llm']
 
 const PROVIDER = 'deepseek-account'
 /** Header carrying the account token on Messages, Files, and model-listing requests. */
-const TOKEN_HEADER = 'x-dsh-auth-token'
+const TOKEN_HEADER = 'x-mwf-auth-token'
 /** Console tag of listing diagnostics; product profiles mount no console exporter for `ctx.logger`. */
 const LOG_TAG = '[llm-deepseek-account]'
 

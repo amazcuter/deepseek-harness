@@ -3,13 +3,13 @@ description: "The Windows write-restriction sandbox backend for users and mainta
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-sandbox-windows-acl
+# @metaworkflow/sandbox-windows-acl
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-On Windows, this package confines child-process writes and deletes to the workspace and a private temporary directory: `workspace-write` grants both, `read-only` grants neither. Mounting `dsh-sandbox-local` selects this for confined bash and PowerShell commands, or callers use the public `AclSandbox` API directly; any failed Win32 operation prevents an unrestricted spawn. Each grant combines a capability-SID allow ACE, a deny of the ambient parent-directory delete right, and a Low integrity label the lowered token must match, so one granted root cannot reach another. The guarantee stays partial: hard links alias file objects and files ACL'd by another AppContainer tool stay unreadable.
+On Windows, this package confines child-process writes and deletes to the workspace and a private temporary directory: `workspace-write` grants both, `read-only` grants neither. Mounting `mwf-sandbox-local` selects this for confined bash and PowerShell commands, or callers use the public `AclSandbox` API directly; any failed Win32 operation prevents an unrestricted spawn. Each grant combines a capability-SID allow ACE, a deny of the ambient parent-directory delete right, and a Low integrity label the lowered token must match, so one granted root cannot reach another. The guarantee stays partial: hard links alias file objects and files ACL'd by another AppContainer tool stay unreadable.
 
 ## Table of Contents
 
@@ -39,10 +39,10 @@ Choose it for Windows compositions that confine subprocess file effects under `r
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { AclSandbox, tempWriteSid, workspaceWriteSid } from '@deepseek-ai/dsh-sandbox-windows-acl'
+import { AclSandbox, tempWriteSid, workspaceWriteSid } from '@metaworkflow/sandbox-windows-acl'
 
 const workspaceRoot = process.cwd()
-const tempDir = mkdtempSync(join(tmpdir(), 'dsh-'))
+const tempDir = mkdtempSync(join(tmpdir(), 'mwf-'))
 
 // mode selects the token's restricting-SID list (see Modes below) and must
 // match the grant shape. workspace-write requires distinct workspace and
@@ -75,7 +75,7 @@ Temp isolation is per live session/workspace pair: sessions sharing a workspace 
 
 `init()` throws on any Win32 failure — the child is never spawned unrestricted. A runner that fails before executing the command prints `windows-acl-run: <detail>` to stderr and exits 127, which the seam's runner-failure rules classify as a broken sandbox rather than a denial. Cleanup is best-effort by design: `dispose()` attempts every temp revocation and aggregates failures into an `AggregateError`.
 
-A denial this backend cannot explain is diagnosed by the `diagnose-windows-sandbox-acl` skill bundled in `assets/`. `registerAclDiagnosisSkill` contributes it when `dsh-sandbox-local` uses its built-in Windows runner and a skill registry is available. Registration extracts resources for external PowerShell, including in ASAR and SEA deployments; fiber disposal unregisters the provider and removes its copy. Missing assets fail registration.
+A denial this backend cannot explain is diagnosed by the `diagnose-windows-sandbox-acl` skill bundled in `assets/`. `registerAclDiagnosisSkill` contributes it when `mwf-sandbox-local` uses its built-in Windows runner and a skill registry is available. Registration extracts resources for external PowerShell, including in ASAR and SEA deployments; fiber disposal unregisters the provider and removes its copy. Missing assets fail registration.
 
 One run diagnoses and repairs. The script has no modes: it reads the requested path and every ancestor, adds the signed-in user's full-control allow ACE to chain directories that lack effective `WRITE_DAC` or `WRITE_OWNER`, and removes explicit package allow ACEs at their sources, ancestor first, verifying each change by re-reading it. Repairs preserve denies, owner, inheritance and SACL, and back up each changed DACL. An object is modified only when it is `-AllowRoot` or strictly inside it, so a workspace root can repair itself; reparse paths and managed application trees are refused, and a repair needs effective `WRITE_DAC`. Failed repairs restore attempted changes in reverse order and exit nonzero. Follow the [bundled skill](assets/diagnose-windows-sandbox-acl/SKILL.md) for the single command, original-operation verification and recovery.
 
@@ -95,7 +95,7 @@ This section explains the restricted-token mechanism, the token lists, the runne
 
 ### Mechanism
 
-The caller's token is duplicated into a `WRITE_RESTRICTED` token whose restricting SIDs carry separate workspace and private-temp capabilities, and that token is lowered to Low integrity. Windows performs the access check twice — once against the normal SIDs, once against the restricting SIDs — and grants write-class access only where both checks pass; separately, the kernel's mandatory-integrity check denies write-class access to every object that is not labeled Low. The write-SID intersection covers only the object's OWN access check: Windows can also authorize a write or a delete from the parent directory's `FILE_DELETE_CHILD` right, which no restricting SID has to co-sign, so a token holding only the intersection could still delete anything its ambient user SIDs control — including files inside ANOTHER granted root, whose Low label clears the integrity check. Each grant therefore also denies `FILE_DELETE_CHILD` to the world SID, leaving the capability ACE's DELETE bit as the only delete authority inside the granted roots, and labels the same directory Low in the one `SetNamedSecurityInfoW` call that applies all three edits. The workspace SID is derived deterministically from the canonical workspace path (`workspaceWriteSid`), so the workspace-root security descriptor edit materializes once per workspace per machine and every later session, call, or restart hits the exact-ACE/exact-deny/exact-label skip. Each live session/workspace pair instead receives a random private temp directory and a SID derived from that path (`tempWriteSid`), so sessions share the intended workspace authority without inheriting one another's temp authority. Every policy-specific Win32 call and every process primitive from [`dsh-win32-process`](../../subprocess/win32-process/README.md) is checked; failures throw `Win32Error` carrying the API name, exact code, system text, and failing context — fail-closed by construction.
+The caller's token is duplicated into a `WRITE_RESTRICTED` token whose restricting SIDs carry separate workspace and private-temp capabilities, and that token is lowered to Low integrity. Windows performs the access check twice — once against the normal SIDs, once against the restricting SIDs — and grants write-class access only where both checks pass; separately, the kernel's mandatory-integrity check denies write-class access to every object that is not labeled Low. The write-SID intersection covers only the object's OWN access check: Windows can also authorize a write or a delete from the parent directory's `FILE_DELETE_CHILD` right, which no restricting SID has to co-sign, so a token holding only the intersection could still delete anything its ambient user SIDs control — including files inside ANOTHER granted root, whose Low label clears the integrity check. Each grant therefore also denies `FILE_DELETE_CHILD` to the world SID, leaving the capability ACE's DELETE bit as the only delete authority inside the granted roots, and labels the same directory Low in the one `SetNamedSecurityInfoW` call that applies all three edits. The workspace SID is derived deterministically from the canonical workspace path (`workspaceWriteSid`), so the workspace-root security descriptor edit materializes once per workspace per machine and every later session, call, or restart hits the exact-ACE/exact-deny/exact-label skip. Each live session/workspace pair instead receives a random private temp directory and a SID derived from that path (`tempWriteSid`), so sessions share the intended workspace authority without inheriting one another's temp authority. Every policy-specific Win32 call and every process primitive from [`mwf-win32-process`](../../subprocess/win32-process/README.md) is checked; failures throw `Win32Error` carrying the API name, exact code, system text, and failing context — fail-closed by construction.
 
 ### Modes and token lists
 
@@ -107,7 +107,7 @@ Authenticated Users is absent from both lists — the WMI namespace security che
 
 ### The confinement runner
 
-The seam-facing shape is the runner entry (`./runner`): an argv-prefix wrapper `dsh-sandbox-local` spawns in place of the caller's command, with the same architecture as bwrap/landlock-run/sandbox-exec. The runner creates the restricted token, spawns the wrapped argv under it with the caller's stdio passed straight through, wraps the child in a `KILL_ON_JOB_CLOSE` job, mirrors the child's exit code, and revokes its self-managed temp grant on exit. Every runner-side failure prints `windows-acl-run: <detail>` to stderr and exits 127 — the seam's runner-failure rules match that signature.
+The seam-facing shape is the runner entry (`./runner`): an argv-prefix wrapper `mwf-sandbox-local` spawns in place of the caller's command, with the same architecture as bwrap/landlock-run/sandbox-exec. The runner creates the restricted token, spawns the wrapped argv under it with the caller's stdio passed straight through, wraps the child in a `KILL_ON_JOB_CLOSE` job, mirrors the child's exit code, and revokes its self-managed temp grant on exit. Every runner-side failure prints `windows-acl-run: <detail>` to stderr and exits 127 — the seam's runner-failure rules match that signature.
 
 ```sh
 node runner.js --workspace <dir> --temp <dir> --mode <read-only|workspace-write> [--write-sid <S-1-4-…> --temp-write-sid <S-1-4-…>] -- <argv...>
@@ -121,12 +121,12 @@ When launched with the subprocess control marker, the runner forwards fd 7 throu
 
 - **Everyone stays in both restricting lists, but no longer confers write authority** — the keep-alive group is required for early DLL initialization and CNG; the Low label now denies an Everyone-granted write outside the labeled roots, so that former gap is closed.
 - **Inside a granted root, the capability ACE's DELETE bit is the only delete authority** — the grant denies `FILE_DELETE_CHILD` to the world SID, which also removes the ambient default: a file whose own DACL grants no DELETE is no longer deletable through its parent's rights, by the confined child or by the user's own processes. The user's ordinary deletes keep working because the workspace DACL grants them DELETE directly.
-- **The deny inherits to subdirectories only, and a FullControl open of one is denied** — `FILE_DELETE_CHILD` is evaluated on directories, so the deny carries `CONTAINER_INHERIT_ACE` and never reaches files (its bit, `0x40`, is part of `FILE_ALL_ACCESS`, so a file-level copy would refuse every `GENERIC_ALL`/`FullControl` open by the user, Administrators, SYSTEM, or the DSH host). Directories inside a granted root keep the deny and therefore refuse those opens; `DELETE`-based deletes, `MAXIMUM_ALLOWED`, and ordinary read/write opens are unaffected, and both outcomes are pinned by the runner suite.
+- **The deny inherits to subdirectories only, and a FullControl open of one is denied** — `FILE_DELETE_CHILD` is evaluated on directories, so the deny carries `CONTAINER_INHERIT_ACE` and never reaches files (its bit, `0x40`, is part of `FILE_ALL_ACCESS`, so a file-level copy would refuse every `GENERIC_ALL`/`FullControl` open by the user, Administrators, SYSTEM, or the MWF host). Directories inside a granted root keep the deny and therefore refuse those opens; `DELETE`-based deletes, `MAXIMUM_ALLOWED`, and ordinary read/write opens are unaffected, and both outcomes are pinned by the runner suite.
 - **Writes and deletes are restricted; reads, network, and process visibility are not** — neither layer intersects reads, so a confined child can read any caller-readable file (including files in another workspace) and open sockets; `read-only` therefore needs a read-side policy to be expressed.
 - **Hard links are file-object aliases, not path aliases** — an inheritable workspace grant propagated onto an existing hard link labels and grants the one underlying file security descriptor, so the same object is writable through an external alias; rejecting multiply-linked files is not viable for ordinary pnpm installations.
 - **Console isolation is unavailable** — children created with `CREATE_NO_WINDOW` / `CREATE_NEW_CONSOLE` die during DLL initialization with `STATUS_DLL_INIT_FAILED` (`0xC0000142`); children share the host console, and pipe-based stdio redirection is unaffected.
 - **Security descriptor edits are standing directory mutations** — workspace ACEs, denies, and labels stand by design (the reuse cache, never revoked); temp edits are revoked by `dispose()`, except that a revoke keeps the shared label while another capability grant remains on the directory, and the deny it leaves behind disappears with the temp directory itself; manual `icacls` cleanup cannot revoke them on this platform (`ERROR_NONE_MAPPED`, 1332), so revoke through this module.
-- **A standing Low label outlives DSH and widens the tree for other Low-integrity processes** — the workspace's inheritable label survives the session (and same-volume moves), so any other process running at Low integrity as the same user — another product's Low-IL sandbox, a Protected Mode reader — can write and delete inside the workspace, where a Medium label would have denied it. The label is the price of the write boundary: without it the confined child cannot write at all, and revoking it per session would re-propagate the whole tree on every provision.
+- **A standing Low label outlives MWF and widens the tree for other Low-integrity processes** — the workspace's inheritable label survives the session (and same-volume moves), so any other process running at Low integrity as the same user — another product's Low-IL sandbox, a Protected Mode reader — can write and delete inside the workspace, where a Medium label would have denied it. The label is the price of the write boundary: without it the confined child cannot write at all, and revoking it per session would re-propagate the whole tree on every provision.
 - **Granted directories must be caller-owned and grant `WRITE_OWNER`** — the owner's implicit rights cover only `READ_CONTROL` and `WRITE_DAC`; the label lives in the SACL, so the combined apply additionally needs `WRITE_OWNER` (a Full-control directory, the normal workspace case, has it). A directory whose DACL grants only Modify now fails the grant loudly instead of silently skipping the confinement.
 - **The ambient temp root is never granted implicitly** — direct callers must supply an existing private `tempDir` plus its distinct `tempWriteSid`, or disable temp writes with `tempDir: null`; the actual temp directory must be disjoint from every writable root.
 - **The confined child's temp capability is private per live session/workspace pair** — the runner rewrites TMP/TEMP to that private directory before the spawn; two tokens sharing the same workspace SID cannot write one another's temp directories.
@@ -134,7 +134,7 @@ When launched with the subprocess control marker, the runner forwards fd 7 throu
 
 ### Header verification and source map
 
-The sandbox-owned SID, ACL, token, file, and lock declarations are checked against Windows headers by [`verify/abi-probe.cpp`](verify/abi-probe.cpp). The shared process, stdio, and Job ABI is owned and verified by [`@deepseek-ai/dsh-win32-process`](../../subprocess/win32-process/README.md#header-verification).
+The sandbox-owned SID, ACL, token, file, and lock declarations are checked against Windows headers by [`verify/abi-probe.cpp`](verify/abi-probe.cpp). The shared process, stdio, and Job ABI is owned and verified by [`@metaworkflow/win32-process`](../../subprocess/win32-process/README.md#header-verification).
 
 | File | Role |
 |---|---|
@@ -164,7 +164,7 @@ Start with the subsystem reference for the shared vocabulary, then the provider 
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through [`dsh-bash-sandbox`](../../shell/bash-sandbox/README.md), [`dsh-pwsh-sandbox`](../../shell/pwsh-sandbox/README.md), and their tools, which render this backend's partial-enforcement and denial facts (the confined stderr the tool layer classifies through `denialSignatures`) while the [`dsh-sandbox`](../sandbox/README.md) seam owns the `SANDBOX_UNAVAILABLE` text and `sandbox-local` owns runner selection. On Windows this package also contributes one catalog entry, the bundled `diagnose-windows-sandbox-acl` skill, which is where the model learns to diagnose a denial the tool layer can only report.
+Indirectly, through [`mwf-bash-sandbox`](../../shell/bash-sandbox/README.md), [`mwf-pwsh-sandbox`](../../shell/pwsh-sandbox/README.md), and their tools, which render this backend's partial-enforcement and denial facts (the confined stderr the tool layer classifies through `denialSignatures`) while the [`mwf-sandbox`](../sandbox/README.md) seam owns the `SANDBOX_UNAVAILABLE` text and `sandbox-local` owns runner selection. On Windows this package also contributes one catalog entry, the bundled `diagnose-windows-sandbox-acl` skill, which is where the model learns to diagnose a denial the tool layer can only report.
 
 #### KV Cache effect
 
@@ -172,7 +172,7 @@ One extra catalog entry on Windows: the skill's description enters context with 
 
 ## Known Limitations and Deferred Work
 
-- **Diagnosis preserves integrity labels** — it cannot fix Low-labeled executables affecting programs launched outside DSH. It also cannot repair a caller's missing `WRITE_DAC`; extracted and recovery scripts are user-writable and are not supported elevated entrypoints. Resource directories can remain after an unclean shutdown.
+- **Diagnosis preserves integrity labels** — it cannot fix Low-labeled executables affecting programs launched outside MWF. It also cannot repair a caller's missing `WRITE_DAC`; extracted and recovery scripts are user-writable and are not supported elevated entrypoints. Resource directories can remain after an unclean shutdown.
 
 <a id="known-limitations-and-deferred-work"></a>
 

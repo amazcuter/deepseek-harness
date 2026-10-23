@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-17-windows-runtime-signature-cache.md
 /agent-note-windows-runtime-signature-cache:
-  en: 36e012be8a24f6d3
-  zh: 6caabddc72c89c95
+  en: 6178c895d74d5888
+  zh: 063e4394f825ea3d
 /agent-note-windows-runtime-signature-cache/problem:
   en: ee8762f64fbefe3f
   zh: 8781828a4b19d862
 /agent-note-windows-runtime-signature-cache/decision:
-  en: 4c114a4e0c81a753
-  zh: 3e05c0fcc9fe637b
+  en: dbb9dc0b21cc89de
+  zh: a3df9a70e18caddd
 /agent-note-windows-runtime-signature-cache/alternatives-considered:
   en: f83b7439bb610dd4
   zh: 938ae28e9f269406

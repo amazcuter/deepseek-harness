@@ -12,7 +12,7 @@ import { setPublishedFiles, writeTypertWorkspace } from './typert-workspace.fixt
 const compiler = fileURLToPath(import.meta.resolve('typescript/bin/tsc'))
 
 function fixture(): { root: string; leaf: string } {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-referenced-projects-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-referenced-projects-'))
   onTestFinished(() => { removeFixtureSafely(root) })
   const leaf = join(root, 'leaf package')
   mkdirSync(join(leaf, 'src'), { recursive: true })
@@ -64,11 +64,11 @@ function recordedCommands(root: string, failHostBundle = false): () => { args: s
   writeFileSync(entrypoint, [
     'const { appendFileSync } = require("node:fs")',
     'const args = process.argv.slice(2)',
-    `appendFileSync(${JSON.stringify(log)}, JSON.stringify({ args, title: process.env.DSH_CLIENT_TITLE }) + "\\n")`,
+    `appendFileSync(${JSON.stringify(log)}, JSON.stringify({ args, title: process.env.MWF_CLIENT_TITLE }) + "\\n")`,
     ...failHostBundle ? ['if (args.includes("host")) process.exit(7)'] : [],
   ].join('\n') + '\n')
   vi.stubEnv('npm_execpath', entrypoint)
-  vi.stubEnv('DSH_CLIENT_TITLE', 'Inherited Build Title')
+  vi.stubEnv('MWF_CLIENT_TITLE', 'Inherited Build Title')
   onTestFinished(() => { vi.unstubAllEnvs() })
   return () => readFileSync(log, 'utf8').trim().split('\n')
     .map(line => JSON.parse(line) as { args: string[]; title: string })
@@ -78,12 +78,12 @@ describe('internal artifact build order', () => {
   it('resolves pnpm for a direct CLI without npm_execpath and preserves its environment', () => {
     const { root } = fixture()
     const marker = join(root, 'direct-cli-title.txt')
-    const environment: NodeJS.ProcessEnv = { ...process.env, DSH_CLIENT_TITLE: 'Direct CLI Title' }
+    const environment: NodeJS.ProcessEnv = { ...process.env, MWF_CLIENT_TITLE: 'Direct CLI Title' }
     delete environment.npm_execpath
     const helper = pathToFileURL(resolve(import.meta.dirname, 'compile-referenced-projects.ts')).href
     const code = `import { runPnpmCommand } from ${JSON.stringify(helper)}; runPnpmCommand(${JSON.stringify(root)}, ${JSON.stringify([
       'exec', process.execPath, '-e',
-      `require('node:fs').writeFileSync(${JSON.stringify(marker)}, process.env.DSH_CLIENT_TITLE)`,
+      `require('node:fs').writeFileSync(${JSON.stringify(marker)}, process.env.MWF_CLIENT_TITLE)`,
     ])})`
     const result = spawnSync(process.execPath, [
       '--import', import.meta.resolve('tsx/esm'),
@@ -101,10 +101,10 @@ describe('internal artifact build order', () => {
     buildLibraryArtifacts(root, hostOnly)
 
     const expected = [
-      ['exec', 'tsdown', '--config-loader', 'native', '--env.DSH_BUILD_FACE', 'host'],
+      ['exec', 'tsdown', '--config-loader', 'native', '--env.MWF_BUILD_FACE', 'host'],
       ...hostOnly ? [] : [
-        ['--filter', '@deepseek-ai/dsh-desktop', 'run', 'bundle'],
-        ['exec', 'tsdown', '--config-loader', 'native', '--env.DSH_BUILD_FACE', 'client'],
+        ['--filter', '@metaworkflow/desktop', 'run', 'bundle'],
+        ['exec', 'tsdown', '--config-loader', 'native', '--env.MWF_BUILD_FACE', 'client'],
       ],
     ]
     expect(commands()).toEqual(expected.map(args => ({ args, title: 'Inherited Build Title' })))
@@ -127,9 +127,9 @@ describe('internal artifact build order', () => {
 
     expect(commands()).toEqual([
       ['run', 'build:native-system'],
-      ['exec', 'tsdown', '--config-loader', 'native', '--env.DSH_BUILD_FACE', 'host'],
-      ['--filter', '@deepseek-ai/dsh-desktop', 'run', 'bundle'],
-      ['exec', 'tsdown', '--config-loader', 'native', '--env.DSH_BUILD_FACE', 'client'],
+      ['exec', 'tsdown', '--config-loader', 'native', '--env.MWF_BUILD_FACE', 'host'],
+      ['--filter', '@metaworkflow/desktop', 'run', 'bundle'],
+      ['exec', 'tsdown', '--config-loader', 'native', '--env.MWF_BUILD_FACE', 'client'],
       ['exec', 'tsdown', '--config-loader', 'native', '--config', 'benchmarks/tsdown.config.ts'],
       ['run', 'build:web'],
       ['run', 'test:bench:built'],
@@ -142,7 +142,7 @@ describe('internal artifact build order', () => {
 
 describe('bundle-free Host contracts', { timeout: 60_000 }, () => {
   function typertWorkspace(source?: string): { pkg: string; run: () => Promise<void>; outputs: () => string[] } {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-host-contracts-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-host-contracts-'))
     onTestFinished(() => { removeFixtureSafely(root) })
     const pkg = writeTypertWorkspace(root, source)
     const commands = recordedCommands(root)

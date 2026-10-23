@@ -4,16 +4,16 @@
  *
  * The library half takes all of this as parameters. Keeping the lookup here is what
  * lets the same library pack a different tree, and what keeps `pack.ts` free of
- * assumptions about pnpm workspaces or the `dsh` CLI.
- * @module @deepseek-ai/dsh-experimental-webworker-packer/src/repository
+ * assumptions about pnpm workspaces or the `mwf` CLI.
+ * @module @metaworkflow/experimental-webworker-packer/src/repository
  */
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import {
   bundlePatchPaths, composeEntries, loadOverlayPatches, OPTIONAL_BUNDLES, PROFILE_TEMPLATES, resolveBundleDir,
-} from '@deepseek-ai/dsh-app-boot'
+} from '@metaworkflow/app-boot'
 import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import { PLATFORM_ENTRY_CONFIG } from '@deepseek-ai/dsh-experimental-webworker-runtime'
+import { PLATFORM_ENTRY_CONFIG } from '@metaworkflow/experimental-webworker-runtime'
 import { collectModuleNames, packVfsImage, type ConfigTree, type ImageInstallation, type ImageTree, type PackResult } from './pack.ts'
 
 export { packPreviewFixture } from './preview.ts'
@@ -26,11 +26,11 @@ export { packPreviewFixture } from './preview.ts'
  */
 const WORKSPACE_SCAN_ROOTS = ['vendor', 'packages', 'native/system/packages', 'apps']
 
-/** The `dsh` installation package: its manifest anchors bundle resolution, as the launcher's does. */
+/** The `mwf` installation package: its manifest anchors bundle resolution, as the launcher's does. */
 const CLI_PACKAGE = 'apps/cli'
 
 /** Diagnostic prefix for the app-boot readers this module calls. */
-const BIN_NAME = 'dsh-pack-vfs-image'
+const BIN_NAME = 'mwf-pack-vfs-image'
 
 /** Repository-owned deterministic filesystem content offered by the preview. */
 const PREVIEW_EXAMPLE_ROOT = 'packages/experimental/webworker-runtime/tests/fixtures/vfs-example'
@@ -153,9 +153,9 @@ function shippedTemplate(profile: string): { readonly bundles: readonly string[]
 function bundlePatches(repoRoot: string, bundle: string): PatchOptions[] {
   const directory = resolveBundleDir(BIN_NAME, bundle, installationManifest(repoRoot).manifest, join(repoRoot, CLI_PACKAGE))
   const declaration = (JSON.parse(readFileSync(join(directory, 'package.json'), 'utf8')) as {
-    dsh?: { bundle?: Parameters<typeof bundlePatchPaths>[1] }
-  }).dsh?.bundle
-  if (declaration === undefined) throw new Error(`vfs image: bundle ${bundle} declares no dsh.bundle`)
+    mwf?: { bundle?: Parameters<typeof bundlePatchPaths>[1] }
+  }).mwf?.bundle
+  if (declaration === undefined) throw new Error(`vfs image: bundle ${bundle} declares no mwf.bundle`)
   return bundlePatchPaths(directory, declaration).flatMap(file => loadOverlayPatches(BIN_NAME, file))
 }
 
@@ -192,7 +192,7 @@ export function packRepositoryImage(repoRoot: string, profile: string, root?: st
 
 /**
  * Config trees the CLI package declares for deployment images
- * (`dsh.configTrees` in its package.json): `path` is relative to the CLI
+ * (`mwf.configTrees` in its package.json): `path` is relative to the CLI
  * package root, `mount` is the image path, `scanRoster` feeds the tree's yml
  * plugin rows into the pack roster. The CLI owns its config layout; this
  * reader follows the declaration instead of naming directories. A malformed
@@ -203,17 +203,17 @@ export function packRepositoryImage(repoRoot: string, profile: string, root?: st
 export function configTrees(repoRoot: string): ConfigTree[] {
   const packageDir = join(repoRoot, CLI_PACKAGE)
   const manifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as {
-    dsh?: { configTrees?: unknown }
+    mwf?: { configTrees?: unknown }
   }
-  const declared = manifest.dsh?.configTrees
+  const declared = manifest.mwf?.configTrees
   if (declared === undefined) return []
   if (!Array.isArray(declared)) {
-    throw new Error(`vfs image: ${CLI_PACKAGE} dsh.configTrees must be an array`)
+    throw new Error(`vfs image: ${CLI_PACKAGE} mwf.configTrees must be an array`)
   }
   const mounts = new Set<string>()
   return declared.map((entry, index) => {
     const tree = entry as Partial<ConfigTreeDeclaration> | null
-    const at = `${CLI_PACKAGE} dsh.configTrees[${String(index)}]`
+    const at = `${CLI_PACKAGE} mwf.configTrees[${String(index)}]`
     if (tree === null || typeof tree !== 'object'
       || typeof tree.mount !== 'string' || tree.mount === ''
       || typeof tree.path !== 'string' || tree.path === ''

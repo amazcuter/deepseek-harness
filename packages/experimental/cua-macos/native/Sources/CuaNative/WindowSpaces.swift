@@ -1,4 +1,4 @@
-// Read-only WindowServer queries adapted from DSH's MIT-licensed Cua Driver integration.
+// Read-only WindowServer queries adapted from MWF's MIT-licensed Cua Driver integration.
 import ApplicationServices
 import CoreFoundation
 import Darwin

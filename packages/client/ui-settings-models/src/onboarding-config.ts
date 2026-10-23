@@ -14,4 +14,4 @@ export const Config: z<Partial<Config>, Config> = z.object({
 })
 
 /** Page-global key carrying only the public onboarding options. */
-export const ONBOARDING_CONFIG_GLOBAL = '__DSH_MODELS_ONBOARDING__'
+export const ONBOARDING_CONFIG_GLOBAL = '__MWF_MODELS_ONBOARDING__'

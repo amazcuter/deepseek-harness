@@ -33,12 +33,12 @@ async function report(path: string, manifest: ArtifactManifest, checks: readonly
  * @returns the exact archive and checksum files permitted for upload.
  */
 export async function prepareSshRelease(directory: string, version: string, commit: string): Promise<string[]> {
-  const temporary = await mkdtemp(join(tmpdir(), 'dsh-helper-release-'))
+  const temporary = await mkdtemp(join(tmpdir(), 'mwf-helper-release-'))
   const archives: string[] = []
   const sums: string[] = []
   try {
     for (const target of SSH_HELPER_TARGETS) {
-      const archive = join(directory, `dsh-ssh-helper-${version}-${target.slice('node24-'.length)}.tar.gz`)
+      const archive = join(directory, `mwf-ssh-helper-${version}-${target.slice('node24-'.length)}.tar.gz`)
       const digest = await fileDigest(archive)
       assert.equal(digest, (await readFile(`${archive}.sha256`, 'utf8')).split(/\s/)[0])
       const destination = join(temporary, target)

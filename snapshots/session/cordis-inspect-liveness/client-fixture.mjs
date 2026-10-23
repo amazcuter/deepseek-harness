@@ -13,7 +13,7 @@ export const inject = ['cordisInspect', 'agents', 'llm', 'typertGateway']
  */
 export function apply(ctx) {
   const open = registerSilentClientTransport(ctx)
-  const expected = readFileSync(process.env.DSH_SNAPSHOT_FILE, 'utf8').trim().split('\n')
+  const expected = readFileSync(process.env.MWF_SNAPSHOT_FILE, 'utf8').trim().split('\n')
     .map(line => JSON.parse(line))
     .filter(event => event.type === 'tool/result')
     .map(event => event.data.message)

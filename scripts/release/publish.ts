@@ -227,7 +227,7 @@ async function main(): Promise<void> {
     allowPositionals: false,
   })
   if (values.family === undefined || values.from === undefined) {
-    throw new Error('usage: publish.ts --family <dsh|vendor> --from <packed directory> [--dist-tag <tag>]')
+    throw new Error('usage: publish.ts --family <mwf|vendor> --from <packed directory> [--dist-tag <tag>]')
   }
   await publishRelease(values.family, resolve(process.cwd(), values.from), values['dist-tag'])
 }

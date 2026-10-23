@@ -44,7 +44,7 @@ export function viewerButton(doc: Document, label: string, icon: keyof typeof ic
   element.type = 'button'
   labelButton(element, label)
   const svg = doc.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.classList.add('dsh-media-icon')
+  svg.classList.add('mwf-media-icon')
   svg.setAttribute('viewBox', '0 0 24 24')
   svg.setAttribute('aria-hidden', 'true')
   svg.setAttribute('focusable', 'false')
@@ -91,39 +91,39 @@ export class MediaViewer {
     const doc = this.doc
     const copy = this.language().startsWith('zh') ? messages.zh : messages.en
     const dialog = doc.createElement('dialog')
-    dialog.className = 'dsh-media-viewer'
-    dialog.setAttribute('aria-labelledby', 'dsh-media-title')
+    dialog.className = 'mwf-media-viewer'
+    dialog.setAttribute('aria-labelledby', 'mwf-media-title')
     const toolbar = doc.createElement('div')
-    toolbar.className = 'dsh-media-toolbar'
+    toolbar.className = 'mwf-media-toolbar'
     const title = doc.createElement('span')
-    title.className = 'dsh-media-title'
-    title.id = 'dsh-media-title'
+    title.className = 'mwf-media-title'
+    title.id = 'mwf-media-title'
     title.textContent = content.title
     const zoomOut = viewerButton(doc, copy.zoomOut, 'zoomOut')
     const zoomIn = viewerButton(doc, copy.zoomIn, 'zoomIn')
     const original = content.originalSize ? doc.createElement('button') : undefined
     if (original) original.type = 'button'
     const scaleLabel = original ?? doc.createElement('span')
-    scaleLabel.className = 'dsh-media-scale'
+    scaleLabel.className = 'mwf-media-scale'
     const fit = viewerButton(doc, copy.fit, 'fit')
-    fit.className = 'dsh-media-fit'
+    fit.className = 'mwf-media-fit'
     const close = viewerButton(doc, copy.close, 'close')
-    close.className = 'dsh-media-close'
+    close.className = 'mwf-media-close'
     close.autofocus = true
     toolbar.append(zoomOut, scaleLabel, zoomIn, fit)
     const helpToggle = viewerButton(doc, copy.helpLabel, 'help')
-    helpToggle.className = 'dsh-media-help-toggle'
+    helpToggle.className = 'mwf-media-help-toggle'
     helpToggle.setAttribute('aria-expanded', 'false')
-    helpToggle.setAttribute('aria-controls', 'dsh-media-help-text')
+    helpToggle.setAttribute('aria-controls', 'mwf-media-help-text')
     const help = doc.createElement('p')
-    help.className = 'dsh-media-help'
-    help.id = 'dsh-media-help-text'
+    help.className = 'mwf-media-help'
+    help.id = 'mwf-media-help-text'
     help.hidden = true
     help.textContent = copy.help
     const viewport = doc.createElement('div')
-    viewport.className = 'dsh-media-viewport'
+    viewport.className = 'mwf-media-viewport'
     const paper = doc.createElement('div')
-    paper.className = 'dsh-media-paper'
+    paper.className = 'mwf-media-paper'
     // Shared content lives in a shadow root so Mermaid copies cannot resolve their
     // embedded styles and fragment IDs against the original diagram.
     const shadow = paper.attachShadow({ mode: 'open' })

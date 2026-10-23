@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write python/README.md
 /deepseek-harness-python-sdk:
-  en: aa08432a8887185d
-  zh: 85b40b48790c04db
+  en: 1e130b06ee98043f
+  zh: 666aed2da32223b2
 /deepseek-harness-python-sdk/packages:
-  en: 485e9978ed4f6dee
-  zh: fccda14b1b84cecf
+  en: e6b0618063a4152c
+  zh: deccd3a7c8cba7e0
 /deepseek-harness-python-sdk/behavior:
-  en: ccb264c8850ae568
-  zh: 2580e6d587193bb0
+  en: 7dc94a47ce4d67c7
+  zh: a24f54e6c096cb5c
 /deepseek-harness-python-sdk/contributor-workflows:
-  en: 292b8aab762f515a
-  zh: 93da3d5c6af97d70
+  en: e9818de295cf7732
+  zh: 3032e1f968722dc2

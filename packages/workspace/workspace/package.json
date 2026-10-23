@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-workspace",
+  "name": "@metaworkflow/workspace",
   "description": "Workspace entity registry (ctx.workspaceRegistry): durable workspace records with validated session attachment over the domain data form for the DeepSeek Harness",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -35,22 +35,22 @@
   "license": "MIT",
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence": "workspace:*",
-    "@deepseek-ai/dsh-storage": "workspace:*",
-    "@deepseek-ai/dsh-storage-domain": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-persistence": "workspace:*",
+    "@metaworkflow/storage": "workspace:*",
+    "@metaworkflow/storage-domain": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
     "zod": "4.4.3"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence": "workspace:*",
-    "@deepseek-ai/dsh-storage": "workspace:*",
-    "@deepseek-ai/dsh-storage-domain": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-persistence": "workspace:*",
+    "@metaworkflow/storage": "workspace:*",
+    "@metaworkflow/storage-domain": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*"
   }
 }

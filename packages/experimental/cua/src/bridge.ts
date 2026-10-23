@@ -1,5 +1,5 @@
 /** Connect retained application objects to the calling program's current logged tool binding. */
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { JsonValue } from '@metaworkflow/util-values'
 import { createCuaApi } from './api.ts'
 import type { CuaApi, CuaOperation } from './types.ts'
 

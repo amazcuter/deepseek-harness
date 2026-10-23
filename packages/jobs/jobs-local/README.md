@@ -3,13 +3,13 @@ description: "The process-local background-job registry for users and maintainer
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-jobs-local
+# @metaworkflow/jobs-local
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-jobs-local` runs background jobs inside the harness process while the agent continues. The owning agent can read, wait on, list, and cancel its jobs; mounting `dsh-tool-jobs` also delivers completion notices in-session. Configurable concurrency and output-retention limits bound resource use. Producers can supply output for periodic reading or append it directly; users can observe retained output without consuming the agent's unread output. Jobs end when their owner or the harness shuts down.
+`mwf-jobs-local` runs background jobs inside the harness process while the agent continues. The owning agent can read, wait on, list, and cancel its jobs; mounting `mwf-tool-jobs` also delivers completion notices in-session. Configurable concurrency and output-retention limits bound resource use. Producers can supply output for periodic reading or append it directly; users can observe retained output without consuming the agent's unread output. Jobs end when their owner or the harness shuts down.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Load this plugin when a composition needs in-process background jobs: long-running tools register their work, and the owning agent reads, waits on, lists, and cancels it without blocking its own turn. It implements the [`dsh-jobs`](../jobs/README.md) contract; the model-facing `job_output`, `job_list`, and `job_kill` tools come from [`dsh-tool-jobs`](../tool-jobs/README.md).
+Load this plugin when a composition needs in-process background jobs: long-running tools register their work, and the owning agent reads, waits on, lists, and cancels it without blocking its own turn. It implements the [`mwf-jobs`](../jobs/README.md) contract; the model-facing `job_output`, `job_list`, and `job_kill` tools come from [`mwf-tool-jobs`](../tool-jobs/README.md).
 
 ### When to choose it
 
@@ -36,7 +36,7 @@ Choose it when jobs should live in the harness process and die with it. Avoid it
 Loading the plugin registers `ctx.jobs`; every field is optional.
 
 ```yaml
-- name: '@deepseek-ai/dsh-jobs-local'
+- name: '@metaworkflow/jobs-local'
 ```
 
 | Field | Default | Meaning |
@@ -46,7 +46,7 @@ Loading the plugin registers `ctx.jobs`; every field is optional.
 | `settledRetainBytes` | `16384` | Ring retention kept after a job settles, in UTF-8 bytes; bytes the model has not read stay until its first terminal read |
 | `pumpPollMs` | `150` | Poll interval for a job's pull sources, in milliseconds |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-jobs-local) is the exhaustive source for the accepted fields.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowjobs-local) is the exhaustive source for the accepted fields.
 
 ### What each owner gets
 
@@ -64,7 +64,7 @@ Lifecycle facts are appended synchronously at the registration or settlement com
 
 ### What can go wrong
 
-Starting work fails without a controller that serves the owner — loading `dsh-tool-jobs` attaches one, and `start()` otherwise refuses with a message naming it. A producer cancel that returns without settling `done` stays indistinguishable from a slow stop and can stall teardown while holding one capacity slot. Live registry records disappear when the harness process exits; persisted lifecycle events remain.
+Starting work fails without a controller that serves the owner — loading `mwf-tool-jobs` attaches one, and `start()` otherwise refuses with a message naming it. A producer cancel that returns without settling `done` stays indistinguishable from a slow stop and can stall teardown while holding one capacity slot. Live registry records disappear when the harness process exits; persisted lifecycle events remain.
 
 -----
 
@@ -100,7 +100,7 @@ This section explains the design decisions behind the registry and points at the
 
 ### Admission and settlement
 
-`activeJobCount` counts authoritative records per exact owner or in the shared unowned bucket. `settle` records the terminal outcome once (merging a recorded kill reason into a `killed` detail), clears the progress line, trims the ring to the settled cap (keeping every byte the model cursor has not consumed), resolves every waiter, then emits `settled` with its cause and the ring's final `output` signal. The cause is `kill` after `JobRegistry.kill`, `teardown` after an owner or service cancel, and `producer` otherwise; `dsh-tool-jobs` uses it to skip notices nobody can read.
+`activeJobCount` counts authoritative records per exact owner or in the shared unowned bucket. `settle` records the terminal outcome once (merging a recorded kill reason into a `killed` detail), clears the progress line, trims the ring to the settled cap (keeping every byte the model cursor has not consumed), resolves every waiter, then emits `settled` with its cause and the ring's final `output` signal. The cause is `kill` after `JobRegistry.kill`, `teardown` after an owner or service cancel, and `producer` otherwise; `mwf-tool-jobs` uses it to skip notices nobody can read.
 
 ### Teardown
 
@@ -128,7 +128,7 @@ Read these pages when the package-level contract is not enough. They move from t
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through producer plugins and `dsh-tool-jobs`, to which the registry backend delegates all model rendering.
+Indirectly, through producer plugins and `mwf-tool-jobs`, to which the registry backend delegates all model rendering.
 
 #### KV Cache effect
 

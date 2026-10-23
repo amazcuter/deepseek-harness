@@ -7,12 +7,12 @@ import { expect, it, onTestFinished } from 'vitest'
 import { developmentLauncher } from '../scripts/development-app.ts'
 
 it.skipIf(process.platform === 'win32')('passes literal workspace paths and cold-start settings to Electron', () => {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-development-app-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-development-app-'))
   onTestFinished(() => { rmSync(root, { recursive: true, force: true }) })
   const bundle = join(root, "Harness ' $(false).app")
   const binary = join(bundle, 'Contents', 'MacOS', 'Electron')
   mkdirSync(join(bundle, 'Contents', 'MacOS'), { recursive: true })
-  writeFileSync(binary, '#!/bin/sh\nprintf "%s\\n" "$DSH_HOME" "$DSH_DESKTOP_DEV_APP" "$DSH_DESKTOP_OPEN_DEVTOOLS" "$@"\n', { mode: 0o755 })
+  writeFileSync(binary, '#!/bin/sh\nprintf "%s\\n" "$MWF_HOME" "$MWF_DESKTOP_DEV_APP" "$MWF_DESKTOP_OPEN_DEVTOOLS" "$@"\n', { mode: 0o755 })
   const launcher = join(root, 'launcher')
   const home = join(root, "home ' $(false)")
   writeFileSync(launcher, developmentLauncher({ electron: binary, appRoot: root, directory: root,

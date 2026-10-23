@@ -60,7 +60,7 @@ it.skipIf(process.platform !== 'win32')('resets only the allocated checkout with
 it('routes manual packaging to the dedicated runner with explicit preset and signing selection', () => {
   expect(Object.keys(workflow.on)).toEqual(['workflow_dispatch'])
   expect(workflow.jobs.package).not.toHaveProperty('name')
-  expect(job['runs-on']).toBe('dsh-win-package-trial')
+  expect(job['runs-on']).toBe('mwf-win-package-trial')
   expect(workflow.concurrency).toEqual({ group: 'windows-desktop-package', 'cancel-in-progress': false })
   expect(workflow.permissions).toEqual({ contents: 'read' })
   expect(Object.keys(workflow.on.workflow_dispatch!.inputs).sort()).toEqual([
@@ -73,8 +73,8 @@ it('routes manual packaging to the dedicated runner with explicit preset and sig
   expect(workflow.on.workflow_dispatch!.inputs.update_channel!.default).toBe('nightly')
   expect(job.env.PACKAGE_VERSION_MODE).toBe('${{ inputs.version_mode }}')
   expect(job.env.PACKAGE_SOURCE_REF).toBe('${{ inputs.source_ref }}')
-  expect(job.env.DSH_DESKTOP_UPDATE_CHANNEL).toBe('${{ inputs.update_channel }}')
-  expect(job.env.DSH_PACKAGING_PRESET).toBe('${{ inputs.preset }}')
+  expect(job.env.MWF_DESKTOP_UPDATE_CHANNEL).toBe('${{ inputs.update_channel }}')
+  expect(job.env.MWF_PACKAGING_PRESET).toBe('${{ inputs.preset }}')
   expect(job.env.PACKAGE_SIGNING).toBe('${{ inputs.signing }}')
   expect(job.steps.find(step => step.id === 'checkout')!.with).toMatchObject({ clean: true, 'persist-credentials': false, ref: '${{ inputs.source_ref }}' })
   expect(job.steps.find(step => step.uses?.startsWith('pnpm/action-setup@'))?.with?.dest)

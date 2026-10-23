@@ -4,7 +4,7 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Browser, ChromeReleaseChannel, CDP_WEBSOCKET_ENDPOINT_REGEX, computeSystemExecutablePath, launch } from '@puppeteer/browsers'
-import { scrubbedParentEnv } from '@deepseek-ai/dsh-subprocess'
+import { scrubbedParentEnv } from '@metaworkflow/subprocess'
 import type { NativeBrowserConfig } from './native.ts'
 
 /** Chromium process and profile owned independently of the Stagehand Worker. */
@@ -25,7 +25,7 @@ export async function launchChromium(config: NativeBrowserConfig, signal: AbortS
   signal.throwIfAborted()
   const executablePath = config.executablePath
     ?? computeSystemExecutablePath({ browser: Browser.CHROME, channel: ChromeReleaseChannel.STABLE })
-  const profile = await mkdtemp(join(tmpdir(), 'dsh-stagehand-chrome-'))
+  const profile = await mkdtemp(join(tmpdir(), 'mwf-stagehand-chrome-'))
   let browser: ReturnType<typeof launch> | undefined
   let closed: Promise<void> | undefined
   let closing: Promise<void> | undefined

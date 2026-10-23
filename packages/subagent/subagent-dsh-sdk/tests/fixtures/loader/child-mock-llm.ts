@@ -1,8 +1,8 @@
 import type { Context } from '@deepseek-ai/cordis'
 import { existsSync, writeFileSync } from 'node:fs'
 import { setTimeout } from 'node:timers/promises'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { LlmAdapter, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@metaworkflow/llm'
+import { LlmAdapter, ReasoningEffortId } from '@metaworkflow/llm'
 
 /**
  * Scripted model for the CHILD runtime: validates either the routed success
@@ -22,7 +22,7 @@ class RouteEchoAdapter extends LlmAdapter {
   }
 
   async * stream(options: GenerateOptions): AsyncIterable<StreamChunk> {
-    const failure = process.env.DSH_TEST_CHILD_FAILURE === '1'
+    const failure = process.env.MWF_TEST_CHILD_FAILURE === '1'
     const dynamicRoute = options.provider === 'mock'
       && options.model === 'mock-routed'
       && options.reasoningEffort === 'max'

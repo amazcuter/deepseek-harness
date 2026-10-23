@@ -459,8 +459,8 @@ export type {`,
     const root = copyFixture()
     editFile(root, 'packages/remote/src/index.ts', source => source
       .replace(
-        "import { TypertRemoteService, Remote, RemoteScope } from '@deepseek-ai/dsh-typert-protocol'",
-        "import { TypertRemoteService, Remote, RemoteScope, type RemoteStream } from '@deepseek-ai/dsh-typert-protocol'",
+        "import { TypertRemoteService, Remote, RemoteScope } from '@metaworkflow/typert-protocol'",
+        "import { TypertRemoteService, Remote, RemoteScope, type RemoteStream } from '@metaworkflow/typert-protocol'",
       )
       .replace(
         "  @Remote({ mode: 'stream' })\n  async *watch",
@@ -505,9 +505,9 @@ export type {`,
 
     const [artifact] = new WorkspaceTypertGenerator(root).generate()
     expect(artifact?.remote?.dts).toContain(
-      "  RemoteStreamHandle,\n  TypertRemoteInfo,\n  TypertRemoteMethod,\n} from '@deepseek-ai/dsh-typert-protocol'",
+      "  RemoteStreamHandle,\n  TypertRemoteInfo,\n  TypertRemoteMethod,\n} from '@metaworkflow/typert-protocol'",
     )
-    expect(artifact?.remote?.dts).toContain("declare module '@deepseek-ai/dsh-typert-protocol' {")
+    expect(artifact?.remote?.dts).toContain("declare module '@metaworkflow/typert-protocol' {")
     expect(artifact?.remote?.dts).toContain(
       "'goals/attach': (agentId: AgentId, signal?: AbortSignal) => RemoteStreamHandle<CreateGoalResult, CreateGoalRequest>",
     )
@@ -771,11 +771,11 @@ export interface RemainingSchema {
     const root = copyFixture()
     const manifestPath = join(root, 'packages/remote/package.json')
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
-      dsh?: { client?: object }
+      mwf?: { client?: object }
       exports: Record<string, unknown>
       files: string[]
     }
-    manifest.dsh = { client: {} }
+    manifest.mwf = { client: {} }
     manifest.exports['./client'] = './src/client.ts'
     manifest.exports['./client/typert'] = {
       types: './lib/typert.client.d.ts',
@@ -1022,7 +1022,7 @@ function remotePackage(root: string): {
 }
 
 function copyFixture(sourceRoot = fixtureRoot): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-typert-remote-model-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-typert-remote-model-'))
   cpSync(sourceRoot, root, { recursive: true })
   temporaryRoots.push(root)
   return root
@@ -1061,7 +1061,7 @@ import type {
   TypertRemoteScopeMap,
   TypertRemoteMap,
   TypertRemoteNamespaceMap,
-} from '@deepseek-ai/dsh-typert-protocol'
+} from '@metaworkflow/typert-protocol'
 import type { CreateGoalResult, RenameGoalResult } from '@fixture/remote/types'
 
 const contribution: TypertRemoteContribution = remote
@@ -1093,7 +1093,7 @@ ${extraConsumer}
       composite: false,
       skipLibCheck: false,
       paths: {
-        '@deepseek-ai/dsh-typert-protocol': ['./typert-protocol.d.ts'],
+        '@metaworkflow/typert-protocol': ['./typert-protocol.d.ts'],
         '@fixture/domain/types': ['./packages/domain/src/types.ts'],
         '@fixture/remote/types': ['./packages/remote/src/types.ts'],
         '@fixture/remote/remote': ['./packages/remote/lib/typert.remote-client.d.ts'],
@@ -1155,7 +1155,7 @@ ${extraConsumer}
 function assertRemoteConsumerWithoutImportHasNoNamespace(consumerRoot: string): void {
   const consumerPath = join(consumerRoot, 'consumer-without-remote.ts')
   writeFileSync(consumerPath, `
-import type { TypertRemoteNamespaceMap } from '@deepseek-ai/dsh-typert-protocol'
+import type { TypertRemoteNamespaceMap } from '@metaworkflow/typert-protocol'
 declare const ctx: { remote: TypertRemoteNamespaceMap }
 ctx.remote.goals.create('agent-1', { title: 'must not compile' })
 `)
@@ -1166,7 +1166,7 @@ ctx.remote.goals.create('agent-1', { title: 'must not compile' })
       composite: false,
       skipLibCheck: false,
       paths: {
-        '@deepseek-ai/dsh-typert-protocol': ['./typert-protocol.d.ts'],
+        '@metaworkflow/typert-protocol': ['./typert-protocol.d.ts'],
       },
     },
     files: ['./consumer-without-remote.ts'],

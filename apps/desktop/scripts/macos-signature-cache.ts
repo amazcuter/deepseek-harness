@@ -53,7 +53,7 @@ export async function cachedMacOSSignature(path: string, cacheRoot: string, sign
   const key = digest(JSON.stringify({ schema: 1, input, mode, policy: signer.policy }))
   ensureDirectory(cacheRoot)
   const entry = join(cacheRoot, key)
-  const work = mkdtempSync(join(dirname(path), '.dsh-sign-'))
+  const work = mkdtempSync(join(dirname(path), '.mwf-sign-'))
   const candidate = join(work, 'code')
   const unchanged = (): void => {
     regular(path)

@@ -1,4 +1,4 @@
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@metaworkflow/typert-protocol' {
   export interface TypertLookup<Host, Wire> {
     readonly host: Host
     readonly wire: Wire

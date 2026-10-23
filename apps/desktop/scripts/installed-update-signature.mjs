@@ -40,8 +40,8 @@ export async function verifyInstalledUpdateSignature(file, publisher, directory)
     throw new Error('installed update: updater signature verification was not confirmed')
   }
   const { stdout, stderr } = await promisify(execFile)('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
-    '$ErrorActionPreference="Stop"; $s=Get-AuthenticodeSignature -LiteralPath $env:DSH_VERIFY_FILE; [pscustomobject]@{valid=($s.Status -eq "Valid");timestamped=($null -ne $s.TimeStamperCertificate);signer=$s.SignerCertificate.Thumbprint;timestamp=$s.TimeStamperCertificate.Thumbprint}|ConvertTo-Json -Compress'],
-  { ...options, env: { ...environment, DSH_VERIFY_FILE: file } })
+    '$ErrorActionPreference="Stop"; $s=Get-AuthenticodeSignature -LiteralPath $env:MWF_VERIFY_FILE; [pscustomobject]@{valid=($s.Status -eq "Valid");timestamped=($null -ne $s.TimeStamperCertificate);signer=$s.SignerCertificate.Thumbprint;timestamp=$s.TimeStamperCertificate.Thumbprint}|ConvertTo-Json -Compress'],
+  { ...options, env: { ...environment, MWF_VERIFY_FILE: file } })
   const details = JSON.parse(stdout)
   if (stderr || details.valid !== true || details.timestamped !== true || !/^[A-Fa-f0-9]{40}$/u.test(details.signer)
     || !/^[A-Fa-f0-9]{40}$/u.test(details.timestamp)) throw new Error('installed update: valid timestamped signature is required')

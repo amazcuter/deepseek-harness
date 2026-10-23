@@ -15,7 +15,7 @@ it('ships install metadata with the built web application', async () => {
   // each mount its own identity. `public-mount.e2e.ts` reads the resolved form.
   expect(manifest).toEqual({
     name: 'DeepSeek Harness',
-    short_name: 'DSH',
+    short_name: 'MWF',
     start_url: './',
     scope: './',
     display: 'fullscreen',

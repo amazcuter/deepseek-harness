@@ -21,7 +21,7 @@ export async function probeRestrictedWorker(
 ): Promise<void> {
   const profile = `(version 1)(allow default)${[checkout, hostNode].map(path => `(deny file-read* (subpath ${JSON.stringify(path)}))(deny process-exec (subpath ${JSON.stringify(path)}))`).join('')}`
   const child = spawn('/usr/bin/sandbox-exec', ['-p', profile, executable, '1048576'], {
-    cwd: workspace, env: { HOME: home, TMPDIR: home, PATH: '/usr/bin:/bin', DSH_PTC_RUNTIME_NODE: '1', [SUBPROCESS_CONTROL_ENV]: 'pipe', NODE_OPTIONS: '--disable-sigusr1' },
+    cwd: workspace, env: { HOME: home, TMPDIR: home, PATH: '/usr/bin:/bin', MWF_PTC_RUNTIME_NODE: '1', [SUBPROCESS_CONTROL_ENV]: 'pipe', NODE_OPTIONS: '--disable-sigusr1' },
     stdio: ['ignore', 'pipe', 'pipe', 'ignore', 'ignore', 'ignore', 'ignore', 'pipe'],
   })
   const completed = Promise.withResolvers<unknown>()

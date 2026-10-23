@@ -13,15 +13,15 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page, Route } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import type { StreamChunk } from '@deepseek-ai/dsh-llm'
-import { ToolCallId, createAssistantMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { ReplayEntry } from '@deepseek-ai/dsh-llm-replay'
+import type { StreamChunk } from '@metaworkflow/llm'
+import { ToolCallId, createAssistantMessage, createUserMessage } from '@metaworkflow/llm'
+import type { ReplayEntry } from '@metaworkflow/llm-replay'
 import {
   SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq, type SessionEvent, type SessionHeader,
-} from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-system-prompt'
-import { sessionFixtureName } from '@deepseek-ai/dsh-session-snapshot'
-import { snapshotSubagentDescriptor } from '@deepseek-ai/dsh-subagent'
+} from '@metaworkflow/session'
+import type {} from '@metaworkflow/system-prompt'
+import { sessionFixtureName } from '@metaworkflow/session-snapshot'
+import { snapshotSubagentDescriptor } from '@metaworkflow/subagent'
 import { createChatScrollFixture, type ChatScrollFixture } from './chat-scroll-fixture.ts'
 import { launchWebScaffold, parseSeedFixture, seedSession, watchConsole, webSnapshotMode, type WebScaffold } from './scaffold.ts'
 import { newEnglishPage, openSettings } from './support.ts'
@@ -820,7 +820,7 @@ describe.skipIf(MODE === 'record')('web e2e: blank area after next-message foldi
 
   for (const scenario of CASES) {
     it(scenario.id, async () => {
-      const replayDir = await mkdtemp(join(tmpdir(), 'dsh-fold-matrix-'))
+      const replayDir = await mkdtemp(join(tmpdir(), 'mwf-fold-matrix-'))
       let world: World | undefined
       try {
         world = await openWorld(browser, scenario, replayDir)

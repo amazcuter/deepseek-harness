@@ -3,13 +3,13 @@ description: "为 agent-loop 测试提供先决依赖挂载、生产 AgentLoop �
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-agent-loop-testkit
+# @metaworkflow/agent-loop-testkit
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `dsh-agent-loop-testkit` 可以为 AgentLoop 测试准备标准先决条件和生产 loop 驱动，避免重复设置。harness 可以创建真实 Agent，并公开 Inbox 输入认领能力，以测试持久事件、恢复、通知和认领行为。只需编辑队列的消费方测试应选择进程内 Inbox 桩；待处理输入绝不应被访问时，应选择快速失败的 Inbox。测试仍然负责适配器、可选插件、加载顺序和上下文释放，本包不会添加模型可见行为。
+使用 `mwf-agent-loop-testkit` 可以为 AgentLoop 测试准备标准先决条件和生产 loop 驱动，避免重复设置。harness 可以创建真实 Agent，并公开 Inbox 输入认领能力，以测试持久事件、恢复、通知和认领行为。只需编辑队列的消费方测试应选择进程内 Inbox 桩；待处理输入绝不应被访问时，应选择快速失败的 Inbox。测试仍然负责适配器、可选插件、加载顺序和上下文释放，本包不会添加模型可见行为。
 
 ## 目录
 
@@ -35,11 +35,11 @@ kind: "package-library"
 
 ```ts
 import { Context } from '@deepseek-ai/cordis'
-import { SessionId, type UserMessage } from '@deepseek-ai/dsh-session'
+import { SessionId, type UserMessage } from '@metaworkflow/session'
 import {
   mountAgentLoopTestDependencies,
   mountAgentLoopTestHarness,
-} from '@deepseek-ai/dsh-agent-loop-testkit'
+} from '@metaworkflow/agent-loop-testkit'
 
 const ctx = new Context()
 
@@ -60,7 +60,7 @@ const admitted = harness.claim(agent, 'next-turn', 1)
 当测试对象需要可变的待处理列表，但不测试持久性、投影校验、实时 Inbox 通知或驱动的认领策略时，使用 `createInboxStub()`。该桩通过两个进程内数组实现公开队列操作，且绝不会写入 Session。当测试对象不应访问待处理输入时，使用 `unsupportedInbox()`；每次变更都会在首个意外依赖处抛错。
 
 ```ts
-import { createInboxStub } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { createInboxStub } from '@metaworkflow/agent-loop-testkit'
 
 const agent = {
   // ...

@@ -7,7 +7,7 @@
  */
 export function overlayTopMargin(min: number): number {
   const root = document.documentElement
-  const clearance = Number.parseFloat(getComputedStyle(root).getPropertyValue('--dsh-frame-top-clearance'))
+  const clearance = Number.parseFloat(getComputedStyle(root).getPropertyValue('--mwf-frame-top-clearance'))
   if (Number.isNaN(clearance)) return min
   return Math.max(min, (root.hasAttribute('data-fullscreen') ? 0 : clearance) + 20)
 }

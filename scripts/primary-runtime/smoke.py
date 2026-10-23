@@ -38,7 +38,7 @@ def check_interpreters():
             "subprocess.run([sys.executable, '-I', '-B', '-c', 'import ssl, sqlite3, ctypes'], check=True, timeout=30)",
             str(interpreter),
         ], check=True, timeout=60)
-    with tempfile.TemporaryDirectory(prefix="dsh python venv ") as directory:
+    with tempfile.TemporaryDirectory(prefix="mwf python venv ") as directory:
         environment = Path(directory) / "environment"
         subprocess.run([str(executable.with_name(names[0])), "-I", "-B", "-m", "venv", str(environment)], check=True, timeout=60)
         python = environment / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
@@ -75,7 +75,7 @@ def main():
         for file, _hash, _size in csv.reader(io.StringIO(record)):
             assert distribution.locate_file(file).is_file(), file
 
-    with tempfile.TemporaryDirectory(prefix="dsh-office-smoke-") as directory:
+    with tempfile.TemporaryDirectory(prefix="mwf-office-smoke-") as directory:
         root = Path(directory)
         image = root / "chart.png"
         Image.new("RGB", (80, 40), "#2878bc").save(image)

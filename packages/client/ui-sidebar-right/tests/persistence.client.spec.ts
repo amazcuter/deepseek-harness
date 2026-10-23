@@ -1,8 +1,8 @@
 /** Per-Session layout recovery precedes resource-body rendering. */
 import { afterEach, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
+import type { SessionId } from '@metaworkflow/session/types'
+import type { TabId } from '@metaworkflow/client-ui-dockkit'
 import { createSidebarRightStore } from '../src/client/stores.ts'
 import { createSidebarRightController } from '../src/client/service.ts'
 import { SidebarRightTabRegistry } from '../src/client/tab-registry.ts'
@@ -59,7 +59,7 @@ it('pins restored records during adoption before the first render or store mutat
   storage()
   const first = createSidebarRightStore(seed).create(sessionId)
   let file!: TabId
-  const address = 'dsh-resource://file/session/first/a.txt'
+  const address = 'mwf-resource://file/session/first/a.txt'
   first.actions.openContent(sessionId, { kind: 'text', contentId: address, title: 'a' }, (id) => { file = id })
   const ctx = new Context()
   const pin = vi.fn()
@@ -87,7 +87,7 @@ it('pins restored records during adoption before the first render or store mutat
 
 it('starts from an empty layout when stored JSON is corrupt and keeps working when storage rejects writes', () => {
   const values = storage()
-  values.set(`dsh.sidebar-right.v1.${sessionId}`, '{broken')
+  values.set(`mwf.sidebar-right.v1.${sessionId}`, '{broken')
   vi.spyOn(console, 'error').mockImplementation(() => {})
   const instance = createSidebarRightStore(seed).create(sessionId)
   expect(instance.getSnapshot()).toEqual({ bySession: {} })

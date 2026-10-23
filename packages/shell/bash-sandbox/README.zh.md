@@ -3,13 +3,13 @@ description: "面向部署方与维护者的沙箱 Bash 执行器说明，用于
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-bash-sandbox
+# @metaworkflow/bash-sandbox
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `dsh-bash-sandbox` 运行每条 Bash 命令，使其文件访问受到限制，而不是使用 harness 进程的完整权限。结果会报告所选模式、被拒绝的文件操作，以及 runner 是否完整实施该模式。如果没有 runner 能实施受限模式，命令会以 `SANDBOX_UNAVAILABLE` 失败，绝不会无隔离地运行。部署需要文件隔离时选择它；网络访问和进程可见性不在其保证范围内。
+使用 `mwf-bash-sandbox` 运行每条 Bash 命令，使其文件访问受到限制，而不是使用 harness 进程的完整权限。结果会报告所选模式、被拒绝的文件操作，以及 runner 是否完整实施该模式。如果没有 runner 能实施受限模式，命令会以 `SANDBOX_UNAVAILABLE` 失败，绝不会无隔离地运行。部署需要文件隔离时选择它；网络访问和进程可见性不在其保证范围内。
 
 ## 目录
 
@@ -25,11 +25,11 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当命令不得以 harness 进程的完整文件权限运行时，用本执行器替代 `dsh-bash-local`。它注册为 `ctx.shell`，并要求一个 `ctx.sandbox` 提供方加上 `ctx.sandboxPolicy`；面向模型的 `bash` 工具基于它不加改动地工作，并公布 `sandbox_permissions` 与 `justification` 升权字段。
+当命令不得以 harness 进程的完整文件权限运行时，用本执行器替代 `mwf-bash-local`。它注册为 `ctx.shell`，并要求一个 `ctx.sandbox` 提供方加上 `ctx.sandboxPolicy`；面向模型的 `bash` 工具基于它不加改动地工作，并公布 `sandbox_permissions` 与 `justification` 升权字段。
 
 ### 何时选择
 
-当部署需要为 Bash 命令提供文件级隔离时选择它：已配置的策略决定默认模式与工作区根目录，每个会话还可以通过工具的升权流程按调用使用不同模式。模式只约束文件影响——网络仍不受限制，进程可见性因后端而异。需要非隔离执行，或平台没有可用沙箱后端时，请改为挂载 `dsh-bash-local`。
+当部署需要为 Bash 命令提供文件级隔离时选择它：已配置的策略决定默认模式与工作区根目录，每个会话还可以通过工具的升权流程按调用使用不同模式。模式只约束文件影响——网络仍不受限制，进程可见性因后端而异。需要非隔离执行，或平台没有可用沙箱后端时，请改为挂载 `mwf-bash-local`。
 
 ### 模式与文件影响
 
@@ -41,18 +41,18 @@ kind: "package-reference"
 
 ### 最小配置
 
-本执行器自身不携带任何沙箱配置：默认模式与工作区根目录来自 `ctx.sandboxPolicy`，runner 选择属于 `ctx.sandbox` 提供方。它自己的配置就是本地执行器的旋钮，逐字继承；生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-bash-sandbox)是穷尽式真源。
+本执行器自身不携带任何沙箱配置：默认模式与工作区根目录来自 `ctx.sandboxPolicy`，runner 选择属于 `ctx.sandbox` 提供方。它自己的配置就是本地执行器的旋钮，逐字继承；生成的[配置目录](../../../docs/config-catalog.zh.md#metaworkflowbash-sandbox)是穷尽式真源。
 
 ```yaml
 - id: sandbox
-  name: '@deepseek-ai/dsh-sandbox-local'
+  name: '@metaworkflow/sandbox-local'
 - id: sandbox-policy
-  name: '@deepseek-ai/dsh-sandbox-policy'
+  name: '@metaworkflow/sandbox-policy'
   config:
     mode: read-only
     workspaceRoot: !!js process.cwd() # fallback for calls without a session cwd
 - id: bash
-  name: '@deepseek-ai/dsh-bash-sandbox'
+  name: '@metaworkflow/bash-sandbox'
 ```
 
 ### 拒绝是结果事实
@@ -75,7 +75,7 @@ kind: "package-reference"
 
 ### 设计概念
 
-本执行器是 `ctx.shell` seam 的沙箱 Service Provider：它继承 `dsh-bash-local` 的进程机制，通过 `ctx.sandbox.confine()` 等待每条命令的精确 `['bash', '-c', command]` argv 完成限制准备，再直接 spawn 返回的 argv。前台准备使用本地执行器与命令共享的 deadline；在 spawn 前超时不会声明 enforcement 事实。后台准备只跟随调用方信号。两条路径都在 spawn 前重新检查取消状态。由哪种平台 runner 限制命令、以及是否有 runner 可用，属于提供方职责；本包只负责 bash 侧：所选模式、强制执行完整度，以及结果上的拒绝分类。
+本执行器是 `ctx.shell` seam 的沙箱 Service Provider：它继承 `mwf-bash-local` 的进程机制，通过 `ctx.sandbox.confine()` 等待每条命令的精确 `['bash', '-c', command]` argv 完成限制准备，再直接 spawn 返回的 argv。前台准备使用本地执行器与命令共享的 deadline；在 spawn 前超时不会声明 enforcement 事实。后台准备只跟随调用方信号。两条路径都在 spawn 前重新检查取消状态。由哪种平台 runner 限制命令、以及是否有 runner 可用，属于提供方职责；本包只负责 bash 侧：所选模式、强制执行完整度，以及结果上的拒绝分类。
 
 ### 源码地图
 
@@ -122,11 +122,11 @@ kind: "package-reference"
 
 #### 模型看到的内容
 
-基线是生成的 [`dsh-tool-bash` schema](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-bash)。通过公布表明启用隔离的 `sandboxMode` 能力，此后端会为 `bash` 增加 `sandbox_permissions`（enum 为 `workspace-write` | `danger-full-access`）与 `justification`。策略归属方会另行贡献当前且不区分具体能力的 `sandbox:policy` 上下文。
+基线是生成的 [`mwf-tool-bash` schema](../../../docs/tool-catalog.zh.md#metaworkflowtool-bash)。通过公布表明启用隔离的 `sandboxMode` 能力，此后端会为 `bash` 增加 `sandbox_permissions`（enum 为 `workspace-write` | `danger-full-access`）与 `justification`。策略归属方会另行贡献当前且不区分具体能力的 `sandbox:policy` 上下文。
 
 #### Token 影响
 
-在 `bash` 可见的请求上，schema 固定增加少量内容，另有一条由 `dsh-sandbox-policy` 负责的当前策略子句。
+在 `bash` 可见的请求上，schema 固定增加少量内容，另有一条由 `mwf-sandbox-policy` 负责的当前策略子句。
 
 #### KV Cache 影响
 

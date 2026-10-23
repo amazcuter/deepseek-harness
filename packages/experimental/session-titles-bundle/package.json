@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-session-titles-bundle",
+  "name": "@metaworkflow/experimental-session-titles-bundle",
   "description": "Refresh session titles as new human prompts arrive.",
   "version": "0.2.1-rc.2",
   "icon": "./icon.svg",
@@ -32,13 +32,13 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
-  "dsh": {
+  "mwf": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-session-title-all-prompts-llm": "workspace:*"
+    "@metaworkflow/session-title-all-prompts-llm": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~"

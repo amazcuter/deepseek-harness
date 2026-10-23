@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { SettingsSchemaService } from '@deepseek-ai/dsh-client-ui-settings/src/client/schema.ts'
-import { SettingsDescribeMirror } from '@deepseek-ai/dsh-client-ui-settings/src/client/settings-mirror.ts'
-import { ConfigFormController } from '@deepseek-ai/dsh-client-ui-settings/src/client/config-form.ts'
-import { RemoteError, TestRemote } from '@deepseek-ai/dsh-client-test-runtime'
-import { apply as applySettings, inject as settingsInject } from '@deepseek-ai/dsh-client-ui-settings/client'
+import { SettingsSchemaService } from '@metaworkflow/client-ui-settings/src/client/schema.ts'
+import { SettingsDescribeMirror } from '@metaworkflow/client-ui-settings/src/client/settings-mirror.ts'
+import { ConfigFormController } from '@metaworkflow/client-ui-settings/src/client/config-form.ts'
+import { RemoteError, TestRemote } from '@metaworkflow/client-test-runtime'
+import { apply as applySettings, inject as settingsInject } from '@metaworkflow/client-ui-settings/client'
 import { decodeWelcomeSection, WelcomeNoticeStore, type WelcomeSection } from '../src/client/welcome-store.ts'
 import {
   WELCOME_NOTICE_ACK_FIELD, WELCOME_NOTICE_SETTINGS_NAMESPACE, WELCOME_NOTICE_VERSION,

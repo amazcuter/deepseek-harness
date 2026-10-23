@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-desktop-host",
+  "name": "@metaworkflow/desktop-host",
   "description": "Private Node-mode host process for the Electron desktop application",
   "version": "0.2.1-rc.2",
   "private": true,
@@ -14,22 +14,22 @@
     "koffi": "3.1.1",
     "@deepseek-ai/libreoffice-kit": "^0.1.5",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh": "workspace:*",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-client-connection": "workspace:*",
-    "@deepseek-ai/dsh-host-webserver": "workspace:*",
-    "@deepseek-ai/dsh-home-paths": "workspace:*",
-    "@deepseek-ai/dsh-jobs": "workspace:*",
-    "@deepseek-ai/dsh-schedule": "workspace:*",
-    "@deepseek-ai/dsh-tool-workspace-dependencies": "workspace:*",
-    "@deepseek-ai/dsh-skill-office": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
-    "@deepseek-ai/dsh-workspace": "workspace:*"
+    "@metaworkflow/cli": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/app-boot": "workspace:*",
+    "@metaworkflow/client-connection": "workspace:*",
+    "@metaworkflow/host-webserver": "workspace:*",
+    "@metaworkflow/home-paths": "workspace:*",
+    "@metaworkflow/jobs": "workspace:*",
+    "@metaworkflow/schedule": "workspace:*",
+    "@metaworkflow/tool-workspace-dependencies": "workspace:*",
+    "@metaworkflow/skill-office": "workspace:*",
+    "@metaworkflow/deepseek-account": "workspace:*",
+    "@metaworkflow/workspace": "workspace:*"
   },
   "devDependencies": {
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
     "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/dsh-skill": "workspace:*"
+    "@metaworkflow/skill": "workspace:*"
   }
 }

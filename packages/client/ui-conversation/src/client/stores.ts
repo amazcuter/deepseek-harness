@@ -1,11 +1,11 @@
 /** Per-session Conversation store shared by the shell body and header. */
-import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-store'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { defineStore, type EngineStoreHandle } from '@metaworkflow/client-store'
+import type { SessionId } from '@metaworkflow/session/types'
 import type { ConversationStoreState } from './contract/views.ts'
 import type { DraftInput, DraftSnapshot } from './contract/draft-editor.ts'
 import { parseStoredDraft } from './draft.ts'
 
-const CONVERSATION_STORE_KEY = 'dsh.conversation'
+const CONVERSATION_STORE_KEY = 'mwf.conversation'
 
 /** Declared write set for the Conversation shell. */
 type ConversationActions = {

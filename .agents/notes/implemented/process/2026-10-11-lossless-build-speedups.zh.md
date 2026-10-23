@@ -35,9 +35,9 @@ Status: implemented
 
 所有数字取自同一台共享 Linux 主机（256 vCPU、4 TB 内存，运行期间 load average 23–111），Node v24.18.0、TypeScript 6.0.3、tsdown 0.22.2（rolldown 1.1.1）。
 
-- **Host tsdown：** `node node_modules/tsdown/dist/run.mjs --config-loader native --env.DSH_BUILD_FACE host`，每次运行前删除全部 `lib/typert.*`；各变体交替顺序运行，每组 3–4 个样本。第 2–4 项取自第一轮测量（起点为基线），第 5–7 项取自第二轮测量（起点为第 2–4 项合入后的代码）。产物比较覆盖 `packages/*/*/lib`、`apps/*/lib`、`vendor/*/lib` 顶层的 743 个文件（含 140 个 Typert 产物）的 SHA-256。相同代码的两组中位数相差 0–0.11 s，组内样本跨度最大 2.5 s。
+- **Host tsdown：** `node node_modules/tsdown/dist/run.mjs --config-loader native --env.MWF_BUILD_FACE host`，每次运行前删除全部 `lib/typert.*`；各变体交替顺序运行，每组 3–4 个样本。第 2–4 项取自第一轮测量（起点为基线），第 5–7 项取自第二轮测量（起点为第 2–4 项合入后的代码）。产物比较覆盖 `packages/*/*/lib`、`apps/*/lib`、`vendor/*/lib` 顶层的 743 个文件（含 140 个 Typert 产物）的 SHA-256。相同代码的两组中位数相差 0–0.11 s，组内样本跨度最大 2.5 s。
 - **Client 测试聚合：** references 预先构建后运行 `tsc -p tsconfig.client.json --extendedDiagnostics`，使用全新的 tsBuildInfo 文件；相同代码 6 个样本的 Check 跨度为 3.8 s（约 6%）。
-- **Client tsdown：** 已构建的树上运行 `node node_modules/tsdown/dist/run.mjs --config-loader native --env.DSH_BUILD_FACE client`。第 8 项的原型 3 轮轮换顺序，基线跨度 1.56 s；最终实现与原实现交替运行，各 3 个样本。产物比较覆盖 `{packages,apps,vendor,native}/**/lib/**`（排除 `*.tsbuildinfo`）的全部文件。
+- **Client tsdown：** 已构建的树上运行 `node node_modules/tsdown/dist/run.mjs --config-loader native --env.MWF_BUILD_FACE client`。第 8 项的原型 3 轮轮换顺序，基线跨度 1.56 s；最终实现与原实现交替运行，各 3 个样本。产物比较覆盖 `{packages,apps,vendor,native}/**/lib/**`（排除 `*.tsbuildinfo`）的全部文件。
 
 ### 1. React 类型包只由根 manifest 声明
 
@@ -122,7 +122,7 @@ Status: implemented
 - **按代码内容过滤 `transform`（第 7 项）：** rolldown 以 Rust 正则语义解释 `^` 与 `\s`，在孤立 CR、U+2028 与 BOM 上与 JavaScript 不同，可能漏掉含装饰器的模块。
 - **在 `globalThis` 上建立进程级 manifest 索引（第 8 项）：** 原型收益与第 8 项相当，但它是没有 owner 的进程全局状态，违反[包规则](../../../../packages/AGENTS.md)中的共享状态归属要求。
 - **关闭 tsdown 的 gzip 报告（第 8 项）：** `--no-report` 使 Client tsdown 降低 0.95 s，在 1.56 s 的基线跨度内。
-- **为 DSH 的 `resolveId`/`load` 钩子加 rolldown 过滤器（第 8 项）：** 降低 1.16 s，在噪声内。
+- **为 MWF 的 `resolveId`/`load` 钩子加 rolldown 过滤器（第 8 项）：** 降低 1.16 s，在噪声内。
 - **按模块 id 缓存输入隔离检查（第 8 项）：** 降低 0.93 s，在噪声内；叠加在 manifest 索引之上只再降低 0.18 s。
 
 ## 后果

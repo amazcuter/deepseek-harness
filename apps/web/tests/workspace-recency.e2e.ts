@@ -66,9 +66,9 @@ describe('web e2e: workspace recency', () => {
     await page.clock.setFixedTime(now)
     tripwire = watchConsole(page)
     await page.addInitScript(({ account, ids }) => {
-      if (localStorage.getItem('dsh.workspace.view.v5') !== null) return
-      localStorage.setItem('dsh.sessions.current', JSON.stringify({ sessionId: ids[0] }))
-      localStorage.setItem('dsh.workspace.view.v5', JSON.stringify({
+      if (localStorage.getItem('mwf.workspace.view.v5') !== null) return
+      localStorage.setItem('mwf.sessions.current', JSON.stringify({ sessionId: ids[0] }))
+      localStorage.setItem('mwf.workspace.view.v5', JSON.stringify({
         groupBy: 'workspace', orderBy: 'updated', groupExpansion: { [account]: true },
         sessionOrderByAccount: { [account]: [...ids].reverse(), __flat_session_order__: [...ids].reverse() },
       }))
@@ -137,8 +137,8 @@ describe('web e2e: workspace recency', () => {
     await pick('In one list')
     await expect.poll(titles).toEqual(['New Session', ...TITLES])
     await expect.poll(() => page.evaluate(() => {
-      const { sessionId } = JSON.parse(localStorage.getItem('dsh.sessions.current')!) as { sessionId: string }
-      const { sessionOrderByAccount } = JSON.parse(localStorage.getItem('dsh.workspace.view.v5')!) as {
+      const { sessionId } = JSON.parse(localStorage.getItem('mwf.sessions.current')!) as { sessionId: string }
+      const { sessionOrderByAccount } = JSON.parse(localStorage.getItem('mwf.workspace.view.v5')!) as {
         sessionOrderByAccount: Record<string, string[]>
       }
       return sessionOrderByAccount.__flat_session_order__?.[0] === sessionId

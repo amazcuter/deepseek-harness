@@ -34,7 +34,7 @@ export function resolveMacOSAppUpdateFeed(publish) {
   if (provider.provider !== 'generic' || !['nightly', 'latest'].includes(provider.channel)) {
     throw new Error('desktop macOS update config: publish provider must be generic with nightly or latest channel')
   }
-  return { publicUrl: nonEmptyString(provider.url, 'publish provider URL'), channel: resolveDesktopUpdateChannel({ DSH_DESKTOP_UPDATE_CHANNEL: provider.channel }) }
+  return { publicUrl: nonEmptyString(provider.url, 'publish provider URL'), channel: resolveDesktopUpdateChannel({ MWF_DESKTOP_UPDATE_CHANNEL: provider.channel }) }
 }
 
 /**
@@ -47,7 +47,7 @@ export function createMacOSAppUpdateConfig(update, updaterCacheDirName) {
   return {
     provider: 'generic',
     url: nonEmptyString(update.publicUrl, 'public URL'),
-    channel: resolveDesktopUpdateChannel({ DSH_DESKTOP_UPDATE_CHANNEL: update.channel }),
+    channel: resolveDesktopUpdateChannel({ MWF_DESKTOP_UPDATE_CHANNEL: update.channel }),
     updaterCacheDirName: nonEmptyString(updaterCacheDirName, 'updater cache directory'),
   }
 }
@@ -81,7 +81,7 @@ export async function verifyMacOSAppUpdateConfig(appPath, update, updaterCacheDi
     throw new Error(`desktop macOS update config: cannot read ${path}: ${error instanceof Error ? error.message : String(error)}`)
   }
   const config = object(parsed, CONFIG_FILENAME)
-  if (config.provider !== 'generic' || config.url !== update.publicUrl || config.channel !== resolveDesktopUpdateChannel({ DSH_DESKTOP_UPDATE_CHANNEL: update.channel })) {
+  if (config.provider !== 'generic' || config.url !== update.publicUrl || config.channel !== resolveDesktopUpdateChannel({ MWF_DESKTOP_UPDATE_CHANNEL: update.channel })) {
     throw new Error(`desktop macOS update config: ${path} does not match ${update.publicUrl}`)
   }
   const actualCacheDirName = nonEmptyString(config.updaterCacheDirName, `${CONFIG_FILENAME}.updaterCacheDirName`)

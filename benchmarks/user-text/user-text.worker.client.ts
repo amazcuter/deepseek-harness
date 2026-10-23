@@ -3,7 +3,7 @@
 import { PerformanceObserver, performance } from 'node:perf_hooks'
 import { getHeapSpaceStatistics } from 'node:v8'
 import { Context } from '@deepseek-ai/cordis'
-import type { UserTextFacts, UserTextRule, UserTextTransformContext } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextFacts, UserTextRule, UserTextTransformContext } from '@metaworkflow/client-ui-conversation/client'
 // These Client-only UserText modules have no plain-Node package export and are compiled into this worker.
 import { UserTextRegistry } from '../../packages/client/ui-conversation/src/client/conversation/user-text-registry.ts'
 import { sessionReferenceRule } from '../../packages/client/ui-conversation/src/client/user-text/session-reference-rule.ts'
@@ -97,7 +97,7 @@ const LOG = '2026-10-11T12:00:00.123Z INFO  [worker-3] GET https://api.example.c
   + 'trace=4bf92f3577b34da6a3ce929d0e0e4736 user=alice@example.com\n'
 const JSON_LINES = '{"id":"123e4567-e89b-12d3-a456-426614174000","url":"https://cdn.example.com/assets/img_0001.png",'
   + '"name":"task-runner","tags":["sk-button","api_key_name"],"created_at":"2026-10-11T12:00:00Z","size":10240},\n'
-const SHELL = 'pnpm --filter @deepseek-ai/dsh-client-ui-secret-mask run test -- --coverage --reporter=verbose'
+const SHELL = 'pnpm --filter @metaworkflow/client-ui-secret-mask run test -- --coverage --reporter=verbose'
   + ' && git push origin feat/user-text-secret-mask\n'
 /** Ordinary message fragments: prose, references, a slash skill, a URL without credentials, and code. */
 const MESSAGE_PARTS = [
@@ -388,7 +388,7 @@ async function timings(attempts: number): Promise<UserTextTimeReport> {
 
 assertBuiltBenchmarkRuntime(import.meta.url, {
   '@deepseek-ai/cordis': import.meta.resolve('@deepseek-ai/cordis'),
-  '@deepseek-ai/dsh-client-store': import.meta.resolve('@deepseek-ai/dsh-client-store'),
+  '@metaworkflow/client-store': import.meta.resolve('@metaworkflow/client-store'),
 })
 const [mode, count] = process.argv.slice(2)
 if (mode !== 'time' && mode !== 'allocation') throw new Error('usage: user-text.worker.js time <attempts> | allocation')

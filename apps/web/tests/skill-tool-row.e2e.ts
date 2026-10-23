@@ -66,7 +66,7 @@ describe.skipIf(MODE === 'record')('web e2e: dedicated Skill tool row', () => {
     const output = call.locator('pre')
     await output.waitFor()
     expect(await output.textContent()).toContain('<skill_content name="editing-cordis-compositions">')
-    expect(await output.textContent()).toContain('Agent presets are ordinary `@deepseek-ai/dsh-agent-preset` declarations carried by bundle patches.')
+    expect(await output.textContent()).toContain('Agent presets are ordinary `@metaworkflow/agent-preset` declarations carried by bundle patches.')
     expect(await output.evaluate(element => getComputedStyle(element.parentElement!).maxHeight)).toBe('260px')
 
     const snapshot = (await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd))
@@ -90,17 +90,17 @@ describe.skipIf(MODE === 'record')('web e2e: dedicated Skill tool row', () => {
 
     const previous = await page.evaluate(() => ({
       fontSize: {
-        value: document.body.style.getPropertyValue('--dsh-content-font-size-secondary'),
-        priority: document.body.style.getPropertyPriority('--dsh-content-font-size-secondary'),
+        value: document.body.style.getPropertyValue('--mwf-content-font-size-secondary'),
+        priority: document.body.style.getPropertyPriority('--mwf-content-font-size-secondary'),
       },
       delta: {
-        value: document.body.style.getPropertyValue('--dsh-content-font-delta'),
-        priority: document.body.style.getPropertyPriority('--dsh-content-font-delta'),
+        value: document.body.style.getPropertyValue('--mwf-content-font-delta'),
+        priority: document.body.style.getPropertyPriority('--mwf-content-font-delta'),
       },
     }))
     await page.evaluate(() => {
-      document.body.style.setProperty('--dsh-content-font-size-secondary', '15px')
-      document.body.style.setProperty('--dsh-content-font-delta', '2px')
+      document.body.style.setProperty('--mwf-content-font-size-secondary', '15px')
+      document.body.style.setProperty('--mwf-content-font-delta', '2px')
     })
     try {
       expect(await title.evaluate(element => getComputedStyle(element).fontSize)).toBe('15px')
@@ -113,8 +113,8 @@ describe.skipIf(MODE === 'record')('web e2e: dedicated Skill tool row', () => {
           if (entry.value === '') document.body.style.removeProperty(name)
           else document.body.style.setProperty(name, entry.value, entry.priority)
         }
-        restore('--dsh-content-font-size-secondary', saved.fontSize)
-        restore('--dsh-content-font-delta', saved.delta)
+        restore('--mwf-content-font-size-secondary', saved.fontSize)
+        restore('--mwf-content-font-delta', saved.delta)
       }, previous)
     }
   })

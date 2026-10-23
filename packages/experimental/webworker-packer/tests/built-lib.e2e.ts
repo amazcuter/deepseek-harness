@@ -10,10 +10,10 @@ import { pnpmInvocation } from '../../../../scripts/pnpm-invocation.ts'
 
 const experimentalDirectory = fileURLToPath(new URL('../..', import.meta.url))
 const packages = ['webworker-runtime', 'webworker-packer']
-const packageNames = new Set(packages.map(name => `@deepseek-ai/dsh-experimental-${name}`))
+const packageNames = new Set(packages.map(name => `@metaworkflow/experimental-${name}`))
 
 it('loads both tarballs through plain Node and mounts their base image and overlay', { retry: 0 }, async (test) => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-webworker-packed-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-webworker-packed-'))
   const links: string[] = []
   let pending: Promise<string> = Promise.resolve('')
   test.onTestFinished(async () => {
@@ -45,7 +45,7 @@ it('loads both tarballs through plain Node and mounts their base image and overl
   await writeFile(join(root, 'package.json'), JSON.stringify({ private: true, type: 'module' }))
   for (const name of packages) {
     const source = join(experimentalDirectory, name)
-    const directory = join(root, 'node_modules/@deepseek-ai', `dsh-experimental-${name}`)
+    const directory = join(root, 'node_modules/@deepseek-ai', `mwf-experimental-${name}`)
     const packRoot = join(root, name)
     await mkdir(packRoot, { recursive: true })
     await mkdir(directory, { recursive: true })
@@ -73,22 +73,22 @@ it('loads both tarballs through plain Node and mounts their base image and overl
     import assert from 'node:assert/strict'
     import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
     import { fileURLToPath } from 'node:url'
-    import * as packer from '@deepseek-ai/dsh-experimental-webworker-packer'
-    import * as runtime from '@deepseek-ai/dsh-experimental-webworker-runtime'
-    import * as client from '@deepseek-ai/dsh-experimental-webworker-runtime/client'
-    import { sessionFormatCatalog } from '@deepseek-ai/dsh-session-format-catalog'
+    import * as packer from '@metaworkflow/experimental-webworker-packer'
+    import * as runtime from '@metaworkflow/experimental-webworker-runtime'
+    import * as client from '@metaworkflow/experimental-webworker-runtime/client'
+    import { sessionFormatCatalog } from '@metaworkflow/session-format-catalog'
     for (const name of ['webworker-packer', 'webworker-runtime']) {
-      assert.equal(import.meta.resolve('@deepseek-ai/dsh-experimental-' + name),
-        new URL('./node_modules/@deepseek-ai/dsh-experimental-' + name + '/lib/index.js', import.meta.url).href)
+      assert.equal(import.meta.resolve('@metaworkflow/experimental-' + name),
+        new URL('./node_modules/@metaworkflow/experimental-' + name + '/lib/index.js', import.meta.url).href)
     }
     assert.equal(typeof client.connectWorkerHost, 'function')
-    const worker = fileURLToPath(import.meta.resolve('@deepseek-ai/dsh-experimental-webworker-runtime/worker'))
+    const worker = fileURLToPath(import.meta.resolve('@metaworkflow/experimental-webworker-runtime/worker'))
     assert.ok(existsSync(worker))
     assert.equal(readFileSync(worker, 'utf8').match(/^import[ \\t]/m), null)
     const base = packer.packVfsImage({ profile: 'packed-consumer', roster: [], workspaces: new Map(), resolveFrom: process.cwd(), entries: [] })
     assert.deepEqual(base.missing, [])
     mkdirSync('subject/lib', { recursive: true })
-    const subject = '@deepseek-ai/dsh-image-export-fixture'
+    const subject = '@metaworkflow/image-export-fixture'
     writeFileSync('subject/package.json', JSON.stringify({ name: subject, files: ['lib'], exports: {
       '.': { default: './lib/index.js' }, './types': { types: './lib/index.d.ts' },
     } }))
@@ -105,19 +105,19 @@ it('loads both tarballs through plain Node and mounts their base image and overl
     assert.throws(() => packer.packVfsImage(typedOptions),
       error => error instanceof Error && error.message.includes('does not export "./types"'))
     const vfs = runtime.loadVfsImage(await runtime.inflateImage(base.image, 'packed base'))
-    assert.ok(vfs.existsSync('/dsh/' + packer.MANIFEST_PATH))
+    assert.ok(vfs.existsSync('/mwf/' + packer.MANIFEST_PATH))
     mkdirSync('overlay')
     writeFileSync('overlay/hello.txt', 'packed worker pair\\n')
     const overlay = packer.packVfsOverlay([{ mount: 'workspace', directory: fileURLToPath(new URL('./overlay', import.meta.url)) }])
-    runtime.loadVfsOverlay(await runtime.inflateImage(overlay.image, 'packed overlay'), '/dsh', vfs)
-    assert.equal(vfs.readFileSync('/dsh/workspace/hello.txt', 'utf8'), 'packed worker pair\\n')
+    runtime.loadVfsOverlay(await runtime.inflateImage(overlay.image, 'packed overlay'), '/mwf', vfs)
+    assert.equal(vfs.readFileSync('/mwf/workspace/hello.txt', 'utf8'), 'packed worker pair\\n')
     mkdirSync('home/sessions/project/preview', { recursive: true })
     const historical = JSON.stringify({ type: 'session', version: 3, id: 'preview', createdAt: 1, isSeeded: false, delegationDepth: 0 }) + '\\n'
     writeFileSync('home/sessions/project/preview/session.v3.jsonl', historical)
     const prepared = packer.packPreviewFixture([{ mount: 'home', directory: fileURLToPath(new URL('./home', import.meta.url)) }])
-    runtime.loadVfsOverlay(await runtime.inflateImage(prepared.image, 'prepared preview'), '/dsh', vfs)
-    assert.equal(vfs.readFileSync('/dsh/home/sessions/project/preview/session.v3.jsonl', 'utf8'), historical)
-    const current = JSON.parse(vfs.readFileSync('/dsh/home/sessions/project/preview/session.v' + sessionFormatCatalog.currentVersion + '.jsonl', 'utf8'))
+    runtime.loadVfsOverlay(await runtime.inflateImage(prepared.image, 'prepared preview'), '/mwf', vfs)
+    assert.equal(vfs.readFileSync('/mwf/home/sessions/project/preview/session.v3.jsonl', 'utf8'), historical)
+    const current = JSON.parse(vfs.readFileSync('/mwf/home/sessions/project/preview/session.v' + sessionFormatCatalog.currentVersion + '.jsonl', 'utf8'))
     assert.equal(current.version, sessionFormatCatalog.currentVersion)
     console.log('packed image and overlay mounted')
   `

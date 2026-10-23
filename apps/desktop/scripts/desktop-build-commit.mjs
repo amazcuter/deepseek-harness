@@ -10,10 +10,10 @@
 import { execFileSync } from 'node:child_process'
 
 /** Environment variable that carries the packaged commit. */
-export const DESKTOP_BUILD_COMMIT_ENV = 'DSH_DESKTOP_BUILD_COMMIT'
+export const DESKTOP_BUILD_COMMIT_ENV = 'MWF_DESKTOP_BUILD_COMMIT'
 
 /** Environment variable that records whether the packaged checkout had uncommitted changes. */
-export const DESKTOP_BUILD_DIRTY_ENV = 'DSH_DESKTOP_BUILD_DIRTY'
+export const DESKTOP_BUILD_DIRTY_ENV = 'MWF_DESKTOP_BUILD_DIRTY'
 
 /**
  * Read the checkout's current commit and whether it carries uncommitted changes.

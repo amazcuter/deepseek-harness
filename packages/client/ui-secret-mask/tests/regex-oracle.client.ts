@@ -3,7 +3,7 @@
  * an equivalence oracle for the prefix-pruned matcher. Not product code. It
  * joins every overlapping match, including later matches of the same format.
  */
-import type { UserTextRule } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextRule } from '@metaworkflow/client-ui-conversation/client'
 import type {} from '../src/client/secret-rule.ts'
 
 const MASK = '*'

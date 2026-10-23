@@ -7,7 +7,7 @@ length by default, each with fresh processes and private Blender user directorie
 
 Measure complete JSONL request/reply time and time through Blender's observed
 full-text equality. Startup, focus, hashing and cleanup are excluded; observer
-publication/polling is included in verification latency. This bypasses DSH/model
+publication/polling is included in verification latency. This bypasses MWF/model
 overhead and the TypeScript request timeout. Raw samples have no speed threshold
 or RSS claim. Protocol frames and fixture state are bounded and retained privately.
 
@@ -118,7 +118,7 @@ def run_sample(args, label, repeat, length, artifacts, summary, deadline):
     summary["samples"].append(sample)
     owned = []
     state_path = None
-    with tempfile.TemporaryDirectory(prefix="dsh-cua-text-input-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="mwf-cua-text-input-") as temporary:
         work = Path(temporary)
         token = uuid.uuid4().hex
         state_path = work / "state.json"
@@ -274,7 +274,7 @@ def main():
                "timeoutsSeconds": {key: getattr(args, key) for key in ["startup_timeout", "event_timeout", "request_timeout", "timeout"]},
                "measurement": {"request": "perf_counter_ns before complete JSONL write through validated complete response",
                                "textVerified": "same request start through Blender observer full-text equality",
-                               "excluded": "startup, focus, hashing, cleanup, DSH/model/network overhead",
+                               "excluded": "startup, focus, hashing, cleanup, MWF/model/network overhead",
                                "observer": "50 ms publication with fsync; 25 ms polling, included in verification latency",
                                "order": "200 then 2000 scalars; reference then candidate per repetition; fresh processes each sample",
                                "memory": "1 MiB request and 32 MiB response caps; bounded fixture event history; no RSS measurement",

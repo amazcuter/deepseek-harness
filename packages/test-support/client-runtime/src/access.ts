@@ -7,15 +7,15 @@
  * install an allow-all service and `useRemoteAccess` Hook instead, and
  * hand-built component props spread {@link allowAllAccess}; a spec of a
  * refused path overrides one Hook.
- * @module @deepseek-ai/dsh-client-test-runtime/src/access
+ * @module @metaworkflow/client-test-runtime/src/access
  */
 
 import type { Context } from '@deepseek-ai/cordis'
-import type { ClientRemoteAccess } from '@deepseek-ai/dsh-api-remote-access/client'
-import type { GlobalStandardProps, HostObservable, SessionStandardProps } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-session/client'
-import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
+import type { ClientRemoteAccess } from '@metaworkflow/api-remote-access/client'
+import type { GlobalStandardProps, HostObservable, SessionStandardProps } from '@metaworkflow/client-ui-slots'
+import type {} from '@metaworkflow/client-ui-renderer/client'
+import type {} from '@metaworkflow/client-ui-session/client'
+import type {} from '@metaworkflow/client-ui-workspace/client'
 
 /** The access Hooks every Slot component receives. */
 export type AccessStandardProps =

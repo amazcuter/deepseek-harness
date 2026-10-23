@@ -15,7 +15,7 @@ Clients that pin tool names, benchmark prompt size, or count model requests must
 
 ## Migration
 
-1. Accept the new defaults, or place this patch in `$DSH_HOME/profiles/sdk-minimal/cordis.patch.yml` to retain the previous default tools and disable automatic compaction:
+1. Accept the new defaults, or place this patch in `$MWF_HOME/profiles/sdk-minimal/cordis.patch.yml` to retain the previous default tools and disable automatic compaction:
 
 ```yaml
 - id: tool-fs

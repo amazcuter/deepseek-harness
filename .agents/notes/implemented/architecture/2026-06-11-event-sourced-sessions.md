@@ -23,6 +23,6 @@ Ordering contract: the loop claims inbox messages before `agent/pre-step`, opens
 ## Consequences
 
 - Replay, trace, and telemetry are structurally guaranteed, not bolted on.
-- Persistence stays a plugin concern; the in-memory store ships in dsh-session.
+- Persistence stays a plugin concern; the in-memory store ships in mwf-session.
 - The event vocabulary is merge-extensible (plugins add e.g. compaction events); [session persistence](../../../../packages/session/session-persistence/README.md) froze its shape once the log became durable.
-- Derivation cost grows with log length — compaction (dsh-compaction) is the intended mitigation, not log mutation.
+- Derivation cost grows with log length — compaction (mwf-compaction) is the intended mitigation, not log mutation.

@@ -1,9 +1,9 @@
 ---
-description: "The shell executor's settings page on the dsh web client's Plugins page: the command timeout and the per-stream output cap of the shell namespace."
+description: "The shell executor's settings page on the mwf web client's Plugins page: the command timeout and the per-stream output cap of the shell namespace."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-settings-shell
+# @metaworkflow/client-ui-settings-shell
 
 English | [中文](README.zh.md)
 

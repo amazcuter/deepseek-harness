@@ -1,14 +1,14 @@
-/** Plugin dsh requirement checks prefer engines.dsh, retain exact mismatches, and never inherit exemption entries. */
+/** Plugin mwf requirement checks prefer engines.mwf, retain exact mismatches, and never inherit exemption entries. */
 
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import semver from 'semver'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { evaluatePluginCompatibility, getDshRuntimeVersion, pluginCompatibilityWarning } from '../src/plugin-compatibility.ts'
+import { evaluatePluginCompatibility, getMwfRuntimeVersion, pluginCompatibilityWarning } from '../src/plugin-compatibility.ts'
 
 const runtime = '0.1.7-alpha.1'
 const identity = { name: '@example/plugin', version: '2.0.0' }
-const incompatible = { ...identity, peerDependencies: { '@deepseek-ai/dsh': '^0.2.0' } }
+const incompatible = { ...identity, peerDependencies: { '@metaworkflow/cli': '^0.2.0' } }
 
 function check(peerDependencies: object) {
   return evaluatePluginCompatibility({ ...identity, peerDependencies }, {}, runtime)
@@ -16,11 +16,11 @@ function check(peerDependencies: object) {
 
 afterEach(() => vi.restoreAllMocks())
 
-describe('dsh runtime version', () => {
+describe('mwf runtime version', () => {
   it('reads the exact version with a string path accepted by executable virtual filesystems', () => {
     const { version: expected } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
     const read = vi.spyOn(fs, 'readFileSync')
-    expect(getDshRuntimeVersion()).toBe(expected)
+    expect(getMwfRuntimeVersion()).toBe(expected)
     expect(semver.valid(expected)).not.toBeNull()
     expect(read).toHaveBeenCalledWith(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')
   })
@@ -28,67 +28,67 @@ describe('dsh runtime version', () => {
   it.each([{}, { version: null }, { version: 1 }, { version: '' }, { version: 'not-semver' }])(
     'rejects an invalid or absent package version: %j', (manifest) => {
       vi.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(manifest))
-      expect(() => getDshRuntimeVersion()).toThrow('Invalid dsh runtime version')
+      expect(() => getMwfRuntimeVersion()).toThrow('Invalid mwf runtime version')
     },
   )
 
   it.each(['null', '[]', '1', '"text"'])('rejects non-object package JSON: %s', (contents) => {
     vi.spyOn(fs, 'readFileSync').mockReturnValueOnce(contents)
-    expect(() => getDshRuntimeVersion()).toThrow('app-boot package.json must be an object')
+    expect(() => getMwfRuntimeVersion()).toThrow('app-boot package.json must be an object')
   })
 
   it('propagates malformed JSON and read failures', () => {
     const read = vi.spyOn(fs, 'readFileSync').mockReturnValueOnce('{')
-    expect(() => getDshRuntimeVersion()).toThrow(SyntaxError)
+    expect(() => getMwfRuntimeVersion()).toThrow(SyntaxError)
     read.mockImplementationOnce(() => { throw new Error('manifest unavailable') })
-    expect(() => getDshRuntimeVersion()).toThrow('manifest unavailable')
+    expect(() => getMwfRuntimeVersion()).toThrow('manifest unavailable')
   })
 })
 
 describe('plugin compatibility', () => {
   it('defaults to the installed runtime and needs no identity without mismatches', () => {
     expect(evaluatePluginCompatibility({})).toBeUndefined()
-    expect(evaluatePluginCompatibility({ peerDependencies: { '@deepseek-ai/dsh': getDshRuntimeVersion() } })).toBeUndefined()
+    expect(evaluatePluginCompatibility({ peerDependencies: { '@metaworkflow/cli': getMwfRuntimeVersion() } })).toBeUndefined()
     expect(check({})).toBeUndefined()
   })
 
   it.each(['*', '^0.1.0', '~0.1.0', '>=0.1.0 <0.2.0', '0.1.x', '0.1.0 - 0.1.9', '^0.2.0 || ^0.1.0', runtime])(
     'includes prereleases in supported semver range %s', (range) => {
-      expect(check({ '@deepseek-ai/dsh': range, '@deepseek-ai/dsh-session': range })).toBeUndefined()
+      expect(check({ '@metaworkflow/cli': range, '@metaworkflow/session': range })).toBeUndefined()
     },
   )
 
   it.each(['workspace:^', 'workspace:~', 'workspace:*'])('uses the source runtime for %s', (range) => {
-    expect(check({ '@deepseek-ai/dsh-session': range })).toBeUndefined()
+    expect(check({ '@metaworkflow/session': range })).toBeUndefined()
   })
 
-  it('checks the intersection of dsh requirements and returns only mismatches', () => {
+  it('checks the intersection of mwf requirements and returns only mismatches', () => {
     expect(check({
-      '@deepseek-ai/dsh': '^0.1.0',
-      '@deepseek-ai/dsh-session': '>=0.2.0',
-      '@deepseek-ai/dsh-tools': '<0.1.0',
+      '@metaworkflow/cli': '^0.1.0',
+      '@metaworkflow/session': '>=0.2.0',
+      '@metaworkflow/tools': '<0.1.0',
       '@deepseek-ai/cordis': '^99.0.0',
     })).toEqual({
       ...identity,
       runtimeVersion: runtime,
-      requirements: { '@deepseek-ai/dsh-session': '>=0.2.0', '@deepseek-ai/dsh-tools': '<0.1.0' },
+      requirements: { '@metaworkflow/session': '>=0.2.0', '@metaworkflow/tools': '<0.1.0' },
       exempted: false,
     })
   })
 
-  it.each(['^0.2.0', '>=0.1.7', 'broken', '', ' ', 'workspace:>=0.2.0', 'file:../dsh', 'npm:dsh@*'])(
+  it.each(['^0.2.0', '>=0.1.7', 'broken', '', ' ', 'workspace:>=0.2.0', 'file:../mwf', 'npm:mwf@*'])(
     'fails closed for an incompatible or malformed range %j', (range) => {
-      expect(check({ '@deepseek-ai/dsh': range })?.requirements).toEqual({ '@deepseek-ai/dsh': range })
+      expect(check({ '@metaworkflow/cli': range })?.requirements).toEqual({ '@metaworkflow/cli': range })
     },
   )
 
   it('ignores unrelated names and dependency fields', () => {
     expect(check({
       '@deepseek-ai/cordis': 'broken', '@deepseek-ai/cordis-plugin-loader': '^99',
-      '@other/dsh': '^99', '@deepseek-ai/dshx': '^99', dsh: '^99',
+      '@other/mwf': '^99', '@deepseek-ai/mwfx': '^99', mwf: '^99',
       constructor: '^99', hasOwnProperty: '^99', ['__proto__']: '^99',
     })).toBeUndefined()
-    expect(evaluatePluginCompatibility({ dependencies: { '@deepseek-ai/dsh': '^99' } }, {}, runtime)).toBeUndefined()
+    expect(evaluatePluginCompatibility({ dependencies: { '@metaworkflow/cli': '^99' } }, {}, runtime)).toBeUndefined()
   })
 
   it.each([null, [], 'bad', 1, false, undefined])('rejects malformed peerDependencies: %j', (peerDependencies) => {
@@ -96,7 +96,7 @@ describe('plugin compatibility', () => {
   })
 
   it.each([null, [], {}, 1, false, undefined])('rejects non-string peer ranges: %j', (range) => {
-    for (const name of ['@deepseek-ai/dsh', '@deepseek-ai/cordis']) {
+    for (const name of ['@metaworkflow/cli', '@deepseek-ai/cordis']) {
       expect(() => check({ [name]: range })).toThrow(`peerDependencies[${JSON.stringify(name)}] must be a string`)
     }
   })
@@ -116,11 +116,11 @@ describe('plugin compatibility', () => {
   it('ignores inherited peer declarations and inherited peer entries', () => {
     expect(evaluatePluginCompatibility(Object.create(incompatible) as object, {}, runtime)).toBeUndefined()
     expect(check(Object.create(incompatible.peerDependencies) as object)).toBeUndefined()
-    expect(check(Object.assign(Object.create({ '@deepseek-ai/dsh': '^99' }) as object, { '@deepseek-ai/dsh-session': '*' }))).toBeUndefined()
+    expect(check(Object.assign(Object.create({ '@metaworkflow/cli': '^99' }) as object, { '@metaworkflow/session': '*' }))).toBeUndefined()
   })
 
   it('rejects an invalid explicit runtime even when no peers are declared', () => {
-    expect(() => evaluatePluginCompatibility({}, {}, 'invalid')).toThrow('Invalid dsh runtime version')
+    expect(() => evaluatePluginCompatibility({}, {}, 'invalid')).toThrow('Invalid mwf runtime version')
   })
 
   it('rejects array plugin manifests', () => {
@@ -128,11 +128,11 @@ describe('plugin compatibility', () => {
   })
 })
 
-describe('engines.dsh', () => {
-  const failingPeers = { '@deepseek-ai/dsh': '^0.2.0' }
-  const passingPeers = { '@deepseek-ai/dsh': '*' }
-  function engines(dsh: unknown, peerDependencies: object = {}) {
-    return evaluatePluginCompatibility({ ...identity, engines: { dsh }, peerDependencies }, {}, runtime)
+describe('engines.mwf', () => {
+  const failingPeers = { '@metaworkflow/cli': '^0.2.0' }
+  const passingPeers = { '@metaworkflow/cli': '*' }
+  function engines(mwf: unknown, peerDependencies: object = {}) {
+    return evaluatePluginCompatibility({ ...identity, engines: { mwf }, peerDependencies }, {}, runtime)
   }
 
   it.each(['^0.1.0', '>=0.1.7-alpha.0', '0.1.x', runtime])('decides alone when satisfied by %s, ignoring failing peers', (range) => {
@@ -141,36 +141,36 @@ describe('engines.dsh', () => {
 
   it('decides alone when unsatisfied, ignoring passing peers', () => {
     expect(engines('^0.2.0', passingPeers)).toEqual({
-      ...identity, runtimeVersion: runtime, requirements: { 'engines.dsh': '^0.2.0' }, exempted: false,
+      ...identity, runtimeVersion: runtime, requirements: { 'engines.mwf': '^0.2.0' }, exempted: false,
     })
   })
 
   it.each(['', ' ', 'broken', 'workspace:^', 'workspace:*', 'workspace:~'])('treats %j as an unmet range', (range) => {
-    expect(engines(range, passingPeers)?.requirements).toEqual({ 'engines.dsh': range })
+    expect(engines(range, passingPeers)?.requirements).toEqual({ 'engines.mwf': range })
   })
 
   it.each([null, [], 'bad', 1, false, undefined])('rejects malformed engines: %j', (value) => {
     expect(() => evaluatePluginCompatibility({ ...identity, engines: value }, {}, runtime)).toThrow('Plugin manifest engines must be an object')
   })
 
-  it.each([null, [], {}, 1, false, undefined])('rejects a non-string engines.dsh: %j', (value) => {
-    expect(() => engines(value, passingPeers)).toThrow('Plugin manifest engines.dsh must be a string')
+  it.each([null, [], {}, 1, false, undefined])('rejects a non-string engines.mwf: %j', (value) => {
+    expect(() => engines(value, passingPeers)).toThrow('Plugin manifest engines.mwf must be a string')
   })
 
-  it('falls back to peers when engines has no own dsh member', () => {
-    const inherited = Object.create({ dsh: '*' }) as object
+  it('falls back to peers when engines has no own mwf member', () => {
+    const inherited = Object.create({ mwf: '*' }) as object
     for (const value of [{}, { node: '>=99' }, inherited]) {
       expect(evaluatePluginCompatibility({ ...identity, engines: value, peerDependencies: failingPeers }, {}, runtime)?.requirements)
         .toEqual(failingPeers)
       expect(evaluatePluginCompatibility({ ...identity, engines: value, peerDependencies: passingPeers }, {}, runtime)).toBeUndefined()
     }
-    expect(evaluatePluginCompatibility(Object.create({ engines: { dsh: '^0.2.0' } }) as object, {}, runtime)).toBeUndefined()
+    expect(evaluatePluginCompatibility(Object.create({ engines: { mwf: '^0.2.0' } }) as object, {}, runtime)).toBeUndefined()
   })
 
   it('applies exact-version exemptions to an engines mismatch', () => {
-    const manifest = { ...identity, engines: { dsh: '^0.2.0' } }
+    const manifest = { ...identity, engines: { mwf: '^0.2.0' } }
     expect(evaluatePluginCompatibility(manifest, { '@example/plugin@2.0.0': [runtime] }, runtime)).toMatchObject({
-      requirements: { 'engines.dsh': '^0.2.0' }, exempted: true,
+      requirements: { 'engines.mwf': '^0.2.0' }, exempted: true,
     })
   })
 })
@@ -203,7 +203,7 @@ describe('exact-version exemptions', () => {
   })
 
   it('does not produce issues for compatible exempted plugins', () => {
-    expect(evaluatePluginCompatibility({ ...identity, peerDependencies: { '@deepseek-ai/dsh': '*' } }, exemptions, runtime)).toBeUndefined()
+    expect(evaluatePluginCompatibility({ ...identity, peerDependencies: { '@metaworkflow/cli': '*' } }, exemptions, runtime)).toBeUndefined()
   })
 })
 
@@ -211,14 +211,14 @@ describe('compatibility warning', () => {
   it.each([false, true])('retains mismatch details and risk when exemption status is %s', (exempted) => {
     expect(pluginCompatibilityWarning({
       ...identity, runtimeVersion: runtime,
-      requirements: { '@deepseek-ai/dsh': '^0.2.0', '@deepseek-ai/dsh-session': 'broken' }, exempted,
+      requirements: { '@metaworkflow/cli': '^0.2.0', '@metaworkflow/session': 'broken' }, exempted,
     })).toBe(
-      'Plugin @example/plugin@2.0.0 is incompatible with dsh 0.1.7-alpha.1: '
-      + 'requirements {"@deepseek-ai/dsh":"^0.2.0","@deepseek-ai/dsh-session":"broken"}. '
+      'Plugin @example/plugin@2.0.0 is incompatible with mwf 0.1.7-alpha.1: '
+      + 'requirements {"@metaworkflow/cli":"^0.2.0","@metaworkflow/session":"broken"}. '
       + 'Running it may cause crashes or data loss. '
-      + 'Update the plugin or install a plugin version compatible with this dsh runtime. '
-      + 'To accept this risk explicitly, grant the exact-version exemption for @example/plugin@2.0.0 on dsh 0.1.7-alpha.1 '
-      + 'with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. '
+      + 'Update the plugin or install a plugin version compatible with this mwf runtime. '
+      + 'To accept this risk explicitly, grant the exact-version exemption for @example/plugin@2.0.0 on mwf 0.1.7-alpha.1 '
+      + 'with `mwf plugin allow-version` or the plugin manager, then retry the installation or restart mwf. '
       + `Exact-version exemption: ${exempted ? 'active' : 'not active'}.`,
     )
   })

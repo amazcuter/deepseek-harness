@@ -9,7 +9,7 @@
  * fixed condition order, extension probing, and one cache keyed by resolved
  * absolute path. Module bodies are wrapped as the image holds them: lowering is
  * the packer's job, so nothing here parses JavaScript.
- * @module @deepseek-ai/dsh-experimental-webworker-runtime/src/module-system/module-loader
+ * @module @metaworkflow/experimental-webworker-runtime/src/module-system/module-loader
  */
 import { createAlsRuntime, type AlsCausality, type AlsRuntime } from '../polyfill/async-context/als-runtime.ts'
 import { createCascadedLoader, type CascadedLoader } from '../node/internal_modules/esm-loader.ts'
@@ -138,7 +138,7 @@ export class WorkerModuleLoader {
 
   constructor(options: WorkerModuleLoaderOptions) {
     this.vfs = options.vfs
-    this.root = options.root ?? '/dsh'
+    this.root = options.root ?? '/mwf'
     // A Map, not the record itself: a specifier that names an Object prototype
     // member must miss the table the way any other unregistered name does.
     this.staticModules = new Map(Object.entries(options.staticModules))

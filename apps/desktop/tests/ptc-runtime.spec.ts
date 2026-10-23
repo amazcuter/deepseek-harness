@@ -18,7 +18,7 @@ vi.setConfig({ hookTimeout: 30_000 })
 // Desktop's downloaded Electron binary is not installed by ordinary workspace dependency setup.
 it.skipIf(process.platform !== 'darwin' || !electronInstalled).each(['workspace-write', 'danger-full-access'] as const)('runs PTC writes under Electron with %s', { timeout: 120_000 }, async (mode) => {
   const electron = require('electron') as string
-  const root = await mkdtemp(join(homedir(), '.dsh-electron-ptc-'))
+  const root = await mkdtemp(join(homedir(), '.mwf-electron-ptc-'))
   const ctx = new Context()
   onTestFinished(async () => {
     try { await ctx.fiber.dispose() } finally {
@@ -29,7 +29,7 @@ it.skipIf(process.platform !== 'darwin' || !electronInstalled).each(['workspace-
   const cwd = join(root, 'workspace')
   await mkdir(cwd)
   vi.stubEnv('ELECTRON_RUN_AS_NODE', '1')
-  vi.stubEnv('DSH_TEST_RUNTIME_SECRET', 'must-not-inherit')
+  vi.stubEnv('MWF_TEST_RUNTIME_SECRET', 'must-not-inherit')
   const { runtime } = await mountRuntime(ctx, { launch: { kind: 'node-script', executable: electron } }, { mode, workspaceRoot: cwd })
   const result = await runtime.run(runtime.resolve({
     // Bound startup failure before the outer test deadline, leaving time for managed cleanup.

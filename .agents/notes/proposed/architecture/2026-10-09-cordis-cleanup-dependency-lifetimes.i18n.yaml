@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/architecture/2026-10-09-cordis-cleanup-dependency-lifetimes.md
 /agent-note-keep-cleanup-dependencies-usable-until-consumers-finish:
-  en: 5697ed719fc785dc
-  zh: 6752482fc87287bd
+  en: aa6ea3d2ffd9c3d4
+  zh: 7a3eef309a63a191
 /agent-note-keep-cleanup-dependencies-usable-until-consumers-finish/problem:
   en: 8097f1f18de77ada
   zh: 6ac996a2e319b376
@@ -15,8 +15,8 @@
   en: 630ab3bad5d44193
   zh: 71d3ba982c6f9a42
 /agent-note-keep-cleanup-dependencies-usable-until-consumers-finish/p0-findings/session-persistence-drops-events-emitted-during-cleanup:
-  en: 347916370af3b6b2
-  zh: 39b1da819efc1ef9
+  en: c8db28c370d10e22
+  zh: 51df1a3de3637241
 /agent-note-keep-cleanup-dependencies-usable-until-consumers-finish/p0-findings/storage-closes-before-schedule-commits-accepted-delivery:
   en: 8a9578bbc700c0bf
   zh: 8ee46e5ef1cf3972
@@ -30,8 +30,8 @@
   en: faa50d48dca589c5
   zh: a9e651ccff96ae31
 /agent-note-keep-cleanup-dependencies-usable-until-consumers-finish/scope-and-existing-decisions:
-  en: 8cf4a670022dcb47
-  zh: 0611538847281f9a
+  en: bbf0388ca766eea3
+  zh: aaa1328c78e895ec
 /agent-note-keep-cleanup-dependencies-usable-until-consumers-finish/alternatives-considered:
   en: 383a83fd09d3fe0d
   zh: cf55505415b6f197

@@ -19,7 +19,7 @@ describe.skipIf(process.platform === 'win32')('packed-install npm cache', () => 
   it.each(['success', 'install failure', 'entry failure'] as const)(
     'owns cache writes and removes them after %s',
     (outcome) => {
-      const directory = mkdtempSync(join(tmpdir(), 'dsh-packed-cache-test-'))
+      const directory = mkdtempSync(join(tmpdir(), 'mwf-packed-cache-test-'))
       roots.push(directory)
       const source = join(directory, 'package')
       const packed = join(directory, 'packed')
@@ -43,11 +43,11 @@ fs.writeFileSync(process.env.CACHE_EVIDENCE, JSON.stringify({ consumer, files })
       writeFileSync(join(source, 'probe.cjs'), probe + (outcome === 'install failure' ? '\nprocess.exit(37)\n' : ''))
       writeFileSync(join(source, 'lib/bin.js'), outcome === 'entry failure' ? 'process.exit(37)\n' : 'console.log("0.0.1")\n')
       writeFileSync(join(source, 'package.json'), JSON.stringify({
-        name: '@deepseek-ai/dsh',
+        name: '@metaworkflow/cli',
         version: '0.0.1',
         scripts: { postinstall: 'node probe.cjs' },
       }))
-      const archive = spawnSync('tar', ['-czf', join(packed, 'dsh.tgz'), '-C', directory, 'package'], { encoding: 'utf8', timeout: 30_000 })
+      const archive = spawnSync('tar', ['-czf', join(packed, 'mwf.tgz'), '-C', directory, 'package'], { encoding: 'utf8', timeout: 30_000 })
       expect(archive.error).toBeUndefined()
       expect(archive.signal).toBeNull()
       expect(archive.status, archive.stderr).toBe(0)
@@ -63,14 +63,14 @@ fs.writeFileSync(process.env.CACHE_EVIDENCE, JSON.stringify({ consumer, files })
         TEMP: temporary,
       })
       const result = spawnSync(process.execPath, [
-        '--import', 'tsx', 'scripts/release/verify-packed-install.ts', '--family', 'dsh', '--from', packed,
+        '--import', 'tsx', 'scripts/release/verify-packed-install.ts', '--family', 'mwf', '--from', packed,
       ], { cwd: root, env: environment, encoding: 'utf8', timeout: 120_000 })
       expect(result.error).toBeUndefined()
       expect(result.signal).toBeNull()
       expect(result.status, result.stdout + result.stderr).toBe(outcome === 'success' ? 0 : 1)
       const observation = JSON.parse(readFileSync(evidence, 'utf8')) as { consumer: string; files: string[] }
       expect(observation.files.length, 'npm must write tarball content into the consumer-private cache').toBeGreaterThan(0)
-      expect(observation.consumer).toContain('dsh-packed-dsh-')
+      expect(observation.consumer).toContain('mwf-packed-mwf-')
       expect(existsSync(observation.consumer), 'the verifier finally must remove its consumer and cache').toBe(false)
       expect(readdirSync(ambient)).toEqual(['sentinel'])
       expect(readFileSync(join(ambient, 'sentinel'), 'utf8')).toBe('ambient cache must survive\n')

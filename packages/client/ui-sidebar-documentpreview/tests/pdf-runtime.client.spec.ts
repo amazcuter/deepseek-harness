@@ -25,7 +25,7 @@ class ControlledWorker extends EventTarget {
     super()
     workers.push(this)
   }
-  ready(): void { this.dispatchEvent(new MessageEvent('message', { data: { type: 'dsh-pdf-worker-ready' } })) }
+  ready(): void { this.dispatchEvent(new MessageEvent('message', { data: { type: 'mwf-pdf-worker-ready' } })) }
 }
 
 beforeEach(() => {
@@ -69,7 +69,7 @@ function setup(controller = new AbortController(), failed = vi.fn()) {
 describe('PDF Worker lifecycle', () => {
   it('starts a real module-worker port before calling getDocument with complete bytes and local assets', async () => {
     const h = setup()
-    expect(workers[0]!.options).toEqual({ type: 'module', name: 'dsh-pdf' })
+    expect(workers[0]!.options).toEqual({ type: 'module', name: 'mwf-pdf' })
     expect(api.getDocument).not.toHaveBeenCalled()
     workers[0]!.ready()
     const options = await h.entered.promise as { data: Uint8Array<ArrayBuffer>; BinaryDataFactory: unknown }

@@ -72,7 +72,7 @@ function saveRecord(directory: string, record: PersistenceReleaseRecord): void {
 }
 
 function fixture(): Fixture {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-persistence-releases-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-persistence-releases-'))
   temporary.push(root)
   const directory = join(root, 'docs/persistence-changes/releases')
   mkdirSync(directory, { recursive: true })

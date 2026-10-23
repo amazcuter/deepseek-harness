@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-ptc-runtime-node",
+  "name": "@metaworkflow/ptc-runtime-node",
   "description": "Node PTC execution with per-call sandboxed processes or in-memory REPL state",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -35,30 +35,30 @@
   "license": "MIT",
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-ptc-runtime": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/dsh-fs": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*"
+    "@metaworkflow/ptc-runtime": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/timeout": "workspace:*",
+    "@metaworkflow/fs": "workspace:*",
+    "@metaworkflow/subprocess": "workspace:*",
+    "@metaworkflow/sandbox": "workspace:*",
+    "@metaworkflow/sandbox-policy": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-util-values": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*",
     "@deepseek-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-ptc-runtime": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/dsh-fs": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-fs-local": "workspace:*",
-    "@deepseek-ai/dsh-subprocess-local": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-local": "workspace:*"
+    "@metaworkflow/ptc-runtime": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/timeout": "workspace:*",
+    "@metaworkflow/fs": "workspace:*",
+    "@metaworkflow/subprocess": "workspace:*",
+    "@metaworkflow/sandbox": "workspace:*",
+    "@metaworkflow/sandbox-policy": "workspace:*",
+    "@metaworkflow/fs-local": "workspace:*",
+    "@metaworkflow/subprocess-local": "workspace:*",
+    "@metaworkflow/session-projection": "workspace:*",
+    "@metaworkflow/sandbox-local": "workspace:*"
   }
 }

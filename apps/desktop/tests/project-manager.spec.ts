@@ -4,12 +4,12 @@ import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { resolveDesktopPaths } from '../src/paths.ts'
 import { DesktopProjectManager } from '../src/project-manager.ts'
-import { readProfilePlugins } from '@deepseek-ai/dsh-app-boot'
+import { readProfilePlugins } from '@metaworkflow/app-boot'
 import { runtimeFixture } from './runtime-fixture.ts'
 
 const roots: string[] = []
 function temporaryRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-desktop-test-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-desktop-test-'))
   roots.push(root)
   return root
 }
@@ -17,26 +17,26 @@ function seedPlugin(manager: DesktopProjectManager): void {
   const path = join(manager.paths.profile, 'package.json')
   const manifest = JSON.parse(readFileSync(path, 'utf8')) as {
     dependencies: Record<string, string>
-    dsh: { profile: { bundles: string[] } }
+    mwf: { profile: { bundles: string[] } }
   }
   manifest.dependencies.plugin = '1.0.0'
-  manifest.dsh.profile.bundles.push('plugin')
+  manifest.mwf.profile.bundles.push('plugin')
   writeFileSync(path, JSON.stringify(manifest))
   const directory = join(manager.paths.profile, 'node_modules/plugin')
   mkdirSync(directory, { recursive: true })
-  writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: 'plugin', version: '1.0.0', dsh: { bundle: { patch: 'bundle.yml' } } }))
+  writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: 'plugin', version: '1.0.0', mwf: { bundle: { patch: 'bundle.yml' } } }))
   writeFileSync(join(directory, 'bundle.yml'), '[]\n')
 }
 function plugins(manager: DesktopProjectManager) {
-  return readProfilePlugins({ binName: 'dsh', profileDir: manager.paths.profile,
-    installAnchor: join(manager.runtime.dsh, 'node_modules/@deepseek-ai/dsh/package.json') }).dependencies
+  return readProfilePlugins({ binName: 'mwf', profileDir: manager.paths.profile,
+    installAnchor: join(manager.runtime.mwf, 'node_modules/@metaworkflow/cli/package.json') }).dependencies
     .map(({ name, version, enabled }) => ({ name, version, enabled }))
 }
 function setup(): { root: string; manager: DesktopProjectManager } {
   const root = temporaryRoot()
-  const dsh = join(root, 'resources', 'dsh')
-  runtimeFixture(dsh)
-  return { root, manager: new DesktopProjectManager(resolveDesktopPaths(join(root, '.dsh')), { dsh }) }
+  const mwf = join(root, 'resources', 'mwf')
+  runtimeFixture(mwf)
+  return { root, manager: new DesktopProjectManager(resolveDesktopPaths(join(root, '.mwf')), { mwf }) }
 }
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true })
@@ -48,7 +48,7 @@ describe('desktop external plugin profile', () => {
     await manager.applyRelease()
     seedPlugin(manager)
     const profile = manager.paths.profile
-    const name = '@deepseek-ai/dsh-web-app'
+    const name = '@metaworkflow/web-app'
     const path = join(profile, 'node_modules', name)
     mkdirSync(path, { recursive: true })
     writeFileSync(join(path, 'package.json'), JSON.stringify({ name, version: '1.0.0' }))
@@ -95,8 +95,8 @@ describe('desktop external plugin profile', () => {
     unlinkSync(patch)
     await manager.disableAllPlugins()
     expect((JSON.parse(readFileSync(join(manager.paths.profile, 'package.json'), 'utf8')) as {
-      dsh: { profile: { bundles: string[] } }
-    }).dsh.profile.bundles).not.toContain('plugin')
+      mwf: { profile: { bundles: string[] } }
+    }).mwf.profile.bundles).not.toContain('plugin')
     expect(existsSync(join(manager.paths.profile, 'node_modules/plugin/package.json'))).toBe(true)
     await expect(manager.applyRelease()).resolves.toBeUndefined()
   })
@@ -107,7 +107,7 @@ describe('desktop external plugin profile', () => {
     seedPlugin(manager)
     const patch = join(manager.paths.profile, 'cordis.patch.yml')
     writeFileSync(patch, ': broken')
-    const uninitialized = new DesktopProjectManager(manager.paths, { ...manager.runtime, dsh: 'missing-runtime' })
+    const uninitialized = new DesktopProjectManager(manager.paths, { ...manager.runtime, mwf: 'missing-runtime' })
     const backupPath = await uninitialized.disableAllPlugins()
     expect(existsSync(patch)).toBe(false)
     const backups = readdirSync(manager.paths.profile).filter(name => name.startsWith('cordis.patch.yml.bak-'))
@@ -117,11 +117,11 @@ describe('desktop external plugin profile', () => {
     expect(existsSync(join(manager.paths.profile, 'node_modules/plugin/package.json'))).toBe(true)
     const manifest = JSON.parse(readFileSync(join(manager.paths.profile, 'package.json'), 'utf8')) as {
       dependencies: Record<string, string>
-      dsh: { profile: { bundles: string[] } }
+      mwf: { profile: { bundles: string[] } }
     }
     expect(manifest.dependencies.plugin).toBe('1.0.0')
-    expect(manifest.dsh.profile.bundles).not.toContain('plugin')
-    expect(manifest.dsh.profile.bundles).toContain('@deepseek-ai/dsh-web-app')
+    expect(manifest.mwf.profile.bundles).not.toContain('plugin')
+    expect(manifest.mwf.profile.bundles).toContain('@metaworkflow/web-app')
     await manager.applyRelease()
     expect(readFileSync(patch, 'utf8')).toContain('[]')
   })
@@ -159,7 +159,7 @@ describe('desktop external plugin profile', () => {
     await manager.applyRelease()
     const path = join(target, 'pnpm-workspace.yaml')
     const defaults = readFileSync(path, 'utf8')
-    writeFileSync(path, `${defaults}strictDepBuilds: true\nallowBuilds:\n  node-pty: true\n  koffi: true\n  fs-ext: true\n  "@deepseek-ai/dsh-subprocess-local": true\n  '@google/genai': false\n  protobufjs: false\n  node-addon-require-builtin: false\n`)
+    writeFileSync(path, `${defaults}strictDepBuilds: true\nallowBuilds:\n  node-pty: true\n  koffi: true\n  fs-ext: true\n  "@metaworkflow/subprocess-local": true\n  '@google/genai': false\n  protobufjs: false\n  node-addon-require-builtin: false\n`)
     await manager.applyRelease()
     expect(readFileSync(path, 'utf8')).toBe(defaults)
     const custom = `${defaults}allowBuilds:\n  my-plugin: true\n`
@@ -170,7 +170,7 @@ describe('desktop external plugin profile', () => {
 
   it('reports damaged application metadata as a reinstall failure', async () => {
     const { manager } = setup()
-    writeFileSync(join(manager.runtime.dsh, 'desktop-runtime.json'), '{broken')
+    writeFileSync(join(manager.runtime.mwf, 'desktop-runtime.json'), '{broken')
     await expect(manager.applyRelease()).rejects.toThrow()
   })
 
@@ -197,16 +197,16 @@ describe('desktop external plugin profile', () => {
   it.skipIf(process.platform !== 'win32')('reuses the profile when the launch path changes only Windows letter casing', async () => {
     const { manager } = setup()
     await manager.applyRelease()
-    const relaunched = new DesktopProjectManager(manager.paths, { ...manager.runtime, dsh: manager.runtime.dsh.toUpperCase() })
+    const relaunched = new DesktopProjectManager(manager.paths, { ...manager.runtime, mwf: manager.runtime.mwf.toUpperCase() })
     await expect(relaunched.applyRelease()).resolves.toBeUndefined()
   })
 
   it.each(['changed', 'same-size', 'extra', 'missing'])('starts and reuses a profile without checking %s runtime bytes', async (operation) => {
     const { manager } = setup()
-    if (operation === 'changed') writeFileSync(join(manager.runtime.dsh, 'package.json'), '{}')
-    if (operation === 'same-size') writeFileSync(join(manager.runtime.dsh, 'package.json'), '{"type":"Module"}\n')
-    if (operation === 'extra') writeFileSync(join(manager.runtime.dsh, 'extra'), '')
-    if (operation === 'missing') unlinkSync(join(manager.runtime.dsh, 'package.json'))
+    if (operation === 'changed') writeFileSync(join(manager.runtime.mwf, 'package.json'), '{}')
+    if (operation === 'same-size') writeFileSync(join(manager.runtime.mwf, 'package.json'), '{"type":"Module"}\n')
+    if (operation === 'extra') writeFileSync(join(manager.runtime.mwf, 'extra'), '')
+    if (operation === 'missing') unlinkSync(join(manager.runtime.mwf, 'package.json'))
     await expect(manager.applyRelease()).resolves.toBeUndefined()
     const relaunched = new DesktopProjectManager(manager.paths, manager.runtime)
     await expect(relaunched.applyRelease()).resolves.toBeUndefined()
@@ -218,9 +218,9 @@ describe('desktop external plugin profile', () => {
     await manager.applyRelease()
     seedPlugin(manager)
     writeFileSync(join(manager.paths.profile, 'cordis.patch.yml'), '[]\n')
-    const nextRoot = join(root, 'relocated', 'dsh')
+    const nextRoot = join(root, 'relocated', 'mwf')
     runtimeFixture(nextRoot, '1.1.0')
-    const next = new DesktopProjectManager(manager.paths, { ...manager.runtime, dsh: nextRoot })
+    const next = new DesktopProjectManager(manager.paths, { ...manager.runtime, mwf: nextRoot })
     await expect(next.applyRelease()).resolves.toBeUndefined()
     expect(plugins(next)).toEqual(plugins(manager))
     expect(readFileSync(join(manager.paths.profile, 'cordis.patch.yml'), 'utf8')).toBe('[]\n')
@@ -231,9 +231,9 @@ describe('desktop external plugin profile', () => {
     const { root, manager } = setup()
     await manager.applyRelease()
     seedPlugin(manager)
-    const dsh = join(root, 'new-node')
-    runtimeFixture(dsh, '1.1.0', '24.18.0')
-    const next = new DesktopProjectManager(manager.paths, { ...manager.runtime, dsh })
+    const mwf = join(root, 'new-node')
+    runtimeFixture(mwf, '1.1.0', '24.18.0')
+    const next = new DesktopProjectManager(manager.paths, { ...manager.runtime, mwf })
     await next.applyRelease()
     expect(plugins(next)).toEqual([{ name: 'plugin', version: '1.0.0', enabled: true }])
   })
@@ -242,9 +242,9 @@ describe('desktop external plugin profile', () => {
     const { root, manager } = setup()
     await manager.applyRelease()
     seedPlugin(manager)
-    const dsh = join(root, 'next-major')
-    runtimeFixture(dsh, '2.0.0')
-    const next = new DesktopProjectManager(manager.paths, { ...manager.runtime, dsh })
+    const mwf = join(root, 'next-major')
+    runtimeFixture(mwf, '2.0.0')
+    const next = new DesktopProjectManager(manager.paths, { ...manager.runtime, mwf })
     await expect(next.applyRelease()).resolves.toBeUndefined()
     await next.disableAllPlugins()
     expect(plugins(next)).toEqual([{ name: 'plugin', version: '1.0.0', enabled: false }])
@@ -311,21 +311,21 @@ describe.each(['applyRelease', 'disableAllPlugins'] as const)('desktop profile l
 })
 
 describe('desktop link-backend projections', () => {
-  it('removes .dsh-module-fallback projections when preparing a launch', async () => {
+  it('removes .mwf-module-fallback projections when preparing a launch', async () => {
     const { manager } = setup()
     await manager.applyRelease()
     const profile = manager.paths.profile
     const target = join(profile, 'node_modules', 'my-bundle', 'node_modules', 'bridge')
     mkdirSync(target, { recursive: true })
     writeFileSync(join(target, 'package.json'), JSON.stringify({ name: 'bridge', version: '1.0.0' }))
-    const owned = join(profile, '.dsh-module-fallback', 'node_modules', 'bridge')
+    const owned = join(profile, '.mwf-module-fallback', 'node_modules', 'bridge')
     mkdirSync(dirname(owned), { recursive: true })
     symlinkSync(target, owned, process.platform === 'win32' ? 'junction' : 'dir')
     symlinkSync(owned, join(profile, 'node_modules', 'bridge'), process.platform === 'win32' ? 'junction' : 'dir')
 
     await manager.applyRelease()
 
-    expect(existsSync(join(profile, '.dsh-module-fallback'))).toBe(false)
+    expect(existsSync(join(profile, '.mwf-module-fallback'))).toBe(false)
     expect(lstatSync(join(profile, 'node_modules', 'bridge'), { throwIfNoEntry: false })).toBeUndefined()
     expect(existsSync(join(target, 'package.json'))).toBe(true)
   })

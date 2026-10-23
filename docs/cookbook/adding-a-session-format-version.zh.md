@@ -37,7 +37,7 @@
 
 按照包检查清单为 N→N+1 创建库，而非挂载插件。恒等正文转换仅是最初的接线骨架。[V2 到 V3 规范](../../packages/session/session-format-v2-to-v3/README.zh.md#v2-to-v3-specification)是明确转换与保留规则的固定示例，而不是可继续扩展或视为恒等转换的迁移边。
 
-在 manifest（元数据清单）中声明 `dsh.sessionFormatMigration`，包含数值 `from: N` 和 `to: N+1`、导出路径，以及导出的迁移、源 codec、目标 codec、目标 header 校验器和目标恢复器。复用前一条迁移边所属包导出的源 codec，并依赖该包；不要复制或重新定义已发布 codec。从新包导出目标 codec 和校验器。将迁移边加入 catalog 的直接依赖，并添加工作区的 TypeScript 路径与项目引用。
+在 manifest（元数据清单）中声明 `mwf.sessionFormatMigration`，包含数值 `from: N` 和 `to: N+1`、导出路径，以及导出的迁移、源 codec、目标 codec、目标 header 校验器和目标恢复器。复用前一条迁移边所属包导出的源 codec，并依赖该包；不要复制或重新定义已发布 codec。从新包导出目标 codec 和校验器。将迁移边加入 catalog 的直接依赖，并添加工作区的 TypeScript 路径与项目引用。
 
 在添加新迁移边声明的同时，将[核心 Session 类型](../../packages/core/session/src/types.ts)中的 `SESSION_FORMAT_VERSION` 设为 N+1，然后生成 catalog。下面的命令只生成已声明的迁移链；它不会实现新版本：
 
@@ -121,13 +121,13 @@ git diff --check
 <a id="v4-corpus-trial"></a>
 ### 开发者 V4 日志集试迁移
 
-在已安装依赖、写入器为 V4 的贡献者工作区中使用这个一次性[迁移脚本](../../scripts/migrate-sessions-to-v4.ts)。开始前停止使用目标根目录的 DSH 进程，避免写入锁及变化中的子日志阻止迁移。在仓库根目录运行：
+在已安装依赖、写入器为 V4 的贡献者工作区中使用这个一次性[迁移脚本](../../scripts/migrate-sessions-to-v4.ts)。开始前停止使用目标根目录的 MWF 进程，避免写入锁及变化中的子日志阻止迁移。在仓库根目录运行：
 
 ```sh
 pnpm run migrate:sessions-to-v4
 ```
 
-默认根目录是 `~/.dsh/sessions`。可用 `--sessions-dir /path/to/sessions-copy` 指定其他日志集，或用 `--help` 查看用法。默认并发数取可用 CPU 数且最多为 16；`--jobs N` 接受任意正安全整数，专家用户可指定更大的值，`--jobs 1` 则串行运行。有界队列只同时打开指定数量的 Session，不随日志集大小增加。每个历史 Session 都通过正常的加锁、校验和发布流程，在未修改的源文件旁创建 V4 后继。已有 V4 Session 仅以只读方式打开；重复运行不会重新转换它们。脚本不发起模型请求，也不改变转换或拒绝规则。
+默认根目录是 `~/.mwf/sessions`。可用 `--sessions-dir /path/to/sessions-copy` 指定其他日志集，或用 `--help` 查看用法。默认并发数取可用 CPU 数且最多为 16；`--jobs N` 接受任意正安全整数，专家用户可指定更大的值，`--jobs 1` 则串行运行。有界队列只同时打开指定数量的 Session，不随日志集大小增加。每个历史 Session 都通过正常的加锁、校验和发布流程，在未修改的源文件旁创建 V4 后继。已有 V4 Session 仅以只读方式打开；重复运行不会重新转换它们。脚本不发起模型请求，也不改变转换或拒绝规则。
 
 终端逐个报告 Session 选中的文件、版本、进度、结果和耗时。单个错误不会阻止后续 Session。最终摘要列出全部失败项及系统临时目录中的完整诊断日志；存在任何失败时返回非零退出状态。同时打印 JSON，并把相同报告保存为 `migration.log` 旁的 `summary.json`：包含按源版本和结果统计的数量、失败原因分组、逐项诊断、运行时信息和两份报告路径。已知诊断提取事件类型、非预期字段、是否涉及子日志及序号；未知错误保留消息，不推断原因。报告迁移问题时，请附上这些报告。本次转换成功的 Session 与运行前已为 V4 的 Session 分开统计。
 

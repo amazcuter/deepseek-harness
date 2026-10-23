@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { parse } from 'semver'
-import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
-import { getDshRuntimeVersion } from './plugin-compatibility.ts'
+import { withFileLock, writeFileAtomic } from '@metaworkflow/atomic-write'
+import { getMwfRuntimeVersion } from './plugin-compatibility.ts'
 
 /** Independent profile metadata; neither package manifests nor Cordis patches carry grants. */
 export const PROFILE_COMPATIBILITY_FILENAME = 'compatibility.json'
@@ -12,7 +12,7 @@ export const PROFILE_COMPATIBILITY_FILENAME = 'compatibility.json'
 /** Published and scoped npm package names, as npm accepts them in a manifest dependency key. */
 const PACKAGE_NAME = /^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/
 
-/** Whether a decoded record accepts only exact DSH versions. */
+/** Whether a decoded record accepts only exact MWF versions. */
 function isVersionList(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(version => typeof version === 'string' && isExactPluginVersion(version))
 }
@@ -28,20 +28,20 @@ export function isExactPluginVersion(value: string): boolean {
 
 /** Validate one explicit exemption without granting it.
  * @param packageVersion Exact npm package-name@version, never an installation spec or range.
- * @param runtimeVersion Exact DSH version, including prerelease and build metadata.
+ * @param runtimeVersion Exact MWF version, including prerelease and build metadata.
  * @throws When either identity is not canonical.
  */
 export function validatePluginVersionExemption(packageVersion: string, runtimeVersion: string): void {
   const separator = packageVersion.lastIndexOf('@')
   if (separator <= 0 || !PACKAGE_NAME.test(packageVersion.slice(0, separator))
     || !isExactPluginVersion(packageVersion.slice(separator + 1)) || !isExactPluginVersion(runtimeVersion)) {
-    throw new Error('Version exemptions require an exact npm package-name@version and an exact DSH runtime version')
+    throw new Error('Version exemptions require an exact npm package-name@version and an exact MWF runtime version')
   }
 }
 
 /** What one profile's compatibility file currently authorizes, and what is wrong with it. */
 export interface ProfileCompatibility {
-  /** Accepted exact package-name@version keys mapped to their allowed DSH versions. */
+  /** Accepted exact package-name@version keys mapped to their allowed MWF versions. */
   readonly exemptions: Record<string, string[]>
   /** Human-readable problems; empty when every record was accepted. */
   readonly warnings: string[]
@@ -73,7 +73,7 @@ export function readProfileCompatibility(profileDir: string): ProfileCompatibili
   try { value = JSON.parse(text) }
   catch (error) { return unreadable(`is not valid JSON (${String(error)})`) }
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    return unreadable('must map exact package@version keys to DSH version lists')
+    return unreadable('must map exact package@version keys to MWF version lists')
   }
   const exemptions: Record<string, string[]> = {}
   const warnings: string[] = []
@@ -84,7 +84,7 @@ export function readProfileCompatibility(profileDir: string): ProfileCompatibili
       continue
     }
     if (!isVersionList(versions)) {
-      warnings.push(`${filename}: ${key} must contain a list of exact DSH versions; the record is ignored`)
+      warnings.push(`${filename}: ${key} must contain a list of exact MWF versions; the record is ignored`)
       continue
     }
     exemptions[key] = versions
@@ -94,7 +94,7 @@ export function readProfileCompatibility(profileDir: string): ProfileCompatibili
 
 /** Read only the accepted exemptions of a profile.
  * @param profileDir Absolute profile directory.
- * @returns Exact package-name@version keys mapped to their allowed DSH versions.
+ * @returns Exact package-name@version keys mapped to their allowed MWF versions.
  */
 export function readProfileVersionExemptions(profileDir: string): Record<string, string[]> {
   return readProfileCompatibility(profileDir).exemptions
@@ -103,7 +103,7 @@ export function readProfileVersionExemptions(profileDir: string): Record<string,
 /** Persist one informed grant or revocation under the compatibility file's own lock.
  * @param profileDir Profile directory; no package manifest is created or modified.
  * @param packageVersion Exact manifest package-name@version.
- * @param runtimeVersion Exact DSH version; grants must name the current runtime, revocations may name historical ones.
+ * @param runtimeVersion Exact MWF version; grants must name the current runtime, revocations may name historical ones.
  * @param enabled Whether to grant rather than revoke.
  * @param acceptRisk Required true for grants after explicit acknowledgement of possible crashes or data loss.
  * @returns After the atomic write. Existing plugin instances are not reloaded by this operation.
@@ -117,9 +117,9 @@ export async function setProfileVersionExemption(
   if (enabled && !acceptRisk) {
     throw new Error('Incompatible plugins may cause crashes or data loss. To grant this exact-version exemption, explicitly acknowledge the risk with --accept-risk (acceptRisk: true).')
   }
-  const current = getDshRuntimeVersion()
+  const current = getMwfRuntimeVersion()
   if (enabled && runtimeVersion !== current) {
-    throw new Error(`Cannot approve DSH ${runtimeVersion}: this application runs DSH ${current}. Use --dsh-version ${current}.`)
+    throw new Error(`Cannot approve MWF ${runtimeVersion}: this application runs MWF ${current}. Use --mwf-version ${current}.`)
   }
   await mkdir(profileDir, { recursive: true })
   const filename = join(profileDir, PROFILE_COMPATIBILITY_FILENAME)

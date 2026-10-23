@@ -25,7 +25,7 @@ describe('web e2e: repairs a stored provider after catalog drift', () => {
   let tripwire: ReturnType<typeof watchConsole>
 
   beforeAll(async () => {
-    home = await mkdtemp(join(tmpdir(), 'dsh-models-recovery-'))
+    home = await mkdtemp(join(tmpdir(), 'mwf-models-recovery-'))
     await mkdir(join(home, 'profiles', 'scaffold'), { recursive: true })
     await writeFile(join(home, 'profiles', 'scaffold', 'cordis.patch.yml'), [
       '- id: llm-pi-ai', '  config:', '    providers:', '      openrouter:', '        models:',

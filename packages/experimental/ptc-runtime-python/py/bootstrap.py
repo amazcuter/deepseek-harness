@@ -1,4 +1,4 @@
-"""CPython bootstrap for dsh-ptc-runtime-python.
+"""CPython bootstrap for mwf-ptc-runtime-python.
 
 Reads a :class:`BootMessage` on fd 3, applies resource limits and log capture,
 reads a :class:`RunMessage`, runs the model program as the body of an async
@@ -1209,7 +1209,7 @@ async def _run(channel: ProtocolChannel) -> None:
     # interleaved with the run's own binding traffic.
     # The pump's frame reader is bound here, before the program runs: the
     # pump itself starts AFTER the program's top-level statements (no suspension
-    # point between create_task and `await __dsh_main__`), so a body-local
+    # point between create_task and `await __mwf_main__`), so a body-local
     # `channel.read_frame_async` lookup would resolve a rebound class method.
     pump_read = channel.read_frame_async
     reply_task = asyncio.get_event_loop().create_task(
@@ -1361,7 +1361,7 @@ async def _run(channel: ProtocolChannel) -> None:
         # syntax diagnostics.
         module = ast.parse(program, filename="<model>")
         wrapper = ast.AsyncFunctionDef(
-            name="__dsh_main__",
+            name="__mwf_main__",
             args=ast.arguments(
                 posonlyargs=[], args=[], vararg=None,
                 kwonlyargs=[], kw_defaults=[], kwarg=None, defaults=[],
@@ -1381,8 +1381,8 @@ async def _run(channel: ProtocolChannel) -> None:
         # would otherwise stringify the program's type annotations, changing the
         # semantics of a legal program that reads `f.__annotations__` at runtime.
         code = compile(wrapped, "<model>", "exec", dont_inherit=True)
-        exec(code, ns)  # noqa: S102 -- defines __dsh_main__; executing model code is the point
-        value = await ns["__dsh_main__"]()
+        exec(code, ns)  # noqa: S102 -- defines __mwf_main__; executing model code is the point
+        value = await ns["__mwf_main__"]()
         die_if_cpu_exhausted(cpu_seconds, report_cpu_timeout)
         # Flush the log buffers BEFORE metering and framing the completion value.
         # `_done_with_value` materializes the value's escaped JSON form to meter
@@ -1453,7 +1453,7 @@ async def _pump_replies(
     # = ...` (or `__main__._BindingRejection`, `__main__.str`, `__main__.bool`)
     # as a program top-level statement would otherwise rebind the module globals
     # these clauses resolve at runtime. A body-local `X = X` binding is too late:
-    # `_run` reaches `await __dsh_main__` (whose top-level statements run first)
+    # `_run` reaches `await __mwf_main__` (whose top-level statements run first)
     # with no suspension point after `create_task`, so the model's rebind executes
     # before the pump body. Defaults are evaluated in the enclosing scope at def
     # time, truly before the program.
@@ -2425,7 +2425,7 @@ def _model_traceback(exc: BaseException, max_bytes: int) -> str:
         else:
             yield from traceback.format_exception_only(type(exc), exc)
         if truncated:
-            yield f"[dsh-ptc-runtime-python] exception chain truncated at {_MAX_TRACEBACK_CHAIN} links\n"
+            yield f"[mwf-ptc-runtime-python] exception chain truncated at {_MAX_TRACEBACK_CHAIN} links\n"
 
     return _join_bounded(emit(), max_bytes)
 

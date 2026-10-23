@@ -3,13 +3,13 @@ description: "The file-backed credentials provider for users and maintainers cho
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-credentials-local
+# @metaworkflow/credentials-local
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-credentials-local` keeps API keys and other secrets in a private file under your harness home. You can save credentials through the configuration UI or edit the file directly; changes reload automatically and saved values survive restarts. Credential lookup follows a fixed precedence: the stored file wins, followed by the launch environment, the project's `.env`, and the harness-home `.env`; a newly saved value immediately overrides older environment values. Only your OS user can read the file, but agent tool processes run as that same user, so this store cannot isolate secrets from the agent.
+`mwf-credentials-local` keeps API keys and other secrets in a private file under your harness home. You can save credentials through the configuration UI or edit the file directly; changes reload automatically and saved values survive restarts. Credential lookup follows a fixed precedence: the stored file wins, followed by the launch environment, the project's `.env`, and the harness-home `.env`; a newly saved value immediately overrides older environment values. Only your OS user can read the file, but agent tool processes run as that same user, so this store cannot isolate secrets from the agent.
 
 ## Table of Contents
 
@@ -34,7 +34,7 @@ Use it as the default local store: the product's base composition loads it, and 
 ### Setting it up
 
 ```yaml
-- name: '@deepseek-ai/dsh-credentials-local'
+- name: '@metaworkflow/credentials-local'
   config:
     path: /absolute/path/to/.credentials.yaml
 ```
@@ -42,11 +42,11 @@ Use it as the default local store: the product's base composition loads it, and 
 | Field | Default | Meaning |
 |---|---|---|
 | `path` | `<harness home>/.credentials.yaml` | Where the credential file lives |
-| `dshHome` | `$DSH_HOME` or `~/.dsh` | Harness home used when `path` is omitted |
+| `mwfHome` | `$MWF_HOME` or `~/.mwf` | Harness home used when `path` is omitted |
 | `watch` | `true` | Reload the file automatically when it changes on disk |
 | `debounceMs` | `100` | Wait this long after a change before reloading, in milliseconds |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-credentials-local) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowcredentials-local) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Storing and removing keys
 
@@ -54,7 +54,7 @@ Save a key with `set`, remove it with `unset`, and check whether a key is config
 
 ```ts
 import type { Context } from '@deepseek-ai/cordis'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
+import { credentialRef } from '@metaworkflow/credentials'
 
 declare const ctx: Context
 
@@ -73,11 +73,11 @@ Keys are resolved in one fixed order — the first place that has a value wins:
 | Place | Writable? | Wins over |
 |---|---|---|
 | The stored file | yes (`set`/`unset`) | everything |
-| The environment you launched in (`DEEPSEEK_API_KEY=… dsh`) | not here | both `.env` files |
+| The environment you launched in (`DEEPSEEK_API_KEY=… mwf`) | not here | both `.env` files |
 | Your project's `.env` (`<invocation cwd>/.env`) | not here | your home `.env` |
-| Your home `.env` (`$DSH_HOME/.env`) | not here | nothing |
+| Your home `.env` (`$MWF_HOME/.env`) | not here | nothing |
 
-The stored file wins because a credential explicitly saved through the product must take effect consistently for every provider ([decision](../../../.agents/notes/implemented/architecture/2026-10-09-stored-credential-precedence.md)). The launching environment — `DEEPSEEK_API_KEY=… dsh`, a CI secret, or a container `-e` — is the fallback when no stored value exists; a project `.env` then outranks the harness-home `.env`. A save always writes the winning layer, so `describe` reports `writable: true` for every reference, and its `source` names the place that currently supplies the value. The environment layer is the launcher's snapshot taken at launch ([environment snapshot](../../util/launch-environment/README.md)), so a variable exported after startup is not seen.
+The stored file wins because a credential explicitly saved through the product must take effect consistently for every provider ([decision](../../../.agents/notes/implemented/architecture/2026-10-09-stored-credential-precedence.md)). The launching environment — `DEEPSEEK_API_KEY=… mwf`, a CI secret, or a container `-e` — is the fallback when no stored value exists; a project `.env` then outranks the harness-home `.env`. A save always writes the winning layer, so `describe` reports `writable: true` for every reference, and its `source` names the place that currently supplies the value. The environment layer is the launcher's snapshot taken at launch ([environment snapshot](../../util/launch-environment/README.md)), so a variable exported after startup is not seen.
 
 ### The credential file
 
@@ -198,7 +198,7 @@ These limits define when the provider is a poor fit or needs special operational
 - **Same-reference concurrent writes are last-write-wins** — the writer lock and the read-modify-write keep concurrent writers from dropping each other's entries, but two writers editing one reference still resolve to the later write; there is no revision check.
 - **A same-UID process can read the document** — the file-effect sandbox modes do not deny reads, and an OS-keychain provider is deferred.
 - **Environment changes are invisible** — the snapshot is frozen at launch, so a variable exported after startup reaches neither resolution nor `describe`; changing an environment-sourced credential takes a restart.
-- **Atomic, not crash-durable** — inherited from `dsh-atomic-write`; the store re-reads on boot.
+- **Atomic, not crash-durable** — inherited from `mwf-atomic-write`; the store re-reads on boot.
 
 <a id="dev-note"></a>
 ### Dev Note

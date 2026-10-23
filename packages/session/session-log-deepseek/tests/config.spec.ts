@@ -15,7 +15,7 @@ describe('session-log upload configuration', () => {
     { lane: 'empty snapshot marker', vitest: undefined, snapshot: '', enabled: true },
   ])('defaults upload for $lane and honors explicit overrides', async ({ vitest, snapshot, enabled }) => {
     vi.stubEnv('VITEST', vitest)
-    vi.stubEnv('DSH_SNAPSHOT', snapshot)
+    vi.stubEnv('MWF_SNAPSHOT', snapshot)
     try {
       // Import under each environment to catch environment-dependent schema defaults.
       vi.resetModules()

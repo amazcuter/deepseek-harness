@@ -3,7 +3,7 @@ description: "让 shell 进程在多次工具调用之间保持运行。"
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-terminal-bundle
+# @metaworkflow/experimental-terminal-bundle
 
 [English](README.md) | 中文
 

@@ -8,11 +8,11 @@ import { prepareWindowsSignatureCacheDirectory, resolveWindowsSignatureCacheDire
 
 it.skipIf(process.platform !== 'win32')('resolves an account cache independently of checkout and LocalAppData virtualization', () => {
   expect(resolveWindowsSignatureCacheDirectory({ LOCALAPPDATA: 'C:\\Users\\build\\AppData\\Local' }))
-    .toBe(join(homedir(), '.dsh-desktop-signing', 'signature-cache', 'v1'))
+    .toBe(join(homedir(), '.mwf-desktop-signing', 'signature-cache', 'v1'))
 })
 
 it('accepts an explicit local cache directory', () => {
-  expect(resolveWindowsSignatureCacheDirectory({ DSH_DESKTOP_WINDOWS_SIGNATURE_CACHE_DIR: 'D:/private-cache' }))
+  expect(resolveWindowsSignatureCacheDirectory({ MWF_DESKTOP_WINDOWS_SIGNATURE_CACHE_DIR: 'D:/private-cache' }))
     .toBe('D:\\private-cache')
 })
 
@@ -27,7 +27,7 @@ it.skipIf(process.platform !== 'win32')('prepares storage when the inherited pro
 
 it.each(['', 'cache', 'C:cache', '\\cache', '\\\\server\\share', '\\\\?\\C:\\cache', 'C:\\cache:stream'])
 ('rejects unsupported cache path %j', (path) => {
-  expect(() => resolveWindowsSignatureCacheDirectory({ DSH_DESKTOP_WINDOWS_SIGNATURE_CACHE_DIR: path })).toThrow(/absolute local/u)
+  expect(() => resolveWindowsSignatureCacheDirectory({ MWF_DESKTOP_WINDOWS_SIGNATURE_CACHE_DIR: path })).toThrow(/absolute local/u)
 })
 
 it.skipIf(process.platform !== 'win32')('creates private storage and rejects linked or publicly readable cache roots', async (t) => {

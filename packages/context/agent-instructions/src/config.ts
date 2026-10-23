@@ -1,12 +1,12 @@
 /**
  * Configuration normalization for workspace instruction discovery and rendering.
  *
- * @module @deepseek-ai/dsh-agent-instructions/config
+ * @module @metaworkflow/agent-instructions/config
  */
 
 import { relative } from 'node:path'
 import z from '@deepseek-ai/schemastery'
-import { resolveAgentsHome, resolveDshHome } from '@deepseek-ai/dsh-home-paths'
+import { resolveAgentsHome, resolveMwfHome } from '@metaworkflow/home-paths'
 
 const DEFAULT_PROJECT_ROOT_MARKERS = ['.git'] as const
 const DEFAULT_INSTRUCTION_FILE_CANDIDATES = ['AGENTS.md', 'CLAUDE.md'] as const
@@ -44,7 +44,7 @@ export const Config: z<Config> = z.object({
 
 /** Normalized instruction discovery configuration. */
 export interface ResolvedDiscoveryConfig {
-  dshHome: string
+  mwfHome: string
   agentsHome: string
   projectRootMarkers: string[]
   instructionFileCandidates: string[]
@@ -103,19 +103,19 @@ export function resolveConfig(config: Config): ResolvedConfig {
  * Resolve the subset of configuration used before instruction content is rendered.
  *
  * The harness home comes from the process environment through
- * {@link resolveDshHome}; the row cannot point instruction loading at a second
+ * {@link resolveMwfHome}; the row cannot point instruction loading at a second
  * root that other harness consumers would not share. An owner that already
- * resolved the homes passes them as `dshHome` and `agentsHome`, which are
+ * resolved the homes passes them as `mwfHome` and `agentsHome`, which are
  * normalized here so discovery and reconciliation use the same values.
  * @param config - optional discovery controls plus the already-resolved homes.
  * @returns normalized home, root markers, and instruction candidates.
  */
 export function resolveDiscoveryConfig(
   config: Pick<Config, 'projectRootMarkers' | 'instructionFileCandidates' | 'localInstructionFileCandidates'>
-    & { dshHome?: string; agentsHome?: string },
+    & { mwfHome?: string; agentsHome?: string },
 ): ResolvedDiscoveryConfig {
   return {
-    dshHome: resolveDshHome(config.dshHome),
+    mwfHome: resolveMwfHome(config.mwfHome),
     agentsHome: resolveAgentsHome(config.agentsHome),
     projectRootMarkers: config.projectRootMarkers ?? [...DEFAULT_PROJECT_ROOT_MARKERS],
     instructionFileCandidates: resolveInstructionFileCandidates(

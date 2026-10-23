@@ -1,5 +1,5 @@
 /** Session-owned terminal discovery shared across view occurrences. */
-import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import type { RemoteResult } from '@metaworkflow/typert-protocol'
 import type { WebTerminalId, WebTerminalInfo } from '../types.ts'
 
 type Inventory = ReadonlyMap<WebTerminalId, WebTerminalInfo>

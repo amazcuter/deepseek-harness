@@ -1,7 +1,7 @@
 /** Generic invocation-owned values returned by synchronous Client Context resolvers. */
 
 /** Shared identity across independently bundled Context providers and Gateway. */
-export const TYPERT_OWNED_VALUE = Symbol.for('dsh.typert.owned-value')
+export const TYPERT_OWNED_VALUE = Symbol.for('mwf.typert.owned-value')
 
 /** A borrowed payload paired with the invocation owner's idempotent cleanup. */
 export interface TypertOwnedValue<Value> extends Disposable {

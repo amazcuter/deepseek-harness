@@ -23,13 +23,13 @@
   position: absolute;
   top: 4px;
   left: 4px;
-  width: calc((100% - 8px - 2px * (var(--dsh-segment-count) - 1)) / var(--dsh-segment-count));
+  width: calc((100% - 8px - 2px * (var(--mwf-segment-count) - 1)) / var(--mwf-segment-count));
   height: calc(100% - 8px);
   border: 0;
   border-radius: var(--dsw-radius-sm);
   background: var(--dsw-alias-bg-layer-1);
   box-shadow: var(--dsw-elevation-soft);
-  transform: translateX(calc(var(--dsh-segment-index) * (100% + 2px)));
+  transform: translateX(calc(var(--mwf-segment-index) * (100% + 2px)));
   transition: transform 160ms ease;
   pointer-events: none;
 }

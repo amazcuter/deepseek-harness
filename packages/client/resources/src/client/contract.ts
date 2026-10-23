@@ -2,11 +2,11 @@
  * The resource model's published face.
  *
  * A resource is one address, and a resource address is a
- * `dsh-resource://<type>/…` URL: the host names the protocol. The protocol's
+ * `mwf-resource://<type>/…` URL: the host names the protocol. The protocol's
  * owning client package registers one {@link ResourceProvider} that turns an
  * address into a frame stream, and any slot component reads that stream through
  * {@link UseResource}. A protocol that needs a scope (a session, a workspace)
- * encodes it in the path, as `dsh-resource://file/session/<sessionId>/<absolute
+ * encodes it in the path, as `mwf-resource://file/session/<sessionId>/<absolute
  * path>` does; the model itself knows only addresses. Addresses under any other
  * scheme (`sidebar://guide`) are navigation addresses and name no resource.
  * `ResourceProtocolMap` (declared
@@ -14,11 +14,11 @@
  * consumer names the protocol as a type argument and receives the owner's value
  * type without importing the owner's runtime.
  */
-import type { RemoteFailure, RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import type { ResourceProtocolMap } from '@deepseek-ai/dsh-client-ui-slots'
+import type { RemoteFailure, RemoteResult } from '@metaworkflow/typert-protocol'
+import type { ObservableSnapshot } from '@metaworkflow/client-store'
+import type { ResourceProtocolMap } from '@metaworkflow/client-ui-slots'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface GlobalStandardProps {
     /** Live value of one address, resolved through the provider registered for its protocol. */
     useResource: UseResource
@@ -77,7 +77,7 @@ export interface ResourceProvider<P extends ResourceProtocol> {
    * a failure frame marks the resource `failed` with its error and keeps the
    * last value. Ending the stream keeps the last state. A failure is always a
    * frame: a throw inside the stream is a programming error and is not caught.
-   * @param address - the full address, a `dsh-resource://<type>/…` URL.
+   * @param address - the full address, a `mwf-resource://<type>/…` URL.
    * @param ctx - the stream's abort signal.
    * @returns the frame stream; it must stop once `ctx.signal` aborts.
    */
@@ -100,7 +100,7 @@ export interface Resources {
   register<P extends ResourceProtocol>(provider: ResourceProvider<P>): () => void
   /**
    * Hold one resource open without subscribing to it.
-   * @param address - the full address, a `dsh-resource://<type>/…` URL.
+   * @param address - the full address, a `mwf-resource://<type>/…` URL.
    * @param signal - aborting it releases the pin; an already-aborted signal pins nothing.
    */
   pin(address: string, signal: AbortSignal): void
@@ -108,7 +108,7 @@ export interface Resources {
    * The live source of one resource. Reference-stable for one address while
    * the resource is held; the first subscriber or pin opens the provider's
    * stream, and a subscriber arriving later reads the latest value at once.
-   * @param address - the full address, a `dsh-resource://<type>/…` URL.
+   * @param address - the full address, a `mwf-resource://<type>/…` URL.
    * @returns the observable state; `getSnapshot` reads without holding the resource.
    */
   source(address: string): ObservableSnapshot<ResourceSnapshot<unknown>>

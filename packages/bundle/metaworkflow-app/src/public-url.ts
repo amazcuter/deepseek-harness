@@ -1,7 +1,7 @@
 /**
  * Canonical public HTTP(S) root parsing shared by this bundle's `publicUrl`
  * config and its CLI startup provider.
- * @module @deepseek-ai/dsh-metaworkflow-app/public-url
+ * @module @metaworkflow/app/public-url
  */
 
 /**

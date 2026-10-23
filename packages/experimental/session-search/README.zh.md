@@ -3,7 +3,7 @@ description: "为智能体提供搜索和读取当前工作区历史会话的工
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-session-search
+# @metaworkflow/experimental-session-search
 
 [English](README.md) | 中文
 

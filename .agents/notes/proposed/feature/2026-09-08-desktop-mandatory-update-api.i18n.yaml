@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-09-08-desktop-mandatory-update-api.md
 /agent-note-desktop-mandatory-update-api:
-  en: c0ea3f7826d8e253
-  zh: 89feec8209a54f26
+  en: a1b7e86b7f406820
+  zh: 43ec0961034396b6
 /agent-note-desktop-mandatory-update-api/problem:
   en: cc14e499c0f87586
   zh: 4cf849710b782d4b
 /agent-note-desktop-mandatory-update-api/proposal:
-  en: 264c54ffe91f3193
-  zh: 005512e1c498ccc1
+  en: 8ba24aaa11997098
+  zh: 8833e1ea57d37ff9
 /agent-note-desktop-mandatory-update-api/proposal/endpoint-and-access:
-  en: c9f53773a42e779e
-  zh: a50a6e98eb92c479
+  en: 55de539f41ed13e4
+  zh: 10750be7181efaad
 /agent-note-desktop-mandatory-update-api/proposal/request:
-  en: fb66b137a600f3a6
-  zh: 83f5c74a1716d57c
+  en: 058e2ccc975af0fb
+  zh: 7d6a35c44f11effd
 /agent-note-desktop-mandatory-update-api/proposal/no-mandatory-update:
   en: 4814b1bd7002d6ed
   zh: 3f0d77beb046e2fc
@@ -24,8 +24,8 @@
   en: d3ae240665143695
   zh: 486115cd2fdf35ed
 /agent-note-desktop-mandatory-update-api/proposal/errors-and-policy-matching:
-  en: ce7ab9adf3cbc840
-  zh: d6f9734ab54b8f33
+  en: 60eb9355f94dfe3d
+  zh: 35db3972e83dc652
 /agent-note-desktop-mandatory-update-api/proposal/policy-publication-and-current-decisions:
   en: d4d70e1541b2c2d1
   zh: a1b6e62a05b239be
@@ -33,11 +33,11 @@
   en: d176fc8d0eb355db
   zh: b9f60de3e4f0a3fc
 /agent-note-desktop-mandatory-update-api/alternatives-considered:
-  en: 1b69fd084869fb38
-  zh: 90efcd2484f5a175
+  en: a76def42c2613036
+  zh: 3560f556e176268b
 /agent-note-desktop-mandatory-update-api/acceptance-criteria:
-  en: 6708b52f0c474ca7
-  zh: 0ce9c9d3aa2e82c7
+  en: 7031b812a27fef32
+  zh: 0f83a0bccc79c8a2
 /agent-note-desktop-mandatory-update-api/risks:
   en: a5689674032b188e
   zh: 06b83a878fba55b3

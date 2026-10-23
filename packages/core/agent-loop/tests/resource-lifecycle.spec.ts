@@ -4,16 +4,16 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import { createUserMessage, ToolCallId } from '@deepseek-ai/dsh-llm'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import LocalJobRegistry from '@deepseek-ai/dsh-jobs-local'
-import * as SubagentSpawn from '@deepseek-ai/dsh-subagent-spawn-in-process'
-import * as ToolSubagent from '@deepseek-ai/dsh-tool-subagent'
+import type { Agent } from '@metaworkflow/agent'
+import AgentLoop from '@metaworkflow/agent-loop'
+import { mountAgentLoopTestDependencies } from '@metaworkflow/agent-loop-testkit'
+import { SessionId } from '@metaworkflow/session'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
+import { createUserMessage, ToolCallId } from '@metaworkflow/llm'
+import SubagentRuntime from '@metaworkflow/subagent'
+import LocalJobRegistry from '@metaworkflow/jobs-local'
+import * as SubagentSpawn from '@metaworkflow/subagent-spawn-in-process'
+import * as ToolSubagent from '@metaworkflow/tool-subagent'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
 
 it.each([0, 1, 2])('retains Agent resources until all work exits with %i failed teardowns', async (failures) => {
@@ -83,7 +83,7 @@ it.each([0, 1, 2])('retains Agent resources until all work exits with %i failed 
 it.each(['loop', 'root'] as const)('unloads %s while a background child is stopping', async (owner) => {
   const ctx = new Context()
   const release = Promise.withResolvers<undefined>()
-  const root = mkdtempSync(join(tmpdir(), 'dsh-resource-lifecycle-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-resource-lifecycle-'))
   onTestFinished(async () => {
     release.resolve(undefined)
     await ctx.fiber.dispose()

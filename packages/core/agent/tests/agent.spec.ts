@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { Context, Service, symbols } from '@deepseek-ai/cordis'
-import { Session, SessionId } from '@deepseek-ai/dsh-session'
-import AgentRegistry, { agentEvents } from '@deepseek-ai/dsh-agent'
-import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
+import { Session, SessionId } from '@metaworkflow/session'
+import AgentRegistry, { agentEvents } from '@metaworkflow/agent'
+import TypertRegistry from '@metaworkflow/typert-registry'
 
 import type {
   Agent,
@@ -11,7 +11,7 @@ import type {
   AgentStatus,
   CreateAgentOptions,
   ResumeAgentOptions,
-} from '@deepseek-ai/dsh-agent'
+} from '@metaworkflow/agent'
 
 function stubAgent(rawId: string, overrides: Partial<Agent> = {}): Agent {
   const id = SessionId(rawId)
@@ -52,8 +52,8 @@ describe('AgentRegistry', () => {
       parameter: 'agent',
       wire: 'agentId',
       resource: 'session',
-      hostTypeSymbol: '@deepseek-ai/dsh-agent#Agent',
-      wireTypeSymbol: '@deepseek-ai/dsh-session/types#SessionId',
+      hostTypeSymbol: '@metaworkflow/agent#Agent',
+      wireTypeSymbol: '@metaworkflow/session/types#SessionId',
     })
     expect(lookup?.resolve(agent.id)).toBe(agent)
     const context = ctx.typert.contexts.getHost('agent')

@@ -16,7 +16,7 @@ A new remote business capability is a new service — its own package or its own
 The subagent capability owns its own service, and every remote method is a concrete method of that service:
 
 ```ts ignore-check
-import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
+import { Remote, TypertRemoteService } from '@metaworkflow/typert-protocol'
 
 interface SubagentList { ids: string[] }
 interface PromptRequest { text: string }
@@ -57,7 +57,7 @@ One object then answers for both domains, so a change to either capability's act
 The generated map is the only source for Client-facing types, the decorator sits on the concrete method, and the payload stays JSON:
 
 ```ts ignore-check
-import { Remote, TypertRemoteService, type TypertClientRemote } from '@deepseek-ai/dsh-typert-protocol'
+import { Remote, TypertRemoteService, type TypertClientRemote } from '@metaworkflow/typert-protocol'
 
 // Client-facing types come from the generated map, never from a second hand-written set.
 type SessionRemote = TypertClientRemote['session']

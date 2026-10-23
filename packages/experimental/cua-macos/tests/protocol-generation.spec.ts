@@ -2,7 +2,7 @@
 import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
 import { renderNativeProtocol } from '../native/generate-protocol.ts'
-import { Request } from '@deepseek-ai/dsh-cua/protocol'
+import { Request } from '@metaworkflow/cua/protocol'
 
 describe('native protocol generation', () => {
   it('keeps native JSON Schema and Swift admission tables current', async () => {

@@ -6,11 +6,11 @@
         workflowEngine: true
       config:
         - id: optional-ralph-workflow
-          name: '@deepseek-ai/dsh-workflow-ptc'
+          name: '@metaworkflow/workflow-ptc'
           config:
             provider: spawn
         - id: tool-ralph
-          name: '@deepseek-ai/dsh-tool-ralph'
+          name: '@metaworkflow/tool-ralph'
           config:
             subagentProvider: spawn
             maxRounds: 64

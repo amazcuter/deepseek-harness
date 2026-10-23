@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-10-02-plugin-market-index-format.md
 /agent-note-plugin-market-index-format:
-  en: ee3515adb22d4af6
-  zh: 5dfd687255f64e95
+  en: 75ee0e0475b84053
+  zh: fc43e866e6819d51
 /agent-note-plugin-market-index-format/problem:
-  en: ce5e4a362f558af6
-  zh: 29d93e0655b99217
+  en: f7cea8eba4755f47
+  zh: 541f3e79458feb60
 /agent-note-plugin-market-index-format/decision:
-  en: 906ac925fc53dd87
-  zh: affcc405e186b0d7
+  en: 351a89612898159c
+  zh: 25832cf4a2eb1ea6
 /agent-note-plugin-market-index-format/decision/example:
-  en: 1b1c960c966cf912
-  zh: 97be87cb14893c26
+  en: a52bc2561b432176
+  zh: ff56fa910874540c
 /agent-note-plugin-market-index-format/decision/root-fields:
   en: 4fac5a9b8261342d
   zh: f9168a8a4209feab
@@ -21,26 +21,26 @@
   en: b79abd05a957948b
   zh: b6f0c203ea8e4838
 /agent-note-plugin-market-index-format/decision/version-fields:
-  en: d6c0fa99e1cbb068
-  zh: 3d2a7b85299c679a
+  en: 9993703232d1979e
+  zh: 282b0d3da7f81f60
 /agent-note-plugin-market-index-format/decision/install-arguments:
-  en: c748cdc4d8ce349a
-  zh: 5740fa0d6106e637
-/agent-note-plugin-market-index-format/decision/dsh-compatibility:
-  en: 00fe507b9b5dfea7
-  zh: 55de6aaeb3865e84
+  en: cdf8e41848de09d7
+  zh: a6b63a1b32612020
+/agent-note-plugin-market-index-format/decision/mwf-compatibility:
+  en: f80187a13600ae64
+  zh: 609cac740262d9dc
 /agent-note-plugin-market-index-format/decision/generator-obligations:
-  en: 923849223cb1e70e
-  zh: f3daf398bc06c81a
+  en: d1f1946d3d31b186
+  zh: 59259a6fff1f509c
 /agent-note-plugin-market-index-format/decision/reader-rules:
-  en: 92903cbe87d9c0ca
-  zh: 54af6cb33e9da252
+  en: f1445a8ec6e55615
+  zh: e11c003d0c56ec4b
 /agent-note-plugin-market-index-format/alternatives-considered:
-  en: 908407ed974101d2
-  zh: b4b7391c513bda60
+  en: 5cfec8ee118594b8
+  zh: e2944e04079c924e
 /agent-note-plugin-market-index-format/consequences:
-  en: 4aee5ff31901049a
-  zh: 8187b6216bb8b06b
+  en: f36fd3cec6773f45
+  zh: 49950a7dbd732020
 /agent-note-plugin-market-index-format/risks:
-  en: 41170d483b17df80
-  zh: 1bfd8f44e0f09036
+  en: 6aa036ea8479f562
+  zh: f86b40d597dfe46c

@@ -2,14 +2,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { FsVersion } from '@deepseek-ai/dsh-fs'
+import { FsVersion } from '@metaworkflow/fs'
 import { failureOf, openWorkspace, signal, type Harness } from './harness.ts'
 
 let harness: Harness
 let workspace: string
 
 beforeEach(async () => {
-  harness = await openWorkspace('dsh-workspace-files-read-bytes-')
+  harness = await openWorkspace('mwf-workspace-files-read-bytes-')
   workspace = harness.workspace
 })
 

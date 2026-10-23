@@ -22,7 +22,7 @@ interface ModuleReload {
 }
 
 async function fixture(version: 'v1' | 'v2' = 'v2') {
-  const dir = mkdtempSync(join(tmpdir(), 'dsh-hmr-graph-'))
+  const dir = mkdtempSync(join(tmpdir(), 'mwf-hmr-graph-'))
   const ctx = new Context()
   ctx.baseUrl = pathToFileURL(dir).href + '/'
   onTestFinished(async () => { await ctx.fiber.dispose(); rmSync(dir, { recursive: true, force: true }) })

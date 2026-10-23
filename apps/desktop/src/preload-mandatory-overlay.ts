@@ -12,7 +12,7 @@ export function installMandatoryUpdateOverlay(): void {
   let frame: HTMLIFrameElement | undefined
   let port: MessagePort | undefined
   let closing: ReturnType<typeof setTimeout> | undefined
-  const publish = (): void => { port?.postMessage({ type: 'dsh-mandatory-state', state }) }
+  const publish = (): void => { port?.postMessage({ type: 'mwf-mandatory-state', state }) }
   const remove = (): void => { port?.close(); port = undefined; host?.remove(); host = undefined; frame = undefined }
   const render = (): void => {
     if (state === undefined || document.readyState === 'loading') return
@@ -31,7 +31,7 @@ export function installMandatoryUpdateOverlay(): void {
       frame = document.createElement('iframe')
       frame.title = state.locale.messages.mandatoryTitle
       frame.style.cssText = 'display:block;width:100%;height:100%;border:0;background:transparent'
-      frame.src = 'dsh-app://shell/mandatory-update.html'
+      frame.src = 'mwf-app://shell/mandatory-update.html'
       shadow.append(frame)
       document.documentElement.append(host)
       frame.addEventListener('load', () => {
@@ -39,7 +39,7 @@ export function installMandatoryUpdateOverlay(): void {
         const channel = new MessageChannel()
         port = channel.port1
         port.onmessage = message
-        frame?.contentWindow?.postMessage({ type: 'dsh-mandatory-connect' }, 'dsh-app://shell', [channel.port2])
+        frame?.contentWindow?.postMessage({ type: 'mwf-mandatory-connect' }, 'mwf-app://shell', [channel.port2])
         publish()
         frame?.focus()
       })
@@ -50,13 +50,13 @@ export function installMandatoryUpdateOverlay(): void {
   const message = (event: MessageEvent<unknown>): void => {
     const value = event.data
     if (typeof value !== 'object' || value === null || !('type' in value)) return
-    if (value.type !== 'dsh-mandatory-action' || !('id' in value) || !Number.isSafeInteger(value.id)
+    if (value.type !== 'mwf-mandatory-action' || !('id' in value) || !Number.isSafeInteger(value.id)
       || !('action' in value) || !('version' in value) || !('revision' in value)) return
     const target = port
     if (target === undefined) return
     void ipcRenderer.invoke(MANDATORY_IPC.action, value.action, value.version, value.revision).then(
-      () => { target.postMessage({ type: 'dsh-mandatory-result', id: value.id, ok: true }) },
-      () => { target.postMessage({ type: 'dsh-mandatory-result', id: value.id, ok: false }) },
+      () => { target.postMessage({ type: 'mwf-mandatory-result', id: value.id, ok: true }) },
+      () => { target.postMessage({ type: 'mwf-mandatory-result', id: value.id, ok: false }) },
     )
   }
   const blockBackgroundKey = (event: KeyboardEvent): void => {

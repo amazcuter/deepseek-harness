@@ -10,9 +10,9 @@ Status: implemented
 
 ## Decision
 
-`dsh-working-directory` 拥有每个 Session 的一个日志化有效目录。投影从不可变的原始项目初始化，并折叠 `working-directory/change`；消费者读取该服务，而不是从 header 或沙箱根目录派生执行路径。目录变更通过文件系统 provider 验证，在 Session 内串行执行，并只在新目录可用后发布。
+`mwf-working-directory` 拥有每个 Session 的一个日志化有效目录。投影从不可变的原始项目初始化，并折叠 `working-directory/change`；消费者读取该服务，而不是从 header 或沙箱根目录派生执行路径。目录变更通过文件系统 provider 验证，在 Session 内串行执行，并只在新目录可用后发布。
 
-`dsh-base` 组合在全局挂载 `working_directory({ cd? })`。该工具读取或改变 Session 目录，使每个 Agent preset 都能选择或恢复它，包括没有文件编辑工具的 preset。Web 组合把操作工具放在 preset 作用域中。
+`mwf-base` 组合在全局挂载 `working_directory({ cd? })`。该工具读取或改变 Session 目录，使每个 Agent preset 都能选择或恢复它，包括没有文件编辑工具的 preset。Web 组合把操作工具放在 preset 作用域中。
 
 必需的用户上下文快照携带当前值；每次已提交变更都会尝试通过普通 Agent 收件箱排入通知。取消或销毁可能丢弃尚未进入请求的通知，但目录事件仍然保留，供后续请求使用。所选目录消失时恢复到原始项目。恢复目录也消失时返回错误。写权限保持独立。
 

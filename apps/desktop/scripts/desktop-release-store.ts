@@ -25,8 +25,8 @@ const sourceSchema = z.strictObject({
   // Older retained manifests carry this flag; manual publication does not depend on it.
   publishRequested: z.boolean().optional(),
   qualification: z.enum(['signed', 'notarized', 'unsigned', 'unnotarized']),
-}).refine(source => source.preset === 'test' || /^(?:master|dsh-v[0-9][0-9A-Za-z.-]*)$/u.test(source.sourceRef),
-  'Production source must be master or dsh-v*')
+}).refine(source => source.preset === 'test' || /^(?:master|mwf-v[0-9][0-9A-Za-z.-]*)$/u.test(source.sourceRef),
+  'Production source must be master or mwf-v*')
 const manifestSchema = z.strictObject({
   schemaVersion: z.literal(1),
   source: sourceSchema,

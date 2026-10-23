@@ -3,13 +3,13 @@ description: "运行时 Typert 注册表：保存生成的包反射、惰性 Zod
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-typert-registry
+# @metaworkflow/typert-registry
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-typert-registry` 让生成的 Typert 产物在运行时可按需查询：每个包的反射、惰性 Zod schema factory 与 Remote 调用描述符都保存在稳定键下。消费方首次请求 schema 时才会物化并缓存它。注册是原子且按 fiber 作用域的：贡献要么整体落地要么完全不落地，并在注册组件卸载时自动撤销。同一服务还托管 Remote 调用所经由的 lookup 与作用域 Context 提供方注册表。它不执行 TypeScript 分析，也不生成 schema；这些由生成器与 loader 负责。
+`mwf-typert-registry` 让生成的 Typert 产物在运行时可按需查询：每个包的反射、惰性 Zod schema factory 与 Remote 调用描述符都保存在稳定键下。消费方首次请求 schema 时才会物化并缓存它。注册是原子且按 fiber 作用域的：贡献要么整体落地要么完全不落地，并在注册组件卸载时自动撤销。同一服务还托管 Remote 调用所经由的 lookup 与作用域 Context 提供方注册表。它不执行 TypeScript 分析，也不生成 schema；这些由生成器与 loader 负责。
 
 ## 目录
 
@@ -32,14 +32,14 @@ kind: "package-reference"
 加载注册表插件；Client face 由 Client 运行时自身的元数据以同样方式安装，两个 face 运行同一实现：
 
 ```yaml
-- name: '@deepseek-ai/dsh-typert-registry'
+- name: '@metaworkflow/typert-registry'
 ```
 
 ### 查询 schema 与反射
 
 消费方用 `get(key)`、`resolve(key)` 或 `list(filter?)` 读取 schema，用 `getPackage(name, face?)` 或 `listPackages(filter?)` 读取包反射。首次读取会物化一个进程 realm 内的 schema 实例，后续读取复用该实例。`resolve()` 能区分格式错误的键、未注册的包，以及已注册但未以该名称提供 schema 的包，各自给出不同的错误。`toJSONSchema(key)` 把已物化的 Zod schema 投影为 JSON Schema，但不缓存该投影。
 
-调用信息可通过现有的 `ctx.typert.local.get/list` 与 `ctx.typert.remotes.get/list` 查询读取。它们返回已注册的描述符对象，包括带有 `input(options?)`、`result` 和 `invoke` 的生成直接方法；不存在独立的元数据存储或 RPC API。消费方选择 `method.input({ strict: true })`，即可取得匹配的严格解析与 JSON Schema，而不改变注册或 Host 分发。使用 `@deepseek-ai/dsh-typert-protocol/remote-info` 提供的 `isTypertRemoteMethod(descriptor)` 收窄基础描述符。该守卫将输入暴露为 `object`、输出暴露为 `unknown`，不提供依赖端点的泛型。[普通生成产物的 `TYPERT_REMOTE.methods` 索引](<../generator/README.zh.md#ordinary-remote-metadata>)提供精确的各方法静态类型，并在该产物实例内引用同一批描述符。
+调用信息可通过现有的 `ctx.typert.local.get/list` 与 `ctx.typert.remotes.get/list` 查询读取。它们返回已注册的描述符对象，包括带有 `input(options?)`、`result` 和 `invoke` 的生成直接方法；不存在独立的元数据存储或 RPC API。消费方选择 `method.input({ strict: true })`，即可取得匹配的严格解析与 JSON Schema，而不改变注册或 Host 分发。使用 `@metaworkflow/typert-protocol/remote-info` 提供的 `isTypertRemoteMethod(descriptor)` 收窄基础描述符。该守卫将输入暴露为 `object`、输出暴露为 `unknown`，不提供依赖端点的泛型。[普通生成产物的 `TYPERT_REMOTE.methods` 索引](<../generator/README.zh.md#ordinary-remote-metadata>)提供精确的各方法静态类型，并在该产物实例内引用同一批描述符。
 
 ### 注册贡献
 

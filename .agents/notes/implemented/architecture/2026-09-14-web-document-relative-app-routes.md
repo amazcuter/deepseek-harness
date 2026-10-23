@@ -6,7 +6,7 @@ English | [中文](2026-09-14-web-document-relative-app-routes.zh.md)
 
 ## Problem
 
-Every browser reference to a shell-owned route was origin-root absolute: `/api/...` RPC, `/plugins/??...` plugin bundles, the Remote stream mux, the HMR event stream, and the launch entry's token-cleanup redirect to `/`. One listener served behind a prefix-stripping proxy (a mount such as `https://host/tools/dsh/` that forwards `/tools/dsh/...` as `/...`) therefore saw those requests at the origin root, where no route answers them: the shell, its plugin bundles, and its streams all missed. A single bundle has to serve both the origin root and any mount without a second build.
+Every browser reference to a shell-owned route was origin-root absolute: `/api/...` RPC, `/plugins/??...` plugin bundles, the Remote stream mux, the HMR event stream, and the launch entry's token-cleanup redirect to `/`. One listener served behind a prefix-stripping proxy (a mount such as `https://host/tools/mwf/` that forwards `/tools/mwf/...` as `/...`) therefore saw those requests at the origin root, where no route answers them: the shell, its plugin bundles, and its streams all missed. A single bundle has to serve both the origin root and any mount without a second build.
 
 The mount cannot be recovered from the transport. A configured base URL makes it deployment input, forwarded-prefix inference makes a request header authoritative for routing, and response rewriting in the proxy reimplements the same fact in fragments. The one place that already knows the mount is the served document itself.
 
@@ -22,7 +22,7 @@ The launch entry follows the same rule. `authenticatedUrl` adds the process toke
 
 Consumers that need an absolute URL resolve against `document.baseURI`: the Gateway when it constructs its WebSocket URL and selects `ws:` or `wss:`, and the Inspector when it locates its own bundle from the boot graph.
 
-Desktop is the other document owner. Its window loads `dsh-app://app/`, an origin that serves the same dist at that root and forwards every app-owned path to the shell-owned Host, so its document directory already is the root and no base row is injected for it; it names that Host origin for the Gateway through the transport's `streamBaseUrl` instead. Its resources live at that root, which is also why the served HTTP shell's `./` does not apply to it.
+Desktop is the other document owner. Its window loads `mwf-app://app/`, an origin that serves the same dist at that root and forwards every app-owned path to the shell-owned Host, so its document directory already is the root and no base row is injected for it; it names that Host origin for the Gateway through the transport's `streamBaseUrl` instead. Its resources live at that root, which is also why the served HTTP shell's `./` does not apply to it.
 
 ## Alternatives considered
 

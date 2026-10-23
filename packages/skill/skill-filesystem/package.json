@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-skill-filesystem",
+  "name": "@metaworkflow/skill-filesystem",
   "description": "Local filesystem skill provider for the DeepSeek Harness",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -29,9 +29,9 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-fs": "workspace:*",
-    "@deepseek-ai/dsh-home-paths": "workspace:*",
-    "@deepseek-ai/dsh-skill": "workspace:*",
+    "@metaworkflow/fs": "workspace:*",
+    "@metaworkflow/home-paths": "workspace:*",
+    "@metaworkflow/skill": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "dependencies": {
@@ -40,9 +40,9 @@
     "yaml": "^2.4.2"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-fs": "workspace:*",
-    "@deepseek-ai/dsh-home-paths": "workspace:*",
-    "@deepseek-ai/dsh-skill": "workspace:*",
+    "@metaworkflow/fs": "workspace:*",
+    "@metaworkflow/home-paths": "workspace:*",
+    "@metaworkflow/skill": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   }
 }

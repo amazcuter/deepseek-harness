@@ -17,9 +17,9 @@ private func fixtureApplication(_ directory: URL, name: String, identifier: Stri
 }
 
 @Test @MainActor func findsStoppedApplicationsAndIdentifiesRunningMatchesWithoutLaunching() throws {
-    let root = FileManager.default.temporaryDirectory.appendingPathComponent("dsh-cua-apps-" + UUID().uuidString)
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent("mwf-cua-apps-" + UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }
-    let app = try fixtureApplication(root, name: "Fixture Editor", identifier: "test.dsh.cua." + UUID().uuidString)
+    let app = try fixtureApplication(root, name: "Fixture Editor", identifier: "test.mwf.cua." + UUID().uuidString)
     let matches = try ApplicationDiscovery.applications(matching: "fixture editor", exact: true, limit: 2,
                                                        cancellation: CancellationLatch(), roots: [root])
     #expect(matches == [app])
@@ -33,10 +33,10 @@ private func fixtureApplication(_ directory: URL, name: String, identifier: Stri
 }
 
 @Test @MainActor func broadQueriesRejectInsteadOfHidingApplicationAmbiguity() throws {
-    let root = FileManager.default.temporaryDirectory.appendingPathComponent("dsh-cua-apps-" + UUID().uuidString)
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent("mwf-cua-apps-" + UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }
-    _ = try fixtureApplication(root, name: "Fixture One", identifier: "test.dsh.one." + UUID().uuidString)
-    _ = try fixtureApplication(root, name: "Fixture Two", identifier: "test.dsh.two." + UUID().uuidString)
+    _ = try fixtureApplication(root, name: "Fixture One", identifier: "test.mwf.one." + UUID().uuidString)
+    _ = try fixtureApplication(root, name: "Fixture Two", identifier: "test.mwf.two." + UUID().uuidString)
     #expect(throws: NativeFailure.self) {
         try ApplicationDiscovery.applications(matching: "Fixture", exact: false, limit: 1, cancellation: CancellationLatch(), roots: [root])
     }
@@ -48,9 +48,9 @@ private func fixtureApplication(_ directory: URL, name: String, identifier: Stri
 }
 
 @Test func unsignedPendingIdentityChangesWhenTheExecutableChanges() throws {
-    let root = FileManager.default.temporaryDirectory.appendingPathComponent("dsh-cua-apps-" + UUID().uuidString)
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent("mwf-cua-apps-" + UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }
-    let app = try fixtureApplication(root, name: "Fixture", identifier: "test.dsh.identity." + UUID().uuidString)
+    let app = try fixtureApplication(root, name: "Fixture", identifier: "test.mwf.identity." + UUID().uuidString)
     let before = try ApplicationAuthorization.describeInstalled(app)
     #expect(before["persistable"] == .bool(false))
     try Data("replacement executable".utf8).write(to: URL(fileURLWithPath: app.executablePath))

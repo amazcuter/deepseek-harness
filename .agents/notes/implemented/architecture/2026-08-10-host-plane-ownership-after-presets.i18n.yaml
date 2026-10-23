@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-10-host-plane-ownership-after-presets.md
 /agent-note-what-stays-host-plane-once-presets-own-the-agent-plane:
-  en: 4b22d7def09af6eb
-  zh: 89b43fb2761cb17b
+  en: d71c8a10d35c660b
+  zh: fa69cbbf6ee30bff
 /agent-note-what-stays-host-plane-once-presets-own-the-agent-plane/problem:
-  en: f060b06cffd3ab9b
-  zh: 350ce35558846227
+  en: 123934bf5b930500
+  zh: dac2f9443a5df01c
 /agent-note-what-stays-host-plane-once-presets-own-the-agent-plane/decision:
-  en: be767ee6f00ac6c3
-  zh: 7742a77e3ea12a5e
+  en: 4e536149f4c748f3
+  zh: c4fa95f47211da74
 /agent-note-what-stays-host-plane-once-presets-own-the-agent-plane/testing:
   en: 960fc4b18dff9f38
   zh: d549e33100351124

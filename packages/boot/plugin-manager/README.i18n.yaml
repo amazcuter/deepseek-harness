@@ -5,51 +5,51 @@
 /:
   en: 65283627208ef4c9
   zh: aa3f833ec24bb65a
-/deepseek-ai-dsh-plugin-manager:
-  en: e6cbfe169f5fb57b
-  zh: be378036d645a242
-/deepseek-ai-dsh-plugin-manager/summary:
+/metaworkflow-plugin-manager:
+  en: 8acb3a5614e269b0
+  zh: 954befe3c454eb70
+/metaworkflow-plugin-manager/summary:
   en: d6afcaa1594efcdb
   zh: 459cb6ac0dcb2d46
-/deepseek-ai-dsh-plugin-manager/table-of-contents:
+/metaworkflow-plugin-manager/table-of-contents:
   en: 87679c51aa3693f5
   zh: 11684a48a5806afb
-/deepseek-ai-dsh-plugin-manager/use-this-package:
-  en: 95c1b18f8432090a
-  zh: 213e54a1547a1da1
-/deepseek-ai-dsh-plugin-manager/use-this-package/version-compatibility-and-exemptions:
-  en: 483285658e267dd5
-  zh: 846bec2daac59a96
-/deepseek-ai-dsh-plugin-manager/use-this-package/configuration:
-  en: d5643a06f300c30a
-  zh: 9348b6a7676a2849
-/deepseek-ai-dsh-plugin-manager/understand-the-implementation:
-  en: 495dadf79c48c43c
-  zh: 9884dd04a5bb49dc
-/deepseek-ai-dsh-plugin-manager/further-exploration:
-  en: c6538243d8702a0d
-  zh: 04a82d923353c75f
-/deepseek-ai-dsh-plugin-manager/model-experience:
+/metaworkflow-plugin-manager/use-this-package:
+  en: dda591be235d2b9d
+  zh: c248568edce31ee9
+/metaworkflow-plugin-manager/use-this-package/version-compatibility-and-exemptions:
+  en: 7ca3824905f29705
+  zh: c313248ab45f0807
+/metaworkflow-plugin-manager/use-this-package/configuration:
+  en: addbc8dd681b7c32
+  zh: e76735598c3fa5e8
+/metaworkflow-plugin-manager/understand-the-implementation:
+  en: 919fc01825f2039f
+  zh: 290a52ffe15e0afc
+/metaworkflow-plugin-manager/further-exploration:
+  en: aafae8ec246ee008
+  zh: 583cc0509b38de21
+/metaworkflow-plugin-manager/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-plugin-manager/model-experience/management-tool:
+/metaworkflow-plugin-manager/model-experience/management-tool:
   en: 1815ec6ce56c80d4
   zh: 2d7ac75d3b25eb6b
-/deepseek-ai-dsh-plugin-manager/model-experience/management-tool/what-the-model-sees:
-  en: b1dae91f98350290
-  zh: 802ae86d923ac6ce
-/deepseek-ai-dsh-plugin-manager/model-experience/management-tool/token-effect:
+/metaworkflow-plugin-manager/model-experience/management-tool/what-the-model-sees:
+  en: 47078b0a381400ae
+  zh: d4351ece4adba823
+/metaworkflow-plugin-manager/model-experience/management-tool/token-effect:
   en: bc70208bd361dbcd
   zh: bb651d6066066c6c
-/deepseek-ai-dsh-plugin-manager/model-experience/management-tool/kv-cache-effect:
+/metaworkflow-plugin-manager/model-experience/management-tool/kv-cache-effect:
   en: c29f60be7f3edc1a
   zh: d9b9388b96ef95cc
-/deepseek-ai-dsh-plugin-manager/known-limitations-and-deferred-work:
-  en: 6b93fd9851b79a0e
-  zh: d2cf1982e8cfc718
-/deepseek-ai-dsh-plugin-manager/known-limitations-and-deferred-work/failure-behavior:
-  en: c670eb2330b441e8
-  zh: 2c8223e03e1e3ef0
-/deepseek-ai-dsh-plugin-manager/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-plugin-manager/known-limitations-and-deferred-work:
+  en: 936db8461e71169a
+  zh: 36d694d31afa044a
+/metaworkflow-plugin-manager/known-limitations-and-deferred-work/failure-behavior:
+  en: 59b82ad254003b7d
+  zh: 7ba54b9e7dc65614
+/metaworkflow-plugin-manager/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

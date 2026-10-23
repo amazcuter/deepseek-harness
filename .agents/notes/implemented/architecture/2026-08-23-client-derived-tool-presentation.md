@@ -166,7 +166,7 @@ This path retains one durable metadata projection because it runs while the cano
 
 `SessionToolCallView`, `SessionToolView`, and `SessionEventEntry.view` are deleted.
 
-The Client connection stops re-exporting `ToolCallView` and `ToolResultView` from `dsh-tools/presentation` for Session consumers.
+The Client connection stops re-exporting `ToolCallView` and `ToolResultView` from `mwf-tools/presentation` for Session consumers.
 
 Generated catalogs and graphs derive the narrowed Remote types and package dependencies from their owning sources.
 
@@ -551,7 +551,7 @@ This change does not promise to preserve differences expressed only through a Ho
 ### Static and documentation
 
 - Production code contains no `SessionToolView` or `SessionToolCallView`.
-- Session history does not reference `dsh-tools/presentation`, `ctx.tools`, `presenterScopeFor`, or `backscanArgs`.
+- Session history does not reference `mwf-tools/presentation`, `ctx.tools`, `presenterScopeFor`, or `backscanArgs`.
 - Client Conversation does not reference `ToolCallView` or `ToolResultView`.
 - Client models do not read `callView` or `resultView`.
 - The fixture defines no presenter mirror.
@@ -571,7 +571,7 @@ Changes to this decision use `dsh-pre-push-checks` to select commands for the fi
 - affected Host and Client TypeScript faces;
 - lint and duplication;
 - per-file 100% coverage for affected source files;
-- `DSH_SNAPSHOT=replay pnpm run test:web`, without refreshing existing presentation goldens;
+- `MWF_SNAPSHOT=replay pnpm run test:web`, without refreshing existing presentation goldens;
 - authored Remote type and TypeScript checks;
 - `pnpm run doc-sync`;
 - `git diff --check`.

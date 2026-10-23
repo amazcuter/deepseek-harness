@@ -3,13 +3,13 @@ description: "动态 Cordis 包的浏览器半说明，供选择、组合或排�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-cordis-client-runner
+# @metaworkflow/cordis-client-runner
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-cordis-client-runner` 为程序调用方和现有浏览器控件运行进程内动态包的浏览器部分。它在请求获批或用户显式操作后加载定义，并在 Host 撤销运行时移除定义。页面刷新不会恢复定义。Creator UI 插件通过 Plugin Manager 使用已安装的 Client 模块。
+`mwf-cordis-client-runner` 为程序调用方和现有浏览器控件运行进程内动态包的浏览器部分。它在请求获批或用户显式操作后加载定义，并在 Host 撤销运行时移除定义。页面刷新不会恢复定义。Creator UI 插件通过 Plugin Manager 使用已安装的 Client 模块。
 
 ## 目录
 

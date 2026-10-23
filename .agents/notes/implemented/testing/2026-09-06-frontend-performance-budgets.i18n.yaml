@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/testing/2026-09-06-frontend-performance-budgets.md
 /agent-note-frontend-large-session-performance-budgets:
-  en: 443578f129feecd8
-  zh: fcc3b1bf7dcdb1fb
+  en: 752c5f6ba316bd78
+  zh: 371501bba5f600b6
 /agent-note-frontend-large-session-performance-budgets/problem:
-  en: 9bf1200b5f980008
-  zh: d2dc07922817c581
+  en: 417054bd8959b8d1
+  zh: d149fd7d879bff2c
 /agent-note-frontend-large-session-performance-budgets/decision:
-  en: db46b4d42d64aa1b
-  zh: a21caffa675e8b42
+  en: 4c0dfbcb3415def3
+  zh: b1b4f065c432bd80
 /agent-note-frontend-large-session-performance-budgets/calibration:
   en: 2bbee3ec0bc9e618
   zh: b4f937d7f4f09ae5
 /agent-note-frontend-large-session-performance-budgets/calibration/actual-ci-runs:
-  en: d4d6aebafcdb8c12
-  zh: 112d3ca1a4ea8ae1
+  en: dfdb220b9d33b9b4
+  zh: 10e9e909190a7f19
 /agent-note-frontend-large-session-performance-budgets/calibration/standard-hosted-expectations-and-input-scheduling:
   en: 346cd1b3d5acf0ea
   zh: 42e08cd387f982c8
@@ -30,5 +30,5 @@
   en: 4d2a4a64ccd14507
   zh: 8a4aaf4d4abea13d
 /agent-note-frontend-large-session-performance-budgets/consequences:
-  en: 3f4f510612875d54
-  zh: 3a4af464f159bfe8
+  en: 0a211e9164f2fc61
+  zh: 012ccd59c9c21096

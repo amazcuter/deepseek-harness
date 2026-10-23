@@ -3,7 +3,7 @@ description: "从插件页面启用已展示思考内容的机器翻译。"
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-cot-translation-bundle
+# @metaworkflow/experimental-cot-translation-bundle
 
 [English](README.md) | 中文
 

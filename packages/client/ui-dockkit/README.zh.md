@@ -1,9 +1,9 @@
 ---
-description: "dsh Web 客户端的停靠布局套件：带可逆操作的标签格分裂树、planner、线性历史，以及渲染并驱动它的组件。"
+description: "mwf Web 客户端的停靠布局套件：带可逆操作的标签格分裂树、planner、线性历史，以及渲染并驱动它的组件。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-dockkit
+# @metaworkflow/client-ui-dockkit
 
 [English](README.md) | 中文
 

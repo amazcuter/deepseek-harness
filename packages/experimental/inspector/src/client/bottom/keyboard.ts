@@ -1,5 +1,5 @@
 /** Same-origin Inspector key delivery through the parent window's command adapter. */
-import type { ShortcutCatalogEntry } from '@deepseek-ai/dsh-client-shortcuts/client'
+import type { ShortcutCatalogEntry } from '@metaworkflow/client-shortcuts/client'
 
 /**
  * Forward the Inspector's current binding without replacing parent command arbitration.

@@ -3,38 +3,38 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-dockkit/README.md
 /:
-  en: 93fc2e9e86fc50f8
-  zh: 61c7c38a66935ad6
-/deepseek-ai-dsh-client-ui-dockkit:
-  en: 9d34bd85fc9e76b4
-  zh: 615d1d2eab451c87
-/deepseek-ai-dsh-client-ui-dockkit/summary:
+  en: 96d8c48750bce2ac
+  zh: b30b62ee94417a97
+/metaworkflow-client-ui-dockkit:
+  en: a101d667371c2440
+  zh: 37b074da1e019729
+/metaworkflow-client-ui-dockkit/summary:
   en: 3ee4584a73215ef4
   zh: 051170a6d0993fa5
-/deepseek-ai-dsh-client-ui-dockkit/table-of-contents:
+/metaworkflow-client-ui-dockkit/table-of-contents:
   en: 42038fdc402b9c2a
   zh: 99890f8f908624ce
-/deepseek-ai-dsh-client-ui-dockkit/the-two-layers:
+/metaworkflow-client-ui-dockkit/the-two-layers:
   en: ea872ff2c2089037
   zh: b3ec3a218eacd5c8
-/deepseek-ai-dsh-client-ui-dockkit/embedding-it:
+/metaworkflow-client-ui-dockkit/embedding-it:
   en: 47b9852393643b6a
   zh: ce5f2ab60eec9564
-/deepseek-ai-dsh-client-ui-dockkit/interaction-rules-worth-keeping:
+/metaworkflow-client-ui-dockkit/interaction-rules-worth-keeping:
   en: 7e5c1e9a9f9f244f
   zh: 7e3a8fcef86bc7dd
-/deepseek-ai-dsh-client-ui-dockkit/build-shape:
+/metaworkflow-client-ui-dockkit/build-shape:
   en: 21216ba5798d7f5f
   zh: ac505fdcd5c114d4
-/deepseek-ai-dsh-client-ui-dockkit/model-experience:
+/metaworkflow-client-ui-dockkit/model-experience:
   en: cdebb91645623401
   zh: fe262db316714fa8
-/deepseek-ai-dsh-client-ui-dockkit/model-experience/kv-cache-effect:
+/metaworkflow-client-ui-dockkit/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: f57cc48a1b5cbfa9
-/deepseek-ai-dsh-client-ui-dockkit/known-limitations-and-deferred-work:
+/metaworkflow-client-ui-dockkit/known-limitations-and-deferred-work:
   en: 4323810ca5a87e6c
   zh: 3a24af2ea4467ab7
-/deepseek-ai-dsh-client-ui-dockkit/known-limitations-and-deferred-work/dev-note:
-  en: 45680a19e42f401a
-  zh: 5500de88331c8a59
+/metaworkflow-client-ui-dockkit/known-limitations-and-deferred-work/dev-note:
+  en: 8bdd7b0bc9426ff6
+  zh: c61d377ba49f3e62

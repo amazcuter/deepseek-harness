@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 /** Collapsed progress summaries and Host-owned steps survive view remounts. */
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { bindSnapshotSelector, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
-import type { SpeechPreparationState, SpeechPreparationStep, SpeechProviderId } from '@deepseek-ai/dsh-experimental-speech-to-text/types'
+import { bindSnapshotSelector, makeTranslate } from '@metaworkflow/client-test-runtime'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import { zh as commonZh } from '@metaworkflow/client-locale/src/locales/zh.ts'
+import type { SpeechPreparationState, SpeechPreparationStep, SpeechProviderId } from '@metaworkflow/experimental-speech-to-text/types'
 import { afterEach, expect, it, vi } from 'vitest'
 import { PreparationCard, VoicePreparation } from '../src/client/PreparationCard.tsx'
 import type { VoiceInputProps } from '../src/client/VoiceInput.tsx'
@@ -92,7 +92,7 @@ it('explains download failures on the Host machine and retains an actionable ret
   } })
   const alert = screen.getByRole('alert')
   expect(alert.textContent).toContain('无法下载 model.int8.onnx：无法解析下载地址。')
-  expect(alert.textContent).toContain('运行 DSH 的机器的 DNS 和代理设置')
+  expect(alert.textContent).toContain('运行 MWF 的机器的 DNS 和代理设置')
   expect(alert.textContent).toContain('下载来源：https://mirror.example')
   expect(alert.textContent).toContain('错误码：ENOTFOUND')
   expect(alert.textContent).not.toContain('fetch failed')

@@ -5,51 +5,51 @@
 /:
   en: 117b4d191f773a9c
   zh: 0b9e150f6cd23b04
-/deepseek-ai-dsh-http-proxy:
-  en: 6c9406455954c0e3
-  zh: 5bcd0337d80a2047
-/deepseek-ai-dsh-http-proxy/summary:
+/metaworkflow-http-proxy:
+  en: c493cc390a6492f9
+  zh: 111c287940252110
+/metaworkflow-http-proxy/summary:
   en: c3b1b32ab36f5f97
   zh: 143b744ab361f0d4
-/deepseek-ai-dsh-http-proxy/table-of-contents:
+/metaworkflow-http-proxy/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-http-proxy/use-this-package:
-  en: bc67087b571aa603
-  zh: 264ac9bb95c8efe8
-/deepseek-ai-dsh-http-proxy/use-this-package/writing-a-new-outbound-call:
+/metaworkflow-http-proxy/use-this-package:
+  en: 00ec8317ee6bec59
+  zh: 48e016a11c862686
+/metaworkflow-http-proxy/use-this-package/writing-a-new-outbound-call:
   en: 782b24f91ee8ce71
   zh: af4b75a0d5a98fdc
-/deepseek-ai-dsh-http-proxy/use-this-package/what-the-policy-reads:
-  en: a1f74dd3a34ed97e
-  zh: d9440a0666caccb6
-/deepseek-ai-dsh-http-proxy/use-this-package/failures:
+/metaworkflow-http-proxy/use-this-package/what-the-policy-reads:
+  en: 7dcb200918147e7f
+  zh: 3c86a514bcd87ff5
+/metaworkflow-http-proxy/use-this-package/failures:
   en: 4248bc9a662680ed
   zh: 4150ade9f1aa9287
-/deepseek-ai-dsh-http-proxy/understand-the-implementation:
+/metaworkflow-http-proxy/understand-the-implementation:
   en: ee4615a04fa6503d
   zh: ee2c5fb2204a43cf
-/deepseek-ai-dsh-http-proxy/understand-the-implementation/design-philosophy:
-  en: 73c3a16dedfe00e2
-  zh: e8d949b479ca3dde
-/deepseek-ai-dsh-http-proxy/understand-the-implementation/source-map:
+/metaworkflow-http-proxy/understand-the-implementation/design-philosophy:
+  en: c1411c848e6d6f77
+  zh: f5a875857f761e35
+/metaworkflow-http-proxy/understand-the-implementation/source-map:
   en: a099f88dd0c7d394
   zh: 7325b7ea973bce13
-/deepseek-ai-dsh-http-proxy/understand-the-implementation/bypass-matching:
+/metaworkflow-http-proxy/understand-the-implementation/bypass-matching:
   en: e9ad6c2e8ee2fc21
   zh: c10de6995cf594bc
-/deepseek-ai-dsh-http-proxy/further-exploration:
-  en: 0dd5fcdee64f39f1
-  zh: acc3c6b84021f19e
-/deepseek-ai-dsh-http-proxy/model-experience:
+/metaworkflow-http-proxy/further-exploration:
+  en: 8371c0767175da52
+  zh: 4abc6e4df3126859
+/metaworkflow-http-proxy/model-experience:
   en: e0af6a1073934d5a
   zh: d8bf9c77b54ed5ae
-/deepseek-ai-dsh-http-proxy/model-experience/kv-cache-effect:
+/metaworkflow-http-proxy/model-experience/kv-cache-effect:
   en: 7f12ca92e7722f98
   zh: 97fa75de6a3f6a3f
-/deepseek-ai-dsh-http-proxy/known-limitations-and-deferred-work:
-  en: 26e0a7fd9dccf81c
-  zh: c61ad5d4dfc91cb8
-/deepseek-ai-dsh-http-proxy/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-http-proxy/known-limitations-and-deferred-work:
+  en: 8a92728b1a46faa3
+  zh: 7c028dfb528697bb
+/metaworkflow-http-proxy/known-limitations-and-deferred-work/dev-note:
   en: 8f915ac6f4fc1525
   zh: 29b06e0aae5a30ec

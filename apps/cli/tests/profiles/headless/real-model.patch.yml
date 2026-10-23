@@ -29,4 +29,4 @@
 - id: session-persistence-jsonl
   config:
     root: './.sessions'
-    compression: !!js "process.env.DSH_SNAPSHOT === undefined ? 'zstd' : 'none'"
+    compression: !!js "process.env.MWF_SNAPSHOT === undefined ? 'zstd' : 'none'"

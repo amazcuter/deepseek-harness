@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { provideWorkingDirectoryFixture, unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { provideWorkingDirectoryFixture, unsupportedInbox } from '@metaworkflow/agent-loop-testkit'
 import { mkdtemp, realpath, rm, writeFile } from 'node:fs/promises'
 import { release, tmpdir, version } from 'node:os'
 import { join } from 'node:path'
@@ -8,22 +8,22 @@ import { afterEach, describe, expect, it, onTestFailed, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@deepseek-ai/dsh-session'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import TerminalSessionService from '@deepseek-ai/dsh-terminal'
-import type { TerminalWaitReason } from '@deepseek-ai/dsh-terminal'
-import * as TerminalBash from '@deepseek-ai/dsh-terminal-bash'
-import SandboxProvider from '@deepseek-ai/dsh-sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import LocalSubprocessService from '@deepseek-ai/dsh-subprocess-local'
-import { resolvePwshPath } from '@deepseek-ai/dsh-pwsh-local/src/resolve.ts'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRegistry from '@deepseek-ai/dsh-tools'
-import * as ToolPwshPersistent from '@deepseek-ai/dsh-tool-pwsh-persistent'
+import { ToolCallId } from '@metaworkflow/llm'
+import { SESSION_FORMAT_VERSION, Session, SessionId } from '@metaworkflow/session'
+import AgentRegistry from '@metaworkflow/agent'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import type { Agent } from '@metaworkflow/agent'
+import TerminalSessionService from '@metaworkflow/terminal'
+import type { TerminalWaitReason } from '@metaworkflow/terminal'
+import * as TerminalBash from '@metaworkflow/terminal-bash'
+import SandboxProvider from '@metaworkflow/sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@metaworkflow/sandbox'
+import SandboxPolicyService from '@metaworkflow/sandbox-policy'
+import LocalSubprocessService from '@metaworkflow/subprocess-local'
+import { resolvePwshPath } from '@metaworkflow/pwsh-local/src/resolve.ts'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRegistry from '@metaworkflow/tools'
+import * as ToolPwshPersistent from '@metaworkflow/tool-pwsh-persistent'
 import { ReadinessTimeline, TIMELINE_HEADER } from './readiness-timeline.ts'
 
 const pwshPath = resolvePwshPath()
@@ -104,21 +104,21 @@ function text(result: { content: { type: string; text?: string }[] }): string {
 
 describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader composition', () => {
   it('preserves cwd and environment across calls', async () => {
-    root = await realpath(await mkdtemp(join(tmpdir(), 'dsh-persistent-pwsh-loader-')))
+    root = await realpath(await mkdtemp(join(tmpdir(), 'mwf-persistent-pwsh-loader-')))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@deepseek-ai/dsh-agent'",
-      "- name: '@deepseek-ai/dsh-system-prompt'",
-      "- name: '@deepseek-ai/dsh-tools'",
-      "- name: '@deepseek-ai/dsh-terminal'",
-      "- name: '@deepseek-ai/dsh-test-sandbox'",
-      "- name: '@deepseek-ai/dsh-session-projection'",
-      "- name: '@deepseek-ai/dsh-sandbox-policy'",
+      "- name: '@metaworkflow/agent'",
+      "- name: '@metaworkflow/system-prompt'",
+      "- name: '@metaworkflow/tools'",
+      "- name: '@metaworkflow/terminal'",
+      "- name: '@metaworkflow/test-sandbox'",
+      "- name: '@metaworkflow/session-projection'",
+      "- name: '@metaworkflow/sandbox-policy'",
       '  config:',
       '    mode: danger-full-access',
       `    workspaceRoot: ${JSON.stringify(root)}`,
-      "- name: '@deepseek-ai/dsh-subprocess-local'",
-      "- name: '@deepseek-ai/dsh-terminal-bash'",
+      "- name: '@metaworkflow/subprocess-local'",
+      "- name: '@metaworkflow/terminal-bash'",
       '  config:',
       '    shellDialect: pwsh',
       '    pollIntervalMs: 10',
@@ -135,13 +135,13 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
       // PSReadLine + Defender) inside the tool deadline; a 60s bound on the
       // fully loaded self-hosted Windows pool is exceeded often enough to
       // reset the session mid-test (2026-09-01, two runs ~62s each). 300s
-      // matches the dsh-tool-pwsh-persistent product default; the
-      // dsh-terminal-bash value bounds one send plus the complete startup
+      // matches the mwf-tool-pwsh-persistent product default; the
+      // mwf-terminal-bash value bounds one send plus the complete startup
       // sequence, so it covers the same cold start (its 30s product default
       // would not).
       '    timeoutMs: 300000',
       '    disposeGraceMs: 500',
-      "- name: '@deepseek-ai/dsh-tool-pwsh-persistent'",
+      "- name: '@metaworkflow/tool-pwsh-persistent'",
       '  config:',
       '    timeoutMs: 300000',
       '',
@@ -154,16 +154,16 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@deepseek-ai/dsh-agent', AgentRegistry],
-      ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
-      ['@deepseek-ai/dsh-tools', ToolRegistry],
-      ['@deepseek-ai/dsh-terminal', TerminalSessionService],
-      ['@deepseek-ai/dsh-test-sandbox', PassthroughSandbox],
-      ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
-      ['@deepseek-ai/dsh-sandbox-policy', SandboxPolicyService],
-      ['@deepseek-ai/dsh-subprocess-local', LocalSubprocessService],
-      ['@deepseek-ai/dsh-terminal-bash', TerminalBash],
-      ['@deepseek-ai/dsh-tool-pwsh-persistent', ToolPwshPersistent],
+      ['@metaworkflow/agent', AgentRegistry],
+      ['@metaworkflow/system-prompt', SystemPrompt],
+      ['@metaworkflow/tools', ToolRegistry],
+      ['@metaworkflow/terminal', TerminalSessionService],
+      ['@metaworkflow/test-sandbox', PassthroughSandbox],
+      ['@metaworkflow/session-projection', SessionProjectionRegistry],
+      ['@metaworkflow/sandbox-policy', SandboxPolicyService],
+      ['@metaworkflow/subprocess-local', LocalSubprocessService],
+      ['@metaworkflow/terminal-bash', TerminalBash],
+      ['@metaworkflow/tool-pwsh-persistent', ToolPwshPersistent],
     ])
     context.loader.internal = {
       version: 'v2',
@@ -227,14 +227,14 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
     await execute('state', '$env:KEEP = "loader"; New-Item -ItemType Directory -Force -Path nested | Out-Null; Set-Location nested')
     const observed = text(await execute('observe', 'Write-Output "cwd=$PWD keep=$env:KEEP"'))
     expect(observed).toContain(`cwd=${join(root, 'nested')} keep=loader`)
-    expect(observed).not.toContain('DSH_PERSISTENT_PWSH')
+    expect(observed).not.toContain('MWF_PERSISTENT_PWSH')
 
     const multiline = text(await execute(
       'multiline',
       '$value = "line one"\nWrite-Output "${value}:it\'s fine"',
     ))
     expect(multiline).toBe("line one:it's fine")
-    expect(multiline).not.toContain('DSH_PERSISTENT_PWSH')
+    expect(multiline).not.toContain('MWF_PERSISTENT_PWSH')
 
     const hereString = text(await execute(
       'here-string',

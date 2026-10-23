@@ -47,7 +47,7 @@ describe('recording', () => {
 
   it('records every operation, focus moves included', () => {
     const { sequencer, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     sequencer.dispatch({ type: 'openTab', paneId, tab, index: 1 })
     sequencer.dispatch({ type: 'focusTab', tabId: guideTabId })
     sequencer.dispatch({ type: 'focusTab', tabId: tab.id })
@@ -94,7 +94,7 @@ describe('stepping back and forward', () => {
 
   it('collapses a run of consecutive focus moves into one step', () => {
     const { sequencer, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     sequencer.dispatch({ type: 'openTab', paneId, tab, index: 1 })
     const afterOpen = sequencer.state
     sequencer.dispatch({ type: 'focusTab', tabId: guideTabId })
@@ -145,7 +145,7 @@ describe('stepping back and forward', () => {
 describe('a floating panel\'s drag as one step', () => {
   it('raises and focuses the panel with the move, and steps both back and forward together', () => {
     const { sequencer, minter, paneId, guideTabId } = fixture()
-    const tab = fileTab(minter.next('tab'), 'dsh-resource://file/session/s/a.txt', 'a.txt')
+    const tab = fileTab(minter.next('tab'), 'mwf-resource://file/session/s/a.txt', 'a.txt')
     const lower = minter.next('float')
     const upper = minter.next('float')
     sequencer.dispatch({ type: 'openTab', paneId, tab, index: 1 })

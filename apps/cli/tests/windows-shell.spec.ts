@@ -3,7 +3,7 @@
  * platform on its own rows (`disabled: !!js process.platform`), so exactly
  * one shell stack mounts per host and no separate platform layer exists —
  * the launcher applies nothing beyond the bundle layers. The spec composes
- * the REAL shipped bundle layers (dsh-base + dsh-web-app resolved from the
+ * the REAL shipped bundle layers (mwf-base + mwf-web-app resolved from the
  * app installation anchor) through the boot's patch algorithm and pins the
  * effective per-platform roster, the preset-level gates that keep tool-bash
  * out of win32 sessions and tool-pwsh out of POSIX sessions, and the
@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
 import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
 import { evaluate } from '@deepseek-ai/cordis-plugin-loader'
-import { bundlePatchPaths, composeEntries, initProfile, loadProfile, PROFILES_DIR } from '@deepseek-ai/dsh-app-boot'
+import { bundlePatchPaths, composeEntries, initProfile, loadProfile, PROFILES_DIR } from '@metaworkflow/app-boot'
 
 /**
  * The effective disabled state of one row on one platform: a `!!js` expression
@@ -36,14 +36,14 @@ describe('the shipped shell composition (real bundle layers)', () => {
   let home: string
   afterEach(() => { if (home !== undefined) rmSync(home, { recursive: true, force: true }) })
   // The app installation anchor, mirroring profile-boot.ts: the bundle layers
-  // resolve from the REAL dsh-base/dsh-web-app packages through it, so this
+  // resolve from the REAL mwf-base/mwf-web-app packages through it, so this
   // suite composes the shipped patch files, not test fixtures.
   const anchor = fileURLToPath(new URL('../package.json', import.meta.url))
 
   it('composes the confined pwsh roster on win32 and the bash roster on POSIX from the same rows', () => {
-    home = mkdtempSync(join(tmpdir(), 'dsh-windows-home-'))
-    initProfile(join(home, PROFILES_DIR, 'web'), ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'])
-    const profile = loadProfile('dsh', 'web', anchor, home)
+    home = mkdtempSync(join(tmpdir(), 'mwf-windows-home-'))
+    initProfile(join(home, PROFILES_DIR, 'web'), ['@metaworkflow/base', '@metaworkflow/web-app'])
+    const profile = loadProfile('mwf', 'web', anchor, home)
     const warnings: string[] = []
     const rows = composeEntries(
       profile.layers.map(layer => layer.patches),
@@ -72,16 +72,16 @@ describe('the shipped shell composition (real bundle layers)', () => {
     // dependency closure into the profile's node_modules, so every bare
     // plugin name in the base patch must resolve from there.
     const cliManifest = JSON.parse(readFileSync(anchor, 'utf8')) as { dependencies?: Record<string, string> }
-    for (const name of ['@deepseek-ai/dsh-pwsh-sandbox', '@deepseek-ai/dsh-tool-pwsh']) {
+    for (const name of ['@metaworkflow/pwsh-sandbox', '@metaworkflow/tool-pwsh']) {
       expect(cliManifest.dependencies?.[name], `cold-start closure must reach ${name}`).toBeDefined()
     }
     expect(warnings).toEqual([])
   })
 
   it('base-only profiles carry both stacks with the same platform gating', () => {
-    home = mkdtempSync(join(tmpdir(), 'dsh-windows-home-'))
-    initProfile(join(home, PROFILES_DIR, 'base-only'), ['@deepseek-ai/dsh-base'])
-    const profile = loadProfile('dsh', 'base-only', anchor, home)
+    home = mkdtempSync(join(tmpdir(), 'mwf-windows-home-'))
+    initProfile(join(home, PROFILES_DIR, 'base-only'), ['@metaworkflow/base'])
+    const profile = loadProfile('mwf', 'base-only', anchor, home)
     const warnings: string[] = []
     const rows = composeEntries(
       profile.layers.map(layer => layer.patches),
@@ -102,11 +102,11 @@ describe('the shipped shell composition (real bundle layers)', () => {
 
 describe('shipped agent presets gate both shell tools by platform', () => {
   const webBundle = fileURLToPath(new URL('../../../packages/bundle/web-app/', import.meta.url))
-  const webManifest = JSON.parse(readFileSync(join(webBundle, 'package.json'), 'utf8')) as { dsh: { bundle: { patch: string[] } } }
-  const presetRows = composeEntries([bundlePatchPaths(webBundle, webManifest.dsh.bundle).flatMap(file =>
+  const webManifest = JSON.parse(readFileSync(join(webBundle, 'package.json'), 'utf8')) as { mwf: { bundle: { patch: string[] } } }
+  const presetRows = composeEntries([bundlePatchPaths(webBundle, webManifest.mwf.bundle).flatMap(file =>
     yaml.load(readFileSync(file, 'utf8'), { schema: entryListSchema }) as import('@deepseek-ai/cordis-plugin-include').PatchOptions[])])
 
-  const definitions = presetRows.filter(row => row.name === '@deepseek-ai/dsh-agent-preset').map(row => row.config as import('@deepseek-ai/dsh-agent-preset-registry').PresetDefinition)
+  const definitions = presetRows.filter(row => row.name === '@metaworkflow/agent-preset').map(row => row.config as import('@metaworkflow/agent-preset-registry').PresetDefinition)
 
   it.each(['standard', 'ptc', 'cordis'])('preset %s gates its shell tool rows by platform', (preset) => {
     const entries: unknown = definitions.find(row => row.id === preset)!.plugins

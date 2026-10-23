@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createLaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
+import { createLaunchEnvironmentSnapshot } from '@metaworkflow/launch-environment'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, seedSession, watchConsole, webSnapshotMode, type WebScaffold,
@@ -34,7 +34,7 @@ describe.skipIf(MODE === 'record')('web e2e: Open In under SSH', () => {
     page = await newEnglishPage(browser)
     tripwire = watchConsole(page)
     await page.addInitScript(() => {
-      localStorage.setItem('dsh.open-in-app.choice', JSON.stringify('vscode'))
+      localStorage.setItem('mwf.open-in-app.choice', JSON.stringify('vscode'))
     })
   })
 
@@ -61,7 +61,7 @@ describe.skipIf(MODE === 'record')('web e2e: Open In under SSH', () => {
     expect(response.status()).toBe(200)
     expect(await response.json()).toEqual({ apps: [] })
     expect(await page.locator('[data-open-target="directory"]').count()).toBe(0)
-    expect(await page.evaluate(() => localStorage.getItem('dsh.open-in-app.choice'))).toBe('"vscode"')
+    expect(await page.evaluate(() => localStorage.getItem('mwf.open-in-app.choice'))).toBe('"vscode"')
     const snapshot = (await captureStableAria(page, 'role=banner', scaffold.workspaceCwd))
       .split(SEED_ID).join('{{seededId}}')
     await compareOrRefreshGolden(join(SNAPSHOT_DIR, 'header.expected.md'), snapshot, MODE)

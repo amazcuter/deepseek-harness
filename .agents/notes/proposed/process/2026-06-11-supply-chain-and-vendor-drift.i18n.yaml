@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/process/2026-06-11-supply-chain-and-vendor-drift.md
 /agent-note-supply-chain-checks-and-vendor-drift-verification:
-  en: 14763706c0292472
-  zh: bc846b9df1cd559c
+  en: 34de0aca7c929033
+  zh: 4a74da8972d6a0bd
 /agent-note-supply-chain-checks-and-vendor-drift-verification/problem:
   en: 2668c33c520ba25e
   zh: 5dbb2e8a25cc50cd

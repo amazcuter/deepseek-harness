@@ -20,7 +20,7 @@ function harness() {
   return { theme, options, send, dispose }
 }
 
-it('preserves indexed, extended and default application colors while updating DSH selection colors', () => {
+it('preserves indexed, extended and default application colors while updating MWF selection colors', () => {
   const h = harness()
   h.send(4, '1;#00ff00;16;rgb:f/0/0;255;#123456')
   h.send(10, '#abcdef;#123456;#aa0000;#999999')
@@ -39,7 +39,7 @@ it('preserves indexed, extended and default application colors while updating DS
   expect(h.dispose).toHaveBeenCalledTimes(8)
 })
 
-it('restores selected entries, all indexed colors and special colors to the current DSH defaults', () => {
+it('restores selected entries, all indexed colors and special colors to the current MWF defaults', () => {
   const h = harness()
   h.send(4, '1;#00ff00;2;#ff0000;255;#fedcba')
   h.send(11, '#111111;#222222')

@@ -3,13 +3,13 @@ description: "Signed GitHub webhook adapter for deployments routing authenticate
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-webhook-github
+# @metaworkflow/webhook-github
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-webhook-github` registers one exact HTTP route on the injected `ctx.webServer`. It bounds and verifies GitHub's raw JSON body, projects a provider-neutral delivery, calls `ctx.webhookRuntime.dispatch()`, and returns `202` without waiting for rules or Sessions. Use it when a deployment needs authenticated GitHub ingress for the generic webhook runtime.
+`mwf-webhook-github` registers one exact HTTP route on the injected `ctx.webServer`. It bounds and verifies GitHub's raw JSON body, projects a provider-neutral delivery, calls `ctx.webhookRuntime.dispatch()`, and returns `202` without waiting for rules or Sessions. Use it when a deployment needs authenticated GitHub ingress for the generic webhook runtime.
 
 ## Table of Contents
 
@@ -54,14 +54,14 @@ Only `POST application/json` is accepted. The adapter reads a bounded UTF-8 body
 <a id="dedicated-listener-composition"></a>
 ## Dedicated listener composition
 
-The normal Web profile already owns `ctx.webServer`. Mount another `dsh-host-webserver` and this adapter inside a group that isolates only `webServer`; the adapter still inherits credentials and `webhookRuntime`. The [GitHub review guide](../../../docs/user/guide/github-review.md) uses `127.0.0.1:3081/github` behind a TLS reverse proxy while the UI remains on port 3080.
+The normal Web profile already owns `ctx.webServer`. Mount another `mwf-host-webserver` and this adapter inside a group that isolates only `webServer`; the adapter still inherits credentials and `webhookRuntime`. The [GitHub review guide](../../../docs/user/guide/github-review.md) uses `127.0.0.1:3081/github` behind a TLS reverse proxy while the UI remains on port 3080.
 
-The package distributes the example overlay and rule module under `examples/github-review/`. Install this package and its `dsh-webhook` peer into the profile before loading that installed overlay; the [guide](../../../docs/user/guide/github-review.md) gives the complete commands.
+The package distributes the example overlay and rule module under `examples/github-review/`. Install this package and its `mwf-webhook` peer into the profile before loading that installed overlay; the [guide](../../../docs/user/guide/github-review.md) gives the complete commands.
 
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through `dsh-webhook`: this adapter contributes no prompt or tool schema; a matching rule owns the Session request and model-visible text.
+Indirectly, through `mwf-webhook`: this adapter contributes no prompt or tool schema; a matching rule owns the Session request and model-visible text.
 
 #### KV Cache effect
 

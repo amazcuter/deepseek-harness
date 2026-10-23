@@ -5,10 +5,10 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type {} from '@deepseek-ai/dsh-deepseek-account'
-import type {} from '@deepseek-ai/dsh-experimental-translator/types'
-import { pluginRecordOf } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionId } from '@deepseek-ai/dsh-session/types'
+import type {} from '@metaworkflow/deepseek-account'
+import type {} from '@metaworkflow/experimental-translator/types'
+import { pluginRecordOf } from '@metaworkflow/session'
+import type { SessionEvent, SessionId } from '@metaworkflow/session/types'
 import { chromium, type Browser } from 'playwright'
 import { expect, it, onTestFailed, onTestFinished, vi } from 'vitest'
 import {
@@ -19,7 +19,7 @@ import {
   connectFreshWorkspaceZh, expandOwningTurnProcess, PLUGIN_TOGGLE_SETTLE_MS, saveFailureShot, ZH_BROWSER_LOCALE,
 } from './support.ts'
 
-const BUNDLE_NAME = '@deepseek-ai/dsh-experimental-cot-translation-bundle'
+const BUNDLE_NAME = '@metaworkflow/experimental-cot-translation-bundle'
 const BUNDLE = fileURLToPath(new URL('../../../packages/experimental/cot-translation-bundle', import.meta.url))
 const { version: bundleVersion } = JSON.parse(await readFile(join(BUNDLE, 'package.json'), 'utf8')) as { version: string }
 const FIXTURE = fileURLToPath(new URL('../../../snapshots/web/lifecycle-chrome/session.v4.jsonl', import.meta.url))
@@ -83,7 +83,7 @@ function reply(response: ServerResponse, text: string): void {
 
 it.skipIf(MODE === 'record')('reuses saved native Account Flash translations across reopen and reload, and cancels uncached requests without changing the main conversation', async () => {
   const resources: { scaffold?: WebScaffold; browser?: Browser; restoreAuth?: () => void; sessionId?: SessionId } = {}
-  const root = await mkdtemp(join(tmpdir(), 'dsh-cot-paid-browser-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-cot-paid-browser-'))
   const calls: PaidCall[] = [], fixtureErrors: unknown[] = [], pendingRequests: Promise<void>[] = []
   const heldResponses = new Set<ServerResponse>(), receivedHeld = Promise.withResolvers<HeldCall | undefined>()
   let holdNext = false
@@ -96,7 +96,7 @@ it.skipIf(MODE === 'record')('reuses saved native Account Flash translations acr
     const body = await messageBody(request)
     const session = resources.scaffold.ctx.sessions.get(auditSessionId)
     if (session === undefined) throw new Error('Paid I/O has no existing audit Session')
-    calls.push({ path, body, accountAuth: request.headers['x-dsh-auth-token'] !== undefined,
+    calls.push({ path, body, accountAuth: request.headers['x-mwf-auth-token'] !== undefined,
       officialAuth: request.headers['x-api-key'] !== undefined, audit: session.snapshotEvents().at(-1) })
     if (!holdNext) { reply(response, typeof body.system === 'string' && body.system.includes('to ja.') ? JAPANESE_TRANSLATION : TRANSLATED); return }
     holdNext = false
@@ -147,7 +147,7 @@ it.skipIf(MODE === 'record')('reuses saved native Account Flash translations acr
   resources.restoreAuth = () => { auth.mockRestore() }
   scaffold.ctx.emit('llm/adapters-updated')
   const owner = [...scaffold.ctx.loader.entries()].find(entry => entry.options.id === 'llm-deepseek-account')
-  expect(owner?.options.name).toBe('@deepseek-ai/dsh-llm-deepseek-account')
+  expect(owner?.options.name).toBe('@metaworkflow/llm-deepseek-account')
   expect(await scaffold.ctx.llm.listModels('deepseek-account')).toContainEqual(expect.objectContaining({ id: 'deepseek-flash' }))
   const browser = await chromium.launch(); resources.browser = browser
   const context = await browser.newContext({ viewport: { width: 1680, height: 1000 }, locale: ZH_BROWSER_LOCALE, timezoneId: 'Asia/Shanghai' })

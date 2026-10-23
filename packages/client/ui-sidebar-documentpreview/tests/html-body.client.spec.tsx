@@ -2,13 +2,13 @@
 /** HTML iframe ownership follows file identity and bytes, not locale or wrapping changes. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { bindSnapshotSelector, stubConfigForm } from '@deepseek-ai/dsh-client-test-runtime'
-import { DeveloperToolsPreference } from '@deepseek-ai/dsh-client-ui-settings/src/client/developer-tools.ts'
-import type { DeveloperToolsSettings } from '@deepseek-ai/dsh-client-ui-settings/src/developer-tools-settings.ts'
-import type { Resources, ResourceSnapshot } from '@deepseek-ai/dsh-client-resources/client'
-import type { WorkspaceFileStat } from '@deepseek-ai/dsh-api-workspace-files/types'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import { bindSnapshotSelector, stubConfigForm } from '@metaworkflow/client-test-runtime'
+import { DeveloperToolsPreference } from '@metaworkflow/client-ui-settings/src/client/developer-tools.ts'
+import type { DeveloperToolsSettings } from '@metaworkflow/client-ui-settings/src/developer-tools-settings.ts'
+import type { Resources, ResourceSnapshot } from '@metaworkflow/client-resources/client'
+import type { WorkspaceFileStat } from '@metaworkflow/api-workspace-files/types'
+import type { SessionId } from '@metaworkflow/session/types'
 import { TextPreview } from '../src/client/TextPreview.tsx'
 import type { DocumentBodyOwner } from '../src/client/document/contract.ts'
 import { textFace } from '../src/client/face.ts'
@@ -46,7 +46,7 @@ function props(text = '<p>hello</p>'): HtmlBodyProps {
   const signal = new AbortController().signal
   return {
     useInteractivePreview: select => select(true),
-    resourceAddress: 'dsh-resource://file/session/html/index.html',
+    resourceAddress: 'mwf-resource://file/session/html/index.html',
     content: { kind: 'bytes', data: utf8(text) },
     wrap: false,
     sessionId: 'html' as SessionId,
@@ -139,7 +139,7 @@ describe('HtmlBody', () => {
     const basic = { ...initial, useInteractivePreview: ((select: (enabled: boolean) => unknown) => select(false)) as HtmlBodyProps['useInteractivePreview'] }
     const view = render(<HtmlBody {...basic} />)
     const frame = screen.getByTitle(en.frame)
-    expect(frame.getAttribute('name')).toBe(`dsh-sidebar-html-${TAB_ID}`)
+    expect(frame.getAttribute('name')).toBe(`mwf-sidebar-html-${TAB_ID}`)
     expect(frame.getAttribute('sandbox')).toBe('')
     expect(frame.getAttribute('srcdoc')).toContain("default-src 'none'")
     expect(frame.getAttribute('srcdoc')).not.toContain('<script')
@@ -149,7 +149,7 @@ describe('HtmlBody', () => {
     view.rerender(<HtmlBody {...scripted} />)
     const advanced = await screen.findByTitle(en.frame)
     expect(advanced).not.toBe(frame)
-    expect(advanced.getAttribute('name')).toBe(`dsh-sidebar-html-${TAB_ID}`)
+    expect(advanced.getAttribute('name')).toBe(`mwf-sidebar-html-${TAB_ID}`)
     expect(advanced.getAttribute('sandbox')).toBe('allow-scripts')
     view.rerender(<HtmlBody {...basic} />)
     expect(advanced.isConnected).toBe(false)
@@ -206,7 +206,7 @@ describe('HtmlBody', () => {
     expect(await screen.findByTitle(en.frame)).not.toBe(first)
     expect(first.isConnected).toBe(false)
     expect(revoke).toHaveBeenCalledWith('blob:https://preview.invalid/1')
-    view.rerender(<HtmlBody {...changed} resourceAddress="dsh-resource://file/session/html/other.html" />)
+    view.rerender(<HtmlBody {...changed} resourceAddress="mwf-resource://file/session/html/other.html" />)
     await screen.findByTitle(en.frame)
     expect(revoke).toHaveBeenCalledWith('blob:https://preview.invalid/2')
     view.unmount()

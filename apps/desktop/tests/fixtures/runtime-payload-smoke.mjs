@@ -11,7 +11,7 @@ import { pathToFileURL } from 'node:url'
 import { checkPnpm } from './pnpm-smoke.mjs'
 
 const runtime = process.argv[2]
-assert.ok(runtime, 'Pass the filtered resources/dsh directory')
+assert.ok(runtime, 'Pass the filtered resources/mwf directory')
 const root = resolve(runtime)
 const descriptor = JSON.parse(readFileSync(join(root, 'desktop-runtime.json'), 'utf8'))
 assert.equal(process.versions.node, descriptor.release.nodeVersion, 'Run with the Electron Node runtime version')
@@ -19,7 +19,7 @@ assert.equal(process.platform, descriptor.platform)
 assert.equal(process.arch, descriptor.arch)
 const resourcesRuntime = process.argv[3] ?? join(dirname(root), 'runtime')
 const requireRuntime = createRequire(join(root, 'package.json'))
-const scratch = mkdtempSync(join(tmpdir(), 'dsh-runtime-payload-'))
+const scratch = mkdtempSync(join(tmpdir(), 'mwf-runtime-payload-'))
 
 /** Spawn only a fixed Node program and await the terminal's drained exit event. */
 async function checkPty() {
@@ -30,7 +30,7 @@ async function checkPty() {
     /^(?:path|systemroot|windir|comspec|ELECTRON_RUN_AS_NODE)$/iu.test(name)
   )))
   Object.assign(env, { HOME: scratch, USERPROFILE: scratch, TMP: scratch, TEMP: scratch, TMPDIR: scratch })
-  env.DSH_DESKTOP_NODE_EXECUTABLE = process.execPath
+  env.MWF_DESKTOP_NODE_EXECUTABLE = process.execPath
   env.PATH = `${join(resourcesRuntime, 'bin')}${delimiter}${env.PATH ?? env.Path ?? ''}`
   // A Windows GUI executable needs a console-owning shell when launched inside ConPTY.
   const executable = process.platform === 'win32' ? process.env.ComSpec : process.execPath
@@ -79,7 +79,7 @@ async function checkPty() {
 
 /** Exercise grep and glob operations with the search tool's resolved native executable. */
 async function checkSearch() {
-  const { resolveRgPath } = await import(pathToFileURL(requireRuntime.resolve('@deepseek-ai/dsh-tool-fs-search')).href)
+  const { resolveRgPath } = await import(pathToFileURL(requireRuntime.resolve('@metaworkflow/tool-fs-search')).href)
   const executable = await resolveRgPath()
   const name = 'ripgrep-smoke.txt'
   const marker = 'desktop-ripgrep-smoke'

@@ -3,13 +3,13 @@ description: "编辑前读取的文件系统策略插件：面向选择或排查
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-fs-observation-policy
+# @metaworkflow/fs-observation-policy
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-fs-observation-policy` 要求 agent（智能体）先读取文件，文件系统工具才可覆盖或编辑它。如果文件自读取后发生变化，它也会拒绝变更，并清楚提示重新读取后重试。读取缺失路径会授权带防护的创建，同时仍防止覆盖并发创建的文件。需要编辑前读取安全性的部署请选择它；由于观察记录不持久化，恢复的会话必须重新读取目标。
+`mwf-fs-observation-policy` 要求 agent（智能体）先读取文件，文件系统工具才可覆盖或编辑它。如果文件自读取后发生变化，它也会拒绝变更，并清楚提示重新读取后重试。读取缺失路径会授权带防护的创建，同时仍防止覆盖并发创建的文件。需要编辑前读取安全性的部署请选择它；由于观察记录不持久化，恢复的会话必须重新读取目标。
 
 ## 目录
 
@@ -25,16 +25,16 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当部署希望模型在覆盖或编辑文件之前先读取该文件时，把本插件与 `ctx.fs` 后端及 `dsh-tool-fs` 工具一起加载。插件无需配置，也不注入任何服务；它只监听工具分派的 `fs/*` 事件。
+当部署希望模型在覆盖或编辑文件之前先读取该文件时，把本插件与 `ctx.fs` 后端及 `mwf-tool-fs` 工具一起加载。插件无需配置，也不注入任何服务；它只监听工具分派的 `fs/*` 事件。
 
 ### 最小组合
 
 先加载后端，再加载本插件，最后加载工具。策略监听器应当是 `fs/*` 意图 slot 上第一个注册的决策器。
 
 ```yaml
-- name: '@deepseek-ai/dsh-fs-local'
-- name: '@deepseek-ai/dsh-fs-observation-policy'
-- name: '@deepseek-ai/dsh-tool-fs'
+- name: '@metaworkflow/fs-local'
+- name: '@metaworkflow/fs-observation-policy'
+- name: '@metaworkflow/tool-fs'
 ```
 
 ### 对模型而言的变化
@@ -59,7 +59,7 @@ kind: "package-reference"
 
 插件建立在两个想法之上：
 
-- **事件门禁，而非方法服务。** 插件只通过 `fs/*` 事件影响外部世界，因此不注册 `ctx.fsPolicy` 服务，也没有公开方法。移除它不会在服务注入边界破坏 `dsh-tool-fs`——工具会直接落到裸提供方。
+- **事件门禁，而非方法服务。** 插件只通过 `fs/*` 事件影响外部世界，因此不注册 `ctx.fsPolicy` 服务，也没有公开方法。移除它不会在服务注入边界破坏 `mwf-tool-fs`——工具会直接落到裸提供方。
 - **已观察状态是先前观察记录。** 一张以所有者为弱键、记录各目标的映射表持有三种逻辑状态——未见、确认缺失、存在于某个版本。插件本身不执行任何文件系统 I/O；它把记录的状态转换为提供方的可选防护，由提供方执行原子新鲜度检查。
 
 ### 源码地图
@@ -91,7 +91,7 @@ kind: "package-reference"
 当包级约定不够用时阅读以下页面。它们从策略逐步进入它所组合的约定、工具与后端。
 
 - [文件系统子系统](../../../docs/subsystems/filesystem.zh.md)——穷尽式提供方约定、策略事件与错误分类体系。
-- [dsh-fs](../fs/README.zh.md)——`ctx.fs` 约定与 `fs/*` 事件词汇。
+- [mwf-fs](../fs/README.zh.md)——`ctx.fs` 约定与 `fs/*` 事件词汇。
 - [tool-fs](../tool-fs/README.zh.md)——分派 `fs/*` 事件的面向模型工具。
 - [fs-local](../fs-local/README.zh.md)——本策略所防护的宿主文件系统后端。
 - [fs-sandbox](../fs-sandbox/README.zh.md)——与本策略组合的沙箱强制后端。
@@ -106,7 +106,7 @@ kind: "package-reference"
 
 #### 模型看到的内容
 
-该插件不添加提示词或 schema。没有先前观测时，它会以代码 `FS_NOT_OBSERVED` 和策略原因 `edit requires reading "<path>" first` 拒绝编辑；编辑被观测为缺失的目标返回 `FS_NOT_FOUND`。正向观测陈旧时，带防护的变更会传播由提供方拥有的 `FS_STALE_VERSION` 错误。[`dsh-tool-fs`](../tool-fs/README.zh.md) 拥有模型侧错误包装：它把所有 `FS_NOT_OBSERVED` 来源规范化为 `cannot modify "<path>": file has not been read — read the file, then retry`，而 `FS_STALE_VERSION` 保留提供方原因并追加 `— re-read the file, then retry`；两者都保留错误码和原始原因。外部删除目标后，遵循陈旧恢复指令会记录缺失：下一次带防护的写入可以通过 `createIfAbsent` 重新创建该目标，而提供方会以原子方式保留任何并发创建者写入的文件。
+该插件不添加提示词或 schema。没有先前观测时，它会以代码 `FS_NOT_OBSERVED` 和策略原因 `edit requires reading "<path>" first` 拒绝编辑；编辑被观测为缺失的目标返回 `FS_NOT_FOUND`。正向观测陈旧时，带防护的变更会传播由提供方拥有的 `FS_STALE_VERSION` 错误。[`mwf-tool-fs`](../tool-fs/README.zh.md) 拥有模型侧错误包装：它把所有 `FS_NOT_OBSERVED` 来源规范化为 `cannot modify "<path>": file has not been read — read the file, then retry`，而 `FS_STALE_VERSION` 保留提供方原因并追加 `— re-read the file, then retry`；两者都保留错误码和原始原因。外部删除目标后，遵循陈旧恢复指令会记录缺失：下一次带防护的写入可以通过 `createIfAbsent` 重新创建该目标，而提供方会以原子方式保留任何并发创建者写入的文件。
 
 #### Token 影响
 

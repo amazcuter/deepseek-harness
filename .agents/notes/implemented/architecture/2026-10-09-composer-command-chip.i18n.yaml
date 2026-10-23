@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-09-composer-command-chip.md
 /agent-note-claimed-commands-as-atomic-composer-chips:
-  en: 66d4f149698760c8
-  zh: de219f394dfd4a4c
+  en: 212c8d26a30b2327
+  zh: f02bdb0650a1471b
 /agent-note-claimed-commands-as-atomic-composer-chips/problem:
   en: 831c97e0de131639
   zh: ea35b4b179ff33f0

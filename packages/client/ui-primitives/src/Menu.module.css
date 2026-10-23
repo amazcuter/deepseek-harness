@@ -20,8 +20,8 @@
      because the elevation is a property of this surface, and the custom
      properties inherit down to whichever descendant actually scrolls (see
      ui-theme styles/scrollbar.css for the rebinding contract). */
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --mwf-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --mwf-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
 /* Primary cards grow with their content between compact and readable bounds. */
@@ -63,7 +63,7 @@
  * this class — the overflow clip would crop the side card, so they rely on
  * staying short. */
 .scrollable {
-  max-height: calc(100vh - 12px - max(12px, var(--dsh-frame-overlay-top, 12px)));
+  max-height: calc(100vh - 12px - max(12px, var(--mwf-frame-overlay-top, 12px)));
 }
 
 .viewport {

@@ -5,5 +5,5 @@
   "type": "module",
   "exports": { "./locale/*.json": "./locale/*.json", "./icon": "./icon.svg" },
   "files": ["cordis.patch.yml", "locale/*.json", "icon.svg"],
-  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+  "mwf": { "bundle": { "patch": "./cordis.patch.yml" } }
 }

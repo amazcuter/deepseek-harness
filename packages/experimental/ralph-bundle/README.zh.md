@@ -3,7 +3,7 @@ description: "使用新智能体执行用户明确要求的循环工作。"
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-ralph-bundle
+# @metaworkflow/experimental-ralph-bundle
 
 [English](README.md) | 中文
 

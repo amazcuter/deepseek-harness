@@ -13,7 +13,7 @@ import type { Config } from '../src/index.ts'
 // child only TMPDIR, so a bare `python3` inside a wrapper would resolve against
 // /bin/sh's default PATH rather than the caller's selected interpreter.
 const PYABS = resolvePythonBin('python3') ?? 'python3'
-import type { PtcBindingFunction, PtcJsonValue, PtcRunResult } from '@deepseek-ai/dsh-ptc-runtime'
+import type { PtcBindingFunction, PtcJsonValue, PtcRunResult } from '@metaworkflow/ptc-runtime'
 
 const { failNextReadOf, tempDirs, tempFiles } = vi.hoisted(() => ({
   failNextReadOf: { value: undefined as string | undefined },
@@ -62,7 +62,7 @@ function makeTempDirSync(prefix: string): string {
 }
 
 // Remove every fixture this file created, so repeated runs do not accumulate
-// `dsh-*` directories and wrappers in the shared tmpdir.
+// `mwf-*` directories and wrappers in the shared tmpdir.
 afterEach(() => {
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   for (const file of tempFiles.splice(0)) rmSync(file, { force: true })
@@ -82,7 +82,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
       const request = { program: 'return 1', bindings: [] }
       expect(runtime.sandboxMode).toBe('danger-full-access')
       expect(runtime.resolve(request)).toEqual({ ...request, cwd: process.cwd(), timeoutMs: 30_000, sandboxPolicy: { mode: 'danger-full-access', workspaceRoot: process.cwd() } })
-      const cwd = await makeTempDir('dsh-py-resolved-cwd-')
+      const cwd = await makeTempDir('mwf-py-resolved-cwd-')
       const spec = runtime.resolve({ ...request, cwd })
       expect(spec.cwd).toBe(cwd)
       expect(() => runtime.resolve({ ...request, cwd: 'relative' })).toThrow('cwd must be absolute')
@@ -259,7 +259,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     // simply does not resolve on PATH.
     const nodePath = await import('node:path')
     const { writeFileSync, mkdirSync } = await import('node:fs')
-    const dir = makeTempDirSync('dsh-bad-bin-')
+    const dir = makeTempDirSync('mwf-bad-bin-')
     const notExecutable = nodePath.join(dir, 'not-executable')
     writeFileSync(notExecutable, '#!/bin/sh\nexit 0\n') // Regular file, but no X bit.
     const directory = nodePath.join(dir, 'is-a-directory')
@@ -291,7 +291,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     await expect(nonPython.plugin(PythonPtcRuntime, { pythonBin: '/bin/echo' }))
       .rejects.toThrow(/did not report a CPython version/)
 
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-python-probe-'))
+    const dir = await mkdtemp(join(tmpdir(), 'mwf-python-probe-'))
     const oldMajor = join(dir, 'python-old-major')
     const old = join(dir, 'python-old')
     const future = join(dir, 'python-future')
@@ -398,9 +398,9 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
   })
 
   it('resolves pythonBin once so a later PATH change cannot switch interpreters', async () => {
-    const firstDir = await mkdtemp(join(tmpdir(), 'dsh-python-first-'))
-    const secondDir = await mkdtemp(join(tmpdir(), 'dsh-python-second-'))
-    const wrapper = (marker: string): string => `#!/bin/sh\nDSH_TEST_PYTHON=${marker}\nexport DSH_TEST_PYTHON\nexec "${PYABS}" "$@"\n`
+    const firstDir = await mkdtemp(join(tmpdir(), 'mwf-python-first-'))
+    const secondDir = await mkdtemp(join(tmpdir(), 'mwf-python-second-'))
+    const wrapper = (marker: string): string => `#!/bin/sh\nMWF_TEST_PYTHON=${marker}\nexport MWF_TEST_PYTHON\nexec "${PYABS}" "$@"\n`
     await writeFile(join(firstDir, 'python3'), wrapper('first'), { mode: 0o755 })
     await writeFile(join(secondDir, 'python3'), wrapper('second'), { mode: 0o755 })
     vi.stubEnv('PATH', firstDir)
@@ -410,7 +410,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
       fiber = mounted.fiber
       vi.stubEnv('PATH', secondDir)
       const result = await mounted.runtime.run(mounted.runtime.resolve({
-        program: 'import os\nreturn os.environ.get("DSH_TEST_PYTHON")',
+        program: 'import os\nreturn os.environ.get("MWF_TEST_PYTHON")',
         bindings: [],
       }))
       expect(result.error).toBeUndefined()
@@ -476,7 +476,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     const nodePath = await import('node:path')
     const { mkdirSync } = await import('node:fs')
     const realPythonDir = nodePath.dirname(cp.execFileSync('which', ['python3'], { encoding: 'utf8' }).trim())
-    const fakeDir = makeTempDirSync('dsh-fake-bin-')
+    const fakeDir = makeTempDirSync('mwf-fake-bin-')
     mkdirSync(nodePath.join(fakeDir, 'python3')) // A directory named python3, executable by default.
     vi.stubEnv('PATH', `${fakeDir}:${realPythonDir}`)
     try {
@@ -584,7 +584,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
       bindings: [],
     }))
     expect(result.error).toBeUndefined()
-    expect(result.value).toEqual([false, '<dsh-ptc-protocol>', ''])
+    expect(result.value).toEqual([false, '<mwf-ptc-protocol>', ''])
   })
 
   it('starts a spawn-context ProcessPoolExecutor with an importable function', async () => {
@@ -603,7 +603,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
   })
 
   it('decodes packaged source as UTF-8 when the interpreter stdin uses ASCII', async () => {
-    const wrapper = join(await makeTempDir('dsh-python-ascii-'), 'python-ascii')
+    const wrapper = join(await makeTempDir('mwf-python-ascii-'), 'python-ascii')
     await writeFile(wrapper, `#!/bin/sh\nLC_ALL=C exec "${PYABS}" -X utf8=0 "$@"\n`, { mode: 0o755 })
     const { runtime } = await setup({ pythonBin: wrapper })
     const result = await runtime.run(runtime.resolve({ program: 'import sys\nreturn [sys.stdin.encoding, "你好"]', bindings: [] }))
@@ -648,7 +648,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
 
   it('boots when the host temporary directory cannot hold files', async () => {
     const previous = process.env.TMPDIR
-    const notADirectory = join(await makeTempDir('dsh-bootstrap-'), 'file')
+    const notADirectory = join(await makeTempDir('mwf-bootstrap-'), 'file')
     await writeFile(notADirectory, '')
     process.env.TMPDIR = notADirectory
     try {
@@ -723,7 +723,7 @@ describe('PythonPtcRuntime — inherited resource limits', () => {
     // `pythonBin` is the honest lever: a wrapper that lowers RLIMIT_AS and then
     // execs the real interpreter reproduces the inherited-limit condition
     // without touching this test process's own limits.
-    const dir = await makeTempDir('dsh-rlimit-')
+    const dir = await makeTempDir('mwf-rlimit-')
     const wrapper = join(dir, 'python3-capped')
     // 256 MiB, half the 512 MiB addressSpaceMb default, so the requested cap is
     // unambiguously above the inherited ceiling.
@@ -751,7 +751,7 @@ describe('PythonPtcRuntime — inherited resource limits', () => {
     // rejected. The rejection surfaces as an 'exception' (bootstrap's
     // setrlimit-phase failure class), not a mid-run OOM. The repro is Linux-only
     // (macOS ignores `ulimit -v`); there the run proceeds.
-    const dir = await makeTempDir('dsh-rlimit-')
+    const dir = await makeTempDir('mwf-rlimit-')
     const wrapper = join(dir, 'python3-tight')
     await writeFile(wrapper, `#!/bin/sh\nulimit -v 131072\nexec "${PYABS}" "$@"\n`, { mode: 0o755 })
     const { runtime } = await setup({ pythonBin: wrapper, maxLogBytes: 32 * 1024 * 1024, addressSpaceMb: 512 })
@@ -802,7 +802,7 @@ describe('PythonPtcRuntime — inherited resource limits', () => {
     // requested soft (`cpuSeconds`) sits above the inherited soft — the case that
     // exposed the bug. RLIMIT_CPU is used because macOS ignores `ulimit -v`
     // (RLIMIT_AS), which is exactly why the backend skips address space there.
-    const dir = await makeTempDir('dsh-rlimit-soft-')
+    const dir = await makeTempDir('mwf-rlimit-soft-')
     const wrapper = join(dir, 'python3-soft-capped')
     // Soft CPU 5 s, well below the configured 30 s, hard left unlimited.
     await writeFile(wrapper, `#!/bin/sh\nulimit -S -t 5\nexec "${PYABS}" "$@"\n`, { mode: 0o755 })
@@ -827,7 +827,7 @@ describe('PythonPtcRuntime — inherited resource limits', () => {
     // timeout. This uses `ulimit -t 2` (hard == 2, so the soft is lowered to 1)
     // and leaves SIGXCPU unhandled, so the kernel terminates the busy loop at
     // 1 s with SIGXCPU and the host classifies it as a timeout.
-    const dir = await makeTempDir('dsh-rlimit-dual-')
+    const dir = await makeTempDir('mwf-rlimit-dual-')
     const wrapper = join(dir, 'python3-dual-capped')
     // Both soft and hard CPU 2 s; configured cpuSeconds 30 s.
     await writeFile(wrapper, `#!/bin/sh\nulimit -t 2\nexec "${PYABS}" "$@"\n`, { mode: 0o755 })
@@ -877,7 +877,7 @@ describe('PythonPtcRuntime — inherited resource limits', () => {
     // RLIMIT_CPU that cannot stop it. The bootstrap resets SIGXCPU to SIG_DFL
     // before model code runs, so a busy loop still ends as a timeout rather
     // than running to the hard limit and being misclassified as worker-exit.
-    const wrapper = join(tmpdir(), `dsh-xcpu-ignore-${process.pid}.sh`)
+    const wrapper = join(tmpdir(), `mwf-xcpu-ignore-${process.pid}.sh`)
     tempFiles.push(wrapper)
     writeFileSync(wrapper, `#!/bin/sh\ntrap "" XCPU\nexec "${PYABS}" "$@"\n`, { mode: 0o755 })
     try {
@@ -931,7 +931,7 @@ describe('PythonPtcRuntime — inherited resource limits', () => {
     // the inherited limit. The wrapper sets a 1 s soft CPU limit; the program
     // traps SIGXCPU and busy-loops past it, then returns — the recheck must
     // re-deliver SIGXCPU so the host classifies the run as a timeout.
-    const dir = await makeTempDir('dsh-cpu-recheck-')
+    const dir = await makeTempDir('mwf-cpu-recheck-')
     const wrapper = join(dir, 'python3-cpu-capped')
     await writeFile(wrapper, `#!/bin/sh\nulimit -S -t 1\nexec "${PYABS}" "$@"\n`, { mode: 0o755 })
     const { runtime } = await setup({ pythonBin: wrapper, cpuSeconds: 30, maxWallMs: 12_000 })
@@ -2609,7 +2609,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
   })
 
   it('rejects a namespace global colliding with a runtime-owned name at the seam', async () => {
-    // `__dsh_main__` passes the identifier check, but exec()ing the generated
+    // `__mwf_main__` passes the identifier check, but exec()ing the generated
     // wrapper would silently overwrite the binding after injection. `console`
     // is the WORKER backend's slot — refused here too so a namespace list
     // valid on one backend is valid on all.
@@ -2618,7 +2618,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
     // compiles a bare `__debug__` reference to the constant True and refuses to
     // assign the name at compile time, so an injected global under it is
     // unreachable from the program — accepted by the seam, unusable here.
-    for (const global of ['__dsh_main__', 'console', '__debug__']) {
+    for (const global of ['__mwf_main__', 'console', '__debug__']) {
       await expect(runtime.run(runtime.resolve({
         program: 'x = 1',
         bindings: [{ global, functions: {} }],
@@ -3021,7 +3021,7 @@ describe('PythonPtcRuntime — budgets, termination, disposal', () => {
   }, 5000)
 
   it('reports an interpreter removed after load as worker-exit', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-python-removed-'))
+    const dir = await mkdtemp(join(tmpdir(), 'mwf-python-removed-'))
     const pythonBin = join(dir, 'python3')
     await writeFile(pythonBin, `#!/bin/sh\nexec "${PYABS}" "$@"\n`, { mode: 0o755 })
     const { runtime, fiber } = await setup({ pythonBin, maxWallMs: 3000 })
@@ -3333,7 +3333,7 @@ describe('PythonPtcRuntime — budgets, termination, disposal', () => {
       program: [
         'import signal, sys, time',
         'signal.signal(signal.SIGXCPU, lambda *a: None)',
-        // Walk out of __dsh_main__ to _run's frame and take its local.
+        // Walk out of __mwf_main__ to _run's frame and take its local.
         'die = None',
         'depth = 1',
         'while depth < 12:',
@@ -3531,7 +3531,7 @@ describe('PythonPtcRuntime — budgets, termination, disposal', () => {
     // means whether the killed descendant is reaped or lingers as a zombie (a
     // SIGKILL'd process runs no more code either way). It sleeps 30 s as a safety
     // net so a broken fix cannot leak it forever.
-    const handoff = await makeTempDir('dsh-samegroup-')
+    const handoff = await makeTempDir('mwf-samegroup-')
     const readyMarker = join(handoff, 'ready')
     const heartbeat = join(handoff, 'heartbeat')
     const { runtime } = await setup({ maxWallMs: 10_000, graceMs: 300 })
@@ -3596,7 +3596,7 @@ describe('PythonPtcRuntime — budgets, termination, disposal', () => {
     // is called; the heartbeat must be stale BY THE TIME dispose() resolves —
     // proving teardown waited for the reap, not merely that the reap eventually
     // happened.
-    const handoff = await makeTempDir('dsh-dispose-quiesce-')
+    const handoff = await makeTempDir('mwf-dispose-quiesce-')
     const readyMarker = join(handoff, 'ready')
     const heartbeat = join(handoff, 'heartbeat')
     const { runtime, fiber } = await setup({ maxWallMs: 10_000, graceMs: 300 })
@@ -3649,7 +3649,7 @@ describe('PythonPtcRuntime — budgets, termination, disposal', () => {
     // rather than cancel the unfired escalation — otherwise a SIGTERM-ignoring
     // same-group survivor is released for good. A synchronous busy-loop after
     // run() resolves reproduces the block deterministically.
-    const handoff = await makeTempDir('dsh-deadline-')
+    const handoff = await makeTempDir('mwf-deadline-')
     const readyMarker = join(handoff, 'ready')
     const heartbeat = join(handoff, 'heartbeat')
     const graceMs = 300
@@ -4159,7 +4159,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
     // _RuntimeError`. If that name were bound as a pump BODY local, it would be
     // captured at pump-start — but `_run` reaches the model's top-level
     // statements (which run before the pump's first step, since there is no
-    // suspension point between `create_task` and `await __dsh_main__`) with the
+    // suspension point between `create_task` and `await __mwf_main__`) with the
     // rebind already applied, so `_RuntimeError` would capture the REBOUND class
     // and the closed-loop `RuntimeError` would escape, killing the pump. Binding
     // it as a DEF-TIME default argument captures the original before any model

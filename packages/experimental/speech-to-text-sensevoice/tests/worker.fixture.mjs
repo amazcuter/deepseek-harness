@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 const root = JSON.parse(process.argv[2]).model
 const server = createServer((request, response) => {
-  if (request.headers.authorization !== `Bearer ${process.env.DSH_SPEECH_TOKEN}`) {
+  if (request.headers.authorization !== `Bearer ${process.env.MWF_SPEECH_TOKEN}`) {
     response.writeHead(401).end(); return
   }
   const language = new URL(request.url, 'http://localhost').searchParams.get('language')

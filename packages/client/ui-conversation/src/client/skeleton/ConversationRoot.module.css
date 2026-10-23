@@ -77,7 +77,7 @@
      controls, ui-layout AppFrame) when it is published; the header already
      pads 20px of it. Zero everywhere else (the fallback makes the max
      negative). */
-  padding-inline-start: max(0px, calc(var(--dsh-frame-leading-clearance, 0px) - 20px));
+  padding-inline-start: max(0px, calc(var(--mwf-frame-leading-clearance, 0px) - 20px));
 }
 
 .titleCluster {
@@ -265,23 +265,23 @@ button.crumb:hover {
   z-index: 0;
   width: min(
     10px,
-    calc((100% - var(--dsh-chat-content-width)) / 2 - 24px - 24px)
+    calc((100% - var(--mwf-chat-content-width)) / 2 - 24px - 24px)
   );
   cursor: col-resize;
 }
 
 .widthHandle[data-side='left'] {
-  right: calc(50% + var(--dsh-chat-content-width) / 2 + 24px);
+  right: calc(50% + var(--mwf-chat-content-width) / 2 + 24px);
 }
 
 .widthHandle[data-side='right'] {
-  left: calc(50% + var(--dsh-chat-content-width) / 2 + 24px);
+  left: calc(50% + var(--mwf-chat-content-width) / 2 + 24px);
 }
 
 /* The glow: a short 2px bar following the captured pointer's Y, centered in the strip
    (29px from the content column), not a full-height rule — a 16px solid core
    centered on the pointer
-   (published during drag as --dsh-width-handle-pointer-y), fading to
+   (published during drag as --mwf-width-handle-pointer-y), fading to
    transparent over 28px each side (72px total). A solid CORE, not a single
    solid stop: a lone peak washes out over the fade. The resting scrollbar
    tint keeps this secondary affordance quiet in both themes. Before the first
@@ -295,10 +295,10 @@ button.crumb:hover {
   border-radius: 2px;
   background: linear-gradient(
     to bottom,
-    transparent calc(var(--dsh-width-handle-pointer-y, 50%) - 36px),
-    var(--dsw-alias-scrollbar-bg-l1) calc(var(--dsh-width-handle-pointer-y, 50%) - 8px),
-    var(--dsw-alias-scrollbar-bg-l1) calc(var(--dsh-width-handle-pointer-y, 50%) + 8px),
-    transparent calc(var(--dsh-width-handle-pointer-y, 50%) + 36px)
+    transparent calc(var(--mwf-width-handle-pointer-y, 50%) - 36px),
+    var(--dsw-alias-scrollbar-bg-l1) calc(var(--mwf-width-handle-pointer-y, 50%) - 8px),
+    var(--dsw-alias-scrollbar-bg-l1) calc(var(--mwf-width-handle-pointer-y, 50%) + 8px),
+    transparent calc(var(--mwf-width-handle-pointer-y, 50%) + 36px)
   );
   opacity: 0;
   pointer-events: none;
@@ -335,11 +335,11 @@ button.crumb:hover {
 .composerStack {
   /* Horizontal geometry (card width, clearance, dock inset) rides the shared
      .root variables above so takeover siblings match the stack. */
-  --dsh-composer-stack-gap: 6px;
+  --mwf-composer-stack-gap: 6px;
 
   display: flex;
   flex-direction: column;
-  gap: var(--dsh-composer-stack-gap);
+  gap: var(--mwf-composer-stack-gap);
 }
 
 /* Common seat for the composer chain (fallback + elected overlay siblings). */
@@ -354,7 +354,7 @@ button.crumb:hover {
      the seat because it is the chain's only shared ancestor — fallback and
      elected overlay are siblings — and custom properties inherit down to
      whichever entry is mounted. */
-  --dsh-composer-text-max-height: 336px;
+  --mwf-composer-text-max-height: 336px;
 }
 
 /* Active phase: header is ordinary column chrome above the scrollport (not
@@ -381,21 +381,21 @@ button.crumb:hover {
   /* Shared width axis for the transcript, dock cards, composer, and takeover
      cards. Main width controls publish the live body width and optional user
      preference; embedded occurrences override this adaptive axis below. */
-  --dsh-chat-content-width: var(
-    --dsh-chat-user-width,
-    clamp(680px, calc(var(--dsh-conversation-column-width, 0px) * 0.64), 920px)
+  --mwf-chat-content-width: var(
+    --mwf-chat-user-width,
+    clamp(680px, calc(var(--mwf-conversation-column-width, 0px) * 0.64), 920px)
   );
-  --dsh-composer-card-max-width: calc(var(--dsh-chat-content-width) + 32px);
-  --dsh-composer-side-clearance: 16px;
-  --dsh-composer-dock-inset: 8px;
+  --mwf-composer-card-max-width: calc(var(--mwf-chat-content-width) + 32px);
+  --mwf-composer-side-clearance: 16px;
+  --mwf-composer-dock-inset: 8px;
 }
 
 .embeddedBody {
   overflow: hidden;
-  --dsh-chat-content-width: min(calc(100% - 32px), 920px);
-  --dsh-composer-card-max-width: min(calc(100% - 16px), 952px);
-  --dsh-composer-side-clearance: 8px;
-  --dsh-composer-dock-inset: 8px;
+  --mwf-chat-content-width: min(calc(100% - 32px), 920px);
+  --mwf-composer-card-max-width: min(calc(100% - 16px), 952px);
+  --mwf-composer-side-clearance: 8px;
+  --mwf-composer-dock-inset: 8px;
 }
 
 .scrollBody {
@@ -490,12 +490,12 @@ button.crumb:hover {
   /* Chat's seat rides this box's content box, which its own scrolling shortens
      by the bar's width; the overlay seat is against the padding box, so it
      must give back the same width to keep the input card in place across
-     tabs. Reads ui-theme's --dsh-scrollbar-width, which mirrors the WebKit
+     tabs. Reads ui-theme's --mwf-scrollbar-width, which mirrors the WebKit
      bar's layout width. Chat reserves the engine-resolved width, so on an
      engine where the resolved width differs from this fixed 8px the card
      drifts by half the difference — accepted residual risk, recorded in
      ([decision](../../../../../../.agents/notes/archived/bug-fix/2026-08-12-composer-overlay-seat-width-compensation.md)). */
-  right: var(--dsh-scrollbar-width);
+  right: var(--mwf-scrollbar-width);
   bottom: 0;
   left: 0;
 }
@@ -513,7 +513,7 @@ button.crumb:hover {
   padding-bottom: 32px;
   /* Card cap + both clearances: the hero input card lands at exactly the same
      width as the docked composer at every viewport. */
-  width: min(calc(var(--dsh-composer-card-max-width) + 2 * var(--dsh-composer-side-clearance)), 100%);
+  width: min(calc(var(--mwf-composer-card-max-width) + 2 * var(--mwf-composer-side-clearance)), 100%);
   z-index: 1;
 }
 

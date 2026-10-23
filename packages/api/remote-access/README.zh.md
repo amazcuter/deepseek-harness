@@ -3,7 +3,7 @@ description: "非 owner Peer 的 Remote 方法级访问控制：基于角色的 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-api-remote-access
+# @metaworkflow/api-remote-access
 
 [English](README.md) | 中文
 
@@ -43,7 +43,7 @@ Gateway 依次从 `@Remote` 与 `@RemoteScope` 的 `resources` 读取函数、lo
 
 转发事件按其转发条目的读取函数指明的资源（条目未声明时为 `global`）判定 action `event:<name>`，对非 owner 整条送达或整条不送，从不裁剪 payload。事件携带其声明的每个资源，因此读取函数返回 `undefined` 时该事件的资源非法，Gateway 不询问 `decide()`，不送达任何非 owner。一个事件至多指明一个资源，因此集合类变化走 follow 类流（`session/follow`、`session/control`、`workspace/follow`），由这些方法内联经 `allows()` 逐项判定。
 
-本服务经 `webserver/index-inject` 为 webServer 渲染的每个 index 加入名为 `REMOTE_ACCESS_SNAPSHOT_KEY`（`__DSH_REMOTE_ACCESS__`）的 `global` 行，值为 owner baseline `{ type: 'baseline', owner: true }`。渲染非 owner 页面的业务包（例如在 owner Host 上渲染 liveshare 读者页）在所有 index 注入行之后放置一条把该全局赋值为 `ctx.remoteAccess.snapshotFor(principal)` 的语句，例如追加到 `ctx.webServer.collectIndexInjections()` 末尾的一条 `global` 行。后写的赋值覆盖 owner baseline，Client 入口在挂载时读取该全局，因此页面以读者的 grant 而非 owner 的快照打开。
+本服务经 `webserver/index-inject` 为 webServer 渲染的每个 index 加入名为 `REMOTE_ACCESS_SNAPSHOT_KEY`（`__MWF_REMOTE_ACCESS__`）的 `global` 行，值为 owner baseline `{ type: 'baseline', owner: true }`。渲染非 owner 页面的业务包（例如在 owner Host 上渲染 liveshare 读者页）在所有 index 注入行之后放置一条把该全局赋值为 `ctx.remoteAccess.snapshotFor(principal)` 的语句，例如追加到 `ctx.webServer.collectIndexInjections()` 末尾的一条 `global` 行。后写的赋值覆盖 owner baseline，Client 入口在挂载时读取该全局，因此页面以读者的 grant 而非 owner 的快照打开。
 
 | `remote-access/denied` 的 `details.reason` | 原因 |
 |---|---|
@@ -62,7 +62,7 @@ Client 入口同步读取 index 注入在 `REMOTE_ACCESS_SNAPSHOT_KEY` 下的 ba
 - Client 服务 `ctx.remoteAccess.source(kind, id, action)`，为已声明种类的某个资源上的每个 `(kind, id, action)` 提供一个身份稳定的布尔 source；
 - 标准 Hook `useRemoteAccess(action)`，回答 `global` 资源上的访问。
 
-领域 UI 包在 `source()` 之上发布各自资源的 Hook：[ui-session](../../client/ui-session/README.zh.md) 提供 Session 资源上的 `useSessionAccess(sessionId, action)` 与会话作用域的 `useAccess(action)`（与 `global` 资源上的 `useRemoteAccess` 不同名），[ui-workspace](../../client/ui-workspace/README.zh.md) 提供 Workspace 资源上的 `useWorkspaceAccess(workspaceId, action)`。Hook 的 `action` 类型为 `RemoteEndpoint`，即某个 Client Remote namespace 声明的端点。非 owner 的答案是该资源的 grant 是否列出该 action，不回退 `global` 答案，因此没有 grant 或 grant 未列出任何 action 的资源回答 false。owner 的所有答案为 true；没有注入 baseline 的非 owner 页面、快照流终止失败的非 owner 页面，所有答案为 false；终止失败会连同错误一并报告，非 owner 附“刷新页面重连”的提示，owner 附“答案不受影响”的说明；重连期间保留上次快照。注入的 baseline 格式错误时挂载失败。Hook 从不发请求，Host 仍检查每次调用。[`dsh-client-test-runtime`](../../test-support/client-runtime/README.zh.md) 在 Client spec 中以全允许的访问替换本行。
+领域 UI 包在 `source()` 之上发布各自资源的 Hook：[ui-session](../../client/ui-session/README.zh.md) 提供 Session 资源上的 `useSessionAccess(sessionId, action)` 与会话作用域的 `useAccess(action)`（与 `global` 资源上的 `useRemoteAccess` 不同名），[ui-workspace](../../client/ui-workspace/README.zh.md) 提供 Workspace 资源上的 `useWorkspaceAccess(workspaceId, action)`。Hook 的 `action` 类型为 `RemoteEndpoint`，即某个 Client Remote namespace 声明的端点。非 owner 的答案是该资源的 grant 是否列出该 action，不回退 `global` 答案，因此没有 grant 或 grant 未列出任何 action 的资源回答 false。owner 的所有答案为 true；没有注入 baseline 的非 owner 页面、快照流终止失败的非 owner 页面，所有答案为 false；终止失败会连同错误一并报告，非 owner 附“刷新页面重连”的提示，owner 附“答案不受影响”的说明；重连期间保留上次快照。注入的 baseline 格式错误时挂载失败。Hook 从不发请求，Host 仍检查每次调用。[`mwf-client-test-runtime`](../../test-support/client-runtime/README.zh.md) 在 Client spec 中以全允许的访问替换本行。
 
 <a id="model-experience"></a>
 ## 模型体验

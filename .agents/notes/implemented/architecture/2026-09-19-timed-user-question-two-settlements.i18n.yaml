@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-19-timed-user-question-two-settlements.md
 /agent-note-timed-user-questions-as-two-settlements:
-  en: 5b6fa73158a11213
-  zh: b55c32342d6e6692
+  en: df44ae35f5799046
+  zh: 7bf1801a0a73f123
 /agent-note-timed-user-questions-as-two-settlements/problem:
   en: f665127a9b5b8225
   zh: b19845f62310f3a2
@@ -15,8 +15,8 @@
   en: adccc5dc758ad8f6
   zh: 50304d68db42e8b1
 /agent-note-timed-user-questions-as-two-settlements/decision/ownership:
-  en: a28e37fda6e9eaff
-  zh: 9ca622e09ab24b4d
+  en: 3aa8ae3096503dd7
+  zh: 756bbb2e842c8deb
 /agent-note-timed-user-questions-as-two-settlements/decision/foreground-wait-and-claim-lifetime:
   en: 447713bbdf1ab4d8
   zh: 2757678ae47822aa
@@ -30,8 +30,8 @@
   en: 3a33f2583e30e32a
   zh: 0ad7e8d1e47dc510
 /agent-note-timed-user-questions-as-two-settlements/decision/reply-node-and-grouping:
-  en: d87d7432c37405a7
-  zh: 49f1bbf53856851a
+  en: 3fbd4de1c7310f4c
+  zh: fb2c28a4ab4cf4c3
 /agent-note-timed-user-questions-as-two-settlements/alternatives-considered:
   en: 1a070542bfa40e68
   zh: 82e32964da912dd8

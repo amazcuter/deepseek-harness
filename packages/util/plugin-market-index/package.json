@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-plugin-market-index",
+  "name": "@metaworkflow/plugin-market-index",
   "description": "Plugin market index format 1: JSON validation, relative icon resolution, and pinned install arguments",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-package-manifest": "workspace:*",
+    "@metaworkflow/package-manifest": "workspace:*",
     "semver": "^7.8.5"
   },
   "peerDependencies": {

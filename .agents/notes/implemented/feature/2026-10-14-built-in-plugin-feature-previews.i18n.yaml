@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-10-14-built-in-plugin-feature-previews.md
 /agent-note-built-in-plugin-feature-previews:
-  en: f6abb7d00b13d362
-  zh: b89d5da18677f31a
+  en: 1dd474c5c3b16041
+  zh: eb0e89a603e2ebcb
 /agent-note-built-in-plugin-feature-previews/problem:
-  en: e38fa1e5b3a62b5a
-  zh: c612ea229705d695
+  en: 1d4a4a58417bbce1
+  zh: 2ca8b9329d59f874
 /agent-note-built-in-plugin-feature-previews/decision:
-  en: aa12e3f72f7c2498
-  zh: 7dda9f061009aaa0
+  en: e2f1f8ab78344eeb
+  zh: f3623abc43c38c92
 /agent-note-built-in-plugin-feature-previews/alternatives-considered:
-  en: 4a4416610894d7c6
-  zh: 4256e81e7ab70db5
+  en: 6e4b12da68d9df19
+  zh: 5ef759888430134a
 /agent-note-built-in-plugin-feature-previews/consequences:
   en: a3dbd70080416314
   zh: 4d802da45085dfb0

@@ -10,7 +10,7 @@ Preset 目录重复承担 Cordis 配置的所有权。独立的发现、元数�
 
 ## Decision
 
-`dsh-agent-preset-registry` 负责选择与运行时代际；`dsh-agent-preset` 在普通 Cordis YAML 中声明标识、显示元数据和子插件列表。定义提前激活。激活失败保留在列表中，并拒绝新绑定，但不阻止应用启动。
+`mwf-agent-preset-registry` 负责选择与运行时代际；`mwf-agent-preset` 在普通 Cordis YAML 中声明标识、显示元数据和子插件列表。定义提前激活。激活失败保留在列表中，并拒绝新绑定，但不阻止应用启动。
 
 注册表拥有各代际的 scope 与 Loader 树。Agent 将自身 scope 链接到选定代际，子 Agent 继承父方的确切代际。更新使旧代际退役；Agent 和临时历史读取者保留引用，直至释放。最后一个引用释放后，退役树被销毁。Host 注册表和 Agent loop 保持共享；preset 的服务提供方与消费者需要处于隔离 realm 中。
 

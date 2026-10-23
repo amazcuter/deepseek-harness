@@ -1,19 +1,19 @@
 /**
  * Plugin-owned human-command registry shared by interactive UI adapters.
- * @module @deepseek-ai/dsh-commands
+ * @module @metaworkflow/commands
  */
 
 import { Context } from '@deepseek-ai/cordis'
-import { randomUUID } from '@deepseek-ai/dsh-util-crypto'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { AttachmentError, admitEncodedImages } from '@deepseek-ai/dsh-attachment'
-import type { EncodedImageAttachment, FileAttachmentRef, ImageAttachmentRef } from '@deepseek-ai/dsh-attachment/types'
-import type { FileBlock, ImageBlock } from '@deepseek-ai/dsh-llm'
-import { NamedEntries, ScopedLayers } from '@deepseek-ai/dsh-scope'
-import type { ScopeKey, ScopeLayer } from '@deepseek-ai/dsh-scope'
-import { SessionSeq } from '@deepseek-ai/dsh-session'
-import type { Session, SessionEvent, SessionEventMap } from '@deepseek-ai/dsh-session'
-import { TypertRemoteService, Remote } from '@deepseek-ai/dsh-typert-protocol'
+import { randomUUID } from '@metaworkflow/util-crypto'
+import type { Agent } from '@metaworkflow/agent'
+import { AttachmentError, admitEncodedImages } from '@metaworkflow/attachment'
+import type { EncodedImageAttachment, FileAttachmentRef, ImageAttachmentRef } from '@metaworkflow/attachment/types'
+import type { FileBlock, ImageBlock } from '@metaworkflow/llm'
+import { NamedEntries, ScopedLayers } from '@metaworkflow/scope'
+import type { ScopeKey, ScopeLayer } from '@metaworkflow/scope'
+import { SessionSeq } from '@metaworkflow/session'
+import type { Session, SessionEvent, SessionEventMap } from '@metaworkflow/session'
+import { TypertRemoteService, Remote } from '@metaworkflow/typert-protocol'
 import { CommandId } from './brand.ts'
 import type { CommandDefinitionId } from './brand.ts'
 import type {

@@ -2,11 +2,11 @@
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { StartedToolCall, ToolResultNode } from '@deepseek-ai/dsh-client-ui-chat/client'
-import type { ToolCallOwnerProps } from '@deepseek-ai/dsh-client-ui-tool/client'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
-import { PartialArguments } from '@deepseek-ai/dsh-util-values'
+import type { StartedToolCall, ToolResultNode } from '@metaworkflow/client-ui-chat/client'
+import type { ToolCallOwnerProps } from '@metaworkflow/client-ui-tool/client'
+import { makeTranslate } from '@metaworkflow/client-test-runtime'
+import { zh as commonZh } from '@metaworkflow/client-locale/src/locales/zh.ts'
+import { PartialArguments } from '@metaworkflow/util-values'
 import { SkillRow } from '../src/client/SkillRow.tsx'
 import { zh } from '../src/client/locales.ts'
 
@@ -17,7 +17,7 @@ const t: SkillRowProps['t'] = makeTranslate(zh, commonZh)
 afterEach(cleanup)
 
 function settled(over: Partial<ToolResultNode> = {}): ToolResultNode {
-  const call = over.call === undefined ? { name: 'skill', argsRaw: '{"name":"dsh-manage-issues"}' } : over.call
+  const call = over.call === undefined ? { name: 'skill', argsRaw: '{"name":"mwf-manage-issues"}' } : over.call
   return {
     kind: 'tool-result',
     seq: 3,
@@ -33,7 +33,7 @@ function settled(over: Partial<ToolResultNode> = {}): ToolResultNode {
   }
 }
 
-function running(argsRaw = '{"name":"dsh-manage-issues"}'): StartedToolCall {
+function running(argsRaw = '{"name":"mwf-manage-issues"}'): StartedToolCall {
   return {
     phase: 'start' as const, args: PartialArguments.fromText(argsRaw), callId: 'call-skill', name: 'skill', argsRaw, turn: 1, step: 1, time: 2_000, subCalls: [],
   }
@@ -67,7 +67,7 @@ describe('SkillRow', () => {
   it('renders a compact Bash-shaped summary and discloses the exact instructions', () => {
     const inspect = vi.fn()
     const view = render(<SkillRow {...props(settled(), inspect)} />)
-    const row = screen.getByRole('button', { name: '加载技能dsh-manage-issues' })
+    const row = screen.getByRole('button', { name: '加载技能mwf-manage-issues' })
     expect(row.getAttribute('aria-expanded')).toBe('false')
     expect(view.container.querySelector('[data-tool="skill"]')?.getAttribute('data-state')).toBe('ok')
     expect(view.container.querySelector('[data-tool="skill"] svg')?.getAttribute('width')).toBe('14')
@@ -77,7 +77,7 @@ describe('SkillRow', () => {
     expect(row.getAttribute('aria-expanded')).toBe('true')
     const card = screen.getByLabelText('说明')
     expect(card.textContent).toBe('说明Follow the issue workflow.\nKeep project fields in sync.')
-    expect(view.container.textContent).not.toContain('{"name":"dsh-manage-issues"}')
+    expect(view.container.textContent).not.toContain('{"name":"mwf-manage-issues"}')
     fireEvent.click(screen.getByRole('button', { name: '查看' }))
     expect(inspect).toHaveBeenCalledTimes(1)
 
@@ -101,7 +101,7 @@ describe('SkillRow', () => {
     const row = view.container.querySelector('[data-tool="skill"] > div')!
     expect(row.getAttribute('role')).toBeNull()
     expect(view.container.textContent).toContain('正在加载 skill')
-    expect(view.container.textContent).toContain('dsh-manage-issues')
+    expect(view.container.textContent).toContain('mwf-manage-issues')
     expect(view.container.querySelector('svg [fill="currentColor"]')).not.toBeNull()
   })
 

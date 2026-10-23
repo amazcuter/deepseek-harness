@@ -1,6 +1,6 @@
 // Blast Radius, from "Getting started with Claude Code mods"
 // (https://claude.dev/blog/getting-started-with-claude-code-mods/, Anthropic, 2026-10-01).
-// The tool.call hook adds a waitArgv option for DSH's portable timer; the rest of the module
+// The tool.call hook adds a waitArgv option for MWF's portable timer; the rest of the module
 // (classify, measure, the pane and band trees) is completed to the post's
 // description of the mod, which is marked where it starts.
 

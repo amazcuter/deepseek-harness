@@ -13,7 +13,7 @@ import { verifyRuntimeArchive } from './verify-runtime-archive.ts'
 
 /**
  * Exercise real runtime files and Host composition, including an ASAR root when packaged.
- * @param root Prepared or archived dsh directory.
+ * @param root Prepared or archived mwf directory.
  * @param node Target Electron executable.
  * @param resourcesRuntime External runtime directory beside the archive.
  * @param descriptor Runtime descriptor already verified against the selected target, which may differ from the build host.

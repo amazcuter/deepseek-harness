@@ -30,7 +30,7 @@ async function hashStream(stream: AsyncIterable<Uint8Array>): Promise<InstalledU
  */
 export function createInstalledUpdateCos(): InstalledUpdatePublicationStore {
   const environment = loadDesktopPackageEnvironment('win32')
-  if (environment.DSH_DESKTOP_AUTO_UPDATE_ENV !== 'test' || environment.DOWNLOAD_TEST_ORIGIN !== ORIGIN
+  if (environment.MWF_DESKTOP_AUTO_UPDATE_ENV !== 'test' || environment.DOWNLOAD_TEST_ORIGIN !== ORIGIN
     || environment.DOWNLOAD_TEST_COS_BUCKET !== BUCKET || !environment.DOWNLOAD_TEST_COS_SECRET_ID?.trim()
     || !environment.DOWNLOAD_TEST_COS_SECRET_KEY?.trim()) throw new Error('installed update: complete test upload settings are required')
   const credentials = {
@@ -39,7 +39,7 @@ export function createInstalledUpdateCos(): InstalledUpdatePublicationStore {
   }
   const client = () => createDesktopCos(credentials)
   const keyAllowed = (key: string): void => {
-    if (!/^dsh-desk\/(?:bin|feeds)\/qualification\/[a-f0-9]{24}\/win-x64\/[A-Za-z0-9][A-Za-z0-9._-]*$/u.test(key)) {
+    if (!/^mwf-desk\/(?:bin|feeds)\/qualification\/[a-f0-9]{24}\/win-x64\/[A-Za-z0-9][A-Za-z0-9._-]*$/u.test(key)) {
       throw new Error('installed update: COS key must stay in the Windows qualification namespace')
     }
   }

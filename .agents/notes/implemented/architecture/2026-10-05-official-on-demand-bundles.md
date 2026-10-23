@@ -6,7 +6,7 @@ English | [中文](2026-10-05-official-on-demand-bundles.zh.md)
 
 ## Problem
 
-Native subagent integrations bring their own runtimes. Shipping those dependencies with every DSH installation charges that cost to people who never delegate to them, while requiring a package name hides the integrations from the Plugins page.
+Native subagent integrations bring their own runtimes. Shipping those dependencies with every MWF installation charges that cost to people who never delegate to them, while requiring a package name hides the integrations from the Plugins page.
 
 ## Decision
 
@@ -14,9 +14,9 @@ Native subagent integrations bring their own runtimes. Shipping those dependenci
 
 Selection uses the ordinary third-party bundle installer, profile dependency, Host row patches, compatibility evaluation, progress, cancellation, registry fallback, and build-script approval. Native authentication and configuration remain provider-owned.
 
-The running installation owns the target. Published applications offer the exact DSH release version and save an exact registry dependency pin. Source Web and development Desktop offer ordinary `link:` dependencies into the same checkout as the running CLI, using its prepared workspace dependencies and peers. The source target follows the actual installation, never the current working directory or a prerelease suffix; an incomplete checkout does not fall back to the registry. A development checkout can share a version string with different published code, so replacing an installed registry copy or another checkout’s link compares the source as well as the version. Replacement is explicit, preserves selection, and reports required restarts; startup does not download providers. [Plugin Manager](../../../../packages/boot/plugin-manager/README.md#use-this-package) owns the operational details.
+The running installation owns the target. Published applications offer the exact MWF release version and save an exact registry dependency pin. Source Web and development Desktop offer ordinary `link:` dependencies into the same checkout as the running CLI, using its prepared workspace dependencies and peers. The source target follows the actual installation, never the current working directory or a prerelease suffix; an incomplete checkout does not fall back to the registry. A development checkout can share a version string with different published code, so replacing an installed registry copy or another checkout’s link compares the source as well as the version. Replacement is explicit, preserves selection, and reports required restarts; startup does not download providers. [Plugin Manager](../../../../packages/boot/plugin-manager/README.md#use-this-package) owns the operational details.
 
-Every Official package remains in the DSH release family. Packed DSH dependencies, optional dependencies, and peers use the exact family version. Publication prerequisites place catalog packages before the DSH package advertising them without adding their runtimes to DSH production dependencies. Catalog verification rejects missing metadata, unsupported membership, and stale generated content.
+Every Official package remains in the MWF release family. Packed MWF dependencies, optional dependencies, and peers use the exact family version. Publication prerequisites place catalog packages before the MWF package advertising them without adding their runtimes to MWF production dependencies. Catalog verification rejects missing metadata, unsupported membership, and stale generated content.
 
 The [shipped optional-bundle policy](../process/2026-09-15-shipped-optional-bundles.md) still owns lightweight installation-provided bundles. The [optional-composition decision](2026-09-21-experimental-capabilities-as-optional-bundles.md) owns shared patch behavior and global optional tools. Native bundles insert ordinary Host rows, so any profile can select them; profiles that keep the package without its bundle mount the same rows explicitly. The [identity compatibility decision](2026-10-06-web-desktop-plugin-identity-compatibility.md) owns retained names, selectors, and deferred naming cleanup.
 

@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/testing/2026-10-07-scaled-benchmark-report.md
 /agent-note-scaled-machine-and-memory-pressure-benchmark-report:
-  en: 486b21866106fb62
-  zh: eb0f2e90eeb426a3
+  en: a82e1fecfbee76a0
+  zh: 93ecea05bb7fa0b4
 /agent-note-scaled-machine-and-memory-pressure-benchmark-report/problem:
   en: d8e9dee3e22d691a
   zh: 53d9fae666f032b7
 /agent-note-scaled-machine-and-memory-pressure-benchmark-report/decision:
-  en: 5587ef207abde949
-  zh: a8c92e13b980c7c1
+  en: a82d8aaede387ced
+  zh: 84a2a1fff6504795
 /agent-note-scaled-machine-and-memory-pressure-benchmark-report/decision/machine-scaling:
   en: f532650e0720e66a
   zh: dfd6ffa6366c1f09

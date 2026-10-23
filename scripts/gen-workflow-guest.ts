@@ -37,7 +37,7 @@ export async function bundleWorkflowGuest(root: string): Promise<string> {
     }
     const external = [...chunk.imports, ...chunk.dynamicImports].filter(id => !isBuiltin(id))
     if (external.length > 0) throw new Error(`workflow guest imports files outside its module: ${external.join(', ')}`)
-    return `${chunk.code.trimEnd()}\n//# sourceURL=dsh-workflow-guest.js\n`
+    return `${chunk.code.trimEnd()}\n//# sourceURL=mwf-workflow-guest.js\n`
   } finally {
     await bundle.close()
   }

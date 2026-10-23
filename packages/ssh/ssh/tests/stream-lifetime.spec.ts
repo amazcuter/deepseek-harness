@@ -9,7 +9,7 @@ import { authenticateStream } from '../src/stream-security.ts'
 
 describe('SSH TLS cancellation ownership', () => {
   it('cancels an authenticated stream before closing its underlying socket', async () => {
-    const root = await mkdtemp('/tmp/dsh-ssh-tls-life-')
+    const root = await mkdtemp('/tmp/mwf-ssh-tls-life-')
     const owner = new RemoteProcesses(new Context(), root, 1, 5000)
     try {
       const prepared = await owner.prepare({ argv: ['true'], cwd: root, graceMs: 100, terminal: { terminalType: 'dumb', rows: 24, cols: 80 } })

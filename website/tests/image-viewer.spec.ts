@@ -115,7 +115,7 @@ function open(): HTMLDialogElement {
 }
 
 function enlarged(dialog: HTMLElement): HTMLImageElement {
-  return required(dialog.querySelector('.dsh-media-paper')?.shadowRoot?.querySelector('img'))
+  return required(dialog.querySelector('.mwf-media-paper')?.shadowRoot?.querySelector('img'))
 }
 
 describe('documentation image viewer', () => {
@@ -132,7 +132,7 @@ describe('documentation image viewer', () => {
     state.width = 0
     image.dispatchEvent(new Event('error'))
     expect(queryAllByRole(document.body, 'button')).toHaveLength(0)
-    expect(image.classList.contains('dsh-image-zoomable')).toBe(false)
+    expect(image.classList.contains('mwf-image-zoomable')).toBe(false)
     image.click()
     trigger.click()
     expect(queryByRole(document.body, 'dialog')).toBeNull()
@@ -208,7 +208,7 @@ describe('documentation image viewer', () => {
     expect(current.zoom).toHaveBeenCalledWith(1, { animate: false })
     expect(current.pan).toHaveBeenCalledWith(0, 0, { animate: false })
     current.getScale.mockReturnValue(1)
-    required(dialog.querySelector('.dsh-media-paper')).dispatchEvent(new Event('panzoomchange'))
+    required(dialog.querySelector('.mwf-media-paper')).dispatchEvent(new Event('panzoomchange'))
     expect(original.textContent).toBe('100%')
     expect(original.getAttribute('aria-label')).toBe('Original size (100%), currently 100%')
     const controls = ['Zoom out', 'Original size (100%), currently 100%', 'Zoom in', 'Fit view', 'Viewer help', 'Close']
@@ -317,8 +317,8 @@ describe('documentation image viewer', () => {
     expect(required(controllers[0]).zoomIn).not.toHaveBeenCalled()
     if (action === 'refresh') expect(document.activeElement).toBe(trigger)
     else {
-      expect(image.classList.contains('dsh-image-zoomable')).toBe(false)
-      expect(container.classList.contains('dsh-image-container')).toBe(false)
+      expect(image.classList.contains('mwf-image-zoomable')).toBe(false)
+      expect(container.classList.contains('mwf-image-container')).toBe(false)
       image.click()
       trigger.click()
       expect(queryByRole(document.body, 'dialog')).toBeNull()

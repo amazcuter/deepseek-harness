@@ -294,7 +294,7 @@ function browserFixture(bootstrap: InspectorHandle['endpoint']['client']): strin
   const boot = {
     rev: 'browser-test',
     entries: [{
-      id: '@deepseek-ai/dsh-experimental-inspector',
+      id: '@metaworkflow/experimental-inspector',
       url: '/client.js?rev=browser-test',
       rev: 'browser-test',
     }],
@@ -302,8 +302,8 @@ function browserFixture(bootstrap: InspectorHandle['endpoint']['client']): strin
   return `<!doctype html>
 <title>Inspector Browser Client</title>
 <script>
-globalThis.__DSH_INSPECTOR__ = ${JSON.stringify(bootstrap)};
-globalThis.__DSH_BOOT__ = ${JSON.stringify(boot)};
+globalThis.__MWF_INSPECTOR__ = ${JSON.stringify(bootstrap)};
+globalThis.__MWF_BOOT__ = ${JSON.stringify(boot)};
 globalThis.__ModuleLoader__ = { load(registration) { globalThis.__INSPECTOR_REGISTRATION__ = registration; } };
 </script>
 <script src="/client.js?rev=browser-test"></script>

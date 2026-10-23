@@ -107,12 +107,12 @@ export async function loadWin32DialogBindings(): Promise<Win32DialogBindings> {
   const getCurrentThreadId = kernel32.func('__stdcall', 'GetCurrentThreadId', 'uint32', [])
   const keybdEvent = user32.func('__stdcall', 'keybd_event', 'void', ['uint8', 'uint8', 'uint32', 'uintptr'])
 
-  const protoShow = koffi.proto('int32 __stdcall DshDialogShow(void *self, void *owner)')
-  const protoSetOptions = koffi.proto('int32 __stdcall DshDialogSetOptions(void *self, uint32 options)')
-  const protoSetTitle = koffi.proto('int32 __stdcall DshDialogSetTitle(void *self, str16 title)')
-  const protoGetResult = koffi.proto('int32 __stdcall DshDialogGetResult(void *self, _Out_ void **item)')
-  const protoGetDisplayName = koffi.proto('int32 __stdcall DshItemGetDisplayName(void *self, int32 form, _Out_ void **name)')
-  const protoRelease = koffi.proto('uint32 __stdcall DshComRelease(void *self)')
+  const protoShow = koffi.proto('int32 __stdcall MwfDialogShow(void *self, void *owner)')
+  const protoSetOptions = koffi.proto('int32 __stdcall MwfDialogSetOptions(void *self, uint32 options)')
+  const protoSetTitle = koffi.proto('int32 __stdcall MwfDialogSetTitle(void *self, str16 title)')
+  const protoGetResult = koffi.proto('int32 __stdcall MwfDialogGetResult(void *self, _Out_ void **item)')
+  const protoGetDisplayName = koffi.proto('int32 __stdcall MwfItemGetDisplayName(void *self, int32 form, _Out_ void **name)')
+  const protoRelease = koffi.proto('uint32 __stdcall MwfComRelease(void *self)')
 
   /** Bind vtable slot `slot` of COM object `self` to a caller through `proto`. */
   const method = (self: unknown, slot: number, proto: unknown): (...args: unknown[]) => number => {
@@ -193,7 +193,7 @@ export async function closeThreadWindows(threadId: number): Promise<void> {
   const user32 = koffi.load('user32.dll')
   const enumThreadWindows = user32.func('__stdcall', 'EnumThreadWindows', 'int', ['uint32', 'void *', 'intptr'])
   const postMessageW = user32.func('__stdcall', 'PostMessageW', 'int', ['void *', 'uint32', 'uintptr', 'intptr'])
-  const protoEnumProc = koffi.proto('int __stdcall DshEnumThreadWndProc(void *hwnd, intptr lparam)')
+  const protoEnumProc = koffi.proto('int __stdcall MwfEnumThreadWndProc(void *hwnd, intptr lparam)')
   const callback = koffi.register((hwnd: unknown) => {
     postMessageW(hwnd, WM_CLOSE, 0, 0)
     return 1

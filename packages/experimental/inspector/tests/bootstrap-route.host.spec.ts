@@ -2,9 +2,9 @@
 
 import { Context, FiberState } from '@deepseek-ai/cordis'
 import type { Message } from '@deepseek-ai/cordis'
-import type { IndexInjection, WebServer } from '@deepseek-ai/dsh-host-webserver'
-import { HostConnectionService } from '@deepseek-ai/dsh-client-connection'
-import type { BrowserAuth } from '@deepseek-ai/dsh-client-connection/src/browser-auth.ts'
+import type { IndexInjection, WebServer } from '@metaworkflow/host-webserver'
+import { HostConnectionService } from '@metaworkflow/client-connection'
+import type { BrowserAuth } from '@metaworkflow/client-connection/src/browser-auth.ts'
 import open from 'open'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { apply, Config, inject, name } from '../src/index.ts'
@@ -75,7 +75,7 @@ describe('experimental Inspector Host bootstrap route', () => {
     const injected = () => {
       const rows: IndexInjection[] = []
       context!.emit('webserver/index-inject', rows)
-      return rows.find(row => row.kind === 'global' && row.name === '__DSH_INSPECTOR__')
+      return rows.find(row => row.kind === 'global' && row.name === '__MWF_INSPECTOR__')
     }
     return { fiber, bootstrap, injected, register, registerUpgrade, messages, log }
   }
@@ -97,7 +97,7 @@ describe('experimental Inspector Host bootstrap route', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('cache-control')).toBe('no-store')
     const value = injected()
-    expect(value).toMatchObject({ kind: 'global', name: '__DSH_INSPECTOR__' })
+    expect(value).toMatchObject({ kind: 'global', name: '__MWF_INSPECTOR__' })
     expect(await response.json()).toEqual(value?.kind === 'global' ? value.value : undefined)
     expect(register).toHaveBeenCalledWith(expect.objectContaining({ path: '/inspector/devtools' }))
     expect(registerUpgrade).toHaveBeenCalledWith(expect.objectContaining({ path: '/inspector/devtools/cdp' }))
@@ -146,7 +146,7 @@ describe('experimental Inspector Host bootstrap route', () => {
     expect(registerUpgrade).not.toHaveBeenCalled()
     expect(injected()).toBeUndefined()
     expect(context!.get('inspector')).toBeUndefined()
-    expect(log).not.toHaveBeenCalledWith(expect.stringMatching(/^dsh inspector:/u))
+    expect(log).not.toHaveBeenCalledWith(expect.stringMatching(/^mwf inspector:/u))
     expect(open).not.toHaveBeenCalled()
 
     await fiber.dispose()

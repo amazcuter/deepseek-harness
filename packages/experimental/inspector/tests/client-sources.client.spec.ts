@@ -18,7 +18,7 @@ function discoveredCatalog(url: string, source: string, mapUrl?: string, mapStat
     if (requestedUrl === mapUrl) return new Response(sourceMap, { status: mapStatus })
     throw new Error(`Unexpected source fetch: ${requestedUrl}`)
   })
-  vi.stubGlobal('__DSH_BOOT__', { entries: [{ id: '@deepseek-ai/dsh-experimental-inspector', url, rev: 'abc' }] })
+  vi.stubGlobal('__MWF_BOOT__', { entries: [{ id: '@metaworkflow/experimental-inspector', url, rev: 'abc' }] })
   vi.stubGlobal('document', { baseURI: base })
   vi.stubGlobal('location', { href: 'https://client.test/mounted/session/selected' })
   vi.stubGlobal('fetch', fetch)
@@ -36,9 +36,9 @@ async function readMap(catalog: ClientSourceCatalog) {
 
 describe('Client source catalog', () => {
   it.each([
-    ['plugins/??@deepseek-ai/dsh-experimental-inspector/client.js&rev=abc',
-      '??@deepseek-ai/dsh-experimental-inspector/client.js.map&rev=abc',
-      'https://client.test/mounted/plugins/??@deepseek-ai/dsh-experimental-inspector/client.js.map&rev=abc'],
+    ['plugins/??@metaworkflow/experimental-inspector/client.js&rev=abc',
+      '??@metaworkflow/experimental-inspector/client.js.map&rev=abc',
+      'https://client.test/mounted/plugins/??@metaworkflow/experimental-inspector/client.js.map&rev=abc'],
     ['assets/client.js?rev=abc', 'client.js.map?rev=abc', 'https://client.test/mounted/assets/client.js.map?rev=abc'],
     ['assets/client.js?rev=abc', '../maps/inspector.map?rev=map-rev', 'https://client.test/mounted/maps/inspector.map?rev=map-rev'],
   ])('resolves the emitted map reference for %s against the loaded script URL', async (url, reference, mapUrl) => {
@@ -59,10 +59,10 @@ describe('Client source catalog', () => {
   })
 
   it('loads the script before a map-first read and shares that source with later metadata reads', async () => {
-    const mapUrl = 'https://client.test/mounted/plugins/??@deepseek-ai/dsh-experimental-inspector/client.js.map&rev=abc'
+    const mapUrl = 'https://client.test/mounted/plugins/??@metaworkflow/experimental-inspector/client.js.map&rev=abc'
     try {
-      const h = discoveredCatalog('plugins/??@deepseek-ai/dsh-experimental-inspector/client.js&rev=abc',
-        'export {}\n//# sourceMappingURL=??@deepseek-ai/dsh-experimental-inspector/client.js.map&rev=abc\n', mapUrl)
+      const h = discoveredCatalog('plugins/??@metaworkflow/experimental-inspector/client.js&rev=abc',
+        'export {}\n//# sourceMappingURL=??@metaworkflow/experimental-inspector/client.js.map&rev=abc\n', mapUrl)
       expect(await readMap(h.catalog)).toMatchObject({ available: true })
       expect(await h.catalog.execute({ op: 'list-scripts' }, 1_024)).toMatchObject({ scripts: [{ sourceMapUrl: mapUrl }] })
       expect(h.fetch.mock.calls).toEqual([[h.sourceUrl], [mapUrl]])

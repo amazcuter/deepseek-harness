@@ -4,9 +4,9 @@
  * base image for one shipped profile, write its lazy chunk archives beside it,
  * then write each named fixture overlay and their manifest.
  *
- * Usage: dsh-pack-vfs-image --out <file> [--profile web] [--root /dsh]
+ * Usage: mwf-pack-vfs-image --out <file> [--profile web] [--root /mwf]
  *        node --import tsx/esm src/bin.ts --out ../../apps/web/dist/preview/vfs-image.tar.gz
- * @module @deepseek-ai/dsh-experimental-webworker-packer/src/bin
+ * @module @metaworkflow/experimental-webworker-packer/src/bin
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 import {
   PREVIEW_FIXTURE_MANIFEST_FILE, PREVIEW_FIXTURE_MANIFEST_VERSION,
   type PreviewFixtureManifest,
-} from '@deepseek-ai/dsh-experimental-webworker-runtime'
+} from '@metaworkflow/experimental-webworker-runtime'
 import {
   describePack, packPreviewFixture, packRepositoryImage, previewFixtures,
 } from './repository.ts'
@@ -31,11 +31,11 @@ function flag(name: string, fallback?: string): string {
   const index = process.argv.indexOf(`--${name}`)
   if (index === -1) {
     if (fallback !== undefined) return fallback
-    throw new Error(`dsh-pack-vfs-image: --${name} is required`)
+    throw new Error(`mwf-pack-vfs-image: --${name} is required`)
   }
   const value = process.argv[index + 1]
   if (value === undefined || value.startsWith('--')) {
-    throw new Error(`dsh-pack-vfs-image: --${name} needs a value`)
+    throw new Error(`mwf-pack-vfs-image: --${name} needs a value`)
   }
   return value
 }
@@ -45,7 +45,7 @@ const profile = flag('profile', 'web')
 const out = flag('out')
 const outputFile = isAbsolute(out) ? out : resolve(process.cwd(), out)
 
-const result = packRepositoryImage(repoRoot, profile, flag('root', '/dsh'))
+const result = packRepositoryImage(repoRoot, profile, flag('root', '/mwf'))
 
 if (result.missing.length > 0) {
   throw new Error(`vfs image: ${String(result.missing.length)} dependencies did not resolve; the image would be incomplete`)

@@ -5,8 +5,8 @@ import { mkdir, rename, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { Context } from '@deepseek-ai/cordis'
-import type { FileSystem, FsObservation, FsTarget } from '@deepseek-ai/dsh-fs'
-import { FsVersion } from '@deepseek-ai/dsh-fs'
+import type { FileSystem, FsObservation, FsTarget } from '@metaworkflow/fs'
+import { FsVersion } from '@metaworkflow/fs'
 import { WorkspaceFiles } from '../src/index.ts'
 import { failureOf, openWorkspace, type Harness } from './harness.ts'
 
@@ -16,7 +16,7 @@ let unwatch: Mock<() => Promise<void>>
 const cleanups: Array<() => Promise<unknown>> = []
 
 beforeEach(async () => {
-  harness = await openWorkspace('dsh-workspace-files-changes-')
+  harness = await openWorkspace('mwf-workspace-files-changes-')
   unwatch = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
   watch = vi.spyOn(harness.ctx.fs, 'watch').mockResolvedValue(unwatch)
 })

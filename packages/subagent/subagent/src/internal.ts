@@ -1,18 +1,18 @@
 /**
  * Continuation integration markers and host adapters outside the public
  * Service Definition and model-facing Agent messaging contract.
- * @module @deepseek-ai/dsh-subagent/internal
+ * @module @metaworkflow/subagent/internal
  */
 
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { ContentBlock, MessageId, MessageSource } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import type { ToolDefinition } from '@deepseek-ai/dsh-tools'
+import type { Agent } from '@metaworkflow/agent'
+import type { ContentBlock, MessageId, MessageSource } from '@metaworkflow/llm'
+import type { SessionId } from '@metaworkflow/session'
+import type { ToolDefinition } from '@metaworkflow/tools'
 import type SubagentRuntime from './index.ts'
 import type { SubagentDelivery } from './control-types.ts'
 
 /** Process-stable identity carried only by the standard adjacent-Agent messaging tool. */
-export const adjacentAgentSendMessageTool = Symbol.for('dsh.subagent.adjacentAgentSendMessageTool')
+export const adjacentAgentSendMessageTool = Symbol.for('mwf.subagent.adjacentAgentSendMessageTool')
 
 /**
  * Mark the standard adjacent-Agent messaging tool without changing its model-visible schema.
@@ -39,7 +39,7 @@ export function isAdjacentAgentSendMessageTool(definition: ToolDefinition | unde
  * entry and this unbundled internal subpath.
  * @internal
  */
-export const deliverSubagentPrompt = Symbol.for('dsh.subagent.deliverPrompt')
+export const deliverSubagentPrompt = Symbol.for('mwf.subagent.deliverPrompt')
 
 /** Runtime face required by the host-only prompt adapters. */
 export interface HostPromptDeliverer {

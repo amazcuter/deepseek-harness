@@ -16,7 +16,7 @@ profile 启动生成一个不可变 `RuntimeResolution`，并将其安装到 Nod
 
 ### 唯一选包算法
 
-包遍历属于 `@deepseek-ai/dsh-app-boot`，与 profile 加载代码放在一起。普通 Node、源码启动、打包可执行文件和 Electron Host 消费相同的 runtime resolution 与拦截。
+包遍历属于 `@metaworkflow/app-boot`，与 profile 加载代码放在一起。普通 Node、源码启动、打包可执行文件和 Electron Host 消费相同的 runtime resolution 与拦截。
 
 安装 manifest 是第一个根。它按 BFS 依次遍历 `dependencies` 和 `peerDependencies`，每条边从声明它的 manifest 解析，同名包由第一次找到的已安装包占有。所选 bundle 随后按 profile 顺序逐根遍历；每个较早根的完整依赖图优先于所有较晚根。安装闭包中的名称被保留，bundle 包根本身不成为插件 fallback。已声明但未安装的包会被跳过。
 
@@ -60,7 +60,7 @@ ESM `import` 和 CommonJS `require` 都选中这些版本。在每种模块格�
 
 [源码启动器](2026-07-29-dsh-source-launch-tsx-esm.zh.md)使用 tsx 的 ESM-only 钩子。导入方 URL 含有 `/node_modules/` 时，tsx 会跳过 tsconfig `paths`。因此，把 workspace 软链接的逻辑路径用作 fallback 声明锚点，可能选中构建后的 `lib/` 导出，而这些模块在真实 workspace 路径中发起的 import 又通过 paths 映射选中 `src/`。真实声明锚点让 workspace import 一致遵循源码映射；没有匹配 workspace 映射的包仍使用普通包导出解析。
 
-例如，`@deepseek-ai/dsh-tools` 使用 `Symbol()` 创建 scheduler 键。从 `lib/` 加载的 Tools 实例，无法通过另一个 `src/` 模块实例导入的键暴露该 scheduler。源码启动让 Tools 与 AgentLoop 都位于 `src/`；普通 Node 启动让两者都位于 `lib/`。scheduler 保留模块本地的 Symbol；正确的 import 共享同一个模块实例。
+例如，`@metaworkflow/tools` 使用 `Symbol()` 创建 scheduler 键。从 `lib/` 加载的 Tools 实例，无法通过另一个 `src/` 模块实例导入的键暴露该 scheduler。源码启动让 Tools 与 AgentLoop 都位于 `src/`；普通 Node 启动让两者都位于 `lib/`。scheduler 保留模块本地的 Symbol；正确的 import 共享同一个模块实例。
 
 源码启动器不安装 CommonJS TypeScript 钩子。`createRequire().resolve()` 仍选择包发布的 JavaScript 入口，并要求该文件存在。因此，源码模式的解析测试使用 fixture 提供的 CommonJS 文件，真实安装包的 CommonJS 入口检查则在构建产物存在时运行。
 
@@ -93,7 +93,7 @@ runtime resolution 列出它提供的包；Loader entries 组成活动插件列�
 
 解析器不提供 `imported(entry)`，不观察 ModuleJob，不包装 Entry 方法，不把 fiber 与 import 调用关联，也不替换 registry、tree 或 HMR 方法。包目录查询使用相同选包规则，包括 linked importer 祖先当前的 peer 声明，但不校验所请求的子路径或加载文件。需要包元数据的非 Node importer 必须显式实现同一个 resolver 接口。
 
-实现集中在 `app-boot/src/profile-resolution/`。`service.ts` 提供长期存在的 `ctx.pluginPackages`，并拥有主线程拦截与 Worker runtime resolution 的生命周期；`resolver.ts` 实现 runtime resolution 查询和 Node Internal 适配器；`worker-bootstrap.ts` 在线程内安装继承的 runtime resolution。profile 选包和 runtime resolution 构造留在 `profile.ts`。Worker 只通过 `@deepseek-ai/dsh-app-boot/worker/profile-resolution-bootstrap` 公开入口引用 bootstrap。
+实现集中在 `app-boot/src/profile-resolution/`。`service.ts` 提供长期存在的 `ctx.pluginPackages`，并拥有主线程拦截与 Worker runtime resolution 的生命周期；`resolver.ts` 实现 runtime resolution 查询和 Node Internal 适配器；`worker-bootstrap.ts` 在线程内安装继承的 runtime resolution。profile 选包和 runtime resolution 构造留在 `profile.ts`。Worker 只通过 `@metaworkflow/app-boot/worker/profile-resolution-bootstrap` 公开入口引用 bootstrap。
 
 服务定义与提供方继续放在 `app-boot`，因为 profile boot 拥有 resolver 生命周期。出现与 launcher 无关的提供方或需要独立演进的消费方时，再抽出单独的能力 seam。
 
@@ -111,9 +111,9 @@ runtime resolution 列出它提供的包；Loader entries 组成活动插件列�
 
 ### 文件系统与运行时载体
 
-解析器不创建、更新或删除 fallback 软链接与代理包。runtime resolution 条目占据 `$DSH_HOME/profiles/node_modules` 上各自的包名位置；其余包名把该目录当作普通祖先。构造时记录目标同时位于共享 profiles 树和当前 profile 自身之外的目录链接，包括没有自身 manifest 的目标。installation 作用域包目录不参与 linked 拦截，即使更宽的 linked root 包含它们。符合条件的 linked importer 保留原生祖先顺序与逐位置的 peer 映射。优先级和范围见[查找顺序 Note](2026-09-19-profile-resolution-lookup-order.zh.md)。可写 profile 状态和包管理器事务不属于解析器。
+解析器不创建、更新或删除 fallback 软链接与代理包。runtime resolution 条目占据 `$MWF_HOME/profiles/node_modules` 上各自的包名位置；其余包名把该目录当作普通祖先。构造时记录目标同时位于共享 profiles 树和当前 profile 自身之外的目录链接，包括没有自身 manifest 的目标。installation 作用域包目录不参与 linked 拦截，即使更宽的 linked root 包含它们。符合条件的 linked importer 保留原生祖先顺序与逐位置的 peer 映射。优先级和范围见[查找顺序 Note](2026-09-19-profile-resolution-lookup-order.zh.md)。可写 profile 状态和包管理器事务不属于解析器。
 
-运行时解析要求受支持的 Node Internal loader 接口。Electron Host 通过设置 `ELECTRON_RUN_AS_NODE=1` 的 Electron 可执行文件运行；打包构建从 ASAR 读取 dsh 依赖树，并把 ASAR 中的可执行条目映射到 electron-builder 的 unpacked 目录。pkg 与 Electron 使用和普通 Node 启动相同的 runtime resolution 机制。
+运行时解析要求受支持的 Node Internal loader 接口。Electron Host 通过设置 `ELECTRON_RUN_AS_NODE=1` 的 Electron 可执行文件运行；打包构建从 ASAR 读取 mwf 依赖树，并把 ASAR 中的可执行条目映射到 electron-builder 的 unpacked 目录。pkg 与 Electron 使用和普通 Node 启动相同的 runtime resolution 机制。
 
 ### 性能与验证
 
@@ -144,7 +144,7 @@ generation 构造发生在启动或显式更新阶段，不属于单次 resolve�
 - 一次 eager 计算供应 runtime resolution；启动既不写入也不退休模块解析数据。
 - [Generation 测试](../../../../packages/boot/app-boot/tests/profile-resolution.spec.ts)覆盖普通目录和递归软链接下的安装图与所选 bundle 图，包括逻辑锚点和真实锚点旁存在不同依赖版本的情况。测试还覆盖同包 profile 声明者变更、保留包身份变更拒绝、捕获目录后的重算、linked root 移除、同目标恢复、重叠 root、原生缺包、已加载模块的新请求，以及移除后重新链接不同目标时的拒绝。
 - [源码启动测试](../../../../apps/cli/tests/source-launch.compat.spec.ts)与[构建入口测试](../../../../apps/cli/tests/built-bin.e2e.ts)通过真实 CLI 运行两种 profile 布局，断言 ESM/CJS 版本、加载路径、各模块格式内的依赖身份，以及一致的 Tools/AgentLoop 模块实例和可访问的 scheduler 键。
-- pkg 与 Electron 载体选择 runtime 解析；Electron 以 Node 模式从 ASAR 承载的 dsh 依赖树执行 Host，原生可执行条目保持 unpacked。
+- pkg 与 Electron 载体选择 runtime 解析；Electron 以 Node 模式从 ASAR 承载的 mwf 依赖树执行 Host，原生可执行条目保持 unpacked。
 - ESM 与 CommonJS 适配器共享同一个路由器，并把最终解析委托给 Node，不使用 `module.registerHooks` 或替换 `_findPath`。
 - 生产 package metadata 查询不记录 Loader import 结果，也不包装 Entry、registry、tree 或 HMR 方法。
 - Node 兼容矩阵会在受支持的 loader 接口上运行主线程 resolver 规格；service 和 bootstrap 规格覆盖 Worker environment data 与安装接口，但不会启动构建后的 Worker。

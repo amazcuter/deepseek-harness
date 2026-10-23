@@ -10,8 +10,8 @@ import {
   boot, createRuntimeResolution, initProfile, loadProfileDirectory, PluginPackages, ProfileRuntimeResolution,
   readProfileManifest, readProfilePatches, type ProfileContext,
   ResolutionRestartRequired,
-} from '@deepseek-ai/dsh-app-boot'
-import Hmr from '@deepseek-ai/dsh-hmr'
+} from '@metaworkflow/app-boot'
+import Hmr from '@metaworkflow/hmr'
 import type { ChokidarOptions } from 'chokidar'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import PluginManager, { type PluginInstallRequestId } from '../src/index.ts'
@@ -35,7 +35,7 @@ function writeBundle(dir: string, version: number): void {
   mkdirSync(pluginDir, { recursive: true })
   writeFileSync(join(bundleDir, 'package.json'), JSON.stringify({
     name: 'addon', version: `${version}.0.0`, type: 'module',
-    dependencies: { 'addon-plugin': `${version}.0.0` }, dsh: { bundle: { patch: './cordis.patch.yml' } },
+    dependencies: { 'addon-plugin': `${version}.0.0` }, mwf: { bundle: { patch: './cordis.patch.yml' } },
   }))
   writeFileSync(join(bundleDir, 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'addon', name: 'addon-plugin' }] }]))
   writeFileSync(join(pluginDir, 'package.json'), JSON.stringify({
@@ -73,7 +73,7 @@ function installOtherBundle(dir: string, shared = false): void {
   mkdirSync(bundleDir, { recursive: true })
   writeFileSync(join(bundleDir, 'package.json'), JSON.stringify({
     name: 'other', version: '1.0.0', dependencies: shared ? { 'addon-plugin': '1.0.0' } : {},
-    dsh: { bundle: { patch: './cordis.patch.yml' } },
+    mwf: { bundle: { patch: './cordis.patch.yml' } },
   }))
   writeFileSync(join(bundleDir, 'cordis.patch.yml'), '[]\n')
   const manifest = readProfileManifest('test', dir)
@@ -96,7 +96,7 @@ async function fixture(options: { live?: boolean; installed?: boolean; enabled?:
   const core = join(dir, 'node_modules', 'core')
   mkdirSync(core, { recursive: true })
   writeFileSync(join(core, 'package.json'), JSON.stringify({
-    name: 'core', version: '1.0.0', dsh: { bundle: { patch: './cordis.patch.yml' } },
+    name: 'core', version: '1.0.0', mwf: { bundle: { patch: './cordis.patch.yml' } },
   }))
   writeFileSync(join(core, 'cordis.patch.yml'), JSON.stringify([{ insert: [
     { id: 'manager', name: 'cordis:manager' },
@@ -117,7 +117,7 @@ export function apply(ctx) {
     renameSync(join(dir, 'node_modules', 'addon', 'node_modules', 'addon-plugin'), join(dir, 'node_modules', 'addon-plugin'))
     installOtherBundle(dir, true)
     const shared = readProfileManifest('test', dir)
-    shared.dsh = { profile: { bundles: ['core', 'addon', 'other'] } }
+    shared.mwf = { profile: { bundles: ['core', 'addon', 'other'] } }
     writeFileSync(join(dir, 'package.json'), JSON.stringify(shared))
   }
   const loaded = loadProfileDirectory('test', dir, installAnchor)
@@ -293,7 +293,7 @@ it('keeps the running bundle resolution through later package operations without
   expectRunningBundle()
   expect(await manager.removeBundle('other')).toMatchObject({ application: 'restart-required', changed: true })
   expectRunningBundle()
-  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toEqual(['core'])
+  expect(readProfileManifest('test', dir).mwf?.profile?.bundles).toEqual(['core'])
   expect(readProfileManifest('test', dir).dependencies).toEqual({ addon: '1.0.0' })
   expect(existsSync(join(dir, 'node_modules', 'other'))).toBe(false)
   expect(trace).toEqual(['start:sibling', 'start:addon:1', 'pnpm:add', 'pnpm:remove'])
@@ -314,7 +314,7 @@ it.each(['disable', 'remove'] as const)('retains a shared dependency after %s of
     packageDir: sharedDir, version: '1.0.0', scope: 'profile', declarer: join(dir, 'node_modules', 'other', 'package.json'),
   })
   expect(entry()).toBeUndefined()
-  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toEqual(['core', 'other'])
+  expect(readProfileManifest('test', dir).mwf?.profile?.bundles).toEqual(['core', 'other'])
   expect(ctx.pluginPackages.packageOf('addon-plugin', parentURL)?.dir).toBe(sharedDir)
   expect(createRequire(join(dir, 'node_modules', 'other', 'package.json')).resolve('addon-plugin')).toBe(join(sharedDir, 'plugin.mjs'))
 })
@@ -582,7 +582,7 @@ it.each(['install', 'remove'] as const)('keeps successful %s disk changes when r
   expect(published).toHaveBeenCalledTimes(operation === 'install' ? 1 : 2)
   const manifest = readProfileManifest('test', dir)
   expect(manifest.dependencies).toEqual(operation === 'install' ? { addon: '1.0.0' } : {})
-  expect(manifest.dsh?.profile?.bundles).toEqual(operation === 'install' ? ['core', 'addon'] : ['core'])
+  expect(manifest.mwf?.profile?.bundles).toEqual(operation === 'install' ? ['core', 'addon'] : ['core'])
   expect(existsSync(join(dir, 'node_modules', 'addon'))).toBe(operation === 'install')
   // A removal publishes the bundle's private mappings away once its plugins stopped.
   expect(ctx.pluginPackages.packageOf('addon-plugin', parentURL)).toBeUndefined()

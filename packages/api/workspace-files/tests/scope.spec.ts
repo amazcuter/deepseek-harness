@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import SessionStore, { SESSION_FORMAT_VERSION, SessionId, type SessionHeader } from '@deepseek-ai/dsh-session'
-import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
+import SessionStore, { SESSION_FORMAT_VERSION, SessionId, type SessionHeader } from '@metaworkflow/session'
+import TypertRegistry from '@metaworkflow/typert-registry'
 import { describe, expect, it, vi } from 'vitest'
 import WorkspaceFiles from '../src/index.ts'
 
@@ -54,8 +54,8 @@ describe('Workspace Files Session scope lookup', () => {
         wire: 'workspaceFileScopeId',
         // A method taking a scope reads the scope's Session as its access-control resource.
         resource: 'session',
-        hostTypeSymbol: '@deepseek-ai/dsh-api-workspace-files#WorkspaceFileScope',
-        wireTypeSymbol: '@deepseek-ai/dsh-session/types#SessionId',
+        hostTypeSymbol: '@metaworkflow/api-workspace-files#WorkspaceFileScope',
+        wireTypeSymbol: '@metaworkflow/session/types#SessionId',
       })
       if (lookup === undefined) throw new Error('workspaceFileScope lookup did not register')
 

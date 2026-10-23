@@ -8,7 +8,7 @@ header:
 platform: posix
 permission: read-only
 environment:
-  DSH_PYTHON_PTC_HOST_SECRET: host-only-sentinel
+  MWF_PYTHON_PTC_HOST_SECRET: host-only-sentinel
 workspace:
   final: true
   parent: outside-temp

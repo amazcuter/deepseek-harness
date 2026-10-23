@@ -19,7 +19,7 @@ afterEach(() => {
 })
 
 function fixture() {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-profile-sanitize-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-profile-sanitize-'))
   roots.push(root)
   const dir = join(root, 'profiles', 'web')
   const bundles = PROFILE_TEMPLATES.web!.bundles
@@ -43,7 +43,7 @@ it('recovers a profile without loading its broken plugins or patch', () => {
   expect(existsSync(patch)).toBe(false)
   expect(readFileSync(backup!, 'utf8')).toBe(': broken YAML')
   expect(readFileSync(pluginManifest, 'utf8')).toBe('{broken')
-  expect(readProfileManifest('test', dir)).toEqual({ ...manifest, dsh: { profile: { bundles } } })
+  expect(readProfileManifest('test', dir)).toEqual({ ...manifest, mwf: { profile: { bundles } } })
   initProfile(dir, bundles)
   expect(readFileSync(patch, 'utf8')).toContain('[]')
 })

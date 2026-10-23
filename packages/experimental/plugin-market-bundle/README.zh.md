@@ -3,7 +3,7 @@ description: "从插件管理页启用实验性的自定义插件市场。"
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-plugin-market-bundle
+# @metaworkflow/experimental-plugin-market-bundle
 
 [English](README.md) | 中文
 
@@ -43,7 +43,7 @@ kind: "package-bundle"
 <a id="model-experience"></a>
 ## 模型体验
 
-该包通过 `pluginMarket` 服务间接影响模型：启用此组合包后，Creator 预设获得只读的 `plugin_market` 工具，其说明见 [`dsh-plugin-market`](../../boot/plugin-market/README.zh.md#model-experience)。
+该包通过 `pluginMarket` 服务间接影响模型：启用此组合包后，Creator 预设获得只读的 `plugin_market` 工具，其说明见 [`mwf-plugin-market`](../../boot/plugin-market/README.zh.md#model-experience)。
 
 #### KV Cache 影响
 

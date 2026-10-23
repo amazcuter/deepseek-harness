@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import type { ConnectionHandle } from '@deepseek-ai/dsh-api-remotes/client'
+import { RemoteError } from '@metaworkflow/typert-protocol'
+import type { ConnectionHandle } from '@metaworkflow/api-remotes/client'
 import {
   RemoteStreamCarrierError,
   RemoteStream,
@@ -108,7 +108,7 @@ describe('RemoteStream', () => {
     ], carrierFailed)
 
     await expect(stream[Symbol.asyncIterator]().next()).rejects.toMatchObject({
-      isDSHRemoteError: true,
+      isMWFRemoteError: true,
       code: 'gateway/internal',
       message: 'isolated retry failed',
       details: {},
@@ -130,7 +130,7 @@ describe('RemoteStream', () => {
     })
 
     await expect(stream[Symbol.asyncIterator]().next()).rejects.toMatchObject({
-      isDSHRemoteError: true,
+      isMWFRemoteError: true,
       code: 'gateway/internal',
       message: 'generation exploded',
     })

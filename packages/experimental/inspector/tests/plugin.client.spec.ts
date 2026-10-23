@@ -49,7 +49,7 @@ class FakeWebSocket extends EventTarget {
 
 const bootstrap: InspectorClientBootstrap = {
   endpoint: 'ws://127.0.0.1:9230/ingest',
-  protocol: 'dsh-inspector-v0-token',
+  protocol: 'mwf-inspector-v0-token',
   maxQueuedRecords: 16,
   maxQueuedBytes: 16_384,
   maxRecordsPerFrame: 8,
@@ -74,13 +74,13 @@ describe('experimental Inspector Client plugin', () => {
     globalThis.WebSocket = nativeWebSocket
     globalThis.fetch = nativeFetch
     sessionStorage.clear()
-    delete globalThis.__DSH_INSPECTOR__
-    Reflect.deleteProperty(globalThis, '__DSH_BOOT__')
+    delete globalThis.__MWF_INSPECTOR__
+    Reflect.deleteProperty(globalThis, '__MWF_BOOT__')
   })
 
   it('removes the source on pagehide and reconnects once when the cached page resumes', async () => {
     vi.stubGlobal('WebSocket', FakeWebSocket)
-    globalThis.__DSH_INSPECTOR__ = bootstrap
+    globalThis.__MWF_INSPECTOR__ = bootstrap
     const ctx = new Context()
     try {
       await ctx.plugin({ apply }).await()
@@ -108,7 +108,7 @@ describe('experimental Inspector Client plugin', () => {
 
   it('provides ctx.inspector and sends observations after the Worker accepts the source', async () => {
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket
-    globalThis.__DSH_INSPECTOR__ = bootstrap
+    globalThis.__MWF_INSPECTOR__ = bootstrap
     const ctx = new Context()
     const fiber = ctx.plugin({ apply })
     await fiber.await()
@@ -189,7 +189,7 @@ describe('experimental Inspector Client plugin', () => {
 
   it('keeps the realm source id and rotates the transport generation on reconnect', async () => {
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket
-    globalThis.__DSH_INSPECTOR__ = bootstrap
+    globalThis.__MWF_INSPECTOR__ = bootstrap
     const ctx = new Context()
     const fiber = ctx.plugin({ apply })
     await fiber.await()
@@ -214,7 +214,7 @@ describe('experimental Inspector Client plugin', () => {
 
   it('keeps the logical source id when the Client plugin is recreated after a page refresh', async () => {
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket
-    globalThis.__DSH_INSPECTOR__ = bootstrap
+    globalThis.__MWF_INSPECTOR__ = bootstrap
     const firstContext = new Context()
     const firstFiber = firstContext.plugin({ apply })
     await firstFiber.await()
@@ -269,7 +269,7 @@ describe('experimental Inspector Client plugin', () => {
 
       first.close()
       await vi.waitFor(() => { expect(held.size).toBe(1) })
-      sessionStorage.setItem('dsh.experimental-inspector.client-source-id.v0', first.sourceId)
+      sessionStorage.setItem('mwf.experimental-inspector.client-source-id.v0', first.sourceId)
       refreshed = await ClientRealmSource.claim('refreshed')
       expect(refreshed.sourceId).toBe(first.sourceId)
     } finally {
@@ -283,7 +283,7 @@ describe('experimental Inspector Client plugin', () => {
 
   it('falls back to a page-lifetime source id when session storage is unavailable', async () => {
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket
-    globalThis.__DSH_INSPECTOR__ = bootstrap
+    globalThis.__MWF_INSPECTOR__ = bootstrap
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new DOMException('storage disabled', 'SecurityError')
     })
@@ -300,7 +300,7 @@ describe('experimental Inspector Client plugin', () => {
 
   it('cancels an outstanding Client Runtime operation without sending a late response', async () => {
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket
-    globalThis.__DSH_INSPECTOR__ = bootstrap
+    globalThis.__MWF_INSPECTOR__ = bootstrap
     const ctx = new Context()
     const fiber = ctx.plugin({ apply })
     await fiber.await()
@@ -355,7 +355,7 @@ describe('experimental Inspector Client plugin', () => {
 
   it('does not report queue loss again after a replacement absorbs it', async () => {
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket
-    globalThis.__DSH_INSPECTOR__ = { ...bootstrap, maxQueuedRecords: 1 }
+    globalThis.__MWF_INSPECTOR__ = { ...bootstrap, maxQueuedRecords: 1 }
     const ctx = new Context()
     const fiber = ctx.plugin({ apply })
     await fiber.await()
@@ -391,16 +391,16 @@ describe('experimental Inspector Client plugin', () => {
 
   it('discovers and serves its built Client bundle through the source protocol', async () => {
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket
-    globalThis.__DSH_INSPECTOR__ = bootstrap
-    Reflect.set(globalThis, '__DSH_BOOT__', {
+    globalThis.__MWF_INSPECTOR__ = bootstrap
+    Reflect.set(globalThis, '__MWF_BOOT__', {
       rev: 'graph',
       entries: [{
-        id: '@deepseek-ai/dsh-experimental-inspector',
-        url: 'plugins/??@deepseek-ai/dsh-experimental-inspector/client.js&rev=bundle-rev',
+        id: '@metaworkflow/experimental-inspector',
+        url: 'plugins/??@metaworkflow/experimental-inspector/client.js&rev=bundle-rev',
         rev: 'bundle-rev',
       }],
     })
-    const source = 'const clientBundleMarker = "你好"\n//# sourceMappingURL=??@deepseek-ai/dsh-experimental-inspector/client.js.map&rev=bundle-rev\n'
+    const source = 'const clientBundleMarker = "你好"\n//# sourceMappingURL=??@metaworkflow/experimental-inspector/client.js.map&rev=bundle-rev\n'
     const sourceMap = '{"version":3,"sources":["client/index.ts"]}'
     globalThis.fetch = vi.fn(async (input: string | URL | Request) => {
       const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
@@ -439,9 +439,9 @@ describe('experimental Inspector Client plugin', () => {
         outcome?: { result?: { scripts?: Array<{ scriptKey: string; url: string; sourceMapUrl: string }> } }
       }).find(frame => frame.requestId === 'source-request-1')
       const script = response?.outcome?.result?.scripts?.[0]
-      expect(script?.url).toContain('/plugins/??@deepseek-ai/dsh-experimental-inspector/client.js&rev=bundle-rev')
+      expect(script?.url).toContain('/plugins/??@metaworkflow/experimental-inspector/client.js&rev=bundle-rev')
       expect(script?.sourceMapUrl)
-        .toContain('/plugins/??@deepseek-ai/dsh-experimental-inspector/client.js.map&rev=bundle-rev')
+        .toContain('/plugins/??@metaworkflow/experimental-inspector/client.js.map&rev=bundle-rev')
       scriptKey = script?.scriptKey
     })
     socket.receive({
@@ -470,8 +470,8 @@ describe('experimental Inspector Client plugin', () => {
     vi.stubGlobal('WebSocket', FakeWebSocket)
     const fetch = vi.fn(async (url: string) => {
       expect(url).toBe(INSPECTOR_BOOTSTRAP_ROUTE)
-      expect(new URL(url, 'https://host.example/tools/dsh/').pathname)
-        .toBe('/tools/dsh/api/experimental-inspector/bootstrap')
+      expect(new URL(url, 'https://host.example/tools/mwf/').pathname)
+        .toBe('/tools/mwf/api/experimental-inspector/bootstrap')
       return Response.json(bootstrap)
     })
     vi.stubGlobal('fetch', fetch)
@@ -501,17 +501,17 @@ describe('experimental Inspector Client plugin', () => {
       ctx.emit('connection/reset')
       await vi.waitFor(() => { expect(FakeWebSocket.sockets).toHaveLength(1) })
       const first = FakeWebSocket.sockets[0]!
-      response = Response.json({ ...bootstrap, protocol: 'dsh-inspector-v0-new-worker' })
+      response = Response.json({ ...bootstrap, protocol: 'mwf-inspector-v0-new-worker' })
       ctx.emit('connection/reset')
       await vi.waitFor(() => { expect(FakeWebSocket.sockets).toHaveLength(2) })
       expect(first.readyState).toBe(FakeWebSocket.CLOSED)
-      expect(FakeWebSocket.sockets[1]!.protocol).toBe('dsh-inspector-v0-new-worker')
+      expect(FakeWebSocket.sockets[1]!.protocol).toBe('mwf-inspector-v0-new-worker')
     } finally { await ctx.fiber.dispose() }
   })
 
   it('does not install a late bootstrap after disposal begins', async () => {
     vi.stubGlobal('WebSocket', FakeWebSocket)
-    globalThis.__DSH_INSPECTOR__ = bootstrap
+    globalThis.__MWF_INSPECTOR__ = bootstrap
     let respond!: (response: Response) => void
     const pending = new Promise<Response>((resolve) => { respond = resolve })
     const fetch = vi.fn(() => pending)
@@ -523,7 +523,7 @@ describe('experimental Inspector Client plugin', () => {
       ctx.emit('connection/reset')
       await vi.waitFor(() => { expect(fetch).toHaveBeenCalledOnce() })
       const disposed = fiber.dispose()
-      respond(Response.json({ ...bootstrap, protocol: 'dsh-inspector-v0-late-worker' }))
+      respond(Response.json({ ...bootstrap, protocol: 'mwf-inspector-v0-late-worker' }))
       await disposed
       expect(FakeWebSocket.sockets).toHaveLength(1)
       expect(FakeWebSocket.sockets[0]!.readyState).toBe(FakeWebSocket.CLOSED)
@@ -535,7 +535,7 @@ describe('experimental Inspector Client plugin', () => {
 
   it.each([true, false])('closes the Client source when registration fails (injected=%s)', async (injected) => {
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket
-    if (injected) globalThis.__DSH_INSPECTOR__ = bootstrap
+    if (injected) globalThis.__MWF_INSPECTOR__ = bootstrap
     else vi.stubGlobal('fetch', vi.fn(async () => Response.json(bootstrap)))
     const ctx = new Context()
     ctx.provide('inspector', {
@@ -553,7 +553,7 @@ describe('experimental Inspector Client plugin', () => {
   it.each([true, false])('retains reconnect recovery after transport setup fails (injected=%s)', async (injected) => {
     vi.stubGlobal('WebSocket', FakeWebSocket)
     vi.stubGlobal('fetch', vi.fn(async () => Response.json(bootstrap)))
-    if (injected) globalThis.__DSH_INSPECTOR__ = bootstrap
+    if (injected) globalThis.__MWF_INSPECTOR__ = bootstrap
     vi.spyOn(ClientRealmSource, 'claim').mockRejectedValueOnce(new Error('identity temporarily unavailable'))
     const ctx = new Context()
     const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
@@ -571,7 +571,7 @@ describe('experimental Inspector Client plugin', () => {
 
   it.each([true, false])('rejects invalid bootstrap data during startup (injected=%s)', async (injected) => {
     vi.stubGlobal('WebSocket', FakeWebSocket)
-    if (injected) globalThis.__DSH_INSPECTOR__ = null
+    if (injected) globalThis.__MWF_INSPECTOR__ = null
     else vi.stubGlobal('fetch', vi.fn(async () => Response.json(null)))
     const ctx = new Context()
     try {
@@ -595,7 +595,7 @@ describe('experimental Inspector Client plugin', () => {
 
   it('settles an aborted bootstrap refresh without warning after disposal', async () => {
     vi.stubGlobal('WebSocket', FakeWebSocket)
-    globalThis.__DSH_INSPECTOR__ = bootstrap
+    globalThis.__MWF_INSPECTOR__ = bootstrap
     const pending = Promise.withResolvers<Response>()
     const aborted = Promise.withResolvers<undefined>()
     const fetch = vi.fn((_url: string, init: RequestInit) => {
@@ -623,7 +623,7 @@ describe('experimental Inspector Client plugin', () => {
 
   it('joins service-consumer cleanup before claiming a replacement source', async () => {
     vi.stubGlobal('WebSocket', FakeWebSocket)
-    globalThis.__DSH_INSPECTOR__ = bootstrap
+    globalThis.__MWF_INSPECTOR__ = bootstrap
     vi.stubGlobal('fetch', vi.fn(async () => Response.json({ ...bootstrap, protocol: 'replacement-worker' })))
     const claimed = vi.spyOn(ClientRealmSource, 'claim')
     const started = Promise.withResolvers<undefined>()

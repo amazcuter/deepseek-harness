@@ -12,7 +12,7 @@ The child-process entry `src/worker.ts` of [speech-to-text-sensevoice](../../../
 
 - Entry modules use an explicit `async function main()`:
   - sensevoice: a failure before readiness writes only the error message to stderr and exits with code 1 once the message is flushed (`process.exit(1)` in the write callback, because a loaded native recognizer would otherwise keep the process alive); stdout carries only one `{"port":N}` line, which the Host parses as readiness.
-  - ssh helper: `main()` holds the helper's try/catch/finally and signal handling; every failure is reported on stderr with the `dsh-ssh-sandbox:` prefix and exit code 127.
+  - ssh helper: `main()` holds the helper's try/catch/finally and signal handling; every failure is reported on stderr with the `mwf-ssh-sandbox:` prefix and exit code 127.
   - inspector worker: the synchronous startup stays at module scope, the asynchronous part runs in `main()`, and a failure sends the failure frame before stopping.
 - Gate [verify-no-top-level-await](../../../../scripts/verify-no-top-level-await.ts):
   - **Scope**: `.ts` and `.tsx` files under `packages/*/*/src/**`.

@@ -3,7 +3,7 @@ description: "Machine-translate expanded reasoning while retaining the original 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-client-ui-cot-translation
+# @metaworkflow/experimental-client-ui-cot-translation
 
 English | [中文](README.zh.md)
 

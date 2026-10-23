@@ -1,5 +1,5 @@
 /** Application identities admitted from native selection or saved provider configuration. */
-import type { Branded } from '@deepseek-ai/dsh-brand'
+import type { Branded } from '@metaworkflow/brand'
 
 /** Native digest of an executable path and its signing requirement, process lifetime or pending executable identity. */
 export type CuaApplicationId = Branded<'CuaApplicationId'>

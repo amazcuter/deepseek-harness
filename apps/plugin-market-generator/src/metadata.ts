@@ -1,12 +1,12 @@
 /**
- * Read a package's display metadata from its files the way DSH reads installed plugin metadata: locale files and the
+ * Read a package's display metadata from its files the way MWF reads installed plugin metadata: locale files and the
  * icon are resolved through the package `exports` map, and nothing is evaluated.
  */
 import { createHash } from 'node:crypto'
 import { posix } from 'node:path'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import type { LocalizedText } from '@metaworkflow/package-manifest'
 import hostedGitInfo from 'hosted-git-info'
-import type { MarketRepository } from '@deepseek-ai/dsh-plugin-market-index'
+import type { MarketRepository } from '@metaworkflow/plugin-market-index'
 import { exports as resolveExports, type Package } from 'resolve.exports'
 import { PackageFiles } from './files.ts'
 import type { Manifest } from './packages.ts'

@@ -10,8 +10,8 @@ export type DesktopUpdateChannel = 'nightly' | 'latest'
  */
 export function desktopUpdateChannel(manifest: unknown): DesktopUpdateChannel {
   if (typeof manifest !== 'object' || manifest === null) throw new Error('desktop update: invalid application manifest')
-  if (!('dshDesktopUpdateChannel' in manifest)) return 'nightly'
-  const channel = manifest.dshDesktopUpdateChannel
+  if (!('mwfDesktopUpdateChannel' in manifest)) return 'nightly'
+  const channel = manifest.mwfDesktopUpdateChannel
   if (channel !== 'nightly' && channel !== 'latest') throw new Error('desktop update: invalid packaged channel')
   return channel
 }

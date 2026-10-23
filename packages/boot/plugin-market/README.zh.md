@@ -3,13 +3,13 @@ description: "读取用户配置的插件市场索引的 Host 服务，提供安
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-plugin-market
+# @metaworkflow/plugin-market
 
 [English](README.md) | 中文
 
 ## 概述
 
-`pluginMarket` 读取用户配置的插件市场索引，用 [`dsh-plugin-market-index`](../../util/plugin-market-index/README.zh.md) 校验，并为每个条目标注 profile 中的安装状态、DSH 兼容性以及安装它所需的精确参数。Web 的[发现标签页](../../client/ui-plugin-market/README.zh.md)和 `plugin_market` agent 工具通过它读取；安装本身经由 [`pluginManager.installBundle`](../plugin-manager/README.zh.md) 进行。格式及其理由见[索引格式 Agent Note](../../../.agents/notes/implemented/feature/2026-10-02-plugin-market-index-format.zh.md)；Host 与 Web 的设计见[发现 Agent Note](../../../.agents/notes/implemented/feature/2026-10-02-plugin-market-discover.zh.md)。
+`pluginMarket` 读取用户配置的插件市场索引，用 [`mwf-plugin-market-index`](../../util/plugin-market-index/README.zh.md) 校验，并为每个条目标注 profile 中的安装状态、MWF 兼容性以及安装它所需的精确参数。Web 的[发现标签页](../../client/ui-plugin-market/README.zh.md)和 `plugin_market` agent 工具通过它读取；安装本身经由 [`pluginManager.installBundle`](../plugin-manager/README.zh.md) 进行。格式及其理由见[索引格式 Agent Note](../../../.agents/notes/implemented/feature/2026-10-02-plugin-market-index-format.zh.md)；Host 与 Web 的设计见[发现 Agent Note](../../../.agents/notes/implemented/feature/2026-10-02-plugin-market-discover.zh.md)。
 
 ## 目录
 
@@ -72,7 +72,7 @@ Host 使用进程的 `fetch` 获取，因此配置的出站代理生效，并拒
 
 过滤和排序只读取文档；安装状态和兼容性在每次调用时只为返回的页计算。一份文档上第一次带文本的查询使用 [MiniSearch](https://github.com/lucaong/minisearch) 构建其文本索引，每轮事件循环处理 500 个插件，之后的查询复用该索引，直到文档被替换。
 
-兼容性按版本计算：使用 `evaluatePluginCompatibility`，传入该版本的 `engines.dsh` 和 profile 的版本豁免，与安装时执行的检查相同。插件的默认版本是其不带先行版本号的最高兼容版本；插件完全没有此类版本时，使用其最高兼容的先行版本；没有兼容版本的插件没有默认版本。安装状态按包名根据 `pluginManager.listBundles()` 计算，以默认版本为准，没有默认版本时以最高版本为准：`not-installed`（包括当前 profile 尚未安装的按需目录条目）；版本相同时为 `installed`；该版本更高时为 `update-available`；已安装版本未知、不是有效的 SemVer 或更高时为 `different-version`；DSH 安装随附的组合包（bundle）为 `provided`。
+兼容性按版本计算：使用 `evaluatePluginCompatibility`，传入该版本的 `engines.mwf` 和 profile 的版本豁免，与安装时执行的检查相同。插件的默认版本是其不带先行版本号的最高兼容版本；插件完全没有此类版本时，使用其最高兼容的先行版本；没有兼容版本的插件没有默认版本。安装状态按包名根据 `pluginManager.listBundles()` 计算，以默认版本为准，没有默认版本时以最高版本为准：`not-installed`（包括当前 profile 尚未安装的按需目录条目）；版本相同时为 `installed`；该版本更高时为 `update-available`；已安装版本未知、不是有效的 SemVer 或更高时为 `different-version`；MWF 安装随附的组合包（bundle）为 `provided`。
 
 `marketInstallTarget` 构建安装参数：npm 为 `name@version` 加该版本的 registry，Git 为 `git+<url>.git#<commit>`，包位于子目录时追加 `&path:/<path>`。
 
@@ -85,7 +85,7 @@ Host 使用进程的 `fetch` 获取，因此配置的出站代理生效，并拒
 
 #### 模型看到什么
 
-[`plugin_market` 工具](../../../docs/tool-catalog.zh.md#deepseek-aidsh-plugin-market)返回 JSON：已配置的索引 URL 及其英文标题和最近错误，一页插件（按索引顺序，或给出 `query` 时按最佳匹配），包含名称、英文标题、描述和作者（各截断为 300 个字符）、主页、仓库、分类、标签 id、排序键值、安装状态、默认版本和版本数量，或者某个插件的一页版本。返回的每个版本都携带 ISO 发布时间、兼容性和安装参数。其描述声明市场文本是第三方内容，不是指令。
+[`plugin_market` 工具](../../../docs/tool-catalog.zh.md#metaworkflowplugin-market)返回 JSON：已配置的索引 URL 及其英文标题和最近错误，一页插件（按索引顺序，或给出 `query` 时按最佳匹配），包含名称、英文标题、描述和作者（各截断为 300 个字符）、主页、仓库、分类、标签 id、排序键值、安装状态、默认版本和版本数量，或者某个插件的一页版本。返回的每个版本都携带 ISO 发布时间、兼容性和安装参数。其描述声明市场文本是第三方内容，不是指令。
 
 #### Token 影响
 

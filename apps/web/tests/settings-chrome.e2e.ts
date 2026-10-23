@@ -14,7 +14,7 @@ import type { Browser, Locator, Page, Request } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, onTestFinished } from 'vitest'
 import { basename, join } from 'node:path'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import { SessionId } from '@metaworkflow/session'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,
@@ -415,7 +415,7 @@ describe('web e2e: settings modal and General preferences', () => {
         faviconPaths: icons.filter(icon => matchMedia(icon.media).matches).map(icon => new URL(icon.href).pathname),
         attr: document.body.hasAttribute('data-ds-dark-theme'),
         background: computed.backgroundColor,
-        legacy: localStorage.getItem('dsh.theme'),
+        legacy: localStorage.getItem('mwf.theme'),
         themeColor: metas[0]?.content ?? null,
         themeColorCount: metas.length,
         token: computed.getPropertyValue('--dsw-alias-bg-base').trim(),
@@ -517,14 +517,14 @@ describe('web e2e: settings modal and General preferences', () => {
       await page.getByRole('dialog', { name: '设置', exact: true }).waitFor({ state: 'hidden' })
     })
     const readFontSize = async (target: Page = page): Promise<string> => await target.evaluate(
-      () => document.body.style.getPropertyValue('--dsh-content-font-size'),
+      () => document.body.style.getPropertyValue('--mwf-content-font-size'),
     )
     // The secondary tier resolved by the real engine: a probe element's
     // font-size forces min/max/calc evaluation, which the CSS-text specs
     // cannot exercise. Setting −1 at ≤14, setting −2 above.
     const readSecondaryFontSize = async (): Promise<string> => await page.evaluate(() => {
       const probe = document.createElement('div')
-      probe.style.fontSize = 'var(--dsh-content-font-size-secondary, 13px)'
+      probe.style.fontSize = 'var(--mwf-content-font-size-secondary, 13px)'
       document.body.appendChild(probe)
       const size = getComputedStyle(probe).fontSize
       probe.remove()
@@ -605,8 +605,8 @@ describe('web e2e: settings modal and General preferences', () => {
       return {
         text: getComputedStyle(document.body).fontFamily,
         code: probe('var(--ds-font-family-code)'),
-        textStack: probe('var(--dsh-font-family-text-default)'),
-        codeStack: probe('var(--dsh-font-family-code-default)'),
+        textStack: probe('var(--mwf-font-family-text-default)'),
+        codeStack: probe('var(--mwf-font-family-code-default)'),
       }
     })
     const patchFile = join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml')
@@ -718,7 +718,7 @@ describe('web e2e: settings modal and General preferences', () => {
     await dialog.getByRole('button', { name: '排队发送' }).click()
     await page.getByRole('menuitem', { name: '插话发送' }).click()
     await dialog.getByRole('button', { name: '插话发送' }).waitFor({ timeout: 10_000 })
-    expect(await page.evaluate(() => localStorage.getItem('dsh.conversation.busyEnter'))).toBeNull()
+    expect(await page.evaluate(() => localStorage.getItem('mwf.conversation.busyEnter'))).toBeNull()
     await expect.poll(async () => readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8'), { timeout: 5_000 })
       .toContain('busyEnter: steer')
     await page.keyboard.press('Escape')
@@ -741,7 +741,7 @@ describe('web e2e: settings modal and General preferences', () => {
       await openSettings(secondPage, 'zh')
       await secondPage.getByRole('dialog', { name: '设置' })
         .getByRole('button', { name: '插话发送' }).waitFor({ timeout: 10_000 })
-      expect(await secondPage.evaluate(() => localStorage.getItem('dsh.conversation.busyEnter'))).toBeNull()
+      expect(await secondPage.evaluate(() => localStorage.getItem('mwf.conversation.busyEnter'))).toBeNull()
       expect(secondTripwire.pageErrors).toEqual([])
       expect(secondTripwire.warnings).toEqual([])
     } finally {
@@ -752,7 +752,7 @@ describe('web e2e: settings modal and General preferences', () => {
     await reloaded.getByRole('button', { name: '插话发送' }).click()
     await page.getByRole('menuitem', { name: '排队发送' }).click()
     await reloaded.getByRole('button', { name: '排队发送' }).waitFor({ timeout: 10_000 })
-    expect(await page.evaluate(() => localStorage.getItem('dsh.conversation.busyEnter'))).toBeNull()
+    expect(await page.evaluate(() => localStorage.getItem('mwf.conversation.busyEnter'))).toBeNull()
     await expect.poll(async () => readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8'), { timeout: 5_000 })
       .toContain('busyEnter: queue')
     await page.keyboard.press('Escape')
@@ -784,7 +784,7 @@ describe('web e2e: settings modal and General preferences', () => {
     expect(await enDialog.getByRole('button', { name: 'General' }).getAttribute('aria-current')).toBe('true')
     await enDialog.getByText(`Current version: ${version}`, { exact: true }).waitFor()
     await expect.poll(() => enDialog.getByText('Appearance', { exact: true }).count(), { timeout: 5_000 }).toBe(1)
-    expect(await page.evaluate(() => localStorage.getItem('dsh.locale'))).toBeNull()
+    expect(await page.evaluate(() => localStorage.getItem('mwf.locale'))).toBeNull()
     await expect.poll(async () => readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8'), { timeout: 5_000 })
       .toContain('preference: en')
     // Reload keeps English; then restore zh so shared page state (and the
@@ -808,7 +808,7 @@ describe('web e2e: settings modal and General preferences', () => {
       await openSettings(secondPage, 'en')
       await secondPage.getByRole('dialog', { name: 'Settings' })
         .getByRole('button', { name: 'English' }).waitFor({ timeout: 10_000 })
-      expect(await secondPage.evaluate(() => localStorage.getItem('dsh.locale'))).toBeNull()
+      expect(await secondPage.evaluate(() => localStorage.getItem('mwf.locale'))).toBeNull()
       expect(secondTripwire.pageErrors).toEqual([])
       expect(secondTripwire.warnings).toEqual([])
     } finally {
@@ -820,7 +820,7 @@ describe('web e2e: settings modal and General preferences', () => {
     await page.getByRole('dialog', { name: 'Settings' }).getByRole('button', { name: 'English' }).click()
     await page.getByRole('menuitem', { name: '中文' }).click()
     await page.getByRole('dialog', { name: '设置' }).waitFor({ timeout: 10_000 })
-    expect(await page.evaluate(() => localStorage.getItem('dsh.locale'))).toBeNull()
+    expect(await page.evaluate(() => localStorage.getItem('mwf.locale'))).toBeNull()
     await expect.poll(async () => readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8'), { timeout: 5_000 })
       .toContain('preference: zh')
     await page.keyboard.press('Escape')
@@ -839,7 +839,7 @@ describe('web e2e: settings modal and General preferences', () => {
     try {
       await enPage.goto(fresh.authenticatedUrl, { waitUntil: 'load' })
       await enPage.waitForSelector('[class*="frame"]', { timeout: 30_000 })
-      expect(await enPage.evaluate(() => localStorage.getItem('dsh.locale'))).toBeNull()
+      expect(await enPage.evaluate(() => localStorage.getItem('mwf.locale'))).toBeNull()
       await openSettings(enPage, 'en')
       const dialog = enPage.getByRole('dialog', { name: 'Settings' })
       await dialog.waitFor({ timeout: 10_000 })
@@ -878,7 +878,7 @@ describe('web e2e: settings modal and General preferences', () => {
     try {
       await frPage.goto(fresh.authenticatedUrl, { waitUntil: 'load' })
       await frPage.waitForSelector('[class*="frame"]', { timeout: 30_000 })
-      expect(await frPage.evaluate(() => localStorage.getItem('dsh.locale'))).toBeNull()
+      expect(await frPage.evaluate(() => localStorage.getItem('mwf.locale'))).toBeNull()
       await openSettings(frPage, 'en')
       const dialog = frPage.getByRole('dialog', { name: 'Settings' })
       await dialog.waitFor({ timeout: 10_000 })

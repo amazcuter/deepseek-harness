@@ -66,7 +66,7 @@ export class AnimatedRows extends Component<AnimatedRowsProps> {
       clone.removeAttribute('data-row-key')
       clone.inert = true
       clone.style.setProperty(
-        '--dsh-workspace-indent', getComputedStyle(row.element).getPropertyValue('--dsh-workspace-indent'),
+        '--mwf-workspace-indent', getComputedStyle(row.element).getPropertyValue('--mwf-workspace-indent'),
       )
       removed.set(key, { ...row, element: clone })
     }

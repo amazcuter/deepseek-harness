@@ -8,7 +8,7 @@ import { loadDesktopPackageEnvironment, validateDesktopPackageEnvironment } from
 const appRoot = resolve(import.meta.dirname, '..')
 const product = JSON.parse(readFileSync(resolve(appRoot, 'package.json'), 'utf8'))
 const version = desktopCiVersion(process.env, product.version)
-if (!process.env.DSH_PACKAGING_PRESET) throw new Error('Select a machine preset')
+if (!process.env.MWF_PACKAGING_PRESET) throw new Error('Select a machine preset')
 const skipNotarization = process.env.PACKAGE_SKIP_NOTARIZATION === 'true'
 if (!['true', 'false', undefined].includes(process.env.PACKAGE_SKIP_NOTARIZATION)) throw new Error('Invalid skip notarization selection')
 const environment = loadDesktopPackageEnvironment('darwin', process.env, appRoot)
@@ -21,5 +21,5 @@ for (const [name, value] of Object.entries(environment)) {
 validateDesktopPackageEnvironment(environment, { platform: 'darwin', arch: 'arm64' }, { skipNotarization })
 if (!process.env.GITHUB_OUTPUT || !process.env.GITHUB_STEP_SUMMARY) throw new Error('Run this adapter from GitHub Actions')
 appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\nartifacts=${skipNotarization ? 'unnotarized-artifacts' : 'artifacts'}\nmode=${skipNotarization ? 'unnotarized-debug' : 'signed'}\n`)
-appendFileSync(process.env.GITHUB_STEP_SUMMARY, `macOS arm64 signed installer\n\nVersion: ${version}\n\nCommit: ${execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()}\n\nChannel: ${process.env.DSH_DESKTOP_UPDATE_CHANNEL}\n\nSource: ${process.env.PACKAGE_SOURCE_REF}\n\nPreset: ${process.env.DSH_PACKAGING_PRESET}\n`)
+appendFileSync(process.env.GITHUB_STEP_SUMMARY, `macOS arm64 signed installer\n\nVersion: ${version}\n\nCommit: ${execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()}\n\nChannel: ${process.env.MWF_DESKTOP_UPDATE_CHANNEL}\n\nSource: ${process.env.PACKAGE_SOURCE_REF}\n\nPreset: ${process.env.MWF_PACKAGING_PRESET}\n`)
 if (skipNotarization) appendFileSync(process.env.GITHUB_STEP_SUMMARY, '\nWARNING: signed but NOT notarized or stapled. Internal debugging only; Gatekeeper may block downloaded copies. Not qualified for distribution or update publishing.\n')

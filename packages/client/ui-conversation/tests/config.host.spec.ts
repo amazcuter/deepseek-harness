@@ -5,7 +5,7 @@ import { liveConfig, omitsGeneratedPage } from '../../../settings/settings/tests
 import { plainConfig } from '../../../settings/settings/src/schema.ts'
 import {
   DEFAULT_BUSY_ENTER_BEHAVIOR, Config, apply,
-} from '@deepseek-ai/dsh-client-ui-conversation'
+} from '@metaworkflow/client-ui-conversation'
 
 
 describe('ui-conversation host', () => {

@@ -172,7 +172,7 @@ describe('ordinary update polling disposal', () => {
 describe('ordinary update polling configuration', () => {
   it('resolves defaults and supports an explicit interval longer than the default backoff cap', () => {
     expect(resolveDesktopUpdateScheduleConfig({})).toEqual({ intervalMs: 600_000, maxBackoffMs: 3_600_000, jitter: 0.2 })
-    expect(resolveDesktopUpdateScheduleConfig({ DSH_DESKTOP_UPDATE_CHECK_INTERVAL_MS: '7200000' }))
+    expect(resolveDesktopUpdateScheduleConfig({ MWF_DESKTOP_UPDATE_CHECK_INTERVAL_MS: '7200000' }))
       .toEqual({ intervalMs: 7_200_000, maxBackoffMs: 7_200_000, jitter: 0.2 })
   })
 
@@ -181,6 +181,6 @@ describe('ordinary update polling configuration', () => {
     ['MAX_BACKOFF_MS', '1000'], ['MAX_BACKOFF_MS', 'Infinity'],
     ['JITTER', '-0.1'], ['JITTER', '1.1'], ['JITTER', 'NaN'],
   ])('rejects invalid %s=%s at configuration load', (suffix, value) => {
-    expect(() => resolveDesktopUpdateScheduleConfig({ [`DSH_DESKTOP_UPDATE_CHECK_${suffix}`]: value })).toThrow()
+    expect(() => resolveDesktopUpdateScheduleConfig({ [`MWF_DESKTOP_UPDATE_CHECK_${suffix}`]: value })).toThrow()
   })
 })

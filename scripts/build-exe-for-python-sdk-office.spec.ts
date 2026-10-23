@@ -15,7 +15,7 @@ afterEach(async () => {
 })
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-python-office-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-python-office-'))
   temporaryDirectories.push(root)
   const staging = join(root, 'staging')
   const destination = join(root, 'runtime-office')
@@ -48,10 +48,10 @@ it('locates installed target optionals and leaves other platforms and absent opt
 
 it('rejects a missing required dependency in the deployed closure', async () => {
   const { staging, packageAt } = await fixture()
-  await packageAt('@deepseek-ai/libreoffice-kit', { dependencies: { 'dsh-missing-office-fixture': '1' } })
+  await packageAt('@deepseek-ai/libreoffice-kit', { dependencies: { 'mwf-missing-office-fixture': '1' } })
 
   await expect(officePackageDirectories(staging, { platform: 'linux', arch: 'x64' }))
-    .rejects.toThrow('dsh-missing-office-fixture required by @deepseek-ai/libreoffice-kit is missing')
+    .rejects.toThrow('mwf-missing-office-fixture required by @deepseek-ai/libreoffice-kit is missing')
 })
 
 it('rejects an incomplete installed optional instead of omitting it', async () => {

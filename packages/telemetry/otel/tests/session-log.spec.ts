@@ -8,7 +8,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { MeterProvider } from '@opentelemetry/api'
 import { CompressionAlgorithm } from '@opentelemetry/otlp-exporter-base'
 import { JsonLogsSerializer } from '@opentelemetry/otlp-transformer'
-import { SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
+import { SessionId, SessionSeq } from '@metaworkflow/session'
 import { SESSION_LOG_MAX_REQUEST_BYTES, type SessionLogProcessorOptions, type SessionLogRecord, type SessionLogOptions } from '../src/session-log.ts'
 import type { LogExporterOptions } from '../src/transport.ts'
 
@@ -99,7 +99,7 @@ function parseContent(content: string): unknown {
 function reporter(endpoint: string, overrides: Partial<SessionLogOptions> = {}) {
   const onFailure = vi.fn()
   const sender = ctx.otel.createSessionLogReporter({
-    scope: { name: '@deepseek-ai/dsh-session-telemetry-otel', version: (createRequire(import.meta.url)('../package.json') as { version: string }).version },
+    scope: { name: '@metaworkflow/session-telemetry-otel', version: (createRequire(import.meta.url)('../package.json') as { version: string }).version },
     exporter: { url: endpoint, timeoutMillis: 1000 }, resourceAttributes: { 'service.name': 'session-test' },
     processor: { scheduledDelayMillis: 60000 }, onFailure, ...overrides,
   })
@@ -120,7 +120,7 @@ it('preserves full nested events without truncation or ambient headers and retai
   expect(target.captures[0]!.headers).not.toHaveProperty('authorization')
   expect(target.captures[0]!.headers).not.toHaveProperty('x-channel')
   expect(target.captures[0]!.body.resourceLogs[0]!.scopeLogs[0]).toMatchObject({
-    scope: { name: '@deepseek-ai/dsh-session-telemetry-otel', version: (createRequire(import.meta.url)('../package.json') as { version: string }).version },
+    scope: { name: '@metaworkflow/session-telemetry-otel', version: (createRequire(import.meta.url)('../package.json') as { version: string }).version },
   })
 })
 

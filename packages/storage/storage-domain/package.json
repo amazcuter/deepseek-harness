@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-storage-domain",
+  "name": "@metaworkflow/storage-domain",
   "description": "Domain data form (ctx.storage.domain): schema-validated, event-emitting KV domains over storage backends for the DeepSeek Harness",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -29,7 +29,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-storage": "workspace:*",
+    "@metaworkflow/storage": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "dependencies": {
@@ -37,7 +37,7 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-storage": "workspace:*",
+    "@metaworkflow/storage": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   }
 }

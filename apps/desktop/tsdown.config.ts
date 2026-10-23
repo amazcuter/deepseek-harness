@@ -23,14 +23,14 @@ const preloadImports = { packages: new Set(['electron', 'events', 'timers', 'url
 const REPOSITORY_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 
 /** Use the client environment this build already received, otherwise the repository's own version and commit. */
-const clientEnvironment = resolveClientBuildEnvironment(process.env.DSH_CLIENT_VERSION === undefined
+const clientEnvironment = resolveClientBuildEnvironment(process.env.MWF_CLIENT_VERSION === undefined
   ? repositoryClientBuildEnvironment(REPOSITORY_ROOT, process.env)
   : process.env)
-const clientVersion = clientEnvironment.DSH_CLIENT_VERSION
-if (clientVersion === undefined) throw new Error('desktop build: the client environment carries no DSH_CLIENT_VERSION')
+const clientVersion = clientEnvironment.MWF_CLIENT_VERSION
+if (clientVersion === undefined) throw new Error('desktop build: the client environment carries no MWF_CLIENT_VERSION')
 
 /** Inline the one public build value the Node entry reads; every other variable stays a runtime lookup. */
-const clientVersionDefine = { 'process.env.DSH_CLIENT_VERSION': JSON.stringify(clientVersion) }
+const clientVersionDefine = { 'process.env.MWF_CLIENT_VERSION': JSON.stringify(clientVersion) }
 
 export default defineConfig([
   {
@@ -44,7 +44,7 @@ export default defineConfig([
     dts: false,
     clean: false,
     codeSplitting: false,
-    deps: { alwaysBundle: ['@deepseek-ai/dsh-atomic-write'] },
+    deps: { alwaysBundle: ['@metaworkflow/atomic-write'] },
   },
   {
     entry: ['lib/types/main.js'],

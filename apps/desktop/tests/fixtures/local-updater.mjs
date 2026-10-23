@@ -19,12 +19,12 @@ import { DesktopUpdatePreparationError } from '../../lib/types/update-error.js'
 import { DesktopUpdateHttpExecutor } from '../../lib/types/update-http-executor.js'
 import { qualifyUpdateDialogs } from './update-dialogs.mjs'
 
-const root = process.env.DSH_LOCAL_UPDATE_TEST_ROOT
+const root = process.env.MWF_LOCAL_UPDATE_TEST_ROOT
 assert.ok(root, 'The launcher must allocate a private test root')
 app.setPath('userData', join(root, 'electron'))
 // Sequential window scenarios share one Electron process; main() owns its final exit.
 app.on('window-all-closed', () => {})
-protocol.registerSchemesAsPrivileged([{ scheme: 'dsh-app', privileges: { standard: true, secure: true, supportFetchAPI: true } }])
+protocol.registerSchemesAsPrivileged([{ scheme: 'mwf-app', privileges: { standard: true, secure: true, supportFetchAPI: true } }])
 const cases = []
 const presentations = []
 let screenshot = { captured: false, reason: 'not attempted' }
@@ -227,7 +227,7 @@ async function main() {
       dialogScreenshots = await qualifyUpdateDialogs(root, fixture)
     })
     await scenario('mandatory-real-window-policy-download-retry-and-clear', async () => {
-      protocol.handle('dsh-app', async request => {
+      protocol.handle('mwf-app', async request => {
         if (new URL(request.url).hostname === 'app') return new Response('<!doctype html><title>Updater qualification</title>', { headers: { 'content-type': 'text/html' } })
         const path = new URL(request.url).pathname.slice(1)
         assert.ok(['mandatory-update-frame.js', 'mandatory-update.html', 'mandatory-update.js', 'mandatory-update.css', 'update-dialog.css'].includes(path))
@@ -235,12 +235,12 @@ async function main() {
         return new Response(await readFile(new URL(`../../renderer/${path}`, import.meta.url)), { headers: { 'content-type': mime } })
       })
       const parent = new BrowserWindow({ show: true, width: 900, height: 650, webPreferences: { preload: fileURLToPath(new URL('../../lib/preload-app.cjs', import.meta.url)), sandbox: true, contextIsolation: true } })
-      await parent.loadURL('dsh-app://app/')
+      await parent.loadURL('mwf-app://app/')
       const f = await fixture('hold-download')
       const config = resolveDesktopPolicyConfig({ origin: server.url, allowedPageOrigins: ['https://downloads.example.com'],
         intervalMs: 600_000, timeoutMs: 1000 }, true)
       let modal
-      const policy = new DesktopMandatoryUpdatePolicy(config, { platform: 'win32', arch: 'x64', bundledDshVersion: '1.0.0' },
+      const policy = new DesktopMandatoryUpdatePolicy(config, { platform: 'win32', arch: 'x64', bundledMwfVersion: '1.0.0' },
         () => { modal?.sync() }, undefined,
         () => ({ version: '1.0.0', locale: 'zh-CN', timezoneOffsetSeconds: -new Date().getTimezoneOffset() * 60 }))
       modal = new DesktopMandatoryUpdateWindow({
@@ -280,7 +280,7 @@ async function main() {
             function check() { if (${expression}) { observer.disconnect(); clearTimeout(deadline); resolve(true); } }
             observer.observe(document, { subtree: true, childList: true, attributes: true, characterData: true }); check();
           })`) } catch (error) {
-            console.error('Modal condition:', expression, await contents.executeJavaScript('({ url: location.href, text: document.body?.innerText, bridge: typeof window.dshMandatoryUpdate })'))
+            console.error('Modal condition:', expression, await contents.executeJavaScript('({ url: location.href, text: document.body?.innerText, bridge: typeof window.mwfMandatoryUpdate })'))
             throw error
           }
         }
@@ -371,7 +371,7 @@ async function main() {
         shell.openExternal = originalOpen
         clipboard.writeText = originalCopy
         clipboard.readText = originalRead
-        protocol.unhandle('dsh-app')
+        protocol.unhandle('mwf-app')
       }
     })
     assert.deepEqual(server.failures, [])

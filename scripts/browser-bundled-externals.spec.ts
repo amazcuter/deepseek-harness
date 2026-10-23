@@ -29,7 +29,7 @@ afterEach(() => {
 })
 
 function fixture(): string {
-  const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-browser-notices-')))
+  const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'mwf-browser-notices-')))
   roots.push(root)
   write(root, 'package.json', '{"type":"module"}')
   write(root, 'tsconfig.base.json', JSON.stringify({
@@ -55,7 +55,7 @@ function library(root: string, name: string, source = 'export const value = 1'):
 
 function dynamicPlugin(root: string, source: string): void {
   write(root, 'packages/client/dynamic/package.json', JSON.stringify({
-    name: '@fixture/dynamic', dsh: { client: { platform: 'web' } },
+    name: '@fixture/dynamic', mwf: { client: { platform: 'web' } },
   }))
   write(root, 'packages/client/dynamic/tsdown.config.ts', [
     'export default {',

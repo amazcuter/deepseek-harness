@@ -3,7 +3,7 @@ description: "在权威 Session 日志中保存已完成 assistant 消息的评�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-message-feedback
+# @metaworkflow/message-feedback
 
 [English](README.md) | 中文
 
@@ -22,7 +22,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-将 `dsh-message-feedback` 与 `sessions`、`sessionPersistence` 一起挂载。它不需要 storage-domain 服务。Web 组合提供浏览器消费方，并将备注上限设为 8192 字节。
+将 `mwf-message-feedback` 与 `sessions`、`sessionPersistence` 一起挂载。它不需要 storage-domain 服务。Web 组合提供浏览器消费方，并将备注上限设为 8192 字节。
 
 ### 配置
 

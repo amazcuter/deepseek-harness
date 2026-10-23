@@ -5,33 +5,33 @@
 /:
   en: 425afaf83c04db08
   zh: d9e6db1541ba0911
-/deepseek-ai-dsh-client-ui-shortcuts:
-  en: 736bacbd5c6483a5
-  zh: 1c49a7b2c6141a74
-/deepseek-ai-dsh-client-ui-shortcuts/summary:
+/metaworkflow-client-ui-shortcuts:
+  en: 2c59c6dbd6025ab8
+  zh: 821af1ac7c191d09
+/metaworkflow-client-ui-shortcuts/summary:
   en: 17b5fa1a23fa2756
   zh: ec6223b8d2a090f0
-/deepseek-ai-dsh-client-ui-shortcuts/table-of-contents:
+/metaworkflow-client-ui-shortcuts/table-of-contents:
   en: d152484eb41ac6b4
   zh: 0cd57b7b8d8c9b59
-/deepseek-ai-dsh-client-ui-shortcuts/use-this-package:
-  en: 84a109505e902f0a
-  zh: 87053c34cf4da672
-/deepseek-ai-dsh-client-ui-shortcuts/understand-the-implementation:
+/metaworkflow-client-ui-shortcuts/use-this-package:
+  en: c1c2aeebd0c57e61
+  zh: a8c05e53a9f13ace
+/metaworkflow-client-ui-shortcuts/understand-the-implementation:
   en: f56f2610e7258825
   zh: 249d7cdd55c57166
-/deepseek-ai-dsh-client-ui-shortcuts/further-exploration:
-  en: 8fe02ef5221e434d
-  zh: 3aabfcfeb6d49a0e
-/deepseek-ai-dsh-client-ui-shortcuts/model-experience:
+/metaworkflow-client-ui-shortcuts/further-exploration:
+  en: ae0c0f9ab15c1f53
+  zh: 72ce7f0c2cd8d8c9
+/metaworkflow-client-ui-shortcuts/model-experience:
   en: 3120df665299c634
   zh: e2dc75ed76d271bc
-/deepseek-ai-dsh-client-ui-shortcuts/model-experience/kv-cache-effect:
+/metaworkflow-client-ui-shortcuts/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: a0e9f8d52b4b62ee
-/deepseek-ai-dsh-client-ui-shortcuts/known-limitations-and-deferred-work:
-  en: 4c1ee388c3bbb5b0
-  zh: f3e5d73036a449b5
-/deepseek-ai-dsh-client-ui-shortcuts/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-client-ui-shortcuts/known-limitations-and-deferred-work:
+  en: 9d47cdd65515fecd
+  zh: 29a510d5fef7c9c2
+/metaworkflow-client-ui-shortcuts/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

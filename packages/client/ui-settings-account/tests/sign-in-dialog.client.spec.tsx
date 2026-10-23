@@ -2,7 +2,7 @@
 /** Login choices, timeout recovery, and manual cancellation. */
 import { cleanup, fireEvent, render, screen, act } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
-import type { AccountView, SignInAttemptId } from '@deepseek-ai/dsh-deepseek-account/types'
+import type { AccountView, SignInAttemptId } from '@metaworkflow/deepseek-account/types'
 import { SignInDialog } from '../src/client/SignInDialog.tsx'
 import { en, zh } from '../src/client/locales.ts'
 
@@ -36,7 +36,7 @@ it.each([en, zh])('requires a user action after timeout', async (copy) => {
   expect(props.start).toHaveBeenCalledOnce()
 })
 it.each([en, zh])('shows waiting actions and cancels before dismissing', async (copy) => {
-  const props = mount({ id, phase: 'waiting-browser', authorizeUrl: 'https://platform.deepseek.com/dsh/authorize?state=example' }, copy)
+  const props = mount({ id, phase: 'waiting-browser', authorizeUrl: 'https://platform.deepseek.com/mwf/authorize?state=example' }, copy)
   expect(screen.getByRole('button', { name: copy.waiting }).hasAttribute('disabled')).toBe(true)
   await expect(`${screen.getByRole('dialog').textContent}\n`).toMatchFileSnapshot(`./expected/login-waiting-${copy === en ? 'en' : 'zh'}.txt`)
   await act(async () => { fireEvent.click(screen.getByRole('button', { name: copy.cancel })) })
@@ -57,10 +57,10 @@ it.each([en, zh])('restores the copy label two seconds after the latest successf
   vi.useFakeTimers()
   try {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
-    const authorizeUrl = 'https://platform.deepseek.com/dsh/authorize?state=example'
+    const authorizeUrl = 'https://platform.deepseek.com/mwf/authorize?state=example'
     mount({ id, phase: 'waiting-browser', authorizeUrl }, copy)
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: copy.copyLink })) })
-    expect(writeText).toHaveBeenLastCalledWith('https://platform.deepseek.com/dsh/authorize?state=example&theme=dark')
+    expect(writeText).toHaveBeenLastCalledWith('https://platform.deepseek.com/mwf/authorize?state=example&theme=dark')
     act(() => { vi.advanceTimersByTime(1000) })
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: copy.copiedLink })) })
     expect(writeText).toHaveBeenCalledTimes(2)
@@ -82,14 +82,14 @@ it('copies the authorization link with the palette of the current render', async
   const writeText = vi.fn(async () => {})
   try {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
-    const attempt = { id, phase: 'waiting-browser' as const, authorizeUrl: 'https://platform.deepseek.com/dsh/authorize?state=example' }
+    const attempt = { id, phase: 'waiting-browser' as const, authorizeUrl: 'https://platform.deepseek.com/mwf/authorize?state=example' }
     const props = dialogProps(attempt, en, 'dark')
     const view = render(<SignInDialog {...props} />)
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: en.copyLink })) })
-    expect(writeText).toHaveBeenLastCalledWith('https://platform.deepseek.com/dsh/authorize?state=example&theme=dark')
+    expect(writeText).toHaveBeenLastCalledWith('https://platform.deepseek.com/mwf/authorize?state=example&theme=dark')
     view.rerender(<SignInDialog {...props} colorScheme="light" />)
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: en.copiedLink })) })
-    expect(writeText).toHaveBeenLastCalledWith('https://platform.deepseek.com/dsh/authorize?state=example&theme=light')
+    expect(writeText).toHaveBeenLastCalledWith('https://platform.deepseek.com/mwf/authorize?state=example&theme=light')
   } finally {
     if (clipboard) Object.defineProperty(navigator, 'clipboard', clipboard)
     else Reflect.deleteProperty(navigator, 'clipboard')
@@ -103,7 +103,7 @@ it.each([en, zh])('shows a temporary copy failure without interrupting sign-in',
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
       writeText: vi.fn(async () => { throw new Error('Clipboard denied') }),
     } })
-    const props = mount({ id, phase: 'waiting-browser', authorizeUrl: 'https://platform.deepseek.com/dsh/authorize?state=example' }, copy)
+    const props = mount({ id, phase: 'waiting-browser', authorizeUrl: 'https://platform.deepseek.com/mwf/authorize?state=example' }, copy)
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: copy.copyLink })) })
     expect(screen.getByRole('dialog', { name: copy.browserTitle })).toBeTruthy()
     expect(screen.getByRole('button', { name: copy.copyFailed })).toBeTruthy()

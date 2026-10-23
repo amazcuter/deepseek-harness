@@ -3,28 +3,28 @@
  * durable session metadata, the resolved child `AgentOptions`, the delegated
  * policy seed, and the scoped setup used by local activations.
  *
- * @module @deepseek-ai/dsh-subagent/child-agent
+ * @module @metaworkflow/subagent/child-agent
  */
 
 import type { Context } from '@deepseek-ai/cordis'
-import type { Agent, AgentOptions, CreateAgentOptions } from '@deepseek-ai/dsh-agent'
-import type { SandboxMode } from '@deepseek-ai/dsh-sandbox'
-import type { Session, SessionId } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-system-prompt'
-import type { ToolRestriction } from '@deepseek-ai/dsh-tools'
+import type { Agent, AgentOptions, CreateAgentOptions } from '@metaworkflow/agent'
+import type { SandboxMode } from '@metaworkflow/sandbox'
+import type { Session, SessionId } from '@metaworkflow/session'
+import type {} from '@metaworkflow/system-prompt'
+import type { ToolRestriction } from '@metaworkflow/tools'
 // Type-only: make `ctx.get('sandboxPolicy')`, `ctx.get('approval')`, and
 // `ctx.get('permissionPresets')` resolve to their services when composed — delegation consumes them
 // opportunistically (the documented `ctx.get` pattern), never as a hard dep —
 // and merge the inherited permission session-event payloads.
-import type {} from '@deepseek-ai/dsh-sandbox-policy'
-import type {} from '@deepseek-ai/dsh-user-approval'
-import type {} from '@deepseek-ai/dsh-permission-presets'
+import type {} from '@metaworkflow/sandbox-policy'
+import type {} from '@metaworkflow/user-approval'
+import type {} from '@metaworkflow/permission-presets'
 // Type-only: make `ctx.get('agentPresets')` resolve to the preset roster when
 // composed — a child inherits its parent's composition opportunistically (the
 // documented `ctx.get` pattern), never as a hard dep. A rosterless deployment
 // keeps its model-facing rows on the host plane, where the child already sees
 // them through the tool registry's global layer.
-import type {} from '@deepseek-ai/dsh-agent-preset-registry'
+import type {} from '@metaworkflow/agent-preset-registry'
 import { delegationDepthOf } from './depth.ts'
 import { SubagentError } from './error.ts'
 
@@ -238,7 +238,7 @@ export interface DelegatedPolicyOverrides {
  * Capture the permission state to seed into one delegation. Call synchronously before
  * the child start's first await: a later parent switch belongs to the
  * parent's future, not to this child. Auto and Full access identities are
- * inherited only through the in-process DSH path so either can replace a stale
+ * inherited only through the in-process MWF path so either can replace a stale
  * same-bundle fork value. Only the parent session's explicit sandbox override
  * is captured — never deployment defaults or one-shot grants — and the approval
  * policy is pinned to `'never'` regardless of the parent's own policy.

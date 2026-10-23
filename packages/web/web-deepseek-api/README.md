@@ -3,13 +3,13 @@ description: "DeepSeek Search and Fetch API providers, their shared authenticati
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-web-deepseek-api
+# @metaworkflow/web-deepseek-api
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Search and fetch the web through the DeepSeek Search and Fetch APIs: one direct request per operation, without an auxiliary model request. The plugin registers `deepseek-search-api` and `deepseek-fetch-api`, which share one credential and one API base, and authenticates with an API key or the configured account integration. Search returns titles, URLs, available snippets, and available publication dates; Fetch returns page Markdown. Messages search stays in [dsh-web-search-deepseek](../web-search-deepseek/README.md); the model-facing tools live in `dsh-tool-web`.
+Search and fetch the web through the DeepSeek Search and Fetch APIs: one direct request per operation, without an auxiliary model request. The plugin registers `deepseek-search-api` and `deepseek-fetch-api`, which share one credential and one API base, and authenticates with an API key or the configured account integration. Search returns titles, URLs, available snippets, and available publication dates; Fetch returns page Markdown. Messages search stays in [mwf-web-search-deepseek](../web-search-deepseek/README.md); the model-facing tools live in `mwf-tool-web`.
 
 ## Table of Contents
 
@@ -24,14 +24,14 @@ Search and fetch the web through the DeepSeek Search and Fetch APIs: one direct 
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the plugin alongside `dsh-web` and select its providers. Shipped profiles mount it while selecting Messages search and local HTTP fetch. Turning on **Use the new Web Search API** in **Plugins > Built-in plugin settings > Web search** and saving selects both providers of this package; turning it off restores the shipped selection. A saved selection applies to the next operation.
+Mount the plugin alongside `mwf-web` and select its providers. Shipped profiles mount it while selecting Messages search and local HTTP fetch. Turning on **Use the new Web Search API** in **Plugins > Built-in plugin settings > Web search** and saving selects both providers of this package; turning it off restores the shipped selection. A saved selection applies to the next operation.
 
 ```yaml
-- name: '@deepseek-ai/dsh-web'
+- name: '@metaworkflow/web'
   config:
     searchProvider: deepseek-search-api
     fetchProvider: deepseek-fetch-api
-- name: '@deepseek-ai/dsh-web-deepseek-api'
+- name: '@metaworkflow/web-deepseek-api'
   config:
     apiKeyEnv: DEEPSEEK_API_KEY
 ```
@@ -50,7 +50,7 @@ Run the real API tests with `DEEPSEEK_API_KEY` and `DEEPSEEK_SEARCH_API_TEST_BAS
 
 ### Authentication
 
-A Session using the `deepseek-account` route asks the account service for a token authorized for the resolved endpoint and sends it as `x-dsh-auth-token`; the public Search and Fetch routes accepted it on 2026-10-16. Otherwise a non-empty literal `apiKey` wins over `apiKeyEnv`; the reference resolves through `ctx.credentials`, or the launch environment when that service is absent. API keys use `Authorization: Bearer`. Credential resolution and endpoint selection share one settings snapshot.
+A Session using the `deepseek-account` route asks the account service for a token authorized for the resolved endpoint and sends it as `x-mwf-auth-token`; the public Search and Fetch routes accepted it on 2026-10-16. Otherwise a non-empty literal `apiKey` wins over `apiKeyEnv`; the reference resolves through `ctx.credentials`, or the launch environment when that service is absent. API keys use `Authorization: Bearer`. Credential resolution and endpoint selection share one settings snapshot.
 
 ### Results and failures
 

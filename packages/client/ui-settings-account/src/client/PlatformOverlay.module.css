@@ -10,7 +10,7 @@
 /* Windows Electron: the Desktop caption menu owns the window's top strip, so
    the return bar and the native Platform view start below it. */
 :global([data-windows-titlebar]) .overlay {
-  padding-top: var(--dsh-windows-titlebar-height);
+  padding-top: var(--mwf-windows-titlebar-height);
 }
 
 /* The macOS shell's drag row: on darwin this bar IS the window's top strip, and

@@ -5,9 +5,9 @@ import { accountView, desktopAccountBackend } from '../src/account-backend.ts'
 
 it('projects only safe account fields and refuses non-browser authorization schemes', () => {
   const state = { links: { usageUrl: 'http://localhost/usage', topUpUrl: 'http://localhost/top_up' }, status: 'signed-out', token: 'not-for-the-renderer',
-    attempt: { id: 'test', phase: 'waiting-browser', authorizeUrl: 'https://platform.deepseek.com/dsh/authorize', codeVerifier: 'private' } }
+    attempt: { id: 'test', phase: 'waiting-browser', authorizeUrl: 'https://platform.deepseek.com/mwf/authorize', codeVerifier: 'private' } }
   expect(accountView(state)).toEqual({ links: { usageUrl: 'http://localhost/usage', topUpUrl: 'http://localhost/top_up' }, status: 'signed-out', attempt: {
-    id: 'test', phase: 'waiting-browser', authorizeUrl: 'https://platform.deepseek.com/dsh/authorize',
+    id: 'test', phase: 'waiting-browser', authorizeUrl: 'https://platform.deepseek.com/mwf/authorize',
   } })
   for (const authorizeUrl of ['file:///tmp/example', 'javascript:alert(1)', 'http://example.com/login']) {
     expect(() => accountView({ ...state, attempt: { ...state.attempt, authorizeUrl } })).toThrow()

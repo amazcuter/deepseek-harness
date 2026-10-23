@@ -2,7 +2,7 @@
  * PTC mode codegen — Python flavor. The pure projection from registered tool schemas to the
  * Python SDK text the model programs against under `runtime.language === 'python'`. Sibling of
  * {@link ./ts-types.ts | ts-types.ts}; the two files are two projections of the same registry
- * store, keyed by the loaded {@link @deepseek-ai/dsh-ptc-runtime#PtcRuntime.language | PTC
+ * store, keyed by the loaded {@link @metaworkflow/ptc-runtime#PtcRuntime.language | PTC
  * runtime's language}.
  *
  * Under `mode: 'ptc'` the native tool schemas are omitted from the request, so this generated
@@ -10,7 +10,7 @@
  * descriptions, and canonical output types. Object-shaped arguments and outputs render as one
  * named `TypedDict` per tool (and per nested object), not an opaque `dict[str, Any]`, so the
  * shape survives into the program under the mode that has nothing else to carry it.
- * @module @deepseek-ai/dsh-tools/src/py-types
+ * @module @metaworkflow/tools/src/py-types
  */
 
 import { assertSupportedJsonSchema } from './json-schema.ts'

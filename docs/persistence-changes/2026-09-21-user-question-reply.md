@@ -47,7 +47,7 @@ changes:
 <a id="compatibility"></a>
 ## Compatibility
 
-Existing logs contain no such source and remain valid. The new source is qualified attribution on an ordinary user message; readers without dsh-user-questions preserve the message and derive history from its content. Only the userQuestions projection reads this source to close the named question and record its answers. The answer RPC is its only producer and writes outcome answered; closing the Client panel persists no reply. No event type or Session header changes.
+Existing logs contain no such source and remain valid. The new source is qualified attribution on an ordinary user message; readers without mwf-user-questions preserve the message and derive history from its content. Only the userQuestions projection reads this source to close the named question and record its answers. The answer RPC is its only producer and writes outcome answered; closing the Client panel persists no reply. No event type or Session header changes.
 
 <a id="verification"></a>
 ## Verification

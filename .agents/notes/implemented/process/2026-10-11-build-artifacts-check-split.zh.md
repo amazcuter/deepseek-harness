@@ -30,10 +30,10 @@ Status: implemented
 |---|---|---|
 | native | `pnpm run build:native-system` | — |
 | host-src | `node --max-old-space-size=4096 <tsc> -b <tsconfig.host.json 的 references>` | native |
-| host-bundle | `tsdown --config-loader native --env.DSH_BUILD_FACE host`（运行 Typert） | host-src |
-| desktop-bundle | `pnpm --filter @deepseek-ai/dsh-desktop run bundle` | host-bundle |
+| host-bundle | `tsdown --config-loader native --env.MWF_BUILD_FACE host`（运行 Typert） | host-src |
+| desktop-bundle | `pnpm --filter @metaworkflow/desktop run bundle` | host-bundle |
 | client-src | `<tsc> -b <tsconfig.client.json 的 references>` | desktop-bundle |
-| client-bundle | `tsdown --config-loader native --env.DSH_BUILD_FACE client` | client-src |
+| client-bundle | `tsdown --config-loader native --env.MWF_BUILD_FACE client` | client-src |
 | web | `pnpm run build:web` | client-bundle |
 | host-check | `node --max-old-space-size=4096 <tsc> -p tsconfig.host.json` | host-src |
 | client-check | `<tsc> -p tsconfig.client.json` | client-src |
@@ -44,7 +44,7 @@ native → host-src ─┬─ host-check ─────────────
                                                                  └─ client-bundle → web ┘
 ```
 
-- client-src 必须在 host-bundle 之后：Client 包导入 `@deepseek-ai/dsh-*/remote`，其类型 `lib/typert.remote-client.d.ts` 由 Typert 写出：这些 scope 在 Host tsdown 中生成，typecheck scope 经 `scripts/generate-typert.ts` 生成。host-check 不读取 Typert 输出，干净的串行构建一直在 Host tsdown 之前完成 Host 聚合检查。
+- client-src 必须在 host-bundle 之后：Client 包导入 `@metaworkflow/*/remote`，其类型 `lib/typert.remote-client.d.ts` 由 Typert 写出：这些 scope 在 Host tsdown 中生成，typecheck scope 经 `scripts/generate-typert.ts` 生成。host-check 不读取 Typert 输出，干净的串行构建一直在 Host tsdown 之前完成 Host 聚合检查。
 - 产物链保留 native → host-src 与 desktop-bundle → client-src 这两条非数据依赖；只有两个 check 步骤并行挂接到链上。
 - [`compile-referenced-projects.ts`](../../../../scripts/compile-referenced-projects.ts) 拥有包库步骤列表 `libraryBuildSteps`、references 参数构造 `referencedProjectsCompilerArgs`（相对路径传参，避开 Windows 命令行长度上限）与聚合检查参数 `aggregateCheckArgs`。vendor 发布演练（`host-libraries`）与 CI benchmark（`--noCheck`）串行执行同一步骤列表。
 - check 步骤使用 project mode（`tsc -p`）：它读取 references 已有的声明而不编译任何 reference，incremental 状态写入聚合配置已有的 `tsconfig.{host,client}.tsbuildinfo`。`build` 与 `build:check` 使用同一条命令，因此诊断相同。
@@ -52,9 +52,9 @@ native → host-src ─┬─ host-check ─────────────
 ### 调度、失败与输出
 
 - [`scripts/build.ts`](../../../../scripts/build.ts) 拥有步骤表与三个范围，执行复用 [`scripts/run-gates.ts`](../../../../scripts/run-gates.ts) 的 `runAggregate`：每个步骤是一个带 `needs` 的 gate，shell-free 启动、按步骤缓冲输出、fail-fast 进程树终止、Windows `taskkill` 与宿主信号转发都沿用 run-gates 的实现。`build:artifacts` 为 `tsx scripts/build.ts --scope artifacts`，`build:check` 为 `--scope check`，`build` 不带 `--scope`，把两者作为一张图执行；`--profile` 只适用于产生产物的范围，与 `--scope check` 同用时参数解析失败。
-- 并发上限取 `DSH_GATE_CONCURRENCY`，未设置时为可用 CPU 数；依赖图宽度最多为 3（host-check 尚未结束时，client-check 与 client-bundle 可能已开始）。master 串行参考 lane 设置 `DSH_GATE_CONCURRENCY=1`，`build` 在那里按拓扑顺序串行执行，符合[串行参考决策](2026-07-21-serial-cross-platform-ci-reference.zh.md)，无需修改 workflow。
-- 缺省（本地）时，失败步骤的所有依赖方记为 skipped，正在运行的步骤和与失败无关的步骤继续运行到结束；执行集合只取决于各步骤的结果，因此一次运行报告所有相互独立的类型错误。`DSH_GATE_FAIL_FAST=1`（所有构建型 PR lane 已设置）时，第一个失败终止其余正在运行步骤的进程树，所有未完成步骤记为 skipped。
-- 失败步骤打印 `== FAILED <步骤> ==`、命令、退出原因与该步骤完整的缓冲输出，结尾汇总列出 failed 与 skipped 步骤；成功步骤只打印 PASS 行，`DSH_GATE_VERBOSE=1` 打印全部输出。任一步骤 failed 或 skipped 时退出码为 1，且不写 client build record。所有步骤继承 `clientBuildProcessEnvironment` 选定的公开 Client 环境。
+- 并发上限取 `MWF_GATE_CONCURRENCY`，未设置时为可用 CPU 数；依赖图宽度最多为 3（host-check 尚未结束时，client-check 与 client-bundle 可能已开始）。master 串行参考 lane 设置 `MWF_GATE_CONCURRENCY=1`，`build` 在那里按拓扑顺序串行执行，符合[串行参考决策](2026-07-21-serial-cross-platform-ci-reference.zh.md)，无需修改 workflow。
+- 缺省（本地）时，失败步骤的所有依赖方记为 skipped，正在运行的步骤和与失败无关的步骤继续运行到结束；执行集合只取决于各步骤的结果，因此一次运行报告所有相互独立的类型错误。`MWF_GATE_FAIL_FAST=1`（所有构建型 PR lane 已设置）时，第一个失败终止其余正在运行步骤的进程树，所有未完成步骤记为 skipped。
+- 失败步骤打印 `== FAILED <步骤> ==`、命令、退出原因与该步骤完整的缓冲输出，结尾汇总列出 failed 与 skipped 步骤；成功步骤只打印 PASS 行，`MWF_GATE_VERBOSE=1` 打印全部输出。任一步骤 failed 或 skipped 时退出码为 1，且不写 client build record。所有步骤继承 `clientBuildProcessEnvironment` 选定的公开 Client 环境。
 - CI 中 `build` 本身是外层 run-gates 的一个 gate；外层 fail-fast 终止会转发到内层调度。`check:node-compat` 与 `check:ci:lint:contracts-ready` 已使用同样的嵌套。
 
 ### 调用方
@@ -96,7 +96,7 @@ wall 中位数从 249.4 s 降到 172.1 s（−77.3 s，−31%）。各步骤单�
 | 场景 | master | 本分支 | CPU user+sys（master → 本分支） | 进程树 RSS 峰值（master → 本分支） |
 |---|---|---|---|---|
 | 完整构建 `pnpm run build` | 317.1 s | 169.1 s（−46.7%） | 423.1 → 374.4 s（−11.5%） | 6.11 → 7.53 GiB（+1.42） |
-| 本分支串行构建 `DSH_GATE_CONCURRENCY=1 pnpm run build`（n=1） | — | 266.7 s | 389.5 s | 6.27 GiB |
+| 本分支串行构建 `MWF_GATE_CONCURRENCY=1 pnpm run build`（n=1） | — | 266.7 s | 389.5 s | 6.27 GiB |
 | 产物构建：master `build --artifacts-only`，本分支 `build:artifacts` | 185.8 s | 153.6 s（−17.3%） | 256.2 → 231.2 s | 6.58 → 6.18 GiB |
 | 开发迭代：master `build`，本分支 `build:artifacts` | 317.1 s | 153.6 s（−51.6%） | 423.1 → 231.2 s（−45.4%） | 6.11 → 6.18 GiB |
 | `pnpm run build:check`（`build:artifacts` 之后） | — | 67.7 s | 144.6 s | 5.33 GiB |
@@ -107,7 +107,7 @@ wall 中位数从 249.4 s 降到 172.1 s（−77.3 s，−31%）。各步骤单�
 
 ### 完整性与无损依据
 
-`build` 运行的编译器程序集合与串行构建相同：host-src 与 client-src 编译两个 face 的全部包 project，host-check 与 client-check 检查两个聚合根程序，且使用与 `build:check` 相同的命令。原型的 6 轮运行中，`{packages,apps,vendor,native}/**/lib/**`（排除 `*.tsbuildinfo`）的 11,580 个文件在串行与并发之间逐字节一致，每轮之后 `tsc -b --dry tsconfig.host.json tsconfig.client.json` 报告没有过期 project。tsbuildinfo 写入方归属为：host-src 292 个，client-src 76 个（恰好是 client-only project），两个聚合检查各 1 个；client-src 不改写 host-check 读取的任何 tsbuildinfo 或声明，因此该依赖图中不存在写入竞争。fixture 测试 `checks only the aggregate program in project mode` 表明 `tsc -p` 写出的 tsbuildinfo 被 `tsc -b --dry` 视为最新，`reports missing package declarations without compiling references` 表明 project mode 不编译 references。本实现中，并发 `build` 与 `DSH_GATE_CONCURRENCY=1 pnpm run build` 产出逐字节一致的 `lib/`（11,584 个文件）、`apps/web/dist`（156 个文件）与 client build record；之后 `tsc -b --dry` 对两个聚合配置报告 372 个 project 全部为最新，没有需要构建的 project。
+`build` 运行的编译器程序集合与串行构建相同：host-src 与 client-src 编译两个 face 的全部包 project，host-check 与 client-check 检查两个聚合根程序，且使用与 `build:check` 相同的命令。原型的 6 轮运行中，`{packages,apps,vendor,native}/**/lib/**`（排除 `*.tsbuildinfo`）的 11,580 个文件在串行与并发之间逐字节一致，每轮之后 `tsc -b --dry tsconfig.host.json tsconfig.client.json` 报告没有过期 project。tsbuildinfo 写入方归属为：host-src 292 个，client-src 76 个（恰好是 client-only project），两个聚合检查各 1 个；client-src 不改写 host-check 读取的任何 tsbuildinfo 或声明，因此该依赖图中不存在写入竞争。fixture 测试 `checks only the aggregate program in project mode` 表明 `tsc -p` 写出的 tsbuildinfo 被 `tsc -b --dry` 视为最新，`reports missing package declarations without compiling references` 表明 project mode 不编译 references。本实现中，并发 `build` 与 `MWF_GATE_CONCURRENCY=1 pnpm run build` 产出逐字节一致的 `lib/`（11,584 个文件）、`apps/web/dist`（156 个文件）与 client build record；之后 `tsc -b --dry` 对两个聚合配置报告 372 个 project 全部为最新，没有需要构建的 project。
 
 | 错误 | `build:artifacts` | `build:check` | `build` | `typecheck` | 必需 CI lane |
 |---|---|---|---|---|---|
@@ -119,13 +119,13 @@ wall 中位数从 249.4 s 降到 172.1 s（−77.3 s，−31%）。各步骤单�
 
 负对照：在只属于 Host 聚合根程序的 `scripts/pnpm-invocation.spec.ts` 中加入类型错误（TS2322）后，`build:artifacts` 以 0 退出；`build:check` 以 1 退出，其中 Host 聚合检查失败、Client 聚合检查通过；`build` 以 1 退出，9 个步骤中 8 个通过、1 个失败，且不写 client build record。在临时 fixture 中，被引用 project 的 tsconfig 含无效 `target`、JSON 语法错误或未知编译选项时，`tsc -p` 以 0 退出，`tsc -b` 分别报告 TS6046、TS5092 与 TS1012、TS5023 并以 1 退出；被引用 project 缺少 `composite` 时，两者都报告 TS6306。
 
-CI 证据：PR #6005 上，两个运行并发 `pnpm run build` 的必需 lane 均通过：`node 24 / snapshots and artifacts`（`check:ci:consumers`，运行于 `blacksmith-16vcpu-ubuntu-2404`）与 `windows node 24 / build & observational`（`check:ci:windows-blocking`，运行于 `blacksmith-16vcpu-windows-2025`）；GitHub 托管的 4 vCPU benchmarks lane 不运行 `build`。内层并发取 `DSH_GATE_CONCURRENCY`：master 串行 lane 设为 1，consumers lane 在 self-hosted failover 时设为 10，未设置时取可用 CPU 数，且不超过 9 个步骤。
+CI 证据：PR #6005 上，两个运行并发 `pnpm run build` 的必需 lane 均通过：`node 24 / snapshots and artifacts`（`check:ci:consumers`，运行于 `blacksmith-16vcpu-ubuntu-2404`）与 `windows node 24 / build & observational`（`check:ci:windows-blocking`，运行于 `blacksmith-16vcpu-windows-2025`）；GitHub 托管的 4 vCPU benchmarks lane 不运行 `build`。内层并发取 `MWF_GATE_CONCURRENCY`：master 串行 lane 设为 1，consumers lane 在 self-hosted failover 时设为 10，未设置时取可用 CPU 数，且不超过 9 个步骤。
 
 ### 有意的取舍（非无损）
 
 - **部分命令跳过聚合检查：** `build:artifacts`、`dev:web` 与 `dev:desktop` 的启动构建，以及 `lint`、`lint:fix`、`doc-typecheck` 与 Typert contracts gate 的前置步骤，都不类型检查两个聚合根程序，这些前置步骤只产出声明与 Typert 输出，不打包。完整性由 `build`、`build:check`、`typecheck`（pre-push hook）与两个必需 CI lane 负责；`dev:web` 与 `dev:desktop` 不会因测试类型错误而拒绝启动。
 - **`build:check` 不检查新鲜度：** 在 `build:artifacts` 之后修改源码时，`build:check` 基于旧声明（包括 Typert Remote 声明）检查；需要先重跑 `build:artifacts`。完整 `build` 不受影响。
-- **并发 `build` 提高内存峰值：** 本分支完整 `build` 的进程树 RSS 峰值为 7.53 GiB，master 串行构建为 6.11 GiB（+1.42 GiB，2 个样本的中位数），本分支串行构建为 6.27 GiB（n=1）；同时 CPU 从 423.1 s 降到 374.4 s，因为[无损提速 Note](2026-10-11-lossless-build-speedups.zh.md) 省去的工作多于并发争用增加的工作。原型（不含 Typert 改动）中，单独的并发调度使 RSS 峰值增加约 2.1 GiB（5.9 → 8.0 GiB）、CPU 增加约 3.7%。上限由 `DSH_GATE_CONCURRENCY` 控制；内存紧张时使用 `DSH_GATE_CONCURRENCY=1 pnpm run build`，或分别运行 `build:artifacts` 与 `build:check`。windows-build lane 中 `build` 与 `docs:build` 同时运行。
+- **并发 `build` 提高内存峰值：** 本分支完整 `build` 的进程树 RSS 峰值为 7.53 GiB，master 串行构建为 6.11 GiB（+1.42 GiB，2 个样本的中位数），本分支串行构建为 6.27 GiB（n=1）；同时 CPU 从 423.1 s 降到 374.4 s，因为[无损提速 Note](2026-10-11-lossless-build-speedups.zh.md) 省去的工作多于并发争用增加的工作。原型（不含 Typert 改动）中，单独的并发调度使 RSS 峰值增加约 2.1 GiB（5.9 → 8.0 GiB）、CPU 增加约 3.7%。上限由 `MWF_GATE_CONCURRENCY` 控制；内存紧张时使用 `MWF_GATE_CONCURRENCY=1 pnpm run build`，或分别运行 `build:artifacts` 与 `build:check`。windows-build lane 中 `build` 与 `docs:build` 同时运行。
 - **成功步骤的输出默认不显示：** 只有失败步骤打印完整输出。
 - **`tsc -p` 不跳过已是最新的根程序：** 无改动时立即重跑 `build:check` 仍需 19.4 s 与 33.1 s CPU，因为两个程序都要重新解析；`tsc -b` 会跳过已是最新的根。
 - **多核冷启动时 `build:artifacts` 只比 `build` 快 15.5 s：** 本分支冷启动 `build` 为 169.1 s，`build:artifacts` 为 153.6 s（2 个样本的中位数），因为 host-check 不在关键路径上，client-check 只比 client-bundle 与 web 之和长约 16 s。`build:artifacts` 的其余收益是 CPU 与内存：CPU 从 374.4 s 降到 231.2 s，RSS 峰值从 7.53 GiB 降到 6.18 GiB；在少核机器与增量重建中，这部分也转化为 wall。

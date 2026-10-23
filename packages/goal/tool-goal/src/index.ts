@@ -1,23 +1,23 @@
 /**
  * Model-facing `get_goal`, `create_goal`, and `update_goal` tools over the
  * persisted same-session goal domain.
- * @module @deepseek-ai/dsh-tool-goal
+ * @module @metaworkflow/tool-goal
  */
 
 import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import { GoalId } from '@deepseek-ai/dsh-goal'
-import type { GoalRef, GoalView } from '@deepseek-ai/dsh-goal'
-import { boundContextSummary, createUserMessage, HarnessError } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-declare module '@deepseek-ai/dsh-llm' {
+import { GoalId } from '@metaworkflow/goal'
+import type { GoalRef, GoalView } from '@metaworkflow/goal'
+import { boundContextSummary, createUserMessage, HarnessError } from '@metaworkflow/llm'
+import type { ContextFormed } from '@metaworkflow/llm'
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'tool-goal': { kind: 'tool-goal' } & ContextFormed
   }
 }
 
-import { defineTool } from '@deepseek-ai/dsh-tools'
-import type { GenericCallView } from '@deepseek-ai/dsh-tools'
+import { defineTool } from '@metaworkflow/tools'
+import type { GenericCallView } from '@metaworkflow/tools'
 import {
   completionAuthority,
   goalToolExecution,

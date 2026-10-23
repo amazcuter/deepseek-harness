@@ -3,7 +3,7 @@
 
 - insert:
     - id: optional-session-title-all-prompts
-      name: '@deepseek-ai/dsh-session-title-all-prompts-llm'
+      name: '@metaworkflow/session-title-all-prompts-llm'
       config:
         targetWords: 5
         targetCjkCharacters: 10

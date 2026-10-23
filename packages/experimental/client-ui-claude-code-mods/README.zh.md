@@ -3,7 +3,7 @@ description: "面向 Claude Code 模组的提示框上方 Web 横幅：从桥接
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-client-ui-claude-code-mods
+# @metaworkflow/experimental-client-ui-claude-code-mods
 
 [English](README.md) | 中文
 

@@ -14,29 +14,29 @@
  */
 import { expect, test } from 'vitest'
 import { posix as nodePosix, win32 as nodeWin32 } from 'node:path'
-import * as shim from '@deepseek-ai/dsh-experimental-webworker-runtime/src/node/builtin_modules/implemented/path.ts'
+import * as shim from '@metaworkflow/experimental-webworker-runtime/src/node/builtin_modules/implemented/path.ts'
 
 const CASES = [
   '', '.', '..', '/', '//', '///', 'a', '/a', 'a/', '/a/', 'a/b', '/a/b/c', 'a//b', '/a//b/',
   './a', '../a', 'a/./b', 'a/../b', '/a/../..', '/../a', 'a/b/../../c', '.hidden', 'a.b.c',
   '/a/b/c.txt', 'c.txt', '.txt', 'a/.txt', 'a/b.', '/a/b/.', '/a/b/..', 'foo/bar/../baz/./qux',
-  '/dsh/node_modules/@deepseek-ai/dsh-session/lib/index.js', 'node_modules/.bin/x',
+  '/mwf/node_modules/@metaworkflow/session/lib/index.js', 'node_modules/.bin/x',
 ]
 
 const JOINS: string[][] = [
   ['a', 'b'], ['/a', 'b'], ['a', '/b'], ['a', '..'], ['a', '../..'], ['', 'b'], ['a', ''],
-  ['/dsh', 'config', 'cordis.yml'], ['/dsh/node_modules', '@scope/pkg', 'lib/index.js'],
+  ['/mwf', 'config', 'cordis.yml'], ['/mwf/node_modules', '@scope/pkg', 'lib/index.js'],
   ['a/', '/b'], ['.', 'a'], ['..', 'a'], ['/', 'a'], [],
 ]
 
 const RESOLVES: string[][] = [
-  ['a'], ['/a', 'b'], ['/a', '/b'], ['a', '..'], ['/dsh', './config/../config/cordis.yml'],
-  ['/a/b', '../c'], ['/'], ['', 'a'], ['/dsh/node_modules/pkg', './lib/../lib/index.js'],
+  ['a'], ['/a', 'b'], ['/a', '/b'], ['a', '..'], ['/mwf', './config/../config/cordis.yml'],
+  ['/a/b', '../c'], ['/'], ['', 'a'], ['/mwf/node_modules/pkg', './lib/../lib/index.js'],
 ]
 
 const RELATIVES: [string, string][] = [
   ['/a/b', '/a/b/c'], ['/a/b/c', '/a/b'], ['/a', '/b'], ['/a/b', '/a/b'], ['/', '/a'],
-  ['/dsh/node_modules/a', '/dsh/node_modules/b/lib/x.js'],
+  ['/mwf/node_modules/a', '/mwf/node_modules/b/lib/x.js'],
 ]
 
 const compare = (label: string, actual: unknown, expected: unknown): void => {

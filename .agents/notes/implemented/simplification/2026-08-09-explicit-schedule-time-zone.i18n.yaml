@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/simplification/2026-08-09-explicit-schedule-time-zone.md
 /agent-note-explicit-schedule-time-zone-boundary:
-  en: 475b5512c7155605
-  zh: e564e8c4f718f0c0
+  en: ee3b9b2804e9d957
+  zh: e109c38d36b81a25
 /agent-note-explicit-schedule-time-zone-boundary/problem:
   en: 4a7e52f6a16dec96
   zh: d558db30801355d9

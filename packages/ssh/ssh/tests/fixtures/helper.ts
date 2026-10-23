@@ -11,7 +11,7 @@ import { helloSchema, type SshStreamEndpoint } from '../../src/schemas.ts'
 import { authenticateStream } from '../../src/stream-security.ts'
 
 export async function createHelperHarness(handshake = true, leaseMs = 30_000, kind: 'node-script' | 'executable' = 'node-script') {
-  const root = await realpath(await mkdtemp('/tmp/dsh-ssh-rpc-'))
+  const root = await realpath(await mkdtemp('/tmp/mwf-ssh-rpc-'))
   const input = new PassThrough()
   const output = new PassThrough()
   const controller = new AbortController()

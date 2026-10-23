@@ -8,8 +8,8 @@
  * select one by name.
  *
  * This package owns the Service Definition role of the capability seam. Service Providers
- * (`@deepseek-ai/dsh-subagent-spawn-in-process`, `-fork`, `-acp`) and the model-facing
- * consumer (`@deepseek-ai/dsh-tool-subagent`) are separate packages.
+ * (`@metaworkflow/subagent-spawn-in-process`, `-fork`, `-acp`) and the model-facing
+ * consumer (`@metaworkflow/tool-subagent`) are separate packages.
  *
  * `startActivation` establishes every child under the activation manager, which
  * owns execution, result delivery, and resource release. Local providers seed
@@ -25,22 +25,22 @@
  * serialization and hostile-input validation belong at real process, worker,
  * persistence, and model boundaries.
  *
- * @module @deepseek-ai/dsh-subagent
+ * @module @metaworkflow/subagent
  */
 import type { Volatile } from '@deepseek-ai/cordis'
 
 import { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import type {} from '@deepseek-ai/dsh-working-directory'
-import type {} from '@deepseek-ai/dsh-attachment'
-import { scopeTarget } from '@deepseek-ai/dsh-scope'
-import type { Scoped } from '@deepseek-ai/dsh-scope'
-import { assertObjectJsonSchema } from '@deepseek-ai/dsh-tools'
-import type { ContentBlock, MessageId, MessageSource } from '@deepseek-ai/dsh-llm'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { canonicalClientTimeZone } from '@deepseek-ai/dsh-util-time'
-import { Remote, RemoteError, TypertRemoteService, principalOf, type Principal } from '@deepseek-ai/dsh-typert-protocol'
+import type {} from '@metaworkflow/working-directory'
+import type {} from '@metaworkflow/attachment'
+import { scopeTarget } from '@metaworkflow/scope'
+import type { Scoped } from '@metaworkflow/scope'
+import { assertObjectJsonSchema } from '@metaworkflow/tools'
+import type { ContentBlock, MessageId, MessageSource } from '@metaworkflow/llm'
+import type { Agent } from '@metaworkflow/agent'
+import type { SessionId } from '@metaworkflow/session'
+import { canonicalClientTimeZone } from '@metaworkflow/util-time'
+import { Remote, RemoteError, TypertRemoteService, principalOf, type Principal } from '@metaworkflow/typert-protocol'
 import {
   rejectPrompt, validateControlRequest,
 } from './control.ts'

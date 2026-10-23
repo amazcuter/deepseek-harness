@@ -2,12 +2,12 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentDefaultModelConfig from '@deepseek-ai/dsh-agent-default-model'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import type { Agent } from '@metaworkflow/agent'
+import AgentDefaultModelConfig from '@metaworkflow/agent-default-model'
+import AgentLoop from '@metaworkflow/agent-loop'
+import { mountAgentLoopTestDependencies } from '@metaworkflow/agent-loop-testkit'
+import { createUserMessage } from '@metaworkflow/llm'
+import { SessionId } from '@metaworkflow/session'
 import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import { apply } from '../src/index.ts'
 import { internals } from '../src/runner-internals.ts'
@@ -75,7 +75,7 @@ describe('headless terminal failures', () => {
     const result = await test.run(json)
     expect(failures).toHaveLength(1)
     expect(result.code).toBe(1)
-    expect(result.err).toBe(`dsh: summary ${failedEvent} unavailable\n`)
+    expect(result.err).toBe(`mwf: summary ${failedEvent} unavailable\n`)
     if (json) {
       const events = result.out.trim().split('\n').map(line => JSON.parse(line) as { type: string; message?: string })
       expect(events.at(-1)).toEqual({ type: 'error', message: `summary ${failedEvent} unavailable` })
@@ -102,7 +102,7 @@ describe('headless terminal failures', () => {
 
     await expect(test.run()).resolves.toEqual(recover
       ? { code: 0, out: 'summary\n', err: '' }
-      : { code: 1, out: 'waiting\n', err: 'dsh: UNKNOWN: summary hook failed\n' })
+      : { code: 1, out: 'waiting\n', err: 'mwf: UNKNOWN: summary hook failed\n' })
   })
 
   it.each(['turn/start', 'turn/end'] as const)('accepts a recovered summary after a missing %s', async (failedEvent) => {

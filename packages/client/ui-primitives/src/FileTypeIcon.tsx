@@ -270,7 +270,7 @@ function assertNever(value: never): never {
  * Render a decorative file-type glyph for a path or an explicitly resolved kind.
  * @param props - Path or kind selection, optional project context, size, and CSS class.
  * @returns The category-colored SVG; the caller owns the accessible name and may override
- * the color through `--dsh-file-type-icon-color`.
+ * the color through `--mwf-file-type-icon-color`.
  */
 export function FileTypeIcon(props: FileTypeIconProps): ReactNode {
   const { size = 28, className } = props

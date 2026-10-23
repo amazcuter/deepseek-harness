@@ -1,5 +1,5 @@
 /** Environment variable that carries the build version through one packaging and upload run. */
-export const DESKTOP_BUILD_VERSION_ENV: 'DSH_DESKTOP_BUILD_VERSION'
+export const DESKTOP_BUILD_VERSION_ENV: 'MWF_DESKTOP_BUILD_VERSION'
 
 /**
  * Validate a build version against the product version it extends.

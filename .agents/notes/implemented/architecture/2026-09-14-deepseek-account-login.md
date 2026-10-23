@@ -40,15 +40,15 @@ Support questionnaires receive only available environment metadata through expli
 
 Private proxy development can explicitly map authorization and completion URLs to platformOrigin with rewriteBrowserOrigin. Both pages retain their fixed paths and full query strings; allowing a remote origin without mapping it would send the browser outside the configured environment. Shipped configuration requires same-origin URLs.
 
-DSH grants authenticate Platform, inference and Files requests with x-dsh-auth-token, without a Bearer prefix. API-key authentication remains protocol-specific.
+MWF grants authenticate Platform, inference and Files requests with x-mwf-auth-token, without a Bearer prefix. API-key authentication remains protocol-specific.
 
 Profile and recharge-wallet queries use independent getProfile and getBalance operations. The client publishes each result as it arrives, so a slow or failed balance request cannot delay the sidebar username. Account changes invalidate both pending results.
 
 Deployment authentication uses explicit Host-only requestHeaders on the configured Platform origin. The provider rejects redirects and reserved-header overrides so deployment cookies cannot replace account authorization or follow a browser destination. Environment-specific authentication protocols remain outside the account provider.
 
-The bundled account UI mounts the account launcher, settings and sign-in onboarding in both Desktop and plain Web. The Host sends login_source (desktop or web) in auth_init so Platform can choose the completion experience; the UI sends desktop when the Desktop preload bridge is present and web otherwise. Web failures close the authorization tab while the original tab receives Host state; no Web UI return URL is used. The backend accepts localhost callbacks. DSH preserves the browser-supplied localhost hostname and port without DNS resolution or conversion to an IP literal.
+The bundled account UI mounts the account launcher, settings and sign-in onboarding in both Desktop and plain Web. The Host sends login_source (desktop or web) in auth_init so Platform can choose the completion experience; the UI sends desktop when the Desktop preload bridge is present and web otherwise. Web failures close the authorization tab while the original tab receives Host state; no Web UI return URL is used. The backend accepts localhost callbacks. MWF preserves the browser-supplied localhost hostname and port without DNS resolution or conversion to an IP literal.
 
-The macOS development launcher registers an isolated, ad-hoc-signed application bundle for `dsh://open`. The bundle retains the workspace entry and development paths for Launch Services cold starts without copying credentials or changing the package-manager-owned Electron application. Protocol registration targets the latest launched development or packaged application.
+The macOS development launcher registers an isolated, ad-hoc-signed application bundle for `mwf://open`. The bundle retains the workspace entry and development paths for Launch Services cold starts without copying credentials or changing the package-manager-owned Electron application. Protocol registration targets the latest launched development or packaged application.
 
 Exchange user data supplies the first profile read after credential commit, avoiding a second request before displaying the username. The Host retains only projected UI fields in the active attempt, matched to its token and consumed once; later reads use current. Missing or malformed user data does not discard successful authorization.
 

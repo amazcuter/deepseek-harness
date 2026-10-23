@@ -3,7 +3,7 @@ description: "通过已安装的 Cua Driver MCP 可执行程序和独占提供�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp
+# @metaworkflow/experimental-computer-use-cua-driver-mcp
 
 [English](README.md) | 中文
 
@@ -25,15 +25,15 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当 Cua Driver 已在运行 DSH 的同一台机器上安装并配置好时，选择此提供者。平台设置以[上游安装和权限指南](https://github.com/trycua/cua/blob/cua-driver-rs-v0.28.0/libs/cua-driver/README.md)为准。
+当 Cua Driver 已在运行 MWF 的同一台机器上安装并配置好时，选择此提供者。平台设置以[上游安装和权限指南](https://github.com/trycua/cua/blob/cua-driver-rs-v0.28.0/libs/cua-driver/README.md)为准。
 
 ### 最小配置
 
 将以下条目加入已提供 tools 和 system-prompt 服务的组合。截图还需要附件存储，以及声明支持图像输入的模型路由。
 
 ```yaml
-- name: '@deepseek-ai/dsh-computer-use'
-- name: '@deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp'
+- name: '@metaworkflow/computer-use'
+- name: '@metaworkflow/experimental-computer-use-cua-driver-mcp'
   config:
     command: cua-driver
     args: [mcp]
@@ -46,13 +46,13 @@ kind: "package-reference"
 | `toolCallTimeoutMs` | MCP 客户端默认值 | 单次调用的超时覆盖值，单位为毫秒 |
 | `reconnect` | MCP 客户端策略 | 可选的重连覆盖配置 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-experimental-computer-use-cua-driver-mcp)列出了接受的字段。超时和重连默认值由 [MCP 客户端](../../mcp/mcp-client/README.zh.md)定义。
+生成的[配置目录](../../../docs/config-catalog.zh.md#metaworkflowexperimental-computer-use-cua-driver-mcp)列出了接受的字段。超时和重连默认值由 [MCP 客户端](../../mcp/mcp-client/README.zh.md)定义。
 
 ### 激活与所有权
 
 提供者在连接前以 `cua-driver-mcp` 注册。第二个计算机使用提供者会激活失败，包括本包的另一个实例。初始化或首次工具发现失败会使本条目激活失败，并在清理后释放注册。之后连接断开时，MCP 客户端重连或耗尽尝试次数均保留注册；卸载条目才会释放注册。
 
-模型看到的工具使用固定的 `mcp__cua-driver-mcp__` 命名空间。工具名称、描述、输入模式、规范结果和图像准入遵循现有 [MCP 桥接器](../../mcp/mcp-client/README.zh.md)。本包不额外提供 DSH 操作目录或提供者选择工具。
+模型看到的工具使用固定的 `mcp__cua-driver-mcp__` 命名空间。工具名称、描述、输入模式、规范结果和图像准入遵循现有 [MCP 桥接器](../../mcp/mcp-client/README.zh.md)。本包不额外提供 MWF 操作目录或提供者选择工具。
 
 -----
 
@@ -66,11 +66,11 @@ kind: "package-reference"
 
 ### 验证已安装的驱动
 
-在仓库根目录，用 Cua Driver 可执行程序的绝对路径显式启用真实兼容性测试。测试发现工具，以 `prompt: false` 调用 `check_permissions`，并验证清理结果。在 macOS 上，`--direct` 使用启动宿主的权限在 MCP 进程中运行驱动；省略 `DSH_COMPUTER_USE_MCP_ARGS` 则使用默认的 `["mcp"]` 参数。
+在仓库根目录，用 Cua Driver 可执行程序的绝对路径显式启用真实兼容性测试。测试发现工具，以 `prompt: false` 调用 `check_permissions`，并验证清理结果。在 macOS 上，`--direct` 使用启动宿主的权限在 MCP 进程中运行驱动；省略 `MWF_COMPUTER_USE_MCP_ARGS` 则使用默认的 `["mcp"]` 参数。
 
 ```sh
-DSH_COMPUTER_USE_MCP_EXECUTABLE=/absolute/path/to/cua-driver \
-DSH_COMPUTER_USE_MCP_ARGS='["mcp","--direct"]' \
+MWF_COMPUTER_USE_MCP_EXECUTABLE=/absolute/path/to/cua-driver \
+MWF_COMPUTER_USE_MCP_ARGS='["mcp","--direct"]' \
 pnpm run test:e2e packages/experimental/computer-use-cua-driver-mcp/tests/installed-driver.e2e.ts
 ```
 
@@ -112,7 +112,7 @@ pnpm run test:e2e packages/experimental/computer-use-cua-driver-mcp/tests/instal
 
 - 桌面访问需要完成上游安装并取得平台权限；插件激活本身不能证明每个桌面操作都已获准。
 - 多个 Session 共享一个桌面。一次运行一个计算机使用工作流，或在外部协调；注册不会串行化 Session 的操作。
-- 驱动升级可能改变发现的目录。本提供者不支持运行时驱动切换、专用桌面权限界面或 DSH 操作抽象。
+- 驱动升级可能改变发现的目录。本提供者不支持运行时驱动切换、专用桌面权限界面或 MWF 操作抽象。
 - 启动时限及富结果限制遵循 [MCP 客户端的限制](../../mcp/mcp-client/README.zh.md#known-limitations-and-deferred-work)。
 
 <a id="dev-note"></a>

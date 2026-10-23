@@ -5,7 +5,7 @@
   gap: 6px;
   border-radius: var(--dsw-radius-md);
   padding: 0 8px;
-  padding-inline-start: calc(8px + var(--dsh-workspace-indent, 0px));
+  padding-inline-start: calc(8px + var(--mwf-workspace-indent, 0px));
   cursor: pointer;
   user-select: none;
   color: var(--dsw-alias-label-primary);

@@ -3,7 +3,7 @@ description: "Give Agents tools to search and read earlier sessions from the cur
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-session-search
+# @metaworkflow/experimental-session-search
 
 English | [中文](README.zh.md)
 

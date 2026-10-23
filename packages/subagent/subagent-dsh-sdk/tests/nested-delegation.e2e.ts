@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
+import { resolveExampleLaunch } from '@metaworkflow/loader-smoke'
 import { createProcessDeepSeekHarness } from '../../../sdk/client/src/api.ts'
 import { spawnSubprocess } from '../../../subprocess/subprocess-local/src/spawn.ts'
 import { startAcpRun } from '../../subagent-acp/src/run.ts'
@@ -22,7 +22,7 @@ describe('external tasks with a nested fork', () => {
     ['sdk', 'complete'], ['acp', 'complete'], ['sdk', 'cancel'], ['acp', 'cancel'],
     ['sdk', 'error'], ['acp', 'error'],
   ] as const)('%s owns the nested task through %s', { timeout: 60_000, retry: 0 }, async (profile, outcome) => {
-    const root = await mkdtemp(join(tmpdir(), `dsh-${profile}-nested-`))
+    const root = await mkdtemp(join(tmpdir(), `mwf-${profile}-nested-`))
     const ctx = new Context()
     const originalFactory = internals.createHarness.bind(internals)
     const release = join(root, 'release')
@@ -30,9 +30,9 @@ describe('external tasks with a nested fork', () => {
     const idle = join(root, 'idle')
     const patch = join(root, 'nested.patch.yml')
     const env = {
-      DSH_HOME: join(root, 'home'), DSH_TELEMETRY_DISABLED: '1',
-      DSH_TEST_CHILD_READY: ready, DSH_TEST_CHILD_RELEASE: release, DSH_TEST_ROOT_IDLE: idle,
-      DSH_TEST_SUMMARY_ERROR: outcome === 'error' ? '1' : '0',
+      MWF_HOME: join(root, 'home'), MWF_TELEMETRY_DISABLED: '1',
+      MWF_TEST_CHILD_READY: ready, MWF_TEST_CHILD_RELEASE: release, MWF_TEST_ROOT_IDLE: idle,
+      MWF_TEST_SUMMARY_ERROR: outcome === 'error' ? '1' : '0',
     }
     const launch = resolveExampleLaunch({
       srcBin: sourceBin, tsconfigPath: tsconfig, sourceImport: 'tsx/esm',
@@ -59,7 +59,7 @@ describe('external tasks with a nested fork', () => {
           description: 'nested SDK profile', initializeTimeoutMs: 30_000,
         }, options)
         run = await startSdkRun(request, {
-          profile, patches: [patch], dshHome: env.DSH_HOME, cwd: root, provider: 'mock', model: 'mock', env,
+          profile, patches: [patch], mwfHome: env.MWF_HOME, cwd: root, provider: 'mock', model: 'mock', env,
           shutdownTimeoutMs: 1_000, disposeEofGraceMs: 6_000, disposeGraceMs: 3_000,
         })
       } else {

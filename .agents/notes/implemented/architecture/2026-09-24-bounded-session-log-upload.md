@@ -9,7 +9,7 @@ Without a watermark of the current Session format generation, a request carries 
 
 ## Decision
 
-`session-log-deepseek.Config.maxBytes`, 8 MiB by default, bounds the complete serialized `dsh_session_log` field in UTF-8 bytes. Each request carries the longest contiguous run after the watermark whose field, including the header and numeric envelope fields, fits the limit. Acceptance advances the watermark to that run's `throughSeq`, and later requests continue from there. When the first pending event alone exceeds the limit, the request omits the field, the plugin logs a warning, and the watermark stays before that event until `maxBytes` admits it. An event whose JSON text exceeds the runtime's string limit counts as exceeding every limit, so it blocks upload without failing the request, and the plugin serializes it once per request.
+`session-log-deepseek.Config.maxBytes`, 8 MiB by default, bounds the complete serialized `mwf_session_log` field in UTF-8 bytes. Each request carries the longest contiguous run after the watermark whose field, including the header and numeric envelope fields, fits the limit. Acceptance advances the watermark to that run's `throughSeq`, and later requests continue from there. When the first pending event alone exceeds the limit, the request omits the field, the plugin logs a warning, and the watermark stays before that event until `maxBytes` admits it. An event whose JSON text exceeds the runtime's string limit counts as exceeding every limit, so it blocks upload without failing the request, and the plugin serializes it once per request.
 
 The DeepSeek adapter treats a merged request body that fails to serialize as an extension failure rather than a transport failure. It sends the base body without any extension field, skips the joint acceptance transaction, and reports the omitted field names through the provider plugin's logger, so contributors resend unaccepted state on a later request. A base body that cannot serialize still fails the request.
 
@@ -21,7 +21,7 @@ This supersedes complete-suffix delivery and fail-closed serialization in the [r
 
 **Send an oversized first event alone.** Exceeding the configured limit reintroduces the provider body-size rejections that still fail the model request. Omission keeps every request bounded, and the warning names the blocked event.
 
-**Omit only the field that fails to serialize.** Acceptance is one joint transaction across fields, so per-field omission would split the registry's acceptance contract. Dropping every extension field on this path only leaves the small `dsh_plugin_packages` inventory out of one request.
+**Omit only the field that fails to serialize.** Acceptance is one joint transaction across fields, so per-field omission would split the registry's acceptance contract. Dropping every extension field on this path only leaves the small `mwf_plugin_packages` inventory out of one request.
 
 ## Consequences
 

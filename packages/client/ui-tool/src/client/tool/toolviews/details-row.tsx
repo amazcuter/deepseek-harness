@@ -5,8 +5,8 @@ import {
   IconAgentPresetOutlineRegular, IconBranchOutlineRegular, IconChecklistOutlineRegular, IconClockOutlineRegular,
   IconCodeOutlineRegular, IconCordisPluginOutlineRegular, IconGoalOutlineRegular, IconSearchOutlineRegular,
   IconUsersOutlineRegular,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
+} from '@metaworkflow/client-ui-primitives'
+import type { PropsLocale } from '@metaworkflow/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
 import { CONVERSATION_NS as NS } from '../../locale.ts'
 import { ToolRow } from '../components/ToolRow.tsx'

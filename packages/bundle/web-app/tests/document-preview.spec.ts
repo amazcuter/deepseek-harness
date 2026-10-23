@@ -6,17 +6,17 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include, { applyEntryPatches } from '@deepseek-ai/cordis-plugin-include'
-import { loadOverlayPatches } from '@deepseek-ai/dsh-app-boot'
-import WorkspaceFiles, { type WorkspaceFileScope } from '@deepseek-ai/dsh-api-workspace-files'
-import OfficeToPdf from '@deepseek-ai/dsh-office-to-pdf'
-import * as DocumentPreview from '@deepseek-ai/dsh-client-ui-sidebar-documentpreview'
-import type { IndexInjection } from '@deepseek-ai/dsh-host-webserver'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import { FsError } from '@deepseek-ai/dsh-fs'
-import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
+import { loadOverlayPatches } from '@metaworkflow/app-boot'
+import WorkspaceFiles, { type WorkspaceFileScope } from '@metaworkflow/api-workspace-files'
+import OfficeToPdf from '@metaworkflow/office-to-pdf'
+import * as DocumentPreview from '@metaworkflow/client-ui-sidebar-documentpreview'
+import type { IndexInjection } from '@metaworkflow/host-webserver'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import SandboxPolicyService from '@metaworkflow/sandbox-policy'
+import LocalFileSystem from '@metaworkflow/fs-local'
+import { FsError } from '@metaworkflow/fs'
+import TypertRegistry from '@metaworkflow/typert-registry'
 import type { Converter, ConverterOptions } from '@deepseek-ai/libreoffice-kit'
 import { expect, it, onTestFinished, vi } from 'vitest'
 
@@ -24,7 +24,7 @@ const kit = vi.hoisted(() => ({ create: vi.fn<(options?: ConverterOptions) => Pr
 vi.mock('@deepseek-ai/libreoffice-kit', () => ({ createConverter: kit.create }))
 
 it('loads the shipped Office rows with separately patched settings and authorized PDF output', async () => {
-  const directory = await realpath(await mkdtemp(join(tmpdir(), 'dsh-web-office-')))
+  const directory = await realpath(await mkdtemp(join(tmpdir(), 'mwf-web-office-')))
   const ctx = new Context()
   onTestFinished(async () => {
     try { await ctx.fiber.dispose() }
@@ -32,8 +32,8 @@ it('loads the shipped Office rows with separately patched settings and authorize
   })
   const configPath = join(directory, 'cordis.yml')
   const expectedRows = {
-    'office-to-pdf': '@deepseek-ai/dsh-office-to-pdf',
-    'ui-sidebar-documentpreview': '@deepseek-ai/dsh-client-ui-sidebar-documentpreview',
+    'office-to-pdf': '@metaworkflow/office-to-pdf',
+    'ui-sidebar-documentpreview': '@metaworkflow/client-ui-sidebar-documentpreview',
   }
   const rows = loadOverlayPatches('web-office-test', fileURLToPath(new URL('../cordis.patch.yml', import.meta.url)))
     .flatMap(patch => patch.insert ?? []).filter(row => row.id !== undefined && Object.hasOwn(expectedRows, row.id))
@@ -46,12 +46,12 @@ it('loads the shipped Office rows with separately patched settings and authorize
   ], (message) => { throw new Error(message) })
   expect(configured.find(row => row.id === 'ui-sidebar-documentpreview')!.config).toEqual(clientConfig)
   await writeFile(configPath, JSON.stringify([
-    { name: '@deepseek-ai/dsh-session' },
-    { name: '@deepseek-ai/dsh-session-projection' },
-    { name: '@deepseek-ai/dsh-sandbox-policy', config: { workspaceRoot: directory } },
-    { name: '@deepseek-ai/dsh-fs-local', config: { cwd: directory } },
-    { name: '@deepseek-ai/dsh-typert-registry' },
-    { name: '@deepseek-ai/dsh-api-workspace-files', config: { maxFileBytes: 1 } },
+    { name: '@metaworkflow/session' },
+    { name: '@metaworkflow/session-projection' },
+    { name: '@metaworkflow/sandbox-policy', config: { workspaceRoot: directory } },
+    { name: '@metaworkflow/fs-local', config: { cwd: directory } },
+    { name: '@metaworkflow/typert-registry' },
+    { name: '@metaworkflow/api-workspace-files', config: { maxFileBytes: 1 } },
     ...configured,
   ]))
   const pdf = Buffer.from('%PDF-1.7\nLoader preview\n%%EOF\n')
@@ -71,14 +71,14 @@ it('loads the shipped Office rows with separately patched settings and authorize
   ctx.loader.builtins.include = Include
   // Loader's native imports must share the test's source-plane Service classes.
   const modules = new Map<string, unknown>([
-    ['@deepseek-ai/dsh-session', SessionStore],
-    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@deepseek-ai/dsh-sandbox-policy', SandboxPolicyService],
-    ['@deepseek-ai/dsh-fs-local', LocalFileSystem],
-    ['@deepseek-ai/dsh-typert-registry', TypertRegistry],
-    ['@deepseek-ai/dsh-api-workspace-files', WorkspaceFiles],
-    ['@deepseek-ai/dsh-office-to-pdf', OfficeToPdf],
-    ['@deepseek-ai/dsh-client-ui-sidebar-documentpreview', DocumentPreview],
+    ['@metaworkflow/session', SessionStore],
+    ['@metaworkflow/session-projection', SessionProjectionRegistry],
+    ['@metaworkflow/sandbox-policy', SandboxPolicyService],
+    ['@metaworkflow/fs-local', LocalFileSystem],
+    ['@metaworkflow/typert-registry', TypertRegistry],
+    ['@metaworkflow/api-workspace-files', WorkspaceFiles],
+    ['@metaworkflow/office-to-pdf', OfficeToPdf],
+    ['@metaworkflow/client-ui-sidebar-documentpreview', DocumentPreview],
   ])
   ctx.loader.internal = {
     version: 'v2',
@@ -94,7 +94,7 @@ it('loads the shipped Office rows with separately patched settings and authorize
   const injections: IndexInjection[] = []
   ctx.emit('webserver/index-inject', injections)
   expect(injections).toEqual([
-    { kind: 'global', name: '__DSH_DOCUMENT_PREVIEW_CONFIG__', value: clientConfig },
+    { kind: 'global', name: '__MWF_DOCUMENT_PREVIEW_CONFIG__', value: clientConfig },
   ])
 
   const id = SessionId('office-loader')

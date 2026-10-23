@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cordis-tutorial/03-services.md
 /3-services:
-  en: 15915c1948e99dcd
-  zh: 769f50dcd06a1c6e
+  en: 39ecb5dd7fce6b5b
+  zh: 1535ece7a1dfb204
 /3-services/provide-a-service:
   en: dafc130ada001863
   zh: 820921c32e8ce5fe
 /3-services/consume-a-service-with-inject:
-  en: 1b4faa79ebc5e3d7
-  zh: 5170a8291e4aaf34
+  en: 26dc53a6fe255c60
+  zh: 298271af574176a6
 /3-services/dependencies-are-tracked-after-load:
-  en: 5cadb845bd8ebdb3
-  zh: cce559c73d7bda66
+  en: d4e89a0c35ce70e0
+  zh: 276d819f3e2c42ea
 /3-services/optional-dependencies:
   en: f765739ab1e2061a
   zh: 71ddc054022b66a9
 /3-services/naming:
-  en: 11dfa5c4f8aed0e0
-  zh: d28f7c86f58cdf3e
+  en: 07f465d115eacad7
+  zh: 6dcb4933500bb96d

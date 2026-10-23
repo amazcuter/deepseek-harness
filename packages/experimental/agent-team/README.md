@@ -3,13 +3,13 @@ description: "Run named teammates with direct inbox messages and a durable share
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-agent-team
+# @metaworkflow/experimental-agent-team
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-experimental-agent-team` gives one session a Lead, named teammates, direct messages, and a durable shared task board. Sends use each target Agent’s inbox and can cold-resume stored teammates. Team retains roster and task state; message persistence follows the target Agent’s normal policy. Mount `dsh-experimental-tool-agent-team` for model tools. The package is experimental and requires durable session storage.
+`mwf-experimental-agent-team` gives one session a Lead, named teammates, direct messages, and a durable shared task board. Sends use each target Agent’s inbox and can cold-resume stored teammates. Team retains roster and task state; message persistence follows the target Agent’s normal policy. Mount `mwf-experimental-tool-agent-team` for model tools. The package is experimental and requires durable session storage.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Add this package when one agent needs named helpers in a shared working directory, direct peer messages, and durable roster and task state. Mount it with `@deepseek-ai/dsh-experimental-tool-agent-team` to expose the model tools.
+Add this package when one agent needs named helpers in a shared working directory, direct peer messages, and durable roster and task state. Mount it with `@metaworkflow/experimental-tool-agent-team` to expose the model tools.
 
 ### When to choose it
 
@@ -39,9 +39,9 @@ The smallest addition to an existing composition is durable session storage plus
 
 ```yaml
 # smallest team setup — durable storage plus both Team packages
-- name: '@deepseek-ai/dsh-session-persistence-jsonl'
-- name: '@deepseek-ai/dsh-experimental-agent-team'
-- name: '@deepseek-ai/dsh-experimental-tool-agent-team'
+- name: '@metaworkflow/session-persistence-jsonl'
+- name: '@metaworkflow/experimental-agent-team'
+- name: '@metaworkflow/experimental-tool-agent-team'
 ```
 
 With the tools installed, the model does the rest on request — for example, "create a teammate named reviewer to check the diff", then "send reviewer the change summary". All limits are optional and validated at startup:
@@ -53,7 +53,7 @@ With the tools installed, the model does the rest on request — for example, "c
 | `maxMessageBytes` | `65,536` | Maximum size of one sent message |
 | `disposalTimeoutMs` | `5,000` | Time allowed for shutdown cleanup |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-experimental-agent-team) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowexperimental-agent-team) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Teammates
 
@@ -185,7 +185,7 @@ Each peer message is a user-role message prefixed with its sender name, followed
 
 #### Token effect
 
-Each peer delivery adds the sender prefix plus message content to the target history. Task and roster mutations add no model tokens; their model-facing representation belongs to `@deepseek-ai/dsh-experimental-tool-agent-team` results.
+Each peer delivery adds the sender prefix plus message content to the target history. Task and roster mutations add no model tokens; their model-facing representation belongs to `@metaworkflow/experimental-tool-agent-team` results.
 
 #### KV Cache effect
 

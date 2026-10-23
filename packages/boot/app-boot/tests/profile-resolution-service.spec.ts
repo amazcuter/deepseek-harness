@@ -54,23 +54,23 @@ function resolution(
 
 describe('profile package metadata service', () => {
   it('refreshes the installed resolution from its own profile and installation', async () => {
-    const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-package-service-refresh-')))
+    const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'mwf-package-service-refresh-')))
     roots.push(root)
     const installAnchor = join(root, 'install', 'package.json')
-    file(installAnchor, JSON.stringify({ name: '@deepseek-ai/dsh', version: '0.0.0' }))
+    file(installAnchor, JSON.stringify({ name: '@metaworkflow/cli', version: '0.0.0' }))
     const profileDir = join(root, 'profiles', 'test')
     initProfile(profileDir, ['extra'])
     const bundleDir = join(profileDir, 'node_modules', 'extra')
     const privateDir = join(bundleDir, 'node_modules', 'metadata-lib')
     file(join(bundleDir, 'package.json'), JSON.stringify({
-      name: 'extra', version: '1.0.0', dependencies: { 'metadata-lib': '1.0.0' }, dsh: { bundle: { patch: './cordis.patch.yml' } },
+      name: 'extra', version: '1.0.0', dependencies: { 'metadata-lib': '1.0.0' }, mwf: { bundle: { patch: './cordis.patch.yml' } },
     }))
     file(join(bundleDir, 'cordis.patch.yml'), '[]\n')
     const parentURL = pathToFileURL(join(profileDir, 'caller.mjs')).href
     const ctx = new Context()
     contexts.push(ctx)
     await ctx.plugin(PluginPackages, {
-      resolution: await createRuntimeResolution({ installAnchor, home: root, profile: loadProfileDirectory('dsh', profileDir, installAnchor) }),
+      resolution: await createRuntimeResolution({ installAnchor, home: root, profile: loadProfileDirectory('mwf', profileDir, installAnchor) }),
     })
     expect(ctx.pluginPackages.packageOf('metadata-lib', parentURL)).toBeUndefined()
 
@@ -84,7 +84,7 @@ describe('profile package metadata service', () => {
   })
 
   it('refreshes a computed resolution without a profile', async () => {
-    const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-package-service-installation-')))
+    const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'mwf-package-service-installation-')))
     roots.push(root)
     const installAnchor = join(root, 'install', 'package.json')
     file(installAnchor, JSON.stringify({ name: 'installation', version: '1.0.0', dependencies: { 'metadata-lib': '*' } }))
@@ -103,7 +103,7 @@ describe('profile package metadata service', () => {
   })
 
   it('rejects refreshing a plain-data or absent resolution, and exposes the installed one', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-package-service-plain-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-package-service-plain-'))
     roots.push(root)
     const packageDir = join(root, 'lib')
     const ctx = new Context()
@@ -122,7 +122,7 @@ describe('profile package metadata service', () => {
   })
 
   it('reads translated metadata from the selected local package without importing its entry', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-localized-package-service-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-localized-package-service-'))
     roots.push(root)
     const packageDir = join(root, 'node_modules', 'localized')
     file(join(packageDir, 'package.json'), JSON.stringify({
@@ -143,7 +143,7 @@ describe('profile package metadata service', () => {
   })
 
   it('resolves module URLs and package metadata through the current resolution', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-profile-package-service-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-profile-package-service-'))
     roots.push(root)
     const profilesDir = join(root, 'profiles')
     const profileDir = join(profilesDir, 'test')
@@ -177,7 +177,7 @@ describe('profile package metadata service', () => {
   })
 
   it('uses native package lookup without a registration and caches parsed metadata', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-native-package-service-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-native-package-service-'))
     roots.push(root)
     const packageDir = join(root, 'node_modules', '@scope', 'metadata')
     file(join(packageDir, 'package.json'), JSON.stringify({ name: '@scope/metadata' }))
@@ -197,7 +197,7 @@ describe('profile package metadata service', () => {
   })
 
   it('rejects malformed package metadata selected by the resolver', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-invalid-package-service-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-invalid-package-service-'))
     roots.push(root)
     const anonymous = join(root, 'node_modules', 'anonymous')
     file(join(anonymous, 'package.json'), '{}')
@@ -214,7 +214,7 @@ describe('profile package metadata service', () => {
   })
 
   it('returns undefined when a selected package directory has no manifest', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-missing-package-service-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-missing-package-service-'))
     roots.push(root)
     const profilesDir = join(root, 'profiles')
     const profileDir = join(profilesDir, 'test')
@@ -230,7 +230,7 @@ describe('profile package metadata service', () => {
   })
 
   it('removes and restores linked roots while rejecting changes to their historical targets', async () => {
-    const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-linked-package-service-')))
+    const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'mwf-linked-package-service-')))
     roots.push(root)
     const profilesDir = join(root, 'profiles')
     const profileDir = join(profilesDir, 'test')
@@ -256,7 +256,7 @@ describe('profile package metadata service', () => {
     }
     const removed: RuntimeResolution = { ...initial, linkedRoots: [] }
     const relinked: RuntimeResolution = { ...initial, linkedRoots: [{ ...linked, realPath: linkedB }] }
-    const key = '@deepseek-ai/dsh-app-boot/profile-resolution'
+    const key = '@metaworkflow/app-boot/profile-resolution'
     const previous = getEnvironmentData(key)
     const ctx = new Context()
     contexts.push(ctx)
@@ -295,14 +295,14 @@ describe('profile package metadata service', () => {
   })
 
   it('publishes additive generations to the process and future Workers', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-package-service-resolution-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-package-service-resolution-'))
     roots.push(root)
     const profilesDir = join(root, 'profiles')
     const profileDir = join(profilesDir, 'test')
     const first = join(root, 'first')
     const firstAnchor = pkg(first, '1.0.0')
     const initial = resolution(profilesDir, profileDir, first, firstAnchor, '1.0.0')
-    const key = '@deepseek-ai/dsh-app-boot/profile-resolution'
+    const key = '@metaworkflow/app-boot/profile-resolution'
     const previous = getEnvironmentData(key)
     const ctx = new Context()
     contexts.push(ctx)

@@ -2,7 +2,7 @@ import { access, readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Context } from '@deepseek-ai/cordis'
-import { SubprocessExecutableNotFoundError } from '@deepseek-ai/dsh-subprocess'
+import { SubprocessExecutableNotFoundError } from '@metaworkflow/subprocess'
 import { contents, filterCommand, git, harness, repository, testAgent } from './harness.ts'
 
 let ctx: Context | undefined

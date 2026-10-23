@@ -192,7 +192,7 @@ function packageProblems(manifestPath: string, parser: DOMParser): string[] {
         : displayManifest !== undefined && typeof iconDocument?.icon === 'string'
           ? resolve(dirname(displayManifest), iconDocument.icon)
           : lookup(`${specifier}/icon`)
-      if (pkg.name.startsWith('@deepseek-ai/dsh-') && meta?.icon !== undefined) {
+      if (pkg.name.startsWith('@metaworkflow/') && meta?.icon !== undefined) {
         problems.push(...svgArtworkProblems(meta.icon, parser).map(problem => `${iconTarget ?? specifier}: ${problem}`))
       }
       for (const target of [displayManifest, iconTarget]) {
@@ -257,7 +257,7 @@ function packageProblems(manifestPath: string, parser: DOMParser): string[] {
 
 /**
  * Check workspace and named nested package metadata without evaluating plugin entries or reading built output.
- * Selected SVG icons in @deepseek-ai/dsh-* packages follow official artwork conventions.
+ * Selected SVG icons in @metaworkflow/* packages follow official artwork conventions.
  * Other packages and supported raster icons keep their metadata and publication checks.
  * @param root - repository or fixture root.
  * @returns diagnostics for an empty package corpus, invalid metadata or SVG artwork, inaccessible resources, or omitted publication files.

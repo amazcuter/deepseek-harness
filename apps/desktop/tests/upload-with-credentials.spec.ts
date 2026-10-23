@@ -31,7 +31,7 @@ async function check(mode: 'valid' | 'plaintext' | 'blank' | 'missing' | 'upload
       assert.equal(process.env.DOWNLOAD_PROD_COS_SECRET_KEY, 'fixture-secret')
       assert.equal(process.env.DOWNLOAD_PROD_COS_BUCKET, 'fixture-bucket')
       assert.equal(process.env.DOWNLOAD_TEST_COS_SECRET_KEY, undefined)
-      assert.equal(process.env.DSH_DESKTOP_WINDOWS_TOKEN_PIN, undefined)
+      assert.equal(process.env.MWF_DESKTOP_WINDOWS_TOKEN_PIN, undefined)
       assert.equal(process.env.NODE_OPTIONS, undefined)
       assert.equal(process.argv[2], 'win-x64')
       assert.deepEqual(process.argv.slice(3), ['--credential-launcher', '--environment', 'production', '--bucket', 'fixture-bucket'${mode === 'upload-latest' ? ", '--latest'" : ''}])
@@ -52,7 +52,7 @@ async function check(mode: 'valid' | 'plaintext' | 'blank' | 'missing' | 'upload
     ${setup}
     $env:DOWNLOAD_PROD_COS_SECRET_ID = 'parent-sentinel'
     $env:DOWNLOAD_TEST_COS_SECRET_KEY = 'unrelated-test-key'
-    $env:DSH_DESKTOP_WINDOWS_TOKEN_PIN = 'unrelated-signing-pin'
+    $env:MWF_DESKTOP_WINDOWS_TOKEN_PIN = 'unrelated-signing-pin'
     $env:NODE_OPTIONS = '--require=missing-preload-must-not-run'
     $global:LASTEXITCODE = 0
     & ${quote(entry)} -CredentialFile ${quote(credentialPath)} -Environment ${quote(deployment)}${uploadArguments}
@@ -62,7 +62,7 @@ async function check(mode: 'valid' | 'plaintext' | 'blank' | 'missing' | 'upload
   `
   // The child creates its own DPAPI file; real runner credentials never enter the fixture.
   const env = Object.fromEntries(Object.entries(process.env).filter(([name]) =>
-    !/KEY|SECRET|TOKEN|PASSWORD|^NODE_OPTIONS$|^DSH_DESKTOP_WINDOWS_|^APPLE_|^CSC_/iu.test(name),
+    !/KEY|SECRET|TOKEN|PASSWORD|^NODE_OPTIONS$|^MWF_DESKTOP_WINDOWS_|^APPLE_|^CSC_/iu.test(name),
   ))
   const pathKey = Object.keys(env).find(name => name.toLowerCase() === 'path') ?? 'PATH'
   env[pathKey] = `${dirname(process.execPath)}${delimiter}${env[pathKey] ?? ''}`
@@ -86,11 +86,11 @@ afterEach(async () => {
 
 describe('credential launcher destination', () => {
   const fileEnvironment = {
-    DSH_DESKTOP_AUTO_UPDATE_ENV: 'test', DOWNLOAD_TEST_ORIGIN: 'https://download-test.example.com', DOWNLOAD_TEST_RELEASE_ID: '0123456789abcdef0123456789abcdef',
+    MWF_DESKTOP_AUTO_UPDATE_ENV: 'test', DOWNLOAD_TEST_ORIGIN: 'https://download-test.example.com', DOWNLOAD_TEST_RELEASE_ID: '0123456789abcdef0123456789abcdef',
     DOWNLOAD_TEST_COS_BUCKET: 'test-bucket', DOWNLOAD_TEST_COS_SECRET_ID: 'stale-id', DOWNLOAD_TEST_COS_SECRET_KEY: 'stale-key',
   }
   const injectedEnvironment = {
-    DSH_DESKTOP_AUTO_UPDATE_ENV: 'test', DOWNLOAD_TEST_COS_BUCKET: 'test-bucket',
+    MWF_DESKTOP_AUTO_UPDATE_ENV: 'test', DOWNLOAD_TEST_COS_BUCKET: 'test-bucket',
     DOWNLOAD_TEST_COS_SECRET_ID: 'decrypted-id', DOWNLOAD_TEST_COS_SECRET_KEY: 'decrypted-key',
   }
 
@@ -105,7 +105,7 @@ describe('credential launcher destination', () => {
 
   it('rejects child credentials that do not match the explicit launcher selection', () => {
     expect(() => resolveCredentialUploadEnvironment(fileEnvironment, { ...injectedEnvironment,
-      DSH_DESKTOP_AUTO_UPDATE_ENV: 'production',
+      MWF_DESKTOP_AUTO_UPDATE_ENV: 'production',
     }, 'test', 'test-bucket', 'win-x64')).toThrow(/differs from its explicit arguments/u)
     expect(() => resolveCredentialUploadEnvironment(fileEnvironment, { ...injectedEnvironment,
       DOWNLOAD_TEST_COS_SECRET_KEY: '',

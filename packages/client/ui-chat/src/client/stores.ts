@@ -1,5 +1,5 @@
 /** Per-Session Chat view store. */
-import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-store'
+import { defineStore, type EngineStoreHandle } from '@metaworkflow/client-store'
 import type { ChatStoreState, TurnProcessViewEntry } from './contract/store.ts'
 import type { TurnProcessSpec } from './contract/turn-process.ts'
 

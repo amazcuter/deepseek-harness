@@ -3,13 +3,13 @@ description: "面向 Bash、LSP 及 Node 运行时消费方，说明托管 SSH �
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-subprocess-ssh
+# @metaworkflow/subprocess-ssh
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-subprocess-ssh` 使用共享 SSH 辅助进程实现 `ctx.subprocess`。可执行文件查找、普通进程、fd 7 控制流及终端会话与 SSH 文件系统在同一环境中运行。远端原生进程管理器负责终止与静止状态；消费方继续负责命令语义、输出上限与执行截止时限。
+`mwf-subprocess-ssh` 使用共享 SSH 辅助进程实现 `ctx.subprocess`。可执行文件查找、普通进程、fd 7 控制流及终端会话与 SSH 文件系统在同一环境中运行。远端原生进程管理器负责终止与静止状态；消费方继续负责命令语义、输出上限与执行截止时限。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-将本提供方与 [`dsh-ssh`](../ssh/README.zh.md) 及其文件系统提供方一同挂载。本提供方没有独立部署配置。`resolveExecutable()` 检查远端可执行文件命名空间；完整的 spawn 请求提供远端 cwd、环境、流处置方式及清理宽限期。
+将本提供方与 [`mwf-ssh`](../ssh/README.zh.md) 及其文件系统提供方一同挂载。本提供方没有独立部署配置。`resolveExecutable()` 检查远端可执行文件命名空间；完整的 spawn 请求提供远端 cwd、环境、流处置方式及清理宽限期。
 
 普通 spawn 在远端分配过程中返回句柄。管道 stdin 和可选双工控制端点在分配过程中接受写入。终端分配、写入、前台检查、信号及终止均保留异步接口。
 

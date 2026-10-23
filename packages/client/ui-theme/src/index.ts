@@ -1,12 +1,12 @@
 /** Host registration for the browser theme preference and pre-plugin palette. */
-import type {} from '@deepseek-ai/dsh-settings'
+import type {} from '@metaworkflow/settings'
 
 import type { Volatile } from '@deepseek-ai/cordis'
 import type { ThemePreference } from './theme-settings.ts'
 import z from '@deepseek-ai/schemastery'
 
 import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-host-webserver'
+import type {} from '@metaworkflow/host-webserver'
 import { bootThemeInjections } from './boot-theme.ts'
 import { DEFAULT_PREFERENCE, FONT_SIZE_SPECS, fontSizeSchema, THEME_PREFERENCES } from './theme-settings.ts'
 

@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-subagent-dsh-sdk",
+  "name": "@metaworkflow/subagent-dsh-sdk",
   "description": "Out-of-process SDK subagent backend: drives a child DeepSeek Harness runtime subprocess over stdio JSON-RPC through the TypeScript SDK client",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -28,37 +28,37 @@
   "license": "MIT",
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-sdk-client": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-subagent": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*"
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/sdk-client": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/subagent": "workspace:*",
+    "@metaworkflow/subprocess": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
     "@deepseek-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-instructions": "workspace:*",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-llm-deepseek": "workspace:*",
-    "@deepseek-ai/dsh-llm-deepseek-api-key": "workspace:*",
-    "@deepseek-ai/dsh-loader-smoke": "workspace:*",
-    "@deepseek-ai/dsh-sdk-client": "workspace:*",
-    "@deepseek-ai/dsh-sdk-protocol": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-checkpoint-policy": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence-jsonl": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-skill-filesystem": "workspace:*",
-    "@deepseek-ai/dsh-subagent": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tool-subagent": "workspace:*"
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/agent-instructions": "workspace:*",
+    "@metaworkflow/app-boot": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/llm-deepseek": "workspace:*",
+    "@metaworkflow/llm-deepseek-api-key": "workspace:*",
+    "@metaworkflow/loader-smoke": "workspace:*",
+    "@metaworkflow/sdk-client": "workspace:*",
+    "@metaworkflow/sdk-protocol": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-checkpoint-policy": "workspace:*",
+    "@metaworkflow/session-persistence-jsonl": "workspace:*",
+    "@metaworkflow/session-projection": "workspace:*",
+    "@metaworkflow/skill-filesystem": "workspace:*",
+    "@metaworkflow/subagent": "workspace:*",
+    "@metaworkflow/subprocess": "workspace:*",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/tool-subagent": "workspace:*"
   }
 }

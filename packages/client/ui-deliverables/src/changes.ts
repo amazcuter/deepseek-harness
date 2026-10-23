@@ -1,6 +1,6 @@
 /** Validate workspace-change records that cross the Host routes and address their summary, comparison, and native-open actions. */
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { WorkspaceChangedFile, WorkspaceChangesSummary, WorkspaceDiffHunk, WorkspaceFileDiff } from '@deepseek-ai/dsh-workspace-changes/types'
+import type { SessionId } from '@metaworkflow/session/types'
+import type { WorkspaceChangedFile, WorkspaceChangesSummary, WorkspaceDiffHunk, WorkspaceFileDiff } from '@metaworkflow/workspace-changes/types'
 
 /** Authenticated GET route serving one announced change summary while its Session lives. */
 export const CHANGED_FILES_PATH = '/api/changes.summary'
@@ -24,7 +24,7 @@ export const CHANGES_DIFF_ROUTE = CHANGES_DIFF_PATH.slice(1)
 export const CHANGES_OPEN_ROUTE = CHANGES_OPEN_PATH.slice(1)
 
 /** Resource-address prefix of a turn's review tab in the right Sidebar. */
-export const CHANGES_REVIEW_ADDRESS = 'dsh-resource://changes-review/session/'
+export const CHANGES_REVIEW_ADDRESS = 'mwf-resource://changes-review/session/'
 
 /** The summary fields the route serves; the Host keeps the working directory and snapshot ids to itself. */
 export type ChangesSummary = Pick<WorkspaceChangesSummary, 'turn' | 'files' | 'total' | 'added' | 'deleted'>
@@ -138,7 +138,7 @@ export function changedFileUrl(sessionId: SessionId, seq: number, index: number)
  * The right-Sidebar address of one turn's review. The Session and the event
  * sequence identify the content; the turn rides along for the tab title.
  * @param coordinates - viewed Session, announcing event, and turn.
- * @returns a `dsh-resource://changes-review/session/…` address.
+ * @returns a `mwf-resource://changes-review/session/…` address.
  */
 export function changesReviewAddress(coordinates: ChangesReviewCoordinates): string {
   const { sessionId, seq, turn } = coordinates

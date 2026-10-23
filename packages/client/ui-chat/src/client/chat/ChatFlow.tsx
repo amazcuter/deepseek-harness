@@ -1,6 +1,6 @@
 /** Ordered Chat rows, local echoes, and running status share the flow slot's parent. */
 import { memo } from 'react'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+import { assertNever } from '@metaworkflow/util-values'
 import type { ChatFlowSlotProps } from '../contract/slots.ts'
 import { ChatNodeSeat } from './ChatNodeSeat.tsx'
 import { ChatGroupSeat } from './ChatGroupSeat.tsx'

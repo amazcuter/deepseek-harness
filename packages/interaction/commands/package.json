@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-commands",
+  "name": "@metaworkflow/commands",
   "description": "Plugin-owned human command registry for DeepSeek Harness UIs",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -50,27 +50,27 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-attachment": "workspace:*",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/attachment": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/scope": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-util-crypto": "workspace:*",
+    "@metaworkflow/util-crypto": "workspace:*",
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-attachment": "workspace:*",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/attachment": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/scope": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   }
 }

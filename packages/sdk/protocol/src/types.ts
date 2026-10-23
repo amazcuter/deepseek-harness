@@ -2,15 +2,15 @@
  * Named wire types for the DeepSeek Harness SDK runtime protocol: its
  * request/result pairs and server-to-client notification payloads
  * exchanged over the newline-delimited JSON-RPC stdio transport. The server
- * plugin (`@deepseek-ai/dsh-sdk-jsonrpc-server`) and SDK clients share these shapes;
+ * plugin (`@metaworkflow/sdk-jsonrpc-server`) and SDK clients share these shapes;
  * `serverInfo.name` stays the wire-stable `deepseek-harness-sdk-runtime`.
  *
- * @module @deepseek-ai/dsh-sdk-protocol/types
+ * @module @metaworkflow/sdk-protocol/types
  */
 
-import type { ContentBlock, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import type { SubagentStopReason } from '@deepseek-ai/dsh-subagent'
+import type { ContentBlock, ReasoningEffortId } from '@metaworkflow/llm'
+import type { SessionEvent } from '@metaworkflow/session'
+import type { SubagentStopReason } from '@metaworkflow/subagent'
 
 /** Parameters for the process-wide SDK handshake. */
 export interface InitializeParams {

@@ -16,13 +16,13 @@ Desktop 初始化时安装核心依赖图，会重复发布构建器已经完成
 
 ## 决策
 
-[运行时准备](../../../../apps/desktop/scripts/prepare-dsh.ts)在构建时物化一次生产依赖图，并通过 `extraResources/dsh` 分发。Electron 壳保留在 ASAR 中。Electron RunAsNode 进程从资源启动私有 Desktop Host，并从 `$DSH_HOME/profiles/desktop` 加载已启用插件。
+[运行时准备](../../../../apps/desktop/scripts/prepare-dsh.ts)在构建时物化一次生产依赖图，并通过 `extraResources/mwf` 分发。Electron 壳保留在 ASAR 中。Electron RunAsNode 进程从资源启动私有 Desktop Host，并从 `$MWF_HOME/profiles/desktop` 加载已启用插件。
 
 本记录负责核心资源存储与外部插件依赖。[打包决策](2026-08-25-electron-desktop-packaging-and-updates.zh.md)保留发布身份、签名、进程归属和仅限 Electron 的插件授权。[薄壳决策](2026-09-10-desktop-web-wrapper.zh.md)负责共享 Web 启动与 HTTP 传输。
 
 ## 包归属
 
-资源描述文件记录精确发布版本、Node 版本、平台、架构、共享包版本和最终文件哈希。运行时树包含普通文件和目录，不包含指回 pnpm 构建 store 的链接。原生 Mach-O 文件先签名再哈希；应用签名器保留其字节，并在签名后检查清单。明确的 `dsh/node_modules` 资源映射绕过 electron-builder 对根 `node_modules` 的排除，并在任何签名或公证前验证复制后的依赖树。
+资源描述文件记录精确发布版本、Node 版本、平台、架构、共享包版本和最终文件哈希。运行时树包含普通文件和目录，不包含指回 pnpm 构建 store 的链接。原生 Mach-O 文件先签名再哈希；应用签名器保留其字节，并在签名后检查清单。明确的 `mwf/node_modules` 资源映射绕过 electron-builder 对根 `node_modules` 的排除，并在任何签名或公证前验证复制后的依赖树。
 
 [桌面文件规则](../../../../apps/desktop/scripts/runtime-file-policy.ts)在生产 npm 依赖安装之后、原生签名或描述文件生成之前执行。npm 发布列表服务于库的使用者，可以包含声明、map、测试和原生构建输入，不能直接表示桌面进程需要哪些文件。桌面副本排除声明和已识别的 source map，因为 Host 执行 JavaScript 和生成的 Typert 产物。Host 继承用户环境。已发布的 npm 包和外部插件目录保留各自的文件。源码调试导航由开发包提供。
 

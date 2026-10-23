@@ -121,7 +121,7 @@ export const PageMarkdownActions = defineComponent({
       const request = new AbortController()
       controller = request
       const outcome = { requestFailed: false }
-      const content = fetch(`${props.path}?dsh-raw=1`, { signal: request.signal })
+      const content = fetch(`${props.path}?mwf-raw=1`, { signal: request.signal })
         .then(async (response) => {
           const type = response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase()
           if (!response.ok || (type !== 'text/markdown' && type !== 'text/plain')) {

@@ -5,8 +5,8 @@
  * collapsed on every mount.
  */
 import { useId, useState } from 'react'
-import type { PropsLocale, PropsRuntime, PropsStore } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
+import type { PropsLocale, PropsRuntime, PropsStore } from '@metaworkflow/client-ui-slots'
+import type {} from '@metaworkflow/client-ui-settings/client'
 import type { FontRole } from '../theme-settings.ts'
 import type { createFontRowStore } from './settings-store.ts'
 import { FontFamilyRow } from './FontFamilyRow.tsx'

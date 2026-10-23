@@ -48,7 +48,7 @@ export async function signMacOSRuntime(
 ): Promise<number> {
   const inventory = kind === 'primary' ? await primaryRuntimeFiles(root) : inventoryDesktopRuntime(root).map(file => file.path)
   const files = inventory.filter(path => MACH_O_MAGICS.has(magic(join(root, path))))
-  const policy = cacheDirectory === undefined ? undefined : macOSCachePolicy(process.env.DSH_DESKTOP_MACOS_SIGNING_PROBE ?? '')
+  const policy = cacheDirectory === undefined ? undefined : macOSCachePolicy(process.env.MWF_DESKTOP_MACOS_SIGNING_PROBE ?? '')
   let hits = 0
   let misses = 0
   let next = 0

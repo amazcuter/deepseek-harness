@@ -1,6 +1,6 @@
 /**
  * Agent discovery of the installed Office CLI through the shipped SDK profile.
- * Defaults to built Node packages. DSH_OFFICE_TEST_EXECUTABLE/ENTRY select a
+ * Defaults to built Node packages. MWF_OFFICE_TEST_EXECUTABLE/ENTRY select a
  * relocated Node or Electron carrier; CARRIER=sdk selects the standalone executable.
  * NODE/CLI/ASSETS under the same prefix select Desktop command and skill resources outside ASAR.
  * API=openai-completions selects a development gateway instead of the default Messages API.
@@ -16,12 +16,12 @@ import { strToU8, zipSync } from 'fflate'
 import { expect, it } from 'vitest'
 
 const repo = fileURLToPath(new URL('../../../../../', import.meta.url))
-const carrier = process.env.DSH_OFFICE_TEST_CARRIER ?? 'npm'
-const executable = process.env.DSH_OFFICE_TEST_EXECUTABLE ?? process.execPath
-const entry = process.env.DSH_OFFICE_TEST_ENTRY ?? join(repo, 'apps/cli/lib/bin.js')
+const carrier = process.env.MWF_OFFICE_TEST_CARRIER ?? 'npm'
+const executable = process.env.MWF_OFFICE_TEST_EXECUTABLE ?? process.execPath
+const entry = process.env.MWF_OFFICE_TEST_ENTRY ?? join(repo, 'apps/cli/lib/bin.js')
 
 it.skipIf(!process.env.DEEPSEEK_API_KEY || process.platform === 'win32')(`agent discovers and executes the ${carrier} Office CLI without Node on PATH`, async () => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh office discovery '))
+  const root = await mkdtemp(join(tmpdir(), 'mwf office discovery '))
   try {
     await writeFile(join(root, 'input.docx'), zipSync({
       '[Content_Types].xml': strToU8('<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'),
@@ -29,10 +29,10 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || process.platform === 'win32')(`agent 
       'word/document.xml': strToU8('<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Office CLI discovery</w:t></w:r></w:p><w:sectPr/></w:body></w:document>'),
     }))
     const patch = join(root, 'office.patch.yml')
-    const node = process.env.DSH_OFFICE_TEST_NODE, cli = process.env.DSH_OFFICE_TEST_CLI
-    const assetRoot = process.env.DSH_OFFICE_TEST_ASSETS
+    const node = process.env.MWF_OFFICE_TEST_NODE, cli = process.env.MWF_OFFICE_TEST_CLI
+    const assetRoot = process.env.MWF_OFFICE_TEST_ASSETS
     await writeFile(patch, JSON.stringify([
-      ...(process.env.DSH_OFFICE_TEST_API === 'openai-completions' ? [{ id: 'llm-deepseek', disabled: true }, { id: 'llm-pi-ai', config: { providers: { 'office-test': { api: 'openai-completions', apiKeyEnv: 'DEEPSEEK_API_KEY', baseURL: process.env.DEEPSEEK_BASE_URL, compat: { thinkingFormat: 'deepseek' }, models: [{ id: process.env.MODEL_NAME ?? 'deepseek-v4-flash', contextWindow: 128000, maxTokens: 8000 }] } } } }] : []),
+      ...(process.env.MWF_OFFICE_TEST_API === 'openai-completions' ? [{ id: 'llm-deepseek', disabled: true }, { id: 'llm-pi-ai', config: { providers: { 'office-test': { api: 'openai-completions', apiKeyEnv: 'DEEPSEEK_API_KEY', baseURL: process.env.DEEPSEEK_BASE_URL, compat: { thinkingFormat: 'deepseek' }, models: [{ id: process.env.MODEL_NAME ?? 'deepseek-v4-flash', contextWindow: 128000, maxTokens: 8000 }] } } } }] : []),
       { id: 'session-persistence-jsonl', config: { root: join(root, 'sessions'), compression: 'none' } },
       { id: 'skill-office', disabled: false },
       { id: 'skill-office', config: { ...assetRoot === undefined ? {} : { assetRoot }, ...node === undefined ? {} : { node }, ...cli === undefined ? {} : { cli } } },
@@ -57,9 +57,9 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || process.platform === 'win32')(`agent 
       ...carrier === 'sdk' ? [] : [entry], '--profile', 'sdk', '--patch', patch,
     ], {
       cwd: root, env: {
-        PATH: path, DSH_HOME: join(root, 'home'), DSH_AGENTS_HOME: join(root, 'agents'),
-        DSH_PERMISSION_MODE: 'danger-full-access', DSH_TELEMETRY_DISABLED: '1', DSH_TOOLS_MODE: 'native',
-        DSH_PRIMARY_RUNTIME: carrier === 'sdk' ? undefined : '',
+        PATH: path, MWF_HOME: join(root, 'home'), MWF_AGENTS_HOME: join(root, 'agents'),
+        MWF_PERMISSION_MODE: 'danger-full-access', MWF_TELEMETRY_DISABLED: '1', MWF_TOOLS_MODE: 'native',
+        MWF_PRIMARY_RUNTIME: carrier === 'sdk' ? undefined : '',
       },
       timeout: 110_000, killSignal: 'SIGKILL', reject: false,
     })
@@ -84,7 +84,7 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || process.platform === 'win32')(`agent 
       }
     })
     try {
-      send(1, 'initialize', { cwd: root, provider: process.env.DSH_OFFICE_TEST_API === 'openai-completions' ? 'office-test' : 'deepseek-official', model: process.env.MODEL_NAME ?? 'deepseek-v4-flash', maxTokens: 8000 })
+      send(1, 'initialize', { cwd: root, provider: process.env.MWF_OFFICE_TEST_API === 'openai-completions' ? 'office-test' : 'deepseek-official', model: process.env.MODEL_NAME ?? 'deepseek-v4-flash', maxTokens: 8000 })
       const result = await child
       const diagnostic = `${result.stderr}\n${result.stdout}`
       expect(protocolError, diagnostic).toBeUndefined()

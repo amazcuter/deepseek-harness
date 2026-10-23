@@ -10,9 +10,9 @@ A fixed Session creation directory cannot represent a task that changes checkout
 
 ## Decision
 
-`dsh-working-directory` owns one logged effective directory per Session. Its projection initializes from the immutable original project and folds `working-directory/change`; consumers read that owner instead of deriving execution paths from the header or sandbox root. Directory changes validate through the filesystem provider, serialize within the Session, and publish only after the new directory is available.
+`mwf-working-directory` owns one logged effective directory per Session. Its projection initializes from the immutable original project and folds `working-directory/change`; consumers read that owner instead of deriving execution paths from the header or sandbox root. Directory changes validate through the filesystem provider, serialize within the Session, and publish only after the new directory is available.
 
-The `dsh-base` composition mounts `working_directory({ cd? })` globally. The tool reads or changes the Session directory, so every Agent preset can select or recover it, including presets without file-editing tools. The Web composition keeps action tools in preset scopes.
+The `mwf-base` composition mounts `working_directory({ cd? })` globally. The tool reads or changes the Session directory, so every Agent preset can select or recover it, including presets without file-editing tools. The Web composition keeps action tools in preset scopes.
 
 Required user-context snapshots carry the current value; each committed change attempts to queue a notice through the ordinary Agent inbox. Cancellation or disposal may discard unadmitted notices while the directory event survives for subsequent requests. The original project is the recovery destination when the selected directory disappears. Missing recovery destinations produce an error. Write permissions remain independent.
 

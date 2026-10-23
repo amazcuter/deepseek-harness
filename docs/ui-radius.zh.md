@@ -1,10 +1,10 @@
-# DSH 统一圆角规范
+# MWF 统一圆角规范
 
 [English](ui-radius.md) | 中文
 
 ## 概述
 
-按组件用途和尺寸选择统一圆角，并对齐嵌套区域、hover、底色与描边。适用于 DSH Web 和 Desktop 中的按钮、cell、卡片、菜单、对话框与头像。
+按组件用途和尺寸选择统一圆角，并对齐嵌套区域、hover、底色与描边。适用于 MWF Web 和 Desktop 中的按钮、cell、卡片、菜单、对话框与头像。
 
 ## 目录
 
@@ -18,7 +18,7 @@
 <a id="scope"></a>
 ## 范围与依据
 
-本参考文档规定 DSH Web 和 Desktop 的圆角尺度及组件应用规则。局部视觉调整限定在指定组件或组件族内，不自动改变全局尺度。
+本参考文档规定 MWF Web 和 Desktop 的圆角尺度及组件应用规则。局部视觉调整限定在指定组件或组件族内，不自动改变全局尺度。
 
 通用样式职责见 [Web UI 样式参考](web-styling.zh.md)。共享数值位于 [`base.css`](../packages/client/ui-theme/src/styles/base.css)，曲线行为位于 [`corner-shape.css`](../packages/client/ui-theme/src/styles/corner-shape.css)。修改规则时同步更新主题实现及本规范的中英文版本。
 

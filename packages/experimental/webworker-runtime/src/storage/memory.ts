@@ -2,7 +2,7 @@
  * In-memory filesystem behind the worker's `node:fs` proxy. Contents come from
  * the build-time image (see {@link loadVfsImage}); this remains the synchronous
  * authority when an asynchronous durable sink mirrors selected subtrees.
- * @module @deepseek-ai/dsh-experimental-webworker-runtime/src/storage/memory
+ * @module @metaworkflow/experimental-webworker-runtime/src/storage/memory
  */
 import { dirname, join, normalize, resolve, SEP } from '../module-system/posix-path.ts'
 import { IMAGE_OVERLAY_DIRECTORIES } from '../image-layout.ts'
@@ -68,7 +68,7 @@ function encodingOf(options: VfsReadOptions): VfsEncoding | undefined {
 
 // Permission bits are entry state: creation takes the caller's mode (or the
 // umask-free default), `chmod` changes it, and both stat shapes report the
-// stored value — the round-trip consumers like dsh-credentials-local's
+// stored value — the round-trip consumers like mwf-credentials-local's
 // owner-only check rely on. The bits are never enforced: a single-owner
 // filesystem reads and writes as its owner regardless, like root.
 function statsOf(size: number, mtimeMs: number, directory: boolean, ino: bigint, mode: number): VfsStats {
@@ -384,10 +384,10 @@ export class MemoryVfs implements Vfs {
     const file = this.deferred.get(target)
     if (file === undefined) return
     const error = new Error(
-      `ERR_DSH_VFS_DEFERRED: ${syscall} cannot wait for '${target}', which lazy archive ${file.archive.name} `
+      `ERR_MWF_VFS_DEFERRED: ${syscall} cannot wait for '${target}', which lazy archive ${file.archive.name} `
       + 'supplies on its first asynchronous read',
     ) as VfsError
-    error.code = 'ERR_DSH_VFS_DEFERRED'
+    error.code = 'ERR_MWF_VFS_DEFERRED'
     error.path = target
     error.syscall = syscall
     throw error
@@ -1136,7 +1136,7 @@ export class MemoryVfs implements Vfs {
  * @param vfs - Filesystem to fill; a fresh one by default.
  * @returns The filled filesystem.
  */
-export function loadVfsImage(image: Uint8Array, root = '/dsh', vfs = new MemoryVfs()): MemoryVfs {
+export function loadVfsImage(image: Uint8Array, root = '/mwf', vfs = new MemoryVfs()): MemoryVfs {
   vfs.seedDirectory(root)
   for (const entry of parseTar(image)) {
     const relativeName = entry.name.startsWith('./') ? entry.name.slice(2) : entry.name

@@ -33,4 +33,4 @@ Web profile 不再提供 `webRuntime` 服务，`web-runtime` 行也不再声明 
    ```
 
 4. 将通配 `host` 换成本机网卡的一个具体地址。所绑定的 IP 会被 Host 栅栏直接接受，无需 `--trusted-host`；代理或 DNS authority 仍需显式配置。
-5. 使用迁移后的 overlay 启动：`dsh --profile web --patch ./extra.yml --no-open` 必须打印 `dsh web:` URL 行并正常服务。仍在等待 `webRuntime` 的行会让必需的 Connection 保持 pending 并报告激活失败；被拒绝的 `host` 会在加载时失败。`dsh --profile web --patch ./extra.yml --dump-config` 可在启动前打印组合后的 patch。[Web 组合包 README](../../../../packages/bundle/web-app/README.zh.md)说明这些行。
+5. 使用迁移后的 overlay 启动：`mwf --profile web --patch ./extra.yml --no-open` 必须打印 `mwf web:` URL 行并正常服务。仍在等待 `webRuntime` 的行会让必需的 Connection 保持 pending 并报告激活失败；被拒绝的 `host` 会在加载时失败。`mwf --profile web --patch ./extra.yml --dump-config` 可在启动前打印组合后的 patch。[Web 组合包 README](../../../../packages/bundle/web-app/README.zh.md)说明这些行。

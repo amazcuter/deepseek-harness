@@ -29,9 +29,9 @@ import { BundleInputIsolation, physicalBundleInput } from '../../scripts/bundle-
  * (which requires @tsdown/css). The suffix matters: tsdown's guard matches ids
  * ending in `.css`, so the virtual id must not.
  */
-const CSS_VIRTUAL_PREFIX = '\0dsh-css:'
-const GLOBAL_CSS_VIRTUAL_PREFIX = '\0dsh-global-css:'
-const INLINE_CSS_VIRTUAL_PREFIX = '\0dsh-inline-css:'
+const CSS_VIRTUAL_PREFIX = '\0mwf-css:'
+const GLOBAL_CSS_VIRTUAL_PREFIX = '\0mwf-global-css:'
+const INLINE_CSS_VIRTUAL_PREFIX = '\0mwf-inline-css:'
 const CSS_VIRTUAL_SUFFIX = '.mjs'
 const INLINE_CSS_QUERY = '?inline'
 
@@ -63,10 +63,17 @@ function styleInjectionModule(
 /**
  * Contract layers and pure folds a client bundle may inline: browser-safe
  * values with no runtime identity to share (no Symbol/instanceof/singleton state).
- * Everything else under @deepseek-ai/* is either a module-table entry
+ * Everything else under @metaworkflow/* is either a module-table entry
  * (external) or a leak the purity gate rejects.
  */
-export const INLINE_SAFE = /^(?:@deepseek-ai\/dsh-(?:file-reference|session|llm|tools|brand|deque|output-retention|typert-protocol|util-crypto|util-values|util-workspace-path)(?:\/|$)|@deepseek-ai\/dsh-token-meter\/client$|@deepseek-ai\/dsh-native-command\/types$|@deepseek-ai\/dsh-host-open-in-app\/shared$|@deepseek-ai\/dsh-plugin-manager\/registry$|@deepseek-ai\/dsh-agent-preset-registry\/display$|@deepseek-ai\/dsh-api-workspace-controller\/default-workspace$|@deepseek-ai\/dsh-spill-policy\/notice$)/
+export const INLINE_SAFE = /^(?:@metaworkflow\/(?:file-reference|session|llm|tools|brand|deque|output-retention|typert-protocol|util-crypto|util-values|util-workspace-path)(?:\/|$)|@metaworkflow\/token-meter\/client$|@metaworkflow\/native-command\/types$|@metaworkflow\/host-open-in-app\/shared$|@metaworkflow\/plugin-manager\/registry$|@metaworkflow\/agent-preset-registry\/display$|@metaworkflow\/api-workspace-controller\/default-workspace$|@metaworkflow\/spill-policy\/notice$)/
+
+/**
+ * Scopes the purity gate reads: the harness plugin scope and the vendored
+ * framework scope that sits beside it, because a plugin package is what makes
+ * a cross-plugin value import a duplicate runtime instance.
+ */
+const SCOPED_PACKAGE = /^(?:@metaworkflow|@deepseek-ai)\//
 
 /**
  * Vendored framework libraries: rescoped into @deepseek-ai, so the gate below
@@ -77,7 +84,7 @@ export const INLINE_SAFE = /^(?:@deepseek-ai\/dsh-(?:file-reference|session|llm|
 const VENDORED_LIBRARY = /^@deepseek-ai\/(cosmokit|schemastery)(\/|$)/
 
 /** Generated descriptor/codec contribution with no shared runtime identity. */
-const GENERATED_REMOTE = /^@deepseek-ai\/dsh-[a-z0-9]+(?:-[a-z0-9]+)*\/remote$/
+const GENERATED_REMOTE = /^@metaworkflow\/[a-z0-9]+(?:-[a-z0-9]+)*\/remote$/
 
 /**
  * Workspace mode replaces an empty config array with the root defaults. A
@@ -120,7 +127,7 @@ export function clientBundle(
   const manifest = readPackageManifest(packageDir)
   const lib = clientLibraryConfig(manifest, libEntry, options.lib)
   return ({ env }) => {
-    const face = buildFace(env?.DSH_BUILD_FACE)
+    const face = buildFace(env?.MWF_BUILD_FACE)
     const clientEntry = face === undefined ? 'src/client/index.ts' : 'lib/types/client/index.js'
     const client = clientConfig(manifest, clientEntry, options.clientBanner, options.dualClient === true)
     const node = [lib, ...(options.companions ?? [])]
@@ -207,7 +214,7 @@ export function clientLibrary(packageDir: string, libEntry: readonly string[]): 
  * @returns ENV-selected tsdown config for the Client build face.
  */
 export function clientOnly(configs: readonly UserConfig[]): BuildFaceConfig {
-  return ({ env }) => buildFace(env?.DSH_BUILD_FACE) === 'host'
+  return ({ env }) => buildFace(env?.MWF_BUILD_FACE) === 'host'
     ? [SKIP_WORKSPACE_BUILD]
     : [...configs]
 }
@@ -231,7 +238,7 @@ type BuildFaceConfig = (inlineConfig: Pick<UserConfig, 'env'>) => UserConfig[]
 
 function buildFace(value: unknown): BuildFace {
   if (value === undefined || value === 'host' || value === 'client') return value
-  throw new Error(`tsdown: --env.DSH_BUILD_FACE must be host or client, received ${String(value)}`)
+  throw new Error(`tsdown: --env.MWF_BUILD_FACE must be host or client, received ${String(value)}`)
 }
 
 function clientLibraryConfig(
@@ -314,7 +321,7 @@ function staticLinkedConfig(id: string, entry: string, outputName = basename(ent
     }, tscSourceMapPlugin(), isolation.plugin, {
       // Contract 4. The import survives verbatim and the sheet lands beside the
       // JavaScript, so the shell's CSS Modules pipeline sees a real stylesheet.
-      name: 'dsh-css-asset',
+      name: 'mwf-css-asset',
       async resolveId(this: AssetEmitter, source: string, importer: string | undefined) {
         if (!source.endsWith('.css') || importer === undefined) return null
         const { file, fileName } = stylesheetAsset(source, importer)
@@ -358,7 +365,7 @@ interface PackageManifest {
   readonly dependencies?: Record<string, string>
   readonly peerDependencies?: Record<string, string>
   readonly optionalDependencies?: Record<string, string>
-  readonly dsh?: { readonly client?: { readonly external?: unknown } }
+  readonly mwf?: { readonly client?: { readonly external?: unknown } }
 }
 
 /**
@@ -402,11 +409,11 @@ function productionExternals(manifest: PackageManifest): readonly RegExp[] {
 }
 
 /**
- * Module-table specifiers one `dsh.client` declaration requests. Matching is
+ * Module-table specifiers one `mwf.client` declaration requests. Matching is
  * exact, never normalized: a package declares the specifier its own code
  * imports, and the loader keys static entries the same way.
  * @param subject - package name, used in diagnostics.
- * @param declaration - the package's `dsh.client` object.
+ * @param declaration - the package's `mwf.client` object.
  * @returns the requested specifiers, empty when the package declares none.
  * @throws {Error} when `external` is not a string array.
  */
@@ -414,21 +421,21 @@ export function requestedExternals(
   subject: string,
   declaration: { readonly external?: unknown },
 ): ReadonlySet<string> {
-  return new Set(optionalStringArray(subject, 'dsh.client.external', declaration.external) ?? [])
+  return new Set(optionalStringArray(subject, 'mwf.client.external', declaration.external) ?? [])
 }
 
 /**
  * Module-table specifiers one package requests. The shell baseline is implicit
- * for every dynamic bundle; `dsh.client.external` only adds package-specific
+ * for every dynamic bundle; `mwf.client.external` only adds package-specific
  * dynamic rows or subpaths.
- * @param manifest - the package's own manifest, whose `dsh.client` declaration adds requests.
+ * @param manifest - the package's own manifest, whose `mwf.client` declaration adds requests.
  * @returns the baseline plus the package's explicit requests.
  */
 function clientExternals(manifest: PackageManifest): ReadonlySet<string> {
   return new Set([
     ...PLATFORM_MODULES,
     ...PRELOADED_CLIENT_EXTERNALS,
-    ...requestedExternals(manifest.name, manifest.dsh?.client ?? {}),
+    ...requestedExternals(manifest.name, manifest.mwf?.client ?? {}),
   ])
 }
 
@@ -445,7 +452,7 @@ function matchesSpecifier(patterns: readonly RegExp[], specifier: string): boole
 /** Render package-local dynamic imports through the Client module loader's asynchronous operation. */
 function asyncChunkRequirePlugin(): TsdownPlugin {
   return {
-    name: 'dsh-client-async-chunk-require',
+    name: 'mwf-client-async-chunk-require',
     renderChunk(code, chunk, outputOptions) {
       if (outputOptions.format !== 'cjs') return null
       const transformed = new Rolldown.RolldownMagicString(code)
@@ -560,24 +567,24 @@ function clientConfig(
     plugins: [{
       // Bundle purity gate (build-time mirror of the module-edge rules): the
       // baseline and package-specific requests stay external, inline-safe wire layers
-      // inline, and every other @deepseek-ai value import is a build error — a
+      // inline, and every other @metaworkflow value import is a build error — a
       // cross-plugin value import either inlines a duplicate runtime instance
       // or requires a specifier the module table cannot answer for this package.
       // Cross-plugin collaboration goes through cordis services instead.
-      name: 'dsh-client-bundle-purity',
+      name: 'mwf-client-bundle-purity',
       resolveId(source: string) {
-        if (!source.startsWith('@deepseek-ai/')) return null
+        if (!SCOPED_PACKAGE.test(source)) return null
         if (isRequested(source)) return null // requested module-table row: external wins
         if (VENDORED_LIBRARY.test(source)) return null // vendored library: inline, no shared identity
         if (INLINE_SAFE.test(source) || GENERATED_REMOTE.test(source)) return null // wire contribution: inline is the point
         throw new Error(
-          `client bundle purity: "${source}" is not in the default client externals or ${id}'s dsh.client.external, an inline-safe wire layer, or a generated /remote contribution — `
+          `client bundle purity: "${source}" is not in the default client externals or ${id}'s mwf.client.external, an inline-safe wire layer, or a generated /remote contribution — `
           + 'cross-plugin value imports are forbidden; declare a non-default module request or collaborate through cordis services '
           + '(type-only imports are erased and never reach this gate)',
         )
       },
     }, tscSourceMapPlugin(), asyncChunkRequirePlugin(), isolation.plugin, {
-      name: 'dsh-css-modules-inline',
+      name: 'mwf-css-modules-inline',
       resolveId(source: string, importer: string | undefined) {
         if (!source.endsWith('.module.css')) return null
         const abs = importer !== undefined ? sourceAssetPath(source, importer) : source
@@ -602,7 +609,7 @@ function clientConfig(
         return styleInjectionModule(id, fileId, code.toString(), classMap)
       },
     }, {
-      name: 'dsh-css-text-inline',
+      name: 'mwf-css-text-inline',
       resolveId(source: string, importer: string | undefined) {
         if (!source.endsWith(`.css${INLINE_CSS_QUERY}`)) return null
         const stylesheet = source.slice(0, -INLINE_CSS_QUERY.length)
@@ -618,7 +625,7 @@ function clientConfig(
         return `export default ${JSON.stringify(code.toString())};`
       },
     }, {
-      name: 'dsh-css-global-inline',
+      name: 'mwf-css-global-inline',
       resolveId(source: string, importer: string | undefined) {
         if (!source.endsWith('.css') || source.endsWith('.module.css')) return null
         const abs = importer !== undefined ? sourceAssetPath(source, importer) : source
@@ -633,7 +640,7 @@ function clientConfig(
         return styleInjectionModule(id, fileId, code.toString())
       },
     }, {
-      name: 'dsh-image-inline',
+      name: 'mwf-image-inline',
       resolveId(source: string, importer: string | undefined) {
         if (importer === undefined || !IMAGE_MEDIA_TYPES.has(extname(source))) return null
         return sourceAssetPath(source, importer)
@@ -680,7 +687,7 @@ function clientInputIsolation(id: string): {
   const inputs = new BundleInputIsolation(REPOSITORY_ROOT, `client bundle isolation (${id})`)
   return {
     plugin: {
-      name: 'dsh-client-input-isolation',
+      name: 'mwf-client-input-isolation',
       buildStart() { inputs.reset() },
       generateBundle(_options, bundle) {
         if (experimental) return
@@ -728,7 +735,7 @@ function clientInputFile(id: string): string {
 /** Chain tsc's emitted maps into any Client bundle that consumes `lib/types`. */
 function tscSourceMapPlugin() {
   return {
-    name: 'dsh-tsc-sourcemap',
+    name: 'mwf-tsc-sourcemap',
     async load(id: string) {
       if (!id.includes(TYPES_MARKER) || !id.endsWith('.js') || !existsSync(`${id}.map`)) return null
       const code = await readFile(id, 'utf8')
@@ -761,7 +768,7 @@ function tscSourceMapPlugin() {
 const TYPES_MARKER = `${sep}lib${sep}types${sep}`
 
 /** Plugin name carrying contract 1, and the marker that identifies a statically linked config. */
-const STATIC_LINKED_PLUGIN = 'dsh-static-linked-external'
+const STATIC_LINKED_PLUGIN = 'mwf-static-linked-external'
 
 /** Path segment a package's sources hang under, and the root emitted assets mirror. */
 const SOURCE_MARKER = `${sep}src${sep}`

@@ -5,7 +5,7 @@ import { mkdir, mkdtemp, readFile, readdir, readlink, rm, symlink, unlink, write
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { resolveExampleLaunch, type ExampleMode } from '@deepseek-ai/dsh-loader-smoke'
+import { resolveExampleLaunch, type ExampleMode } from '@metaworkflow/loader-smoke'
 import { execa } from 'execa'
 import { expect, it } from 'vitest'
 
@@ -18,7 +18,7 @@ const pluginName = 'profile-resolution-plugin'
 const sourceProbeName = 'source-probe'
 const externalName = 'profile-resolution-external'
 const externalLeafName = 'profile-resolution-external-leaf'
-const marker = 'DSH_PROFILE_RESOLUTION '
+const marker = 'MWF_PROFILE_RESOLUTION '
 
 interface ResolutionEvidence {
   execArgv: string[]
@@ -58,9 +58,9 @@ export function testProfileResolution(mode: ExampleMode): void {
   it.each(['installed', 'npm-link'] as const)(`resolves a %s profile dependency graph in ${mode} mode`, {
     timeout: processTimeoutMs + 15_000, retry: 0,
   }, async (layout) => {
-    // The child reports loaded module paths in the form DSH_HOME was given; hand it the native realpath so
+    // The child reports loaded module paths in the form MWF_HOME was given; hand it the native realpath so
     // Windows 8.3 tmpdir names and macOS /var symlinks match the expectations computed below.
-    const root = realpathSync.native(await mkdtemp(join(tmpdir(), 'dsh-profile-resolution-')))
+    const root = realpathSync.native(await mkdtemp(join(tmpdir(), 'mwf-profile-resolution-')))
     const links: string[] = []
     try {
       const home = join(root, 'home')
@@ -76,7 +76,7 @@ export function testProfileResolution(mode: ExampleMode): void {
       const exports = { import: './index.mjs', require: './index.cjs' }
       await writePackage(bundleDir, {
         name: bundleName, version: '1.0.0', dependencies: { [bridgeName]: '*' },
-        dsh: { bundle: { patch: './cordis.patch.yml' } },
+        mwf: { bundle: { patch: './cordis.patch.yml' } },
       }, { 'cordis.patch.yml': '[]' })
       await writePackage(bridgeDir, {
         name: bridgeName, version: '1.0.0', exports, dependencies: { [leafName]: '*' },
@@ -104,7 +104,7 @@ export function testProfileResolution(mode: ExampleMode): void {
       const sharedModules = join(home, 'profiles', 'node_modules')
       const installedPlugin = join(profileDir, 'node_modules', pluginName)
       // npm-link keeps the plugin as a linked root outside the profile tree, so its own node_modules hold the
-      // developer's devDependency dsh-tools copy (stale, never read) and the declared dependency's install.
+      // developer's devDependency mwf-tools copy (stale, never read) and the declared dependency's install.
       const pluginDir = layout === 'npm-link' ? join(root, 'work', pluginName) : installedPlugin
       const sharedExternal = join(sharedModules, externalName)
       const externalDir = layout === 'npm-link' ? join(root, 'external', externalName) : sharedExternal
@@ -114,11 +114,11 @@ export function testProfileResolution(mode: ExampleMode): void {
       const ancestorLeaf = join(home, 'node_modules', externalLeafName)
       await writePackage(pluginDir, {
         name: pluginName, version: '1.0.0', exports, dependencies: { [externalName]: '*' },
-        peerDependencies: { '@deepseek-ai/dsh-tools': '*' }, devDependencies: { '@deepseek-ai/dsh-tools': '*' },
+        peerDependencies: { '@metaworkflow/tools': '*' }, devDependencies: { '@metaworkflow/tools': '*' },
       }, {
         'index.mjs': [
           `export { external } from '${externalName}'`,
-          "import Tools from '@deepseek-ai/dsh-tools'",
+          "import Tools from '@metaworkflow/tools'",
           'export { Tools as PluginTools }',
           'export function apply() {}',
         ].join('\n'),
@@ -137,21 +137,21 @@ export function testProfileResolution(mode: ExampleMode): void {
         })
       }
       const staleTools = join(root, 'stale-tools')
-      const staleToolsLink = join(sharedModules, '@deepseek-ai', 'dsh-tools')
-      await writePackage(staleTools, { name: '@deepseek-ai/dsh-tools', version: '0.0.0', exports }, {
-        'index.mjs': "export default class Tools {}\nexport const TOOL_RUNTIME_SCHEDULER = Symbol()\nthrow new Error('STALE_DSH_TOOLS')",
-        'index.cjs': "throw new Error('STALE_DSH_TOOLS')",
+      const staleToolsLink = join(sharedModules, '@metaworkflow', 'tools')
+      await writePackage(staleTools, { name: '@metaworkflow/tools', version: '0.0.0', exports }, {
+        'index.mjs': "export default class Tools {}\nexport const TOOL_RUNTIME_SCHEDULER = Symbol()\nthrow new Error('STALE_MWF_TOOLS')",
+        'index.cjs': "throw new Error('STALE_MWF_TOOLS')",
       })
       const sourceDir = join(sourcePackageDir, 'src')
-      const toolsCjsExpression = mode === 'lib' ? "require.resolve('@deepseek-ai/dsh-tools')" : 'null'
+      const toolsCjsExpression = mode === 'lib' ? "require.resolve('@metaworkflow/tools')" : 'null'
       await mkdir(sourceDir, { recursive: true })
       // The ESM-only source hook does not map CommonJS exports to source, so its CJS probe uses a fixture-owned peer.
       await writePackage(sourcePackageDir, {
-        name: 'source-package', version: '1.0.0', peerDependencies: { '@deepseek-ai/dsh-tools': '*', [leafName]: '*' },
+        name: 'source-package', version: '1.0.0', peerDependencies: { '@metaworkflow/tools': '*', [leafName]: '*' },
       }, {
         'src/query.mjs': [
           "import { createRequire } from 'node:module'",
-          "import Tools from '@deepseek-ai/dsh-tools'",
+          "import Tools from '@metaworkflow/tools'",
           'export { Tools as SourceTools }',
           'const require = createRequire(import.meta.url)',
           `export const sourceToolsCjs = ${toolsCjsExpression}`,
@@ -162,11 +162,11 @@ export function testProfileResolution(mode: ExampleMode): void {
       for (const [target, link] of [
         [staleTools, staleToolsLink],
         [sourceDir, join(profileDir, 'node_modules', sourceProbeName)],
-        [staleTools, join(sourcePackageDir, 'node_modules', '@deepseek-ai', 'dsh-tools')],
+        [staleTools, join(sourcePackageDir, 'node_modules', '@metaworkflow', 'tools')],
         ...layout === 'npm-link' ? [
           [externalDir, sharedExternal],
           [pluginDir, installedPlugin],
-          [staleTools, join(pluginDir, 'node_modules', '@deepseek-ai', 'dsh-tools')],
+          [staleTools, join(pluginDir, 'node_modules', '@metaworkflow', 'tools')],
           [externalDir, join(pluginDir, 'node_modules', externalName)],
         ] as const : [],
       ] as const) {
@@ -178,12 +178,12 @@ export function testProfileResolution(mode: ExampleMode): void {
       // The probe imports from the profile, where the bundle's transitive dependencies need fallback.
       await writePackage(profileDir, {
         name: 'resolution-profile', private: true, dependencies: { [bundleName]: '*', [pluginName]: '*' },
-        dsh: { profile: { bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-headless', bundleName] } },
+        mwf: { profile: { bundles: ['@metaworkflow/base', '@metaworkflow/headless', bundleName] } },
       }, {
         'probe.mjs': [
           "import { createRequire } from 'node:module'",
           "import { getEnvironmentData } from 'node:worker_threads'",
-          "import Tools, { TOOL_RUNTIME_SCHEDULER } from '@deepseek-ai/dsh-tools'",
+          "import Tools, { TOOL_RUNTIME_SCHEDULER } from '@metaworkflow/tools'",
           `import { leaf } from '${leafName}'`,
           `import { leaf as bridgeLeaf } from '${bridgeName}'`,
           `import { external } from '${externalName}'`,
@@ -198,7 +198,7 @@ export function testProfileResolution(mode: ExampleMode): void {
           '  ctx.effect(() => ready.onReady(() => {',
           `    const cjs = require('${leafName}').leaf`,
           `    const externalCjs = require('${externalName}').external`,
-          "    const entries = getEnvironmentData('@deepseek-ai/dsh-app-boot/profile-resolution').resolution.entries",
+          "    const entries = getEnvironmentData('@metaworkflow/app-boot/profile-resolution').resolution.entries",
           '    const evidence = {',
           '      execArgv: process.execArgv, esm: leaf, cjs,',
           '      sameEsmLeaf: leaf === bridgeLeaf,',
@@ -247,7 +247,7 @@ export function testProfileResolution(mode: ExampleMode): void {
         mode, sourceImport: 'tsx/esm', tsconfigPath: join(repoRoot, 'tsconfig.json'),
         configArgs: ['--profile', 'headless'],
         env: {
-          DSH_HOME: home, DSH_AGENTS_HOME: join(root, 'agents'), DSH_TELEMETRY_DISABLED: '1',
+          MWF_HOME: home, MWF_AGENTS_HOME: join(root, 'agents'), MWF_TELEMETRY_DISABLED: '1',
           NODE_OPTIONS: undefined, TSX_TSCONFIG_PATH: undefined,
         },
       })

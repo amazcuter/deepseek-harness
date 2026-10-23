@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-web-search-deepseek",
+  "name": "@metaworkflow/web-search-deepseek",
   "description": "DeepSeek-backed search provider (native web_search via the Anthropic-compatible API) for the DeepSeek Harness web capability seam (ctx.web)",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -29,30 +29,30 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-credentials": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
-    "@deepseek-ai/dsh-launch-environment": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-web": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/credentials": "workspace:*",
+    "@metaworkflow/deepseek-account": "workspace:*",
+    "@metaworkflow/launch-environment": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/web": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-credentials": "workspace:*",
-    "@deepseek-ai/dsh-credentials-local": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
-    "@deepseek-ai/dsh-launch-environment": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-web": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/credentials": "workspace:*",
+    "@metaworkflow/credentials-local": "workspace:*",
+    "@metaworkflow/deepseek-account": "workspace:*",
+    "@metaworkflow/launch-environment": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/web": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-http-proxy": "workspace:*"
+    "@metaworkflow/http-proxy": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/dsh-deepseek-account": {
+    "@metaworkflow/deepseek-account": {
       "optional": true
     }
   }

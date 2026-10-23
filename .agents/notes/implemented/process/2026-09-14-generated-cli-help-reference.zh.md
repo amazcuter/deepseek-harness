@@ -10,7 +10,7 @@ Status: implemented
 
 ## Decision
 
-CLI 参考采集受支持的 `dsh` 启动器帮助、插件转发器帮助和各随附 profile 的帮助，并递归发现每页 `Commands:` 段落列出的子命令。随附 profile 的名称来自 `PROFILE_TEMPLATES`。每页都保留完整的帮助文本；相同的别名帮助只展示一次，并列出所有调用形式。
+CLI 参考采集受支持的 `mwf` 启动器帮助、插件转发器帮助和各随附 profile 的帮助，并递归发现每页 `Commands:` 段落列出的子命令。随附 profile 的名称来自 `PROFILE_TEMPLATES`。每页都保留完整的帮助文本；相同的别名帮助只展示一次，并列出所有调用形式。
 
 生成过程使用临时 Harness home 和 Agents home。帮助在应用开始工作前退出，不需要服务器或模型。插件转发器在 pnpm 参数之前提供自己的帮助；pnpm 命令之后的选项仍作为 pnpm 输入。
 

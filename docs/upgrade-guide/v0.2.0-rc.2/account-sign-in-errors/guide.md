@@ -13,6 +13,6 @@ English | [中文](guide.zh.md)
 
 ## Migration
 
-1. Add `no-response` to validators and exhaustive handlers for `SignInAttemptView.errorCode` in clients of the account API or `@deepseek-ai/dsh-deepseek-account`.
+1. Add `no-response` to validators and exhaustive handlers for `SignInAttemptView.errorCode` in clients of the account API or `@metaworkflow/deepseek-account`.
 2. Show network troubleshooting for `no-response`. Keep generic failure handling for `network`, which also covers HTTP and account-detail retrieval failures.
 3. Confirm a failed login with `errorCode: 'no-response'` is accepted by the client and offers retry, while an HTTP error response retains generic failure handling.

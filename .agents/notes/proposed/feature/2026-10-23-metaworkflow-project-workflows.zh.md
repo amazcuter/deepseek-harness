@@ -6,7 +6,7 @@ Status: proposed
 
 ## 问题
 
-本次改造围绕工作流项目管理，重构现有 DSH Web 应用。首页管理项目，每个项目内部包含工作流画布、统筹对话、节点能力和执行结果。用户导入 Mermaid 流程图，通过对话完善可执行工作流，并运行具有持久进度的独立 DSH Agent 和 Python 函数。小说生成是首个示例；统筹决策、返修循环与恢复语义在下文直接规定，不引用外部产品。
+本次改造围绕工作流项目管理，重构现有 MWF Web 应用。首页管理项目，每个项目内部包含工作流画布、统筹对话、节点能力和执行结果。用户导入 Mermaid 流程图，通过对话完善可执行工作流，并运行具有持久进度的独立 MWF Agent 和 Python 函数。小说生成是首个示例；统筹决策、返修循环与恢复语义在下文直接规定，不引用外部产品。
 
 本文记录已确认需求和待审核的实现建议，不表示功能已经实现。用户审核通过方案后再开始功能实现。
 
@@ -20,7 +20,7 @@ Status: proposed
 
 - 导入仅包含步骤名称与连线的 Mermaid 图。统筹生成节点实现、提示词、输出定义、输入映射和连线条件，再通过对话接受后续修改。
 
-- AI 任务节点使用可配置的 DSH Agent，包括模型、指令、工具、技能和记忆。各节点与统筹可以使用不同模型。每个 AI 节点具有独立的工具列表，可逐项开启或关闭。节点可以跨多次激活复用同一条对话，也可以每次激活新建对话；默认复用。
+- AI 任务节点使用可配置的 MWF Agent，包括模型、指令、工具、技能和记忆。各节点与统筹可以使用不同模型。每个 AI 节点具有独立的工具列表，可逐项开启或关闭。节点可以跨多次激活复用同一条对话，也可以每次激活新建对话；默认复用。
 
 - 程序节点执行 AI 编写的 Python 函数，不要求使用固定的预置算子目录。Python 可以使用第三方库、网络服务与普通本机文件访问，不添加应用沙箱。
 
@@ -30,7 +30,7 @@ Status: proposed
 
 ### Web 页面与导航结构
 
-项目管理成为应用最上层的组织方式。围绕项目和工作流运行，重构 Web 主框架、导航、首页与主要操作。改造结果仅在浏览器中运行，以 `dsh metaworkflow` 启动，并自带 profile 与组合包；Desktop 产品保持现有界面和数据（两者的划分见“已核实的约束与设计裁决”一节）。原有 DSH 的对话、工具、文件和 Session 能力封装进项目体验，复用底层服务及适合的组件，重新组织用户访问这些功能的入口与方式。
+项目管理成为应用最上层的组织方式。围绕项目和工作流运行，重构 Web 主框架、导航、首页与主要操作。改造结果仅在浏览器中运行，以 `mwf metaworkflow` 启动，并自带 profile 与组合包；Desktop 产品保持现有界面和数据（两者的划分见“已核实的约束与设计裁决”一节）。原有 MWF 的对话、工具、文件和 Session 能力封装进项目体验，复用底层服务及适合的组件，重新组织用户访问这些功能的入口与方式。
 
 | 页面或面板 | 主要职责 |
 | --- | --- |
@@ -42,7 +42,7 @@ Status: proposed
 
 选择节点时，统筹对话仍属于当前项目。节点 Session 详情在节点面板内打开，将节点执行上下文与统筹的持续对话区分开。切换项目恢复对应的画布、对话和运行状态。Session 服务于统筹和节点，不因此产生额外的工作流项目。
 
-表格提出页面职责，节点详情、产物和历史具体采用标签页、抽屉还是面板，留作实现选择。复用 DSH 视觉变量、本地化控件和既有对话渲染组件。窄屏通过切换画布、对话和详情保持可读性，避免同时挤入三列。
+表格提出页面职责，节点详情、产物和历史具体采用标签页、抽屉还是面板，留作实现选择。复用 MWF 视觉变量、本地化控件和既有对话渲染组件。窄屏通过切换画布、对话和详情保持可读性，避免同时挤入三列。
 
 [界面草图](2026-10-23-metaworkflow-project-workflows.preview.html)以示例数据展示上述页面组合，不执行真实任务，也不定义任何行为。
 
@@ -78,7 +78,7 @@ def nodemain_check(inputs):
     }, ensure_ascii=False)
 ```
 
-AI 节点通过 DSH 工具执行任务，最终调用任务完成工具，提交符合节点声明输出格式的 JSON。普通助手文本不会结束工作流节点。完成结果不合格时，工具向该 Agent 返回具体校验错误；仅接受有效完成结果后才推进调度。审核通过与否等业务判定由 Python 节点和连线条件承担。
+AI 节点通过 MWF 工具执行任务，最终调用任务完成工具，提交符合节点声明输出格式的 JSON。普通助手文本不会结束工作流节点。完成结果不合格时，工具向该 Agent 返回具体校验错误；仅接受有效完成结果后才推进调度。审核通过与否等业务判定由 Python 节点和连线条件承担。
 
 实现建议：统筹根据节点任务指令生成可编辑的输出结构定义，用于完成工具和运行时校验。完成工具沿用 subagent 运行中 `structured_output` 的做法：按节点输出结构校验提交值，通过 `tools/post-execute` 处理块回填校验后的值，以 `concludeTurn` 提交，并对重复完成或缺少完成设防。两种节点向调度器交付经过校验的 JSON 值，Python 面向编写者的返回类型保持为 JSON 字符串。修复次数与执行限制均为明确可配置的值。
 
@@ -92,11 +92,11 @@ AI 节点通过 DSH 工具执行任务，最终调用任务完成工具，提交
 
 ### 文件、持久化与恢复
 
-存储建议为每个项目保留一个 `project.db`（node:sqlite，在 Electron 44.7／Node 24.21 下实测可用），另加一个很小的全局注册库，两者都不通过 storage-domain 的静态路由挂载。每个库在每个后台进程内只打开一次并只保留一个写连接：打开时设置 WAL 日志模式、忙等待超时与外键约束；调度器、outbox 写入方与各读取方共用该连接，不各自开库。项目库存放调度状态与引用；文件保存节点源码和不可变的已发布产物；已有 DSH Session 持久化保留模型可见的工具与消息历史。运行、激活、尝试、轮次、连线路由与流程版本均不进入 Session 事件表，该事件表不新增成员。
+存储建议为每个项目保留一个 `project.db`（node:sqlite，在 Electron 44.7／Node 24.21 下实测可用），另加一个很小的全局注册库，两者都不通过 storage-domain 的静态路由挂载。每个库在每个后台进程内只打开一次并只保留一个写连接：打开时设置 WAL 日志模式、忙等待超时与外键约束；调度器、outbox 写入方与各读取方共用该连接，不各自开库。项目库存放调度状态与引用；文件保存节点源码和不可变的已发布产物；已有 MWF Session 持久化保留模型可见的工具与消息历史。运行、激活、尝试、轮次、连线路由与流程版本均不进入 Session 事件表，该事件表不新增成员。
 
 调度时固定使用的流程版本、节点实现、输入值和产物版本，把声明的输入文件准备到接收节点的工作区。已发布产物保留稳定版本，后续本地文件修改不能静默改变历史结果或其他节点的输入。
 
-节点结果的接受与下游调度一并提交。暂停取消受影响的在途尝试；DSH 没有暂停原语，因此继续执行等于开始新一轮对话或 resume 该 Session，重试则创建新尝试。单步执行一个选中的就绪节点激活，然后暂停调度；并行流程中界面明确显示选择的激活实例。DSH 没有全局并发池，执行名额由调度器自行创建并持有。
+节点结果的接受与下游调度一并提交。暂停取消受影响的在途尝试；MWF 没有暂停原语，因此继续执行等于开始新一轮对话或 resume 该 Session，重试则创建新尝试。单步执行一个选中的就绪节点激活，然后暂停调度；并行流程中界面明确显示选择的激活实例。MWF 没有全局并发池，执行名额由调度器自行创建并持有。
 
 关闭浏览器标签页不会停止本地后台。后台重启后，运行以暂停状态恢复，并标明被中断的尝试。继续执行时，AI 只恢复到最后一个已提交的 assistant／tool 交换位置：`agents.resume()` 会为每个未结算的工具调用合成错误结果（调用可能已经开始时为 `TOOL_OUTCOME_UNKNOWN`，从未开始时为 `TOOL_NOT_STARTED`），由模型据此重新决策。Python 函数从入口重新执行。调度器不自行修复 Session 尾部，也不依赖 Session 保证 exactly-once。本方案不包含任意 Python 指令位置的恢复。
 
@@ -108,7 +108,7 @@ AI 节点通过 DSH 工具执行任务，最终调用任务完成工具，提交
 
 ### 画布与编写体验
 
-Mermaid 渲染是一项新增的浏览器依赖。仓库当前只在根与 website 中把 `mermaid` 11.17.2 声明为 devDependency，Web bundle 未集成它；文档站的渲染器是供 VitePress 使用的 Vue 组件，无法在客户端复用，因此渲染器需要在 MetaWorkFlow 客户端插件内新写。布局要求紧凑，采用简短节点标签、合理分组、缩放和平移，并与 DSH 配色和字体风格一致。根据实际图形选择布局选项，不假定任何渲染器都能消除长链。稳定节点 ID 将渲染元素与属性面板及运行状态关联。
+Mermaid 渲染是一项新增的浏览器依赖。仓库当前只在根与 website 中把 `mermaid` 11.17.2 声明为 devDependency，Web bundle 未集成它；文档站的渲染器是供 VitePress 使用的 Vue 组件，无法在客户端复用，因此渲染器需要在 MetaWorkFlow 客户端插件内新写。布局要求紧凑，采用简短节点标签、合理分组、缩放和平移，并与 MWF 配色和字体风格一致。根据实际图形选择布局选项，不假定任何渲染器都能消除长链。稳定节点 ID 将渲染元素与属性面板及运行状态关联。
 
 编写模型建议：导入后以结构化工作流定义为准，Mermaid 作为导入与展示形式。统筹在常规编辑中保留节点身份。点击节点可以查看或修改 Python、Agent 配置、记忆策略、输入、输出结构、尝试记录和产物。首版不要求另做一套拖拽连线编辑器。
 
@@ -118,9 +118,9 @@ Mermaid 渲染是一项新增的浏览器依赖。仓库当前只在根与 websi
 
 以下裁决解决上文遗留的实现问题，并记录仓库与用户 Windows 宿主实际具备的条件。
 
-- **产品范围：只做浏览器端。** 应用以独立的 `metaworkflow` profile 和一份从 Web 组合包复制改造的独立组合包交付，通过 `dsh metaworkflow` 启动。Desktop 是既有 DSH 产品：保持现有界面与数据，本次不修改 Desktop。`PROFILE_TEMPLATES.web` 的组合保持不变。
+- **产品范围：只做浏览器端。** 应用以独立的 `metaworkflow` profile 和一份从 Web 组合包复制改造的独立组合包交付，通过 `mwf metaworkflow` 启动。Desktop 是既有 MWF 产品：保持现有界面与数据，本次不修改 Desktop。`PROFILE_TEMPLATES.web` 的组合保持不变。
 
-- **数据隔离。** `DSH_HOME` 指向仓库内的独立根（例如 `<repo>\.mwf-home`），后台不读写 `~/.dsh`。第一次 `dsh metaworkflow` 会直接从内置模板初始化 `$DSH_HOME/profiles/metaworkflow`。`--from-default-profile` 只用于把自定义 profile 名重置为某个内置模板的副本，并拒绝内置名，因此不属于本流程（见 `apps/cli/src/profile-boot.ts:126` 与 [`--from-default-profile` 升级指南](../../../../docs/upgrade-guide/v0.2.1-alpha.2/from-default-profile-replaces-target/guide.zh.md)）。`DSH_HOME` 只作为当前终端的变量存在；永久设置会连带改变 Desktop 产品的 home，因此不得全局设置。终端已导出 `DSH_AGENTS_HOME` 时一并设置。
+- **数据隔离。** `MWF_HOME` 指向仓库内的独立根（例如 `<repo>\.mwf-home`），后台不读写 `~/.mwf`。第一次 `mwf metaworkflow` 会直接从内置模板初始化 `$MWF_HOME/profiles/metaworkflow`。`--from-default-profile` 只用于把自定义 profile 名重置为某个内置模板的副本，并拒绝内置名，因此不属于本流程（见 `apps/cli/src/profile-boot.ts:126` 与 [`--from-default-profile` 升级指南](../../../../docs/upgrade-guide/v0.2.1-alpha.2/from-default-profile-replaces-target/guide.zh.md)）。`MWF_HOME` 只作为当前终端的变量存在；永久设置会连带改变 Desktop 产品的 home，因此不得全局设置。终端已导出 `MWF_AGENTS_HOME` 时一并设置。
 
 - **恢复只到最后一个已提交的交换。** 不存在“恢复到工具执行中途”。崩溃后 `agents.resume()` 会为未结算的工具调用合成 `isError` 结果（执行可能已开始时为 `TOOL_OUTCOME_UNKNOWN`，未开始时为 `TOOL_NOT_STARTED`），由模型重新决策；恢复只到最后一个已提交的 assistant／tool 交换位置。
 
@@ -136,7 +136,7 @@ Mermaid 渲染是一项新增的浏览器依赖。仓库当前只在根与 websi
 
 - **决策请求立即返回。** 工具返回 `{status: 'pending', requestId}` 并调用 `concludeTurn()`；尝试转为 `waiting` 并释放名额。决策送达后通过 `followup()` 或 `resume()` 继续该尝试。
 
-- **没有暂停原语。** 暂停即取消尝试；继续即开始新一轮对话或 resume 该 Session。DSH 没有全局并发池，执行名额由调度器自建并持有。
+- **没有暂停原语。** 暂停即取消尝试；继续即开始新一轮对话或 resume 该 Session。MWF 没有全局并发池，执行名额由调度器自建并持有。
 
 - **Python 执行。** 每个项目一个虚拟环境，解释器可配置（CPython 3.10–3.14，排除 free-threaded 3.14t）。安装强制 `--only-binary=:all:`，因为宿主没有 MSVC 工具链，任何 sdist 构建都会失败。输入以 UTF-8 JSON 走标准输入而非 argv；结果用一行标准输出哨兵 `__MWF_RESULT__ <json>`，不进入可截断的日志缓冲。子进程环境设置 `PYTHONUTF8=1`、`PYTHONIOENCODING=utf-8`、`PYTHONUNBUFFERED=1`，因为默认 GBK 区域设置会静默乱码，并在遇到 emoji 时抛错。`child.kill()` 会留下孤儿进程，因此终止时用 `taskkill /T /F` 兜底，长任务可选 PowerShell Job Object supervisor（`KILL_ON_JOB_CLOSE`，禁止 breakaway）。项目根路径保持在 200 字符以内，因为 ≥277 字符时 venv 创建失败。
 
@@ -150,11 +150,11 @@ Mermaid 渲染是一项新增的浏览器依赖。仓库当前只在根与 websi
 
 现有[工作流参考](../../../../packages/workflow/workflow/README.zh.md)在“概述”中描述由调用方持有的 JavaScript 运行，不支持保存工作流或恢复执行；实验性 [Python 运行器](../../../../packages/experimental/ptc-runtime-python/README.zh.md#known-limitations-and-deferred-work)描述执行宿主仅限 Unix，并在加载期拒绝非 Unix 平台。这些是文档核对结果，不是本地运行验证。本方案需要持久化图调度及支持用户原生 Windows 环境的 Python 函数执行器。
 
-通过 Cordis 插件复用已有 [Agent 作用域](../../../../packages/core/agent/README.zh.md)、[本机子进程管理](../../../../packages/subprocess/subprocess-local/README.zh.md)、预设、工具、Session 持久化、[压缩](../../../../packages/compaction/compaction/README.zh.md)，以及已拥有项目概念的 `@deepseek-ai/dsh-workspace`：它持久保存项目目录列表和各目录中运行过的 Session。新增项目存储、调度器、节点执行器和统筹工具等职责明确的能力，并围绕项目管理首页与项目工作台重新组织 Web 应用；通过上述独立 profile、组合包与隔离的 Harness home 启动。插件复用描述内部实现方式，用户界面的改造范围包含替换现有以会话为中心的导航和页面组织。具体包名与持久化类型定义仍是待审核实现细节。
+通过 Cordis 插件复用已有 [Agent 作用域](../../../../packages/core/agent/README.zh.md)、[本机子进程管理](../../../../packages/subprocess/subprocess-local/README.zh.md)、预设、工具、Session 持久化、[压缩](../../../../packages/compaction/compaction/README.zh.md)，以及已拥有项目概念的 `@metaworkflow/workspace`：它持久保存项目目录列表和各目录中运行过的 Session。新增项目存储、调度器、节点执行器和统筹工具等职责明确的能力，并围绕项目管理首页与项目工作台重新组织 Web 应用；通过上述独立 profile、组合包与隔离的 Harness home 启动。插件复用描述内部实现方式，用户界面的改造范围包含替换现有以会话为中心的导航和页面组织。具体包名与持久化类型定义仍是待审核实现细节。
 
-既有[工作流 PTC 决策](../../implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.zh.md)继续适用于当前 JavaScript 工作流实现。本方案新增项目工作流能力，并选择独立的 Python 执行方式，不替代或修改该既有决策。限定范围的活动记录检索未发现工作流项目的已有归属；`dsh-workspace` 拥有项目目录概念，本提案扩展并重写该所有权。不归档其他记录。
+既有[工作流 PTC 决策](../../implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.zh.md)继续适用于当前 JavaScript 工作流实现。本方案新增项目工作流能力，并选择独立的 Python 执行方式，不替代或修改该既有决策。限定范围的活动记录检索未发现工作流项目的已有归属；`mwf-workspace` 拥有项目目录概念，本提案扩展并重写该所有权。不归档其他记录。
 
-1. M1 骨架：`metaworkflow` profile（第一次 `dsh metaworkflow` 即由内置模板自动初始化）、由 Web 组合包复制改造的组合包、隔离的 Harness home、项目管理首页，以及启动守卫——home 不是 MetaWorkFlow 的根时拒绝启动。
+1. M1 骨架：`metaworkflow` profile（第一次 `mwf metaworkflow` 即由内置模板自动初始化）、由 Web 组合包复制改造的组合包、隔离的 Harness home、项目管理首页，以及启动守卫——home 不是 MetaWorkFlow 的根时拒绝启动。
 
 2. M1：项目存储分两个 schema 步骤（先 v2，再 v3），在冻结前完成结构评审。
 
@@ -186,7 +186,7 @@ Mermaid 渲染是一项新增的浏览器依赖。仓库当前只在根与 websi
 
 ## 验收标准
 
-- `dsh metaworkflow` 在浏览器中打开项目管理首页。创建并打开项目后，在项目工作台内使用画布、内嵌统筹对话、节点能力和产物功能。切换项目时，各自上下文与运行状态保持独立。
+- `mwf metaworkflow` 在浏览器中打开项目管理首页。创建并打开项目后，在项目工作台内使用画布、内嵌统筹对话、节点能力和产物功能。切换项目时，各自上下文与运行状态保持独立。
 
 - 导入小型 Mermaid 图，由统筹补全可执行定义，在浏览器查看，并通过同一对话修改流程。
 
@@ -204,7 +204,7 @@ Mermaid 渲染是一项新增的浏览器依赖。仓库当前只在根与 websi
 
 - 用无密钥样例验证调度与工具行为，用录制 Session 验证模型可见变更，用真实模型浏览器冒烟验收端到端行为。实际执行的检查与这些计划中的标准分开记录。
 
-- 完整跑完后验证 `~/.dsh` 没有新增文件、设置或 Session，后台使用的是仓库内的 home，且 Desktop 产品以自己的项目列表、设置和 Session 正常打开且未被改动。
+- 完整跑完后验证 `~/.mwf` 没有新增文件、设置或 Session，后台使用的是仓库内的 home，且 Desktop 产品以自己的项目列表、设置和 Session 正常打开且未被改动。
 
 ## 风险与取舍
 
@@ -214,7 +214,7 @@ Mermaid 渲染是一项新增的浏览器依赖。仓库当前只在根与 websi
 
 运行中编辑与可配置汇合是主要一致性风险。验收必须覆盖在途工具调用期间的修改、不受影响的并行分支、过时完成结果、循环轮次，以及结果接受与后继调度之间的重启。
 
-隔离依赖 `DSH_HOME` 只作用于 MetaWorkFlow 后台。永久导出会把 Desktop 产品一并指向 MetaWorkFlow home，因此启动守卫比对解析后的 home，不一致时拒绝启动；验收不能只信任守卫，还要直接检查 `~/.dsh`。
+隔离依赖 `MWF_HOME` 只作用于 MetaWorkFlow 后台。永久导出会把 Desktop 产品一并指向 MetaWorkFlow home，因此启动守卫比对解析后的 home，不一致时拒绝启动；验收不能只信任守卫，还要直接检查 `~/.mwf`。
 
 Mermaid 渲染器是没有既有 Web 集成可依托的新客户端代码，仓库此前也没有 `prototypes/` 目录，因此草图是带示例数据的静态 HTML 文件，而不是已交付的页面。
 

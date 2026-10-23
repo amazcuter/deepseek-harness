@@ -25,10 +25,10 @@ NotificationFilter: TypeAlias = Callable[[Notification], bool]
 class HarnessConfig:
     """Configuration for launching the local DeepSeek Harness SDK runtime."""
 
-    dsh_bin: str | None = None
+    mwf_bin: str | None = None
     profile: str = "sdk"
     patches: tuple[str, ...] = ()
-    dsh_home: str | None = None
+    mwf_home: str | None = None
     cwd: str | None = None
     env: dict[str, str] | None = None
     initialize_timeout_seconds: float = 30.0
@@ -157,7 +157,7 @@ class HarnessClient:
             )
         except TimeoutError as error:
             self.close()
-            raise TimeoutError(f"{error}\nselected dsh profile {self.config.profile!r}") from error
+            raise TimeoutError(f"{error}\nselected mwf profile {self.config.profile!r}") from error
         except BaseException as error:
             self.close()
             diagnostics = self._runtime_diagnostics()
@@ -368,11 +368,11 @@ class HarnessClient:
             raise self._runtime_closed_error("Failed to write to DeepSeek Harness runtime") from exc
 
     def _start_reader_thread(self) -> None:
-        self._reader_thread = threading.Thread(target=self._reader_loop, name="dsh-runtime-reader", daemon=True)
+        self._reader_thread = threading.Thread(target=self._reader_loop, name="mwf-runtime-reader", daemon=True)
         self._reader_thread.start()
 
     def _start_stderr_thread(self) -> None:
-        self._stderr_thread = threading.Thread(target=self._stderr_loop, name="dsh-runtime-stderr", daemon=True)
+        self._stderr_thread = threading.Thread(target=self._stderr_loop, name="mwf-runtime-stderr", daemon=True)
         self._stderr_thread.start()
 
     def _reader_loop(self) -> None:
@@ -482,26 +482,26 @@ class HarnessClient:
         return "\n".join(parts)
 
     def _default_launch_args(self, env: dict[str, str]) -> tuple[str, ...]:
-        if self.config.dsh_bin is None:
+        if self.config.mwf_bin is None:
             try:
                 from deepseek_harness_runtime import resolve_bundled_launch_args
             except ImportError as exc:
                 raise FileNotFoundError(
-                    "Unable to locate the bundled DeepSeek Harness dsh runtime. "
+                    "Unable to locate the bundled DeepSeek Harness mwf runtime. "
                     "Install deepseek-harness-runtime-bin."
                 ) from exc
             base = resolve_bundled_launch_args()
         else:
-            base = (str(Path(self.config.dsh_bin).expanduser().resolve()),)
+            base = (str(Path(self.config.mwf_bin).expanduser().resolve()),)
 
-        if self.config.dsh_home is not None:
-            if not self.config.dsh_home.strip():
-                raise ValueError("HarnessConfig requires a non-empty dsh_home")
-            env["DSH_HOME"] = str(Path(self.config.dsh_home).expanduser().resolve())
-        elif not env.get("DSH_HOME", "").strip():
+        if self.config.mwf_home is not None:
+            if not self.config.mwf_home.strip():
+                raise ValueError("HarnessConfig requires a non-empty mwf_home")
+            env["MWF_HOME"] = str(Path(self.config.mwf_home).expanduser().resolve())
+        elif not env.get("MWF_HOME", "").strip():
             raise ValueError(
-                "HarnessConfig requires an explicit dsh_home or non-empty DSH_HOME; "
-                "the Python SDK never uses ~/.dsh implicitly"
+                "HarnessConfig requires an explicit mwf_home or non-empty MWF_HOME; "
+                "the Python SDK never uses ~/.mwf implicitly"
             )
 
         patches = tuple(

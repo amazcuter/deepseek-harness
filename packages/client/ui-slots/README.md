@@ -1,15 +1,15 @@
 ---
-description: "Slot registry pure core for the dsh web client: ordinary extension slots, reusable Component Factories, derived props types, store seats, and the renderer install contract."
+description: "Slot registry pure core for the mwf web client: ordinary extension slots, reusable Component Factories, derived props types, store seats, and the renderer install contract."
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-client-ui-slots
+# @metaworkflow/client-ui-slots
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-client-ui-slots` lets web client plugins define and compose typed UI regions. Ordinary Slots provide parent-owned extension positions; Component Factories provide reusable assemblies with caller-selected local Components. Both APIs derive scoped state, injection, locale, and child-render props from declaration-merged types and report conflicting definitions during plugin loading. Pair this React-free package with `ui-renderer` when the client needs rendering.
+`mwf-client-ui-slots` lets web client plugins define and compose typed UI regions. Ordinary Slots provide parent-owned extension positions; Component Factories provide reusable assemblies with caller-selected local Components. Both APIs derive scoped state, injection, locale, and child-render props from declaration-merged types and report conflicting definitions during plugin loading. Pair this React-free package with `ui-renderer` when the client needs rendering.
 
 ## Table of Contents
 

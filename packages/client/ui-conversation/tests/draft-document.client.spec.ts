@@ -2,7 +2,7 @@
 /** Structured draft import, persistence, and reference restoration through the real input shell. */
 import { setImmediate } from 'node:timers/promises'
 import { Context } from '@deepseek-ai/cordis'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { createSnapshotStore } from '@metaworkflow/client-store'
 import { $getRoot, $nodesOfType, REDO_COMMAND, UNDO_COMMAND } from 'lexical'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import type { DraftReference, DraftSnapshot, Occurrence } from '../src/client/contract/draft-editor.ts'
@@ -25,8 +25,8 @@ const folder: ReferenceContent = {
   source: 'reference', ref: '@src/', label: 'src/', appearance: 'folder', clipboardText: '@src/',
 }
 const session: ReferenceContent = {
-  source: 'reference', ref: '@[研究记录](dsh-session:c291cmNl)', label: '研究记录', appearance: 'session',
-  clipboardText: '@[研究记录](dsh-session:c291cmNl)',
+  source: 'reference', ref: '@[研究记录](mwf-session:c291cmNl)', label: '研究记录', appearance: 'session',
+  clipboardText: '@[研究记录](mwf-session:c291cmNl)',
 }
 
 function documentOf(...parts: readonly (string | ReferenceContent)[]): DraftSnapshot {

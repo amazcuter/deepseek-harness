@@ -1,4 +1,4 @@
-# Agent Note: dsh source launch through the tsx ESM hook
+# Agent Note: mwf source launch through the tsx ESM hook
 
 Status: implemented
 
@@ -14,13 +14,13 @@ Startup latency also mattered: the off-thread `module.register()` hooks worker s
 
 ## Decision
 
-The `dsh` CLI source launches run `node --import tsx/esm`: tsx's ESM-only hook owns both TypeScript transformation and tsconfig `paths` projection. The root `dsh` script uses that vector directly from the repository root; artifact generation is a separate operation under the [source-launch/build separation decision](../../archived/simplification/2026-08-12-separate-source-launch-from-build.md). The CJS hook stays off because the CLI source graph is ESM-only; the implementation-time measurement to the TUI banner was ~0.7s versus ~1.1s under the full tsx default and ~0.75s under the removed native chain.
+The `mwf` CLI source launches run `node --import tsx/esm`: tsx's ESM-only hook owns both TypeScript transformation and tsconfig `paths` projection. The root `mwf` script uses that vector directly from the repository root; artifact generation is a separate operation under the [source-launch/build separation decision](../../archived/simplification/2026-08-12-separate-source-launch-from-build.md). The CJS hook stays off because the CLI source graph is ESM-only; the implementation-time measurement to the TUI banner was ~0.7s versus ~1.1s under the full tsx default and ~0.75s under the removed native chain.
 
-tsx owns workspace `paths` mapping without checking whether the importer declares each package as a runtime dependency. Declaration completeness rests on the static gates: `verify-cordis-config` for configured bare plugins, and workspace constraints for manifests. The removed repo-owned paths loaders enforced those declarations at runtime and caught imports of `@deepseek-ai/dsh-llm` declared only in devDependencies; tsx does not provide that check.
+tsx owns workspace `paths` mapping without checking whether the importer declares each package as a runtime dependency. Declaration completeness rests on the static gates: `verify-cordis-config` for configured bare plugins, and workspace constraints for manifests. The removed repo-owned paths loaders enforced those declarations at runtime and caught imports of `@metaworkflow/llm` declared only in devDependencies; tsx does not provide that check.
 
 tsx skips the paths map when the importer URL contains `/node_modules/`. The [runtime resolution](2026-09-09-profile-resolution-generations.md) therefore records real declaring-package anchors, including recursive dependencies. This lets workspace fallback imports resolve to `src/` consistently, rather than mixing built `lib/` providers with source callers whose module-local Symbols differ. Packages without a workspace mapping retain ordinary export resolution.
 
-The node-compat CI matrix runs `dsh-source-launch-smoke` (`apps/cli/tests/source-launch.compat.spec.ts`) without a build: keyless launches assert the required-profile diagnostic and profile dependency resolution without mixed Tools/AgentLoop `src/` and `lib/` instances. The source and built-bin suites share ordinary-directory and npm-link profile cases; the latter launches plain Node against built exports. The required build-backed smoke also runs `apps/cli/tests/profiles/headless/tests/source-tool.built.e2e.ts`: it checks real headless tool dispatch through tsx after the native addon and generated typert contributors are available, while still requiring core workspace modules to load from source. Future changes to module hooks or TypeScript handling are checked through these real entry paths.
+The node-compat CI matrix runs `mwf-source-launch-smoke` (`apps/cli/tests/source-launch.compat.spec.ts`) without a build: keyless launches assert the required-profile diagnostic and profile dependency resolution without mixed Tools/AgentLoop `src/` and `lib/` instances. The source and built-bin suites share ordinary-directory and npm-link profile cases; the latter launches plain Node against built exports. The required build-backed smoke also runs `apps/cli/tests/profiles/headless/tests/source-tool.built.e2e.ts`: it checks real headless tool dispatch through tsx after the native addon and generated typert contributors are available, while still requiring core workspace modules to load from source. Future changes to module hooks or TypeScript handling are checked through these real entry paths.
 
 ## Alternatives considered
 

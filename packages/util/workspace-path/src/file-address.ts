@@ -1,5 +1,5 @@
 /**
- * The `dsh-resource://file/…` address grammar: how a file is named across the
+ * The `mwf-resource://file/…` address grammar: how a file is named across the
  * Sidebar and the resource model, built and parsed without touching a
  * filesystem.
  * @module
@@ -8,16 +8,16 @@
 /**
  * A file resource address, in one of two scopes.
  *
- * Every resource address is `dsh-resource://<type>/…`, the URI host naming the
+ * Every resource address is `mwf-resource://<type>/…`, the URI host naming the
  * resource protocol; for `file` the path opens with the scope:
  *
- * - `dsh-resource://file/session/<sessionId>/<path>` names a file by its path,
+ * - `mwf-resource://file/session/<sessionId>/<path>` names a file by its path,
  *   relative to that Session's workspace root or absolute; the
  *   Host resolves it against the root it holds for the Session.
- * - `dsh-resource://file/absolute/<path>` names a file by its absolute path with
- *   the leading `/` dropped (`dsh-resource://file/absolute/home/ys/notes.txt`;
- *   Windows `dsh-resource://file/absolute/C:/x/y.txt`; a UNC path keeps an empty
- *   first segment, `dsh-resource://file/absolute//server/share/x.txt`). It carries
+ * - `mwf-resource://file/absolute/<path>` names a file by its absolute path with
+ *   the leading `/` dropped (`mwf-resource://file/absolute/home/ys/notes.txt`;
+ *   Windows `mwf-resource://file/absolute/C:/x/y.txt`; a UNC path keeps an empty
+ *   first segment, `mwf-resource://file/absolute//server/share/x.txt`). It carries
  *   no Session.
  *
  * Every id and path segment is component-encoded, so a name carrying `#`, `?`,
@@ -39,7 +39,7 @@ export type FileAddress =
   }
 
 /** The scheme and type every file address opens with. */
-const FILE_ADDRESS_PREFIX = 'dsh-resource://file/'
+const FILE_ADDRESS_PREFIX = 'mwf-resource://file/'
 
 /** Component-encode one id or path segment, keeping `:` literal for drive letters. */
 function encodeSegment(segment: string): string {
@@ -60,7 +60,7 @@ function isDriveSegment(segment: string | undefined): boolean {
  * Build the address of a file read through one Session.
  * @param sessionId - the Session whose Host workspace resolves the path.
  * @param path - absolute or workspace-relative path; backslashes are normalized to `/`, and leading `./` prefixes are dropped.
- * @returns the `dsh-resource://file/session/<sessionId>/<path>` address.
+ * @returns the `mwf-resource://file/session/<sessionId>/<path>` address.
  */
 export function sessionFileAddress(sessionId: string, path: string): string {
   const normalized = path.replace(/\\/g, '/').replace(/^(?:\.\/)+/, '')
@@ -71,7 +71,7 @@ export function sessionFileAddress(sessionId: string, path: string): string {
  * Build the address of a file by its absolute path.
  * @param path - absolute path; backslashes are normalized to `/` and the leading `/` is dropped,
  *   except that a UNC path (`\\server\share`) keeps one empty first segment.
- * @returns the `dsh-resource://file/absolute/<path>` address.
+ * @returns the `mwf-resource://file/absolute/<path>` address.
  */
 export function absoluteFileAddress(path: string): string {
   const normalized = path.replace(/\\/g, '/')
@@ -84,7 +84,7 @@ export function absoluteFileAddress(path: string): string {
  * Read a file address back into its parts without resolving `.` or `..`.
  * Query and fragment suffixes are ignored; encoded path segments are decoded.
  * @param address - a candidate address.
- * @returns the parts, or `undefined` when the string is not a `dsh-resource://file/` URI in a known scope with a path, or a segment is not validly encoded.
+ * @returns the parts, or `undefined` when the string is not a `mwf-resource://file/` URI in a known scope with a path, or a segment is not validly encoded.
  */
 export function parseFileAddress(address: string): FileAddress | undefined {
   try {

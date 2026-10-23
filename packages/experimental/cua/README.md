@@ -3,7 +3,7 @@ description: "Reuse Computer Use application and window objects with authorized,
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-cua
+# @metaworkflow/cua
 
 English | [中文](README.zh.md)
 
@@ -25,7 +25,7 @@ Inspect applications, retain window objects across PTC calls, and send actions t
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the [macOS provider](../cua-macos/README.md) to enable native operations. External PTC hosts import `connectCua` from `@deepseek-ai/dsh-cua/bridge` and supply the current `tools.cua` binding. Source compositions and native preparation belong to the provider.
+Mount the [macOS provider](../cua-macos/README.md) to enable native operations. External PTC hosts import `connectCua` from `@metaworkflow/cua/bridge` and supply the current `tools.cua` binding. Source compositions and native preparation belong to the provider.
 
 Use App methods for a single-window task. `getApp` reads initial accessibility state; `getWindows` and `getWindow` select an explicit window when needed. Re-reading one app/window scope replaces its element indices without invalidating another window's snapshot. Keyboard input follows the application's focus. Invalid request arguments reject before dispatch with a readable method, parameter and requirement.
 

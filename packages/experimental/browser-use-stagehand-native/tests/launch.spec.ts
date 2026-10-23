@@ -39,7 +39,7 @@ function processFixture() {
 
 it.each([true, false])('launches with scrubbed environment and owns the profile until child close (headless %s)', async (headless) => {
   vi.stubEnv('BROWSER_LAUNCH_API_TOKEN', 'fixture-secret')
-  vi.stubEnv('DSH_FIXTURE_ID', 'fixture-identity')
+  vi.stubEnv('MWF_FIXTURE_ID', 'fixture-identity')
   vi.stubEnv('BROWSER_LAUNCH_PUBLIC', 'visible')
   const fake = processFixture()
   const opening = launchChromium({ ...config, headless, ...headless ? {} : { executablePath: '/custom/chrome' } }, new AbortController().signal)
@@ -52,7 +52,7 @@ it.each([true, false])('launches with scrubbed environment and owns the profile 
   expect(options.args).toContain('--remote-debugging-port=0')
   expect(options.env.BROWSER_LAUNCH_PUBLIC).toBe('visible')
   expect(options.env.BROWSER_LAUNCH_API_TOKEN).toBeUndefined()
-  expect(options.env.DSH_FIXTURE_ID).toBeUndefined()
+  expect(options.env.MWF_FIXTURE_ID).toBeUndefined()
   await expect(access(profiles[0]!)).resolves.toBeUndefined()
   await browser.close()
   expect(fake.kill).toHaveBeenCalledOnce()

@@ -1,22 +1,22 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import AgentRegistry, { agentEvents } from '@deepseek-ai/dsh-agent'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { createUserMessage, HarnessError } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import SessionStore, { Session, SessionId, type UserMessage } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import AgentRegistry, { agentEvents } from '@metaworkflow/agent'
+import type { Agent } from '@metaworkflow/agent'
+import { createUserMessage, HarnessError } from '@metaworkflow/llm'
+import type { ContextFormed } from '@metaworkflow/llm'
+import SessionStore, { Session, SessionId, type UserMessage } from '@metaworkflow/session'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
 import GoalService, {
   GoalError,
   GoalId,
   decodeGoalChange,
   foldGoal,
-} from '@deepseek-ai/dsh-goal'
-import type { GoalChangeMeta, GoalRef, GoalSnapshotChangeMeta } from '@deepseek-ai/dsh-goal'
-import { createInboxStub } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { remoteMethods } from '@deepseek-ai/dsh-typert-protocol'
+} from '@metaworkflow/goal'
+import type { GoalChangeMeta, GoalRef, GoalSnapshotChangeMeta } from '@metaworkflow/goal'
+import { createInboxStub } from '@metaworkflow/agent-loop-testkit'
+import { remoteMethods } from '@metaworkflow/typert-protocol'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
     'ordinary-user-message': { kind: 'ordinary-user-message' } & ContextFormed
@@ -80,7 +80,7 @@ function stubAgentForSession(session: Session, suppliedCtx?: Context): StubAgent
 /** Build a registry-compatible agent around a fresh session. */
 function stubAgent(
   rawId: string,
-  seed?: readonly import('@deepseek-ai/dsh-session').SessionEvent[],
+  seed?: readonly import('@metaworkflow/session').SessionEvent[],
   ctx?: Context,
 ): StubAgent {
   const session = ctx === undefined

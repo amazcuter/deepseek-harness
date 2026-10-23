@@ -1,5 +1,5 @@
 /** Plugin page selection shared by the page and cross-plugin navigation. */
-import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-store'
+import { defineStore, type EngineStoreHandle } from '@metaworkflow/client-store'
 
 /** The main or additional plugin list, or one bundle, official item, or bundle row of the Installed tab. */
 type View =

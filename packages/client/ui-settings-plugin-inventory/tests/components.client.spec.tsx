@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { ClientEntryState } from '@deepseek-ai/dsh-client-modules/client'
-import type { PluginEntryId } from '@deepseek-ai/dsh-api-remotes/client'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import type { ClientEntryState } from '@metaworkflow/client-modules/client'
+import type { PluginEntryId } from '@metaworkflow/api-remotes/client'
 import { Context } from '@deepseek-ai/cordis'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { bindSnapshotSelector } from '@deepseek-ai/dsh-client-test-runtime'
+import { LocaleRuntime } from '@metaworkflow/client-locale/client'
+import { bindSnapshotSelector } from '@metaworkflow/client-test-runtime'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { PluginInventorySettingsTab } from '../src/client/PluginInventorySettingsTab.tsx'
@@ -59,8 +59,8 @@ const SNAPSHOT = {
     { entryId: 'timer', moduleName: 'cordis:timer', enabled: true, fiberPhase: 'active' },
     { entryId: '8a1b2c3d', moduleName: '@deepseek-ai/cordis-plugin-hmr', enabled: true, fiberPhase: 'active' },
     { entryId: 'unobserved', moduleName: '@fixture/unobserved-name', enabled: true, fiberPhase: null },
-    { entryId: 'bash-host', moduleName: '@deepseek-ai/dsh-tool-bash', enabled: false, fiberPhase: null },
-    { entryId: 'fs-host', moduleName: '@deepseek-ai/dsh-tool-fs', enabled: false, fiberPhase: null },
+    { entryId: 'bash-host', moduleName: '@metaworkflow/tool-bash', enabled: false, fiberPhase: null },
+    { entryId: 'fs-host', moduleName: '@metaworkflow/tool-fs', enabled: false, fiberPhase: null },
     { entryId: 'dormant', moduleName: '@fixture/dormant', enabled: false, fiberPhase: null },
   ],
   agentPresets: [
@@ -69,8 +69,8 @@ const SNAPSHOT = {
       name: '标准模式',
       isDefault: true,
       rows: [
-        { entryId: 'bash', moduleName: '@deepseek-ai/dsh-tool-bash', enabled: true, fiberPhase: 'active' },
-        { entryId: 'fs', moduleName: '@deepseek-ai/dsh-tool-fs', enabled: true, fiberPhase: null },
+        { entryId: 'bash', moduleName: '@metaworkflow/tool-bash', enabled: true, fiberPhase: 'active' },
+        { entryId: 'fs', moduleName: '@metaworkflow/tool-fs', enabled: true, fiberPhase: null },
         {
           entryId: 'pwsh',
           moduleName: '@fixture/pwsh',
@@ -87,9 +87,9 @@ const SNAPSHOT = {
       id: 'ptc',
       isDefault: false,
       rows: [
-        { entryId: 'bash', moduleName: '@deepseek-ai/dsh-tool-bash', enabled: true, fiberPhase: null },
-        { entryId: 'bash-fork', moduleName: '@deepseek-ai/dsh-tool-bash', enabled: true, fiberPhase: null },
-        { entryId: 'fs', moduleName: '@deepseek-ai/dsh-tool-fs', enabled: 'conditional', fiberPhase: null },
+        { entryId: 'bash', moduleName: '@metaworkflow/tool-bash', enabled: true, fiberPhase: null },
+        { entryId: 'bash-fork', moduleName: '@metaworkflow/tool-bash', enabled: true, fiberPhase: null },
+        { entryId: 'fs', moduleName: '@metaworkflow/tool-fs', enabled: 'conditional', fiberPhase: null },
       ],
     },
     { id: 'shattered', name: '坏预设', isDefault: false, broken: 'the composition file is missing', rows: [] },
@@ -109,12 +109,12 @@ const presetToggle = (): HTMLElement => screen.getByRole('button', { name: en.pr
 describe('PluginInventorySettingsTab', () => {
   it.each(['global', 'preset'])('shortens package and module name fallbacks in the %s inventory', async (scope) => {
     const names = [
-      ['@deepseek-ai/dsh-tool-subagent', 'tool-subagent'],
-      ['@deepseek-ai/dsh-host-web', 'web'],
-      ['@deepseek-ai/dsh-client-tabs', 'tabs'],
+      ['@metaworkflow/tool-subagent', 'tool-subagent'],
+      ['@metaworkflow/host-web', 'web'],
+      ['@metaworkflow/client-tabs', 'tabs'],
       ['@deepseek-ai/cordis-plugin-hmr', 'hmr'],
       ['cordis:timer', 'timer'],
-      ['@acme/dsh-sidebar/navigation', 'sidebar/navigation'],
+      ['@acme/mwf-sidebar/navigation', 'sidebar/navigation'],
       ['plain-plugin', 'plain-plugin'],
     ] as const
     const rows = names.flatMap(([moduleName], index) => [false, true].map(fromManifest => ({
@@ -143,7 +143,7 @@ describe('PluginInventorySettingsTab', () => {
       }
     }
     fireEvent.change(screen.getByRole('searchbox', { name: en.search }), {
-      target: { value: '@deepseek-ai/dsh-tool-subagent' },
+      target: { value: '@metaworkflow/tool-subagent' },
     })
     expect(screen.getAllByRole('listitem')).toHaveLength(2)
     expect(screen.getAllByRole('button', { name: /^tool-subagent, include:short-0-/ })).toHaveLength(2)
@@ -152,17 +152,17 @@ describe('PluginInventorySettingsTab', () => {
   it('keeps authored locale titles verbatim when they resemble module names', async () => {
     const { locale, pageProps } = localizedProps(async () => ({
       entries: [{
-        entryId: 'include:navigation' as PluginEntryId, moduleName: '@acme/dsh-navigation', enabled: true, fiberPhase: null,
-        meta: { title: { en: 'dsh-Navigation', zh: 'dsh-导航' } },
+        entryId: 'include:navigation' as PluginEntryId, moduleName: '@acme/mwf-navigation', enabled: true, fiberPhase: null,
+        meta: { title: { en: 'mwf-Navigation', zh: 'mwf-导航' } },
       }],
     }))
     const view = render(<PluginInventorySettingsTab {...pageProps} />)
     await screen.findByRole('searchbox', { name: en.search })
     fireEvent.click(globalToggle())
-    expect(screen.getByRole('button', { name: 'dsh-Navigation, include:navigation, Enabled' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'mwf-Navigation, include:navigation, Enabled' })).toBeTruthy()
     locale.setLocale('zh')
     view.rerender(<PluginInventorySettingsTab {...pageProps} />)
-    expect(screen.getByRole('button', { name: 'dsh-导航, include:navigation, 已启用' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'mwf-导航, include:navigation, 已启用' })).toBeTruthy()
   })
 
   it('localizes global and preset metadata at render time while preserving identities and query state', async () => {
@@ -240,16 +240,16 @@ describe('PluginInventorySettingsTab', () => {
   it.each(['global', 'preset'])('resolves each %s row field independently and hides empty English descriptions', async (scope) => {
     const rows: Snapshot['entries'] = [
       {
-        entryId: 'include:navigation' as PluginEntryId, moduleName: '@acme/dsh-sidebar/navigation', enabled: true, fiberPhase: null,
+        entryId: 'include:navigation' as PluginEntryId, moduleName: '@acme/mwf-sidebar/navigation', enabled: true, fiberPhase: null,
         meta: { description: { en: 'Navigation description.' } },
       },
       {
-        entryId: 'include:commands' as PluginEntryId, moduleName: '@acme/dsh-sidebar/commands', enabled: true, fiberPhase: null,
+        entryId: 'include:commands' as PluginEntryId, moduleName: '@acme/mwf-sidebar/commands', enabled: true, fiberPhase: null,
         meta: { title: { en: 'English title' }, description: { en: 'Package description.', zh: '中文命令说明。' } },
       },
       {
-        entryId: 'include:theme' as PluginEntryId, moduleName: '@acme/dsh-theme/client', enabled: true, fiberPhase: null,
-        meta: { title: { en: '@acme/dsh-theme', zh: '主题插件' }, description: { en: '', zh: '中文主题说明。' } },
+        entryId: 'include:theme' as PluginEntryId, moduleName: '@acme/mwf-theme/client', enabled: true, fiberPhase: null,
+        meta: { title: { en: '@acme/mwf-theme', zh: '主题插件' }, description: { en: '', zh: '中文主题说明。' } },
       },
     ]
     const snapshot: Snapshot = scope === 'global'
@@ -264,7 +264,7 @@ describe('PluginInventorySettingsTab', () => {
     expect(screen.getByText('Navigation description.')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'English title, include:commands, Enabled' })).toBeTruthy()
     expect(screen.getByText('Package description.')).toBeTruthy()
-    const theme = screen.getByRole('button', { name: '@acme/dsh-theme, include:theme, Enabled' })
+    const theme = screen.getByRole('button', { name: '@acme/mwf-theme, include:theme, Enabled' })
     expect(theme.getAttribute('aria-describedby')).toBeNull()
     expect(screen.queryByText('中文主题说明。')).toBeNull()
 
@@ -282,16 +282,16 @@ describe('PluginInventorySettingsTab', () => {
     expect(screen.queryByText('Package description.')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: '主题插件, include:theme, 已启用' }))
     expect(view.container.querySelector('[data-loader-entry]')?.textContent).toBe('include:theme')
-    expect(screen.getByText(zh.moduleLabel).nextElementSibling?.textContent).toBe('@acme/dsh-theme/client')
+    expect(screen.getByText(zh.moduleLabel).nextElementSibling?.textContent).toBe('@acme/mwf-theme/client')
 
     fireEvent.change(screen.getByRole('searchbox', { name: zh.search }), { target: { value: '中文主题说明。' } })
     expect(screen.getAllByRole('listitem')).toHaveLength(1)
     locale.setLocale('en')
     view.rerender(<PluginInventorySettingsTab {...pageProps} />)
     expect(screen.getByText(en.emptySearch)).toBeTruthy()
-    fireEvent.change(screen.getByRole('searchbox', { name: en.search }), { target: { value: '@acme/dsh-theme/client' } })
+    fireEvent.change(screen.getByRole('searchbox', { name: en.search }), { target: { value: '@acme/mwf-theme/client' } })
     expect(screen.getAllByRole('listitem')).toHaveLength(1)
-    expect(screen.getByRole('button', { name: '@acme/dsh-theme, include:theme, Enabled' }).getAttribute('aria-describedby')).toBeNull()
+    expect(screen.getByRole('button', { name: '@acme/mwf-theme, include:theme, Enabled' }).getAttribute('aria-describedby')).toBeNull()
     expect(list).toHaveBeenCalledOnce()
   })
 
@@ -299,7 +299,7 @@ describe('PluginInventorySettingsTab', () => {
     const error = 'locale/zh.json: invalid title'
     await renderReady({
       entries: [{
-        entryId: 'include:legacy' as PluginEntryId, moduleName: '@acme/dsh-legacy', enabled: false, fiberPhase: null,
+        entryId: 'include:legacy' as PluginEntryId, moduleName: '@acme/mwf-legacy', enabled: false, fiberPhase: null,
         meta: { error },
       }],
     })
@@ -309,7 +309,7 @@ describe('PluginInventorySettingsTab', () => {
     expect(card).toHaveProperty('disabled', false)
     expect(card.closest('li')?.getAttribute('data-failed')).toBeNull()
     fireEvent.click(card)
-    expect(screen.getByText(en.moduleLabel).nextElementSibling?.textContent).toBe('@acme/dsh-legacy')
+    expect(screen.getByText(en.moduleLabel).nextElementSibling?.textContent).toBe('@acme/mwf-legacy')
   })
 
   it('shows the default preset first with its group open and the global plane folded', async () => {
@@ -400,8 +400,8 @@ describe('PluginInventorySettingsTab', () => {
         id: 'same-module',
         isDefault: true,
         rows: [
-          { entryId: 'tool-subagent-primary', moduleName: '@deepseek-ai/dsh-tool-subagent', enabled: true, fiberPhase: null },
-          { entryId: longId, moduleName: '@deepseek-ai/dsh-tool-subagent', enabled: false, fiberPhase: null },
+          { entryId: 'tool-subagent-primary', moduleName: '@metaworkflow/tool-subagent', enabled: true, fiberPhase: null },
+          { entryId: longId, moduleName: '@metaworkflow/tool-subagent', enabled: false, fiberPhase: null },
         ],
       }],
     })

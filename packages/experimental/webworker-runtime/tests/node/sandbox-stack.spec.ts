@@ -1,15 +1,15 @@
 /** The unchanged sandbox-local → bash-sandbox → subprocess stack over the Worker Node layer. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { SandboxBashExecutor } from '@deepseek-ai/dsh-bash-sandbox'
-import LocalSandboxProvider from '@deepseek-ai/dsh-sandbox-local'
-import { SandboxPolicyService } from '@deepseek-ai/dsh-sandbox-policy'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
+import { SandboxBashExecutor } from '@metaworkflow/bash-sandbox'
+import LocalSandboxProvider from '@metaworkflow/sandbox-local'
+import { SandboxPolicyService } from '@metaworkflow/sandbox-policy'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import LocalSubprocessRuntime from '@metaworkflow/subprocess-local'
 import { MemoryVfs } from '../../src/storage/memory.ts'
 import { setActiveVfs } from '../../src/storage/active.ts'
 import { processAlive, signalProcess } from '../../src/node/process-table.ts'
-import type { ShellExecSpec, ShellExecution, ShellRunResult } from '@deepseek-ai/dsh-shell'
+import type { ShellExecSpec, ShellExecution, ShellRunResult } from '@metaworkflow/shell'
 
 /** Historical foreground shorthand over the unified execute() seam. */
 async function run(x: { execute(spec: ShellExecSpec): Promise<ShellExecution> }, spec: ShellExecSpec): Promise<ShellRunResult> {
@@ -19,8 +19,8 @@ async function run(x: { execute(spec: ShellExecSpec): Promise<ShellExecution> },
 
 vi.mock('node:child_process', async () => await import('../../src/node/builtin_modules/implemented/child_process.ts'))
 
-const WORKSPACE = '/dsh/workspace'
-const OUTSIDE = '/dsh/home'
+const WORKSPACE = '/mwf/workspace'
+const OUTSIDE = '/mwf/home'
 let vfs: MemoryVfs
 const contexts: Context[] = []
 
@@ -29,7 +29,7 @@ beforeEach(() => {
   setActiveVfs(vfs)
   vfs.mkdirSync(WORKSPACE, { recursive: true })
   vfs.mkdirSync(OUTSIDE, { recursive: true })
-  vfs.mkdirSync('/dsh/tmp', { recursive: true })
+  vfs.mkdirSync('/mwf/tmp', { recursive: true })
   vi.spyOn(process, 'kill').mockImplementation((pid: number, signal?: string | number): true => {
     if (signal === 0) {
       if (processAlive(pid)) return true
@@ -67,7 +67,7 @@ describe('Worker Landlock through the production sandbox stack', () => {
     }))
     expect(allowed.sandbox).toEqual({ mode: 'workspace-write', denied: false, enforcement: 'full' })
     expect(vfs.readFileSync(`${WORKSPACE}/allowed.txt`, 'utf8')).toBe('workspace\n')
-    expect(vfs.readFileSync('/dsh/tmp/allowed.txt', 'utf8')).toBe('temp\n')
+    expect(vfs.readFileSync('/mwf/tmp/allowed.txt', 'utf8')).toBe('temp\n')
 
     const denied = await run(bash, bash.resolve({ command: `echo denied > ${OUTSIDE}/denied.txt` }))
     expect(denied.exitCode).toBe(1)

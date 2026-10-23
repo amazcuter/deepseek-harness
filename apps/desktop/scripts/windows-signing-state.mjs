@@ -11,12 +11,12 @@ import { failPackagingRun, recordPackagingEvent } from './packaging-run.mjs'
  * @returns {{started: (pid: number|null) => void, success: () => void, failure: (code: number|string|null, diagnostic: string) => void}} Process evidence and completion callbacks; failure retains the interlock.
  */
 export function beginWindowsSigningAttempt(options) {
-  const runDirectory = options.runDirectory ?? process.env.DSH_DESKTOP_PACKAGING_RUN_DIR
+  const runDirectory = options.runDirectory ?? process.env.MWF_DESKTOP_PACKAGING_RUN_DIR
   if (!runDirectory || !isAbsolute(runDirectory) || !existsSync(join(runDirectory, 'run.json'))) {
     throw new Error('Windows hardware signing requires a supervised packaging run with retained records')
   }
   if (existsSync(join(runDirectory, 'fatal.json'))) throw new Error('Windows signing refused: packaging run already failed')
-  const root = options.stateDirectory ?? join(homedir(), '.dsh-desktop-signing')
+  const root = options.stateDirectory ?? join(homedir(), '.mwf-desktop-signing')
   const lock = join(root, 'attempt.json')
   const attemptId = randomUUID()
   mkdirSync(root, { recursive: true })

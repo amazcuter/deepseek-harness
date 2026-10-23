@@ -37,9 +37,9 @@ export async function verifyInstalledUpdatePackageContent(manifest: string, vers
   await verifyInstalledUpdateApplication(run.root)
   const archive = await readAsar(join(payload, 'resources/app.asar'))
   const metadata = object(await archive.readJson('package.json'))
-  const policy = resolveDesktopPolicyConfig(metadata.dshMandatoryUpdatePolicy)
-  if (metadata.name !== `dsh-update-test-${run.id}` || metadata.version !== version
-    || metadata.dshDesktopAppId !== run.appId || metadata.main !== 'qualification-bootstrap.mjs'
+  const policy = resolveDesktopPolicyConfig(metadata.mwfMandatoryUpdatePolicy)
+  if (metadata.name !== `mwf-update-test-${run.id}` || metadata.version !== version
+    || metadata.mwfDesktopAppId !== run.appId || metadata.main !== 'qualification-bootstrap.mjs'
     || metadata.type !== 'module' || policy?.authentication !== 'feishu-test') {
     throw new Error('installed update: packaged application identity, version, entry, or policy differs')
   }
@@ -49,7 +49,7 @@ export async function verifyInstalledUpdatePackageContent(manifest: string, vers
   const expectedPaths = new Set(inventory.files.map(file => file.path))
   const inspect = (node: AsarNode, path = ''): void => {
     if (path === 'node_modules' || path === 'package.json') return
-    if (node.link !== undefined || (node.unpacked === true && !path.startsWith('dsh/'))) {
+    if (node.link !== undefined || (node.unpacked === true && !path.startsWith('mwf/'))) {
       throw new Error('installed update: application archive contains external entries')
     }
     if (node.files !== undefined) {
@@ -59,12 +59,12 @@ export async function verifyInstalledUpdatePackageContent(manifest: string, vers
         }
         inspect(child, path === '' ? name : `${path}/${name}`)
       }
-    } else if (!path.startsWith('dsh/') && !expectedPaths.has(path)) {
+    } else if (!path.startsWith('mwf/') && !expectedPaths.has(path)) {
       throw new Error('installed update: application archive contains additional files')
     }
   }
   inspect(archive.header)
-  if (archive.header.files?.dsh?.files === undefined) throw new Error('installed update: application archive lacks the dsh runtime')
+  if (archive.header.files?.mwf?.files === undefined) throw new Error('installed update: application archive lacks the mwf runtime')
   for (const file of inventory.files) {
     const path = file.path.split('/').join(process.platform === 'win32' ? '\\' : '/')
     const node = archive.getFile(path, false)
@@ -83,20 +83,20 @@ export async function verifyInstalledUpdatePackageContent(manifest: string, vers
   const update = object(load(await readFile(join(payload, 'resources/app-update.yml'), 'utf8')))
   const url = `${run.origin}/${run.feedKey.slice(0, -'nightly.yml'.length)}`
   if (update.provider !== 'generic' || update.url !== url || update.channel !== 'nightly'
-    || update.updaterCacheDirName !== `dsh-update-test-${run.id}-updater`
+    || update.updaterCacheDirName !== `mwf-update-test-${run.id}-updater`
     || !Array.isArray(update.publisherName) || update.publisherName.length !== 1 || update.publisherName[0] !== publisher) {
     throw new Error('installed update: packaged feed, cache identity, channel, or publisher differs')
   }
   const extracted = await mkdtemp(join(dirname(payload), 'asar-'))
   extractAll(join(payload, 'resources/app.asar'), extracted)
-  const prepared = await verifyDesktopRuntime(join(run.root, version, 'dsh'), version, { platform: 'win32', arch: 'x64' })
-  const runtime = readDesktopRuntime(join(extracted, 'dsh'))
+  const prepared = await verifyDesktopRuntime(join(run.root, version, 'mwf'), version, { platform: 'win32', arch: 'x64' })
+  const runtime = readDesktopRuntime(join(extracted, 'mwf'))
   if (JSON.stringify(runtime.release) !== JSON.stringify(prepared.release)
     || JSON.stringify(runtime.sharedPackages) !== JSON.stringify(prepared.sharedPackages)
     || JSON.stringify(runtime.files.map(file => file.path)) !== JSON.stringify(prepared.files.map(file => file.path))) {
     throw new Error('installed update: packaged runtime does not describe the prepared release')
   }
-  const actualFiles = inventoryDesktopRuntime(join(extracted, 'dsh'))
+  const actualFiles = inventoryDesktopRuntime(join(extracted, 'mwf'))
   if (JSON.stringify(actualFiles.map(file => file.path)) !== JSON.stringify(prepared.files.map(file => file.path))) {
     throw new Error('installed update: packaged runtime file list differs from prepared inputs')
   }
@@ -107,7 +107,7 @@ export async function verifyInstalledUpdatePackageContent(manifest: string, vers
       throw new Error('installed update: non-executable runtime descriptor differs from prepared inputs')
     }
     const transformed = file.path.startsWith('node_modules/') && file.path.endsWith('/package.json')
-      ? await transform(runtimePath(join(run.root, version, 'dsh'), file.path)) : null
+      ? await transform(runtimePath(join(run.root, version, 'mwf'), file.path)) : null
     const bytes = transformed === null ? file.bytes : Buffer.byteLength(transformed)
     const hash = transformed === null ? file.sha256 : createHash('sha256').update(transformed).digest('hex')
     if (actualFiles[index]!.sha256 !== hash || actualFiles[index]!.bytes !== bytes) {
@@ -117,9 +117,9 @@ export async function verifyInstalledUpdatePackageContent(manifest: string, vers
   return { version, appId: run.appId, applicationFiles: inventory.files.length, dependencies, dependenciesFrozen: false,
     runtimeFiles: runtime.files.length, feedUrl: `${run.origin}/${run.feedKey}`, installed: false,
     resignedExecutables: runtime.files.filter(file => file.path.endsWith('.exe')).map((file) => {
-      if (archive.getFile(join('dsh', file.path), false).unpacked !== true) {
+      if (archive.getFile(join('mwf', file.path), false).unpacked !== true) {
         throw new Error('installed update: executable runtime file must be outside ASAR')
       }
-      return join(payload, 'resources/app.asar.unpacked/dsh', file.path)
+      return join(payload, 'resources/app.asar.unpacked/mwf', file.path)
     }) }
 }

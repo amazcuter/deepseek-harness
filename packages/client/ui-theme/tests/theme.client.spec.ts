@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { stubConfigForm, type StubConfigForm } from '@deepseek-ai/dsh-client-test-runtime'
+import { stubConfigForm, type StubConfigForm } from '@metaworkflow/client-test-runtime'
 import type {
   ThemeSettings,
   ThemeSnapshot,
   ThemeTokenOverrides,
-} from '@deepseek-ai/dsh-client-ui-theme/client'
-import { ThemeRuntime } from '@deepseek-ai/dsh-client-ui-theme/client'
+} from '@metaworkflow/client-ui-theme/client'
+import { ThemeRuntime } from '@metaworkflow/client-ui-theme/client'
 
 const make = (host = stubConfigForm<ThemeSettings>()): {
   ctx: Context
@@ -36,13 +36,13 @@ describe('ThemeRuntime', () => {
   it('seeds the initial font size from the boot-script body variable, ignoring junk', () => {
     // The Host boot script writes the durable size on body before any plugin
     // runs; the first snapshot must match it so activation never flashes 14.
-    document.body.style.setProperty('--dsh-content-font-size', '22px')
+    document.body.style.setProperty('--mwf-content-font-size', '22px')
     try {
       expect(make().theme.getTheme().fontSizes.text).toBe(22)
-      document.body.style.setProperty('--dsh-content-font-size', '23px')
+      document.body.style.setProperty('--mwf-content-font-size', '23px')
       expect(make().theme.getTheme().fontSizes.text).toBe(14)
     } finally {
-      document.body.style.removeProperty('--dsh-content-font-size')
+      document.body.style.removeProperty('--mwf-content-font-size')
     }
   })
 
@@ -78,13 +78,13 @@ describe('ThemeRuntime', () => {
   })
 
   it('seeds code and terminal sizes from the boot-script body variables, ignoring junk', () => {
-    document.body.style.setProperty('--dsh-code-font-size', '14px')
-    document.body.style.setProperty('--dsh-terminal-font-size', '99px')
+    document.body.style.setProperty('--mwf-code-font-size', '14px')
+    document.body.style.setProperty('--mwf-terminal-font-size', '99px')
     try {
       expect(make().theme.getTheme().fontSizes).toEqual({ text: 14, code: 14, terminal: 13 })
     } finally {
-      document.body.style.removeProperty('--dsh-code-font-size')
-      document.body.style.removeProperty('--dsh-terminal-font-size')
+      document.body.style.removeProperty('--mwf-code-font-size')
+      document.body.style.removeProperty('--mwf-terminal-font-size')
     }
   })
 
@@ -97,11 +97,11 @@ describe('ThemeRuntime', () => {
   })
 
   it('seeds initial font lists from the boot-script body variables, normalizing them', () => {
-    document.body.style.setProperty('--dsh-font-family-code', 'Iosevka')
+    document.body.style.setProperty('--mwf-font-family-code', 'Iosevka')
     try {
       expect(make().theme.getTheme().fontFamilies).toEqual({ text: '', code: '"Iosevka"', terminal: '' })
     } finally {
-      document.body.style.removeProperty('--dsh-font-family-code')
+      document.body.style.removeProperty('--mwf-font-family-code')
     }
   })
 

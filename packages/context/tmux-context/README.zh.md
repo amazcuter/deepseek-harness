@@ -3,13 +3,13 @@ description: "可选的按轮次 tmux 位置上下文，供启用或调优 agent
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tmux-context
+# @metaworkflow/tmux-context
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-tmux-context` 让模型识别其 agent 进程所在的 tmux 会话、window、pane 和 pane 树布局。它仅在位置发生变化时，于每轮的第一个步骤追加一条持久、带来源的读数。若终端只继承了 tmux 环境变量，却并未在所指名的 pane 中运行，则不添加任何内容；查询失败同样不添加内容，也不会使该轮失败。本包需主动启用，且不包含在随附的 Web 或无头 profile 中。
+`mwf-tmux-context` 让模型识别其 agent 进程所在的 tmux 会话、window、pane 和 pane 树布局。它仅在位置发生变化时，于每轮的第一个步骤追加一条持久、带来源的读数。若终端只继承了 tmux 环境变量，却并未在所指名的 pane 中运行，则不添加任何内容；查询失败同样不添加内容，也不会使该轮失败。本包需主动启用，且不包含在随附的 Web 或无头 profile 中。
 
 ## 目录
 
@@ -36,7 +36,7 @@ kind: "package-reference"
 最小挂载无需任何配置。`refreshIntervalMs` 为正值时，会额外抑制距最近一次注入不足该毫秒数的注入；省略或设为 `0` 时，只要 tmux 状态自上次注入以来发生变化就注入。
 
 ```yaml
-- name: '@deepseek-ai/dsh-tmux-context'
+- name: '@metaworkflow/tmux-context'
   config:
     refreshIntervalMs: 60000
 ```
@@ -45,7 +45,7 @@ kind: "package-reference"
 |---|---|---|
 | `refreshIntervalMs` | `0`（每个变化轮次） | 同一会话中两次持久注入之间的最小毫秒数 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-tmux-context)是所有受支持字段及其 JSDoc 的完整真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#metaworkflowtmux-context)是所有受支持字段及其 JSDoc 的完整真源。
 
 ### 何时知道位置
 
@@ -87,7 +87,7 @@ kind: "package-reference"
 - [tmux 位置上下文决策记录](../../../.agents/notes/archived/feature/2026-07-27-tmux-location-context.md)——基于 tty 的检测与读数形状的设计理由。
 - [shell 子系统](../../../docs/subsystems/shell.zh.md)——只读查询所经由的执行器服务。
 - [上下文组地图](../README.zh.md)——相邻的请求上下文包。
-- [生成的配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-tmux-context)——每个受支持配置字段及其源声明。
+- [生成的配置目录](../../../docs/config-catalog.zh.md#metaworkflowtmux-context)——每个受支持配置字段及其源声明。
 
 -----
 

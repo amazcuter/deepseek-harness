@@ -1,7 +1,7 @@
 /** Weak identity index for materialized Nodes, Groups, Turn/Step locations, and their Data readers. */
 
-import type { ChatSnapshot } from '@deepseek-ai/dsh-client-ui-chat/client'
-import type { ConversationBinding, GroupKey, StepLocation, TurnLocation } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { ChatSnapshot } from '@metaworkflow/client-ui-chat/client'
+import type { ConversationBinding, GroupKey, StepLocation, TurnLocation } from '@metaworkflow/client-ui-conversation/client'
 import type { InspectorChatTarget, InspectorObjectReference } from '../objects.ts'
 
 type Reference = Omit<InspectorObjectReference, 'rowKey'>

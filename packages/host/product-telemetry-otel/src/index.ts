@@ -3,7 +3,7 @@ import { Context, Service } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import { validateHeaderValue } from 'node:http'
 import { CompressionAlgorithm } from '@opentelemetry/otlp-exporter-base'
-import type { EventLogReporter, OTelEventRecord, OTelEventScalar } from '@deepseek-ai/dsh-otel'
+import type { EventLogReporter, OTelEventRecord, OTelEventScalar } from '@metaworkflow/otel'
 
 declare module '@deepseek-ai/cordis' {
   interface Context { productTelemetry: ProductTelemetry }
@@ -44,8 +44,8 @@ const positiveInteger = () => z.number().step(1).min(1).max(2_147_483_647)
 
 /** Loader validation and defaults for application compositions. */
 export const Config: z<Partial<Config>, Config> = z.object({
-  endpoint: z.string().default('https://dsh-otel-collector.deepseeksvc.com/v1/logs'),
-  channel: z.string().min(1).default('dsh_otel_report'),
+  endpoint: z.string().default('https://mwf-otel-collector.deepseeksvc.com/v1/logs'),
+  channel: z.string().min(1).default('mwf_otel_report'),
   serviceName: z.string().required(),
   serviceVersion: z.string().required(),
   compression: z.union(['none', 'gzip']),
@@ -88,7 +88,7 @@ export default class ProductTelemetry extends Service {
         ...(config.compression === undefined ? {} : { compression: config.compression === 'gzip' ? CompressionAlgorithm.GZIP : CompressionAlgorithm.NONE }),
       },
       resourceAttributes: { 'service.name': config.serviceName, 'service.version': config.serviceVersion },
-      scope: { name: '@deepseek-ai/dsh-host-product-telemetry-otel' },
+      scope: { name: '@metaworkflow/host-product-telemetry-otel' },
       processor: {
         maxExportBatchSize: config.maxExportBatchSize, maxQueueSize: config.maxQueueSize,
         scheduledDelayMillis: config.scheduledDelayMillis, exportTimeoutMillis: config.exportTimeoutMillis,

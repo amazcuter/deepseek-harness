@@ -30,8 +30,8 @@
   scrollbar-gutter: stable;
   /* A 9px rail carries the 5px thumb inset 2px from the pane edge (rendered by
      ui-theme styles/scrollbar.css). */
-  --dsh-scrollbar-width: 9px;
-  --dsh-scrollbar-thumb-border: 2px;
+  --mwf-scrollbar-width: 9px;
+  --mwf-scrollbar-thumb-border: 2px;
 }
 
 /* The Plugins page's centered column: the same 960px cap and
@@ -61,7 +61,7 @@
 /* macOS hiddenInset titlebar: the Plugins page's head carries the frame's top
    clearance above its own 28px inset, so both pages keep the same 76px total. */
 :global([data-platform='darwin']) .pageHeading {
-  padding-top: calc(28px + var(--dsh-frame-top-clearance, 0px));
+  padding-top: calc(28px + var(--mwf-frame-top-clearance, 0px));
 }
 
 /* The first-level page title, on the Plugins page's own `pageTitle` step
@@ -638,8 +638,8 @@
   overflow: auto;
   padding: 24px var(--detail-gutter) 28px;
   scrollbar-gutter: stable;
-  --dsh-scrollbar-width: 9px;
-  --dsh-scrollbar-thumb-border: 2px;
+  --mwf-scrollbar-width: 9px;
+  --mwf-scrollbar-thumb-border: 2px;
 }
 
 .detailRecords {
@@ -1102,9 +1102,9 @@
   transition: border-color 0.15s;
   /* The inset thumb and the vertical track margin keep the bar inside the
      box's rounded corners (rendered by ui-theme styles/scrollbar.css). */
-  --dsh-scrollbar-width: 9px;
-  --dsh-scrollbar-thumb-border: 2px;
-  --dsh-scrollbar-track-margin: 12px;
+  --mwf-scrollbar-width: 9px;
+  --mwf-scrollbar-thumb-border: 2px;
+  --mwf-scrollbar-track-margin: 12px;
 }
 
 .instruction:hover {
@@ -1406,8 +1406,8 @@
   /* The confirmation dialog's own surface is elevated, so the bar drawn against
      it takes that rung's colours; the sheet's base-surface scrollers keep the
      shell's pair. */
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --mwf-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --mwf-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
 .confirmDialog > :last-child {

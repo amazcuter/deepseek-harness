@@ -1,7 +1,7 @@
 /**
  * Default Agent driver over queued turns and step-boundary input. Every request
  * is derived from the session log.
- * @module dsh-agent-loop/agent
+ * @module mwf-agent-loop/agent
  */
 
 import type {
@@ -14,24 +14,24 @@ import type {
   InboxTarget,
   PreStepDecision,
   RequestErrorAction,
-} from '@deepseek-ai/dsh-agent'
-import { agentEvents, assembleContextFor } from '@deepseek-ai/dsh-agent'
-import type { GenerateOptions, LlmCallConfig, Message, PreparedLlmCall } from '@deepseek-ai/dsh-llm'
+} from '@metaworkflow/agent'
+import { agentEvents, assembleContextFor } from '@metaworkflow/agent'
+import type { GenerateOptions, LlmCallConfig, Message, PreparedLlmCall } from '@metaworkflow/llm'
 import {
   LlmError,
   createAssistantMessage,
   createDeveloperMessage,
   errorChain,
   markAgentLoopRequest,
-} from '@deepseek-ai/dsh-llm'
-import { assertNever, deepFreeze } from '@deepseek-ai/dsh-util-values'
-import type { Scope } from '@deepseek-ai/dsh-scope'
-import { createScope } from '@deepseek-ai/dsh-scope'
-import type { EpochHeader, RequestContext, Session, SessionId, SessionSeq, TurnEndReason, UserMessage } from '@deepseek-ai/dsh-session'
-import { canonicalHeader, headerEquals, ToolCallRecovery } from '@deepseek-ai/dsh-session'
-import { joinContextSections, renderContextSections, renderPrompt } from '@deepseek-ai/dsh-system-prompt'
-import type { PromptAssembly } from '@deepseek-ai/dsh-system-prompt'
-import type {} from '@deepseek-ai/dsh-session-projection'
+} from '@metaworkflow/llm'
+import { assertNever, deepFreeze } from '@metaworkflow/util-values'
+import type { Scope } from '@metaworkflow/scope'
+import { createScope } from '@metaworkflow/scope'
+import type { EpochHeader, RequestContext, Session, SessionId, SessionSeq, TurnEndReason, UserMessage } from '@metaworkflow/session'
+import { canonicalHeader, headerEquals, ToolCallRecovery } from '@metaworkflow/session'
+import { joinContextSections, renderContextSections, renderPrompt } from '@metaworkflow/system-prompt'
+import type { PromptAssembly } from '@metaworkflow/system-prompt'
+import type {} from '@metaworkflow/session-projection'
 import type { Context } from '@deepseek-ai/cordis'
 import { ReactLoopInbox } from './inbox.ts'
 import { RuntimeContextProjection } from './runtime-context.ts'

@@ -16,7 +16,7 @@
 import type { ReactNode } from 'react'
 import type {
   BoundActions, HandleOf, PropsStore, SnapshotSelectorHook, StoreDecl,
-} from '@deepseek-ai/dsh-client-store'
+} from '@metaworkflow/client-store'
 import type { HostObservable, KeyedStandardSource } from './renderer.ts'
 
 export * from './store.ts'
@@ -42,7 +42,7 @@ export interface LocaleNamespaceMap {}
  * Resource protocol (URL scheme) → the value its provider streams. Declared
  * empty here, the zero-dependency merge point; each protocol owner merges its
  * own member (`file`, later `chat`), and `useResource<P>(address)` narrows its
- * value by `P`. The resource service itself lives in `dsh-client-resources`.
+ * value by `P`. The resource service itself lives in `mwf-client-resources`.
  */
 export interface ResourceProtocolMap {}
 

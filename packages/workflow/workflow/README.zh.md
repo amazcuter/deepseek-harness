@@ -3,7 +3,7 @@ description: "工作流编排能力：运行由模型编写的、扇出 subagent
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-workflow
+# @metaworkflow/workflow
 
 [English](README.md) | 中文
 
@@ -29,7 +29,7 @@ kind: "package-reference"
 
 ### 模型侧路径
 
-模型通过 `dsh-tool-workflow` 的 `workflow` 工具触达该能力；该工具拥有调用 schema 与结果包络，引擎提供其下的执行。一次工具调用提交 `meta`、`script` 与可选 `args`，运行完成时返回 `{ runId, agentsStarted, result }`。工具会阻塞父级轮次直到整个工作流结算，因此模型只看到最终结果，永远不会看到中间子 agent 消息。
+模型通过 `mwf-tool-workflow` 的 `workflow` 工具触达该能力；该工具拥有调用 schema 与结果包络，引擎提供其下的执行。一次工具调用提交 `meta`、`script` 与可选 `args`，运行完成时返回 `{ runId, agentsStarted, result }`。工具会阻塞父级轮次直到整个工作流结算，因此模型只看到最终结果，永远不会看到中间子 agent 消息。
 
 ### 运行工作流脚本
 
@@ -110,7 +110,7 @@ return { reviewed: reviews.length }
 <a id="model-experience"></a>
 ## 模型体验
 
-间接地，通过其消费方 `dsh-tool-workflow` 与一个工作流引擎，由它们渲染父级工具结果与子 agent 请求。
+间接地，通过其消费方 `mwf-tool-workflow` 与一个工作流引擎，由它们渲染父级工具结果与子 agent 请求。
 
 #### KV Cache 影响
 

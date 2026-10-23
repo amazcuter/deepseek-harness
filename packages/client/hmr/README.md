@@ -3,13 +3,13 @@ description: "Live graph synchronization and development bundle reloads for Web 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-hmr
+# @metaworkflow/client-hmr
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-client-hmr` keeps open Web pages in sync with the Host plugin graph and reloads rebuilt browser bundles. Ordinary plugin enable/disable changes take effect without reloading the page or restarting the Host. Code rebuilds replace the affected plugin with fresh component state. The model sees no new input or output.
+`mwf-client-hmr` keeps open Web pages in sync with the Host plugin graph and reloads rebuilt browser bundles. Ordinary plugin enable/disable changes take effect without reloading the page or restarting the Host. Code rebuilds replace the affected plugin with fresh component state. The model sees no new input or output.
 
 ## Table of Contents
 
@@ -41,7 +41,7 @@ Each successful reload re-executes the plugin bundle and remounts the plugin wit
 |---|---|---|
 | `pollIntervalMs` | `500` | Bundle stat-poll interval in milliseconds |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-client-hmr) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowclient-hmr) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Observing success
 
@@ -78,7 +78,7 @@ Download failures leave the running plugin active. After the old fiber is torn d
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | Node half: bundle stat-poll, `rebuilt` reporting, `/plugins/events` SSE channel |
-| [`src/client/index.ts`](src/client/index.ts) | Browser half: SSE subscription through the page's `__DSH_TRANSPORT__.fetch` when a shell provides one (the worker preview's tunnel), otherwise through `EventSource`, and delegation to the shared entry controller |
+| [`src/client/index.ts`](src/client/index.ts) | Browser half: SSE subscription through the page's `__MWF_TRANSPORT__.fetch` when a shell provides one (the worker preview's tunnel), otherwise through `EventSource`, and delegation to the shared entry controller |
 | [`src/events.ts`](src/events.ts) | Shared frame types (`graph` / `rebuilt`) and the endpoint constant |
 
 </details>
@@ -93,7 +93,7 @@ Read these when the reload contract is not enough: the module system that serves
 - [Client module system](../modules/README.md) — the lazy-CJS module table and `invalidate`/`prefetch` hooks this driver drives.
 - [Web boot kernel](../web/README.md) — the shell that boots the plugin tree and shows entry status.
 - [Client group map](../README.md) — the browser half this package reloads.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-client-hmr) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#metaworkflowclient-hmr) — every accepted config field and its source declaration.
 
 -----
 

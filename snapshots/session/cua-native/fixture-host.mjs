@@ -18,7 +18,7 @@ export async function startFixtureHost(helperPath) {
   const marker = `\n// Fixture host: ${JSON.stringify(helperPath)}\n`
   if (!source.includes(marker)) await appendFile(helperPath, marker)
   const runtimeKey = createHash('sha256').update(await readFile(helperPath)).digest('hex')
-  const directory = `/tmp/dsh-cua-${userInfo().uid}`
+  const directory = `/tmp/mwf-cua-${userInfo().uid}`
   await mkdir(directory, { recursive: true, mode: 0o700 })
   const children = new Set()
   const sockets = new Set()

@@ -1,16 +1,16 @@
 /** Account route cancellation uses the real loop, registry, and tool lifecycle. */
 import { afterEach, expect, it, vi } from 'vitest'
-import { installAccountTaskCancellation, type DeepSeekAccount } from '@deepseek-ai/dsh-deepseek-account'
+import { installAccountTaskCancellation, type DeepSeekAccount } from '@metaworkflow/deepseek-account'
 import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime, { createUserMessage, LlmAdapter, type GenerateOptions, type StreamChunk, ToolCallId } from '@deepseek-ai/dsh-llm'
-import AgentRegistry, { type Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@deepseek-ai/dsh-tools'
-import * as DeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import * as AccountProvider from '@deepseek-ai/dsh-llm-deepseek-account'
+import LlmRuntime, { createUserMessage, LlmAdapter, type GenerateOptions, type StreamChunk, ToolCallId } from '@metaworkflow/llm'
+import AgentRegistry, { type Agent } from '@metaworkflow/agent'
+import AgentLoop from '@metaworkflow/agent-loop'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@metaworkflow/tools'
+import * as DeepSeek from '@metaworkflow/llm-deepseek-api-key'
+import * as AccountProvider from '@metaworkflow/llm-deepseek-account'
 import { assemble } from './assemble.ts'
 
 const contexts: Context[] = []
@@ -187,7 +187,7 @@ it('propagates account sign-out to the HTTP request signal', async () => {
     const listed = listingRequest(url)
     if (listed !== undefined) return listed
     const signal = init!.signal!
-    expect(new Headers(init!.headers).get('x-dsh-auth-token')).toBe('fixture-account-token')
+    expect(new Headers(init!.headers).get('x-mwf-auth-token')).toBe('fixture-account-token')
     started.resolve(signal)
     return new Promise<Response>((_resolve, reject) => {
       signal.addEventListener('abort', () => { reject(new Error('request aborted', { cause: signal.reason })) }, { once: true })

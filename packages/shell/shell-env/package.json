@@ -1,6 +1,6 @@
 {
-  "name": "@deepseek-ai/dsh-shell-env",
-  "description": "Tool-independent managed DSH_* shell environment registry",
+  "name": "@metaworkflow/shell-env",
+  "description": "Tool-independent managed MWF_* shell environment registry",
   "version": "0.2.1-rc.2",
   "publishConfig": {
     "access": "public"
@@ -30,21 +30,21 @@
   "license": "MIT",
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-home-paths": "workspace:*",
-    "@deepseek-ai/dsh-shell": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*"
+    "@metaworkflow/app-boot": "workspace:*",
+    "@metaworkflow/home-paths": "workspace:*",
+    "@metaworkflow/shell": "workspace:*",
+    "@metaworkflow/tools": "workspace:*"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-home-paths": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-shell": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*"
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/app-boot": "workspace:*",
+    "@metaworkflow/home-paths": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/shell": "workspace:*",
+    "@metaworkflow/tools": "workspace:*"
   }
 }

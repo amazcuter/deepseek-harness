@@ -44,7 +44,7 @@ export function installMermaidViewer(
     const copy = language().startsWith('zh') ? messages.zh : messages.en
     const containers = new Set(doc.querySelectorAll('.vp-doc .mermaid'))
     for (const [container, entry] of entries) {
-      if (!containers.has(container) || container.querySelector('svg:not(.dsh-media-icon)') !== entry.svg || !entry.button.isConnected) {
+      if (!containers.has(container) || container.querySelector('svg:not(.mwf-media-icon)') !== entry.svg || !entry.button.isConnected) {
         if (entry.svg === active) closeActive()
         entry.button.remove()
         entries.delete(container)
@@ -56,10 +56,10 @@ export function installMermaidViewer(
         if (existing.button.getAttribute('aria-label') !== copy.open) labelButton(existing.button, copy.open)
         continue
       }
-      const svg = container.querySelector<SVGSVGElement>('svg:not(.dsh-media-icon)')
+      const svg = container.querySelector<SVGSVGElement>('svg:not(.mwf-media-icon)')
       if (!svg || !dimensions(svg)) continue
       const trigger = viewerButton(doc, copy.open, 'open')
-      trigger.className = 'dsh-diagram-open'
+      trigger.className = 'mwf-diagram-open'
       trigger.setAttribute('aria-haspopup', 'dialog')
       trigger.addEventListener('click', () => {
         closeActive()

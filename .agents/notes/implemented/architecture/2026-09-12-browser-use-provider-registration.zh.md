@@ -10,9 +10,9 @@ Status: implemented
 
 ## 决策
 
-[`dsh-browser-use`](../../../../packages/browser-use/browser-use/README.zh.md) 拥有 `ctx.browserUse`，注册一个提供方拥有的名称并返回其 effect 清理器。第二次注册无论名称为何都会失败。服务不包含浏览器对象、共享操作类型、分派方法、资源生命周期或运行时选择器。[计算机操作注册决策](2026-09-12-computer-use-provider-registration.zh.md)仍独立拥有桌面提供方注册与共享桌面协调规则。
+[`mwf-browser-use`](../../../../packages/browser-use/browser-use/README.zh.md) 拥有 `ctx.browserUse`，注册一个提供方拥有的名称并返回其 effect 清理器。第二次注册无论名称为何都会失败。服务不包含浏览器对象、共享操作类型、分派方法、资源生命周期或运行时选择器。[计算机操作注册决策](2026-09-12-computer-use-provider-registration.zh.md)仍独立拥有桌面提供方注册与共享桌面协调规则。
 
-[Playwright MCP](../../../../packages/experimental/browser-use-playwright-mcp/README.zh.md)、[Chrome DevTools MCP](../../../../packages/experimental/browser-use-chrome-devtools-mcp/README.zh.md) 与[原生 Stagehand](../../../../packages/experimental/browser-use-stagehand-native/README.zh.md) 拥有自己的浏览器工具，并通过常规 DSH 工具管线集成。它们是公共实验性可选功能。DSH 拥有任务规划与任务循环；Stagehand 提供单项 AI（人工智能）辅助操作。Profile 或 preset 配置为每次提供方激活选择启动或附加模式。
+[Playwright MCP](../../../../packages/experimental/browser-use-playwright-mcp/README.zh.md)、[Chrome DevTools MCP](../../../../packages/experimental/browser-use-chrome-devtools-mcp/README.zh.md) 与[原生 Stagehand](../../../../packages/experimental/browser-use-stagehand-native/README.zh.md) 拥有自己的浏览器工具，并通过常规 MWF 工具管线集成。它们是公共实验性可选功能。MWF 拥有任务规划与任务循环；Stagehand 提供单项 AI（人工智能）辅助操作。Profile 或 preset 配置为每次提供方激活选择启动或附加模式。
 
 浏览器资源属于确切的实时 Agent 与 Session，而非仅凭可复用的 Session id。调用跨轮次保留状态。运行时释放会关闭启动的资源，重新加载或 fork 不会继承启动的 profile。附加保留现有浏览器状态，并在该提供方实例内将外部浏览器独占保留给一个 Session。清理断开连接而不关闭外部浏览器。
 
@@ -20,7 +20,7 @@ Status: implemented
 
 Stagehand 的启动器继承其进程环境，SDK 初始化可能在清理完成前超时。提供方 Host 使用 `@puppeteer/browsers` 在 CDP 或 SDK 就绪前取得所启动 Chromium 及其临时 profile 的所有权，并清理子进程环境。启动和附加模式都由隔离的 Worker 运行 SDK，且只通过 CDP 连接。原生推理不接受 abort signal。SDK 关闭会等待活动工作；清理成功后可重新连接并保留浏览器状态。SDK 工作未能结束时，只要 Chromium 仍在运行，就阻止复用。最终清理可在自有 Chromium 和 Worker 终止后释放启动浏览器的占用。附加模式下 SDK 工作未能结束、Worker 终止失败或自有进程清理失败时，保留占用。Host 仅终止自己拥有的 Chromium 进程，等待子进程关闭后才删除 profile；外部拥有的浏览器保持运行。
 
-Stagehand 使用显式配置的固定版本 SDK 目录内原生模型。配置的 API 密钥与可选请求头会转发到浏览器扩展，由 Stagehand 在扩展内执行推理。浏览器工具输入和返回数据使用现有 Session 日志，包括 SDK 结果元数据。DSH 模型路由、凭据复用、底层推理请求/响应捕获，以及与 Session 用量计量的集成仍属暂缓工作；本集成不增加持久化事件或 Session schema 变更。
+Stagehand 使用显式配置的固定版本 SDK 目录内原生模型。配置的 API 密钥与可选请求头会转发到浏览器扩展，由 Stagehand 在扩展内执行推理。浏览器工具输入和返回数据使用现有 Session 日志，包括 SDK 结果元数据。MWF 模型路由、凭据复用、底层推理请求/响应捕获，以及与 Session 用量计量的集成仍属暂缓工作；本集成不增加持久化事件或 Session schema 变更。
 
 MCP 客户端激活会等待连接和工具发现，但提供方可能在任何 Session 存在之前就完成激活。该激活 promise 无法代表未来各 Session 拥有的客户端。每个 MCP 浏览器提供方在现有的串行 `agent/created` 事件中等待一次客户端启动尝试。[等待 Agent 创建的决策](2026-09-09-awaited-agent-creation.zh.md)负责排队输入顺序与创建回滚。创建或恢复成功后，提示词组装与直接调用方即可读取完整目录。
 
@@ -42,12 +42,12 @@ MCP 客户端激活会等待连接和工具发现，但提供方可能在任何 
 
 **仅支持隔离启动。** 用户既需要干净的浏览器会话，也需要访问现有身份验证状态。配置显式选择所有权策略。
 
-**委托浏览器 agent。** 这些实验比较浏览器控制后端。将整个任务委托给另一规划器会改变 DSH 对任务循环的控制。
+**委托浏览器 agent。** 这些实验比较浏览器控制后端。将整个任务委托给另一规划器会改变 MWF 对任务循环的控制。
 
-**DSH 模型桥接。** 原生 Stagehand 配置使浏览器集成独立于 DSH 模型请求适配和持久化。Session 模型选择、凭据复用、底层推理捕获与 Session 用量计量作为一个协调集成暂缓。
+**MWF 模型桥接。** 原生 Stagehand 配置使浏览器集成独立于 MWF 模型请求适配和持久化。Session 模型选择、凭据复用、底层推理捕获与 Session 用量计量作为一个协调集成暂缓。
 
 ## 影响
 
 提供方独立演进自己的工具，而共享服务保持仅注册名称。三个提供方及其运行时辅助库作为实验性包发布，但不在内置默认配置中启用。浏览器包组不依赖实验性运行时代码。
 
-附加保留机制作用于单个提供方实例；它不协调独立 DSH 进程或外部浏览器客户端。Session 重放不包含浏览器状态，取消不会撤销已交付的浏览器操作。提供方 README 拥有引擎支持、模型要求与上游限制。
+附加保留机制作用于单个提供方实例；它不协调独立 MWF 进程或外部浏览器客户端。Session 重放不包含浏览器状态，取消不会撤销已交付的浏览器操作。提供方 README 拥有引擎支持、模型要求与上游限制。

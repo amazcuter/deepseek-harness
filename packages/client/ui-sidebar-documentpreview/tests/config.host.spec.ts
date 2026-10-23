@@ -1,6 +1,6 @@
 /** Host configuration supplies bounded Office reuse settings to browser pages. */
 import { Context } from '@deepseek-ai/cordis'
-import type { IndexInjection } from '@deepseek-ai/dsh-host-webserver'
+import type { IndexInjection } from '@metaworkflow/host-webserver'
 import { expect, it, onTestFinished } from 'vitest'
 import { Config } from '../src/config.ts'
 import * as host from '../src/index.ts'
@@ -23,7 +23,7 @@ it('embeds YAML cache settings in browser pages and withdraws them on disposal',
   await fiber.await()
   const rows: IndexInjection[] = []
   ctx.emit('webserver/index-inject', rows)
-  expect(rows).toEqual([{ kind: 'global', name: '__DSH_DOCUMENT_PREVIEW_CONFIG__', value: config }])
+  expect(rows).toEqual([{ kind: 'global', name: '__MWF_DOCUMENT_PREVIEW_CONFIG__', value: config }])
   await fiber.dispose()
   const after: IndexInjection[] = []
   ctx.emit('webserver/index-inject', after)

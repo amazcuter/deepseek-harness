@@ -1,5 +1,5 @@
 /** Read the source list: one npm package name or Git repository URL per line. */
-import { parseMarketIndex, type MarketIndexError } from '@deepseek-ai/dsh-plugin-market-index'
+import { parseMarketIndex, type MarketIndexError } from '@metaworkflow/plugin-market-index'
 
 /** One line of the source list. */
 export type Source =

@@ -2,7 +2,7 @@
 
 [English](typert.md) | 中文
 
-以下类型由生成的 Remote 产物、Host Gateway 与消费方 API assembly 共用。[Typert Gateway Agent Note](../../.agents/notes/implemented/architecture/2026-08-02-typert-remote-method-calls.zh.md) 负责架构与传输决策；本页记录 [`dsh-typert-protocol`](../../packages/typert/protocol/src/types.ts) 和 [`dsh-api-gateway`](../../packages/api/gateway/src/types.ts) 中公共约定的字面定义。
+以下类型由生成的 Remote 产物、Host Gateway 与消费方 API assembly 共用。[Typert Gateway Agent Note](../../.agents/notes/implemented/architecture/2026-08-02-typert-remote-method-calls.zh.md) 负责架构与传输决策；本页记录 [`mwf-typert-protocol`](../../packages/typert/protocol/src/types.ts) 和 [`mwf-api-gateway`](../../packages/api/gateway/src/types.ts) 中公共约定的字面定义。
 
 ## Lookup 与上下文声明
 
@@ -286,7 +286,7 @@ interface RemoteInvocation {
 
 ## Remote 访问资源
 
-每个 Remote 方法都受 [`dsh-api-remote-access`](../../packages/api/remote-access/README.zh.md) 的访问控制：只有当该 principal 种类的 policy 在调用访问的每个资源上都绑定了列出该端点 action 的 role 时，非 owner 调用才被放行。拥有某个身份类型的包把其资源种类声明合并进 `TypertResourceMap`；内置的无身份资源 `global` 从不是其中的种类。Gateway 从 `@Remote({ resources })` 或 `@RemoteScope(key, { resources })` 的 `resources` 读取函数读取某个种类的身份，其次是把该种类声明为 `resource` 的 lookup 参数或作用域 Context，再次是在 `typert.resources` 中登记的默认字段；不指向任何资源的调用访问 `global`。决策由 [Peer 身份属性 Agent Note](../../.agents/notes/implemented/architecture/2026-10-12-peer-principal-and-remote-access.zh.md) 负责。
+每个 Remote 方法都受 [`mwf-api-remote-access`](../../packages/api/remote-access/README.zh.md) 的访问控制：只有当该 principal 种类的 policy 在调用访问的每个资源上都绑定了列出该端点 action 的 role 时，非 owner 调用才被放行。拥有某个身份类型的包把其资源种类声明合并进 `TypertResourceMap`；内置的无身份资源 `global` 从不是其中的种类。Gateway 从 `@Remote({ resources })` 或 `@RemoteScope(key, { resources })` 的 `resources` 读取函数读取某个种类的身份，其次是把该种类声明为 `resource` 的 lookup 参数或作用域 Context，再次是在 `typert.resources` 中登记的默认字段；不指向任何资源的调用访问 `global`。决策由 [Peer 身份属性 Agent Note](../../.agents/notes/implemented/architecture/2026-10-12-peer-principal-and-remote-access.zh.md) 负责。
 
 ```ts type-equiv
 /**

@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown'
 
 /** Build the service and its path-loaded index parse Worker as separate bundles. */
-export default defineConfig(({ env }) => env?.DSH_BUILD_FACE === 'client' ? [] : [
+export default defineConfig(({ env }) => env?.MWF_BUILD_FACE === 'client' ? [] : [
   {
     entry: ['lib/types/index.js'],
     outDir: 'lib',

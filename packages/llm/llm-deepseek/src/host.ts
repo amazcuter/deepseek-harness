@@ -1,11 +1,11 @@
 /** Shared Host wiring for the DeepSeek protocol adapter. */
 import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-settings'
+import type {} from '@metaworkflow/settings'
 import type {} from '@deepseek-ai/cordis-plugin-loader'
-import type {} from '@deepseek-ai/dsh-fs'
-import { resolveImageAttachmentAccess } from '@deepseek-ai/dsh-llm'
-import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
-import { deepEqualJson } from '@deepseek-ai/dsh-util-values'
+import type {} from '@metaworkflow/fs'
+import { resolveImageAttachmentAccess } from '@metaworkflow/llm'
+import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@metaworkflow/anonymous-user-id'
+import { deepEqualJson } from '@metaworkflow/util-values'
 import { DeepSeekAdapter } from './adapter.ts'
 import type { DeepSeekAdapterOptions, DeepSeekConnectionOptions } from './types.ts'
 

@@ -40,7 +40,7 @@ beforeEach(() => {
 afterEach(async () => { await auth.dispose() })
 
 it('shares an isolated memory Session with policy fetches, without opening a login automatically', async () => {
-  expect(native.partition.mock.calls[0]![0]).toMatch(/^dsh-policy-auth-/)
+  expect(native.partition.mock.calls[0]![0]).toMatch(/^mwf-policy-auth-/)
   expect(native.create).not.toHaveBeenCalled()
   await auth.request('https://policy.example.com/api/v0/check_client_update?scenario=manual', { credentials: 'omit', redirect: 'follow' })
   expect(browserSession.fetch).toHaveBeenCalledWith('https://policy.example.com/api/v0/check_client_update?scenario=manual',

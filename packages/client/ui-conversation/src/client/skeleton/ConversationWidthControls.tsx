@@ -3,7 +3,7 @@ import type { ConversationWidthControlsProps } from '../contract/slots.ts'
 import css from './ConversationRoot.module.css'
 
 /** localStorage key for the dragged transcript width preference (px). */
-const WIDTH_PREF_KEY = 'dsh.conversation.contentWidth'
+const WIDTH_PREF_KEY = 'mwf.conversation.contentWidth'
 /** Floor for a dragged content width; matches the layout center-column minimum. */
 const CONTENT_MIN = 640
 /** Horizontal room reserved for both handles and their safe edge zones. */
@@ -75,7 +75,7 @@ function WidthHandle(props: {
     if (!dragging.current) return
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) return
     const box = event.currentTarget.getBoundingClientRect()
-    event.currentTarget.style.setProperty('--dsh-width-handle-pointer-y', `${event.clientY - box.top}px`)
+    event.currentTarget.style.setProperty('--mwf-width-handle-pointer-y', `${event.clientY - box.top}px`)
     latest.current = event.clientX
     frame.current ??= requestAnimationFrame(() => {
       frame.current = null
@@ -137,10 +137,10 @@ export function ConversationWidthControls({ container, phase }: ConversationWidt
   const publishWidths = useCallback((container: HTMLDivElement): void => {
     const target = container.parentElement ?? container
     const column = container.offsetWidth
-    target.style.setProperty('--dsh-conversation-column-width', `${column}px`)
+    target.style.setProperty('--mwf-conversation-column-width', `${column}px`)
     const preference = readWidthPreference()
-    if (preference === null) target.style.removeProperty('--dsh-chat-user-width')
-    else target.style.setProperty('--dsh-chat-user-width', `${resolveContentWidth(column, preference)}px`)
+    if (preference === null) target.style.removeProperty('--mwf-chat-user-width')
+    else target.style.setProperty('--mwf-chat-user-width', `${resolveContentWidth(column, preference)}px`)
   }, [])
 
   useLayoutEffect(() => {
@@ -158,7 +158,7 @@ export function ConversationWidthControls({ container, phase }: ConversationWidt
   const onDrag = useCallback((width: number): void => {
     if (container === null) return
     const target = container.parentElement ?? container
-    target.style.setProperty('--dsh-chat-user-width', `${resolveContentWidth(container.offsetWidth, width)}px`)
+    target.style.setProperty('--mwf-chat-user-width', `${resolveContentWidth(container.offsetWidth, width)}px`)
   }, [container])
   const onCommit = useCallback((width: number): void => {
     if (container === null) return

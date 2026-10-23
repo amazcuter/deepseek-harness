@@ -3,13 +3,13 @@ description: "Host-native command and path-opening utilities with shell-free exe
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-native-command
+# @metaworkflow/native-command
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-native-command` runs host executables without a shell and opens Host filesystem paths through the desktop. The command runner captures utf8 output, propagates cancellation, and requires explicit Windows startup visibility. The path opener supports default-application and text-editor intents, browser-renderable documents, WSL translation, and desktop availability checks. It is a library, not a plugin: no `ctx`, no state, no events.
+`mwf-native-command` runs host executables without a shell and opens Host filesystem paths through the desktop. The command runner captures utf8 output, propagates cancellation, and requires explicit Windows startup visibility. The path opener supports default-application and text-editor intents, browser-renderable documents, WSL translation, and desktop availability checks. It is a library, not a plugin: no `ctx`, no state, no events.
 
 ## Table of Contents
 
@@ -30,7 +30,7 @@ Use this runner when a host-side integration must execute one native command and
 ### Running a command
 
 ```ts
-import { runNativeCommand } from '@deepseek-ai/dsh-native-command'
+import { runNativeCommand } from '@metaworkflow/native-command'
 
 declare const script: string
 declare const signal: AbortSignal

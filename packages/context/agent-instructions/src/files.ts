@@ -1,15 +1,15 @@
 /**
  * Instruction-file discovery and bounded, abort-aware provider reads.
  *
- * @module @deepseek-ai/dsh-agent-instructions/files
+ * @module @metaworkflow/agent-instructions/files
  */
 
 import { createReadStream } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
-import type { FileSystem, FsInfo, FsTarget, FsVersion } from '@deepseek-ai/dsh-fs'
-import { agentsHomeDisplay, dshHomeDisplay } from '@deepseek-ai/dsh-home-paths'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+import type { FileSystem, FsInfo, FsTarget, FsVersion } from '@metaworkflow/fs'
+import { agentsHomeDisplay, mwfHomeDisplay } from '@metaworkflow/home-paths'
+import { assertNever } from '@metaworkflow/util-values'
 import { resolveConfig, resolveDiscoveryConfig, type ResolvedConfig, type ResolvedDiscoveryConfig } from './config.ts'
 import { trimmedInstructionDigest } from './digest.ts'
 import {
@@ -57,7 +57,7 @@ interface DiscoverOptions {
    * Already-resolved harness home. The plugin resolves it once at mount and
    * passes it down so reconciliation and baseline loading cannot disagree.
    */
-  dshHome?: string
+  mwfHome?: string
   /**
    * Already-resolved shared agents root. The plugin resolves it once at mount
    * and passes it down so reconciliation and baseline loading cannot disagree.
@@ -91,7 +91,7 @@ function userGlobalRoots(config: ResolvedDiscoveryConfig): UserGlobalRoot[] {
   return USER_GLOBAL_DIRECTORIES.map((directory) => {
     switch (directory) {
       case USER_GLOBAL_DIRECTORY:
-        return { directory, home: config.dshHome, display: dshHomeDisplay(config.dshHome) }
+        return { directory, home: config.mwfHome, display: mwfHomeDisplay(config.mwfHome) }
       case AGENTS_GLOBAL_DIRECTORY:
         return { directory, home: config.agentsHome, display: agentsHomeDisplay(config.agentsHome) }
       /* v8 ignore next -- USER_GLOBAL_DIRECTORIES is closed; this arm only makes adding a label a compile error. */

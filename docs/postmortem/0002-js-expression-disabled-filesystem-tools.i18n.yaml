@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/postmortem/0002-js-expression-disabled-filesystem-tools.md
 /post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled:
-  en: 02d6d2adb8360fc7
-  zh: ec94ad79d29fb636
+  en: e3455ceb3481cfc2
+  zh: 560b9c7d28c0721f
 /post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled/executive-summary:
   en: 65cd31a6519707a8
   zh: 6bbe0d8f25c52ab7
@@ -21,8 +21,8 @@
   en: 6bc8392c0b578c99
   zh: 96cba7b750571fd1
 /post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled/guardrails-added:
-  en: dfe6ddbe59258210
-  zh: 20c1652004ad258a
+  en: 4e2f01ca9268baff
+  zh: b6dfaa18eff1ee9c
 /post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled/lessons:
   en: 375a29a336c99be9
   zh: ee64c6abe3f923ff

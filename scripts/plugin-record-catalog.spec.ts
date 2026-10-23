@@ -26,11 +26,11 @@ function put(root: string, file: string, source: string): void {
 }
 
 function fixture(files: Record<string, string> = {}): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-plugin-record-catalog-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-plugin-record-catalog-'))
   roots.push(root)
   for (const [file, source] of Object.entries({
-    'packages/core/session/package.json': '{"name":"@deepseek-ai/dsh-session"}',
-    'packages/experimental/bridge/package.json': '{"name":"@deepseek-ai/dsh-experimental-bridge"}',
+    'packages/core/session/package.json': '{"name":"@metaworkflow/session"}',
+    'packages/experimental/bridge/package.json': '{"name":"@metaworkflow/experimental-bridge"}',
     [OWNER]: OWNER_SOURCE,
     ...files,
   })) put(root, file, source)
@@ -38,7 +38,7 @@ function fixture(files: Record<string, string> = {}): string {
 }
 
 function augmentation(members: string, heritage = ''): string {
-  return `export {}\ndeclare module '@deepseek-ai/dsh-session/types' {\n  interface PluginRecordMap ${heritage}{\n${members}\n  }\n}\n`
+  return `export {}\ndeclare module '@metaworkflow/session/types' {\n  interface PluginRecordMap ${heritage}{\n${members}\n  }\n}\n`
 }
 
 const ENTRY = "    /** Retains a bridge entry. */\n    'plugin:bridge/entry': SavedEntry"
@@ -68,7 +68,7 @@ describe('plugin record declarations', () => {
     const root = fixture({ [RECORDS]: augmentation(ENTRY) })
     const records = collectPluginRecords(root)
     expect(records).toEqual([{
-      name: 'plugin:bridge/entry', owner: '@deepseek-ai/dsh-experimental-bridge', payload: 'SavedEntry',
+      name: 'plugin:bridge/entry', owner: '@metaworkflow/experimental-bridge', payload: 'SavedEntry',
       doc: 'Retains a bridge entry.', source: RECORDS,
     }])
     put(root, RECORDS, `\n\n${augmentation(ENTRY)}`)
@@ -106,12 +106,12 @@ describe('plugin record declarations', () => {
       [OWNER_SOURCE.replace('{}', "{ 'plugin:session/entry': string }"), /must remain empty/],
       [OWNER_SOURCE.replace('Map {}', 'Map<T> {}'), /without extends or type parameters/],
     ] as const) expect(() => collectPluginRecords(fixture({ [OWNER]: source }))).toThrow(error)
-    expect(() => collectPluginRecords(fixture({ [RECORDS]: OWNER_SOURCE }))).toThrow('is outside @deepseek-ai/dsh-session')
+    expect(() => collectPluginRecords(fixture({ [RECORDS]: OWNER_SOURCE }))).toThrow('is outside @metaworkflow/session')
   })
 
   it('finds and rejects record declarations outside experimental production source', () => {
     const root = fixture({
-      'packages/core/bridge/package.json': '{"name":"@deepseek-ai/dsh-experimental-bridge"}',
+      'packages/core/bridge/package.json': '{"name":"@metaworkflow/experimental-bridge"}',
       'packages/core/bridge/src/records.ts': augmentation(ENTRY),
     })
     expect(() => collectPluginRecords(root)).toThrow('must belong to a package declared experimental')
@@ -119,8 +119,8 @@ describe('plugin record declarations', () => {
 
   it('requires the types module augmentation and verifiable package ownership', () => {
     expect(() => collectPluginRecords(fixture({
-      [RECORDS]: augmentation(ENTRY).replace("dsh-session/types'", "dsh-session'"),
-    }))).toThrow("must augment declare module '@deepseek-ai/dsh-session/types'")
+      [RECORDS]: augmentation(ENTRY).replace("session/types'", "session'"),
+    }))).toThrow("must augment declare module '@metaworkflow/session/types'")
     for (const manifest of ['{}', 'broken json', '{"name":"@external/bridge"}']) {
       expect(() => collectPluginRecords(fixture({
         [RECORDS]: augmentation(ENTRY), 'packages/experimental/bridge/package.json': manifest,
@@ -168,7 +168,7 @@ describe('plugin record catalogue output', () => {
       ${ENTRY}
     `) }))
     const output = renderPluginRecordCatalog([...records].reverse())
-    expect(output).toContain('| `plugin:bridge/entry` | `@deepseek-ai/dsh-experimental-bridge` | Retains a bridge entry. | <code>SavedEntry</code>')
+    expect(output).toContain('| `plugin:bridge/entry` | `@metaworkflow/experimental-bridge` | Retains a bridge entry. | <code>SavedEntry</code>')
     expect(output).toContain('Retains state \\| metadata.')
     expect(output).toContain("<code>{ value: string &#124; null; marker: 'a  b'; }</code>")
     expect(output).toContain(`[\`${RECORDS}\`](../${RECORDS})`)
@@ -180,7 +180,7 @@ describe('plugin record catalogue output', () => {
     const root = fixture({
       'tsconfig.host.json': JSON.stringify({ compilerOptions: {
         target: 'es2024', module: 'esnext', moduleResolution: 'bundler', strict: true, types: [],
-        paths: { '@deepseek-ai/dsh-session/types': ['./packages/core/session/src/types.ts'] },
+        paths: { '@metaworkflow/session/types': ['./packages/core/session/src/types.ts'] },
       }, include: ['packages/**/src/**/*.ts'] }),
       [OWNER]: `${OWNER_SOURCE}
 export interface SessionHeader { version: 4; id: string; createdAt: number }

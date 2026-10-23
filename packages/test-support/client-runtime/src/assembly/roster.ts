@@ -3,19 +3,19 @@
  * the plan that annotates one with the rows the test provides itself. `webApp`
  * and `bundleRoster` (`./bundle-roster.ts`) read rosters from the bundle patch
  * files; a spec may also build one inline with {@link ClientRoster.of}.
- * @module @deepseek-ai/dsh-client-test-runtime/src/assembly/roster
+ * @module @metaworkflow/client-test-runtime/src/assembly/roster
  */
 import type { Context } from '@deepseek-ai/cordis'
-import type { WebBootEntry, WebBootGraph } from '@deepseek-ai/dsh-client-modules/client'
-import { PLATFORM_MODULES } from '@deepseek-ai/dsh-client-web/src/platform.ts'
+import type { WebBootEntry, WebBootGraph } from '@metaworkflow/client-modules/client'
+import { PLATFORM_MODULES } from '@metaworkflow/client-web/src/platform.ts'
 
-/** One browser plugin row as `dsh.client` declares it, keyed by package name. */
+/** One browser plugin row as `mwf.client` declares it, keyed by package name. */
 export interface ClientRosterRow {
   /** Package name (== manifest entry id == Loader entry name). */
   readonly name: string
-  /** Package-name dependency edges from `dsh.client.inject` ([] when absent). */
+  /** Package-name dependency edges from `mwf.client.inject` ([] when absent). */
   readonly inject: readonly string[]
-  /** Stage-one prefetch mark from `dsh.client.immediately` (false when absent). */
+  /** Stage-one prefetch mark from `mwf.client.immediately` (false when absent). */
   readonly immediately: boolean
 }
 

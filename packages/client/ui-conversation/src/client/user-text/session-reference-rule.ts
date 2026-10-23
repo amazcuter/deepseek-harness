@@ -1,7 +1,7 @@
 /** Original-text Session candidates with explicit wire spelling and longest known labels. */
-import type { UserTextRule, UserTextNode } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextRule, UserTextNode } from '@metaworkflow/client-ui-conversation/client'
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@metaworkflow/client-ui-conversation/client' {
   interface UserTextDataMap {
     session: { readonly label: string }
   }
@@ -17,7 +17,7 @@ export const sessionReferenceRule: UserTextRule<'session'> = {
   match(text, from, context) {
     let labels: readonly string[] | undefined
     let readLabels = false
-    const wire = /@\[([^\]\n]+)\]\(dsh-session:[^)\s]+\)/uy
+    const wire = /@\[([^\]\n]+)\]\(mwf-session:[^)\s]+\)/uy
     for (let start = text.indexOf('@', from); start >= 0; start = text.indexOf('@', start + 1)) {
       wire.lastIndex = start
       const explicit = wire.exec(text)

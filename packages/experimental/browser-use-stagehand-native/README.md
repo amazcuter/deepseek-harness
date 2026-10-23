@@ -3,7 +3,7 @@ description: "Control Chromium through Stagehand native browser operations and e
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-browser-use-stagehand-native
+# @metaworkflow/experimental-browser-use-stagehand-native
 
 English | [中文](README.zh.md)
 
@@ -30,8 +30,8 @@ Mount this provider in a profile that supplies Agents, Sessions, the tool regist
 ### Minimal configuration
 
 ```yaml
-- name: '@deepseek-ai/dsh-browser-use'
-- name: '@deepseek-ai/dsh-experimental-browser-use-stagehand-native'
+- name: '@metaworkflow/browser-use'
+- name: '@metaworkflow/experimental-browser-use-stagehand-native'
   config:
     mode: launch
     headless: true
@@ -71,11 +71,11 @@ The focused checks exercise native model configuration, lifetime, Loader composi
 pnpm exec vitest run packages/experimental/browser-use-stagehand-native/tests
 ```
 
-The opt-in installed-browser tests use a controlled local page and the built attachment Worker. Set `DSH_BROWSER_EXECUTABLE` to the installed Chromium executable. Native inference is tested only when `DSH_STAGEHAND_MODEL` and `DSH_STAGEHAND_MODEL_API_KEY` are also supplied.
+The opt-in installed-browser tests use a controlled local page and the built attachment Worker. Set `MWF_BROWSER_EXECUTABLE` to the installed Chromium executable. Native inference is tested only when `MWF_STAGEHAND_MODEL` and `MWF_STAGEHAND_MODEL_API_KEY` are also supplied.
 
 ```sh
 pnpm run build
-env -u NODE_USE_ENV_PROXY DSH_STAGEHAND_E2E=1 pnpm exec vitest run --config vitest.e2e.config.ts packages/experimental/browser-use-stagehand-native/tests/native.e2e.ts
+env -u NODE_USE_ENV_PROXY MWF_STAGEHAND_E2E=1 pnpm exec vitest run --config vitest.e2e.config.ts packages/experimental/browser-use-stagehand-native/tests/native.e2e.ts
 ```
 
 -----
@@ -88,9 +88,9 @@ env -u NODE_USE_ENV_PROXY DSH_STAGEHAND_E2E=1 pnpm exec vitest run --config vite
 
 [SessionResources](../browser-use-runtime/README.md) owns lazy acquisition, serialization, and teardown for each exact live Agent. The provider retains the browser-use registration until cleanup settles. The [native provider](src/index.ts) registers its tools through the existing MCP result adapter, which saves screenshots as durable attachments.
 
-The host owns each launched Chromium process and its temporary profile before waiting for CDP readiness. Chromium receives the standard scrubbed child environment, preserving paths, locale, and proxy settings while excluding credential-shaped variables and DSH identity. Both modes connect the SDK inside a dedicated Worker. The Worker receives no ambient environment except the explicit source TypeScript configuration path, so its CDP connection does not inherit host proxy settings. SDK close waits for active operations. Cleanup terminates the connection Worker after the configured SDK grace; launch also kills and awaits its owned Chromium process before removing the profile. Attached external browsers remain open. Cleanup failures follow the [ownership limits](#known-limitations-and-deferred-work) below.
+The host owns each launched Chromium process and its temporary profile before waiting for CDP readiness. Chromium receives the standard scrubbed child environment, preserving paths, locale, and proxy settings while excluding credential-shaped variables and MWF identity. Both modes connect the SDK inside a dedicated Worker. The Worker receives no ambient environment except the explicit source TypeScript configuration path, so its CDP connection does not inherit host proxy settings. SDK close waits for active operations. Cleanup terminates the connection Worker after the configured SDK grace; launch also kills and awaits its owned Chromium process before removing the profile. Attached external browsers remain open. Cleanup failures follow the [ownership limits](#known-limitations-and-deferred-work) below.
 
-The [native runtime](src/native.ts) passes the explicit model configuration to Stagehand's public initialization API. The adapter pins Zod to the version required by Stagehand because extraction passes Zod schemas to the SDK. Stagehand owns the model requests, response validation, and token accounting inside its browser extension. DSH records browser tool inputs and returned data, including SDK result metadata, through the existing Session log. Underlying inference request/response capture and integration into DSH Session usage accounting are deferred.
+The [native runtime](src/native.ts) passes the explicit model configuration to Stagehand's public initialization API. The adapter pins Zod to the version required by Stagehand because extraction passes Zod schemas to the SDK. Stagehand owns the model requests, response validation, and token accounting inside its browser extension. MWF records browser tool inputs and returned data, including SDK result metadata, through the existing Session log. Underlying inference request/response capture and integration into MWF Session usage accounting are deferred.
 
 </details>
 
@@ -134,11 +134,11 @@ Unchanged guidance preserves its prompt prefix. Mounting or removing the provide
 
 #### What the model sees
 
-The [`stagehand_` tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-experimental-browser-use-stagehand-native) defines navigation, tab management, screenshots, actions, observation, and extraction. Results contain current page facts or validated structured data. Supported screenshots appear as durable image attachments. Errors remain visible so the model can inspect state before retrying.
+The [`stagehand_` tool catalog](../../../docs/tool-catalog.md#metaworkflowexperimental-browser-use-stagehand-native) defines navigation, tab management, screenshots, actions, observation, and extraction. Results contain current page facts or validated structured data. Supported screenshots appear as durable image attachments. Errors remain visible so the model can inspect state before retrying.
 
 #### Token effect
 
-Tool schemas and results add main-conversation context. Stagehand's native model requests consume additional tokens outside DSH Session usage accounting.
+Tool schemas and results add main-conversation context. Stagehand's native model requests consume additional tokens outside MWF Session usage accounting.
 
 #### KV Cache effect
 
@@ -154,9 +154,9 @@ The provider inherits the pinned Stagehand SDK's browser and extension requireme
 - **Live browser state** — Session replay restores recorded conversation data, not a browser process, cookies, or tab handles.
 - **Native models** — model names are limited to the pinned SDK catalog for OpenAI, Anthropic, Google, Groq, and Cerebras. DeepSeek endpoints, `baseURL` overrides, autonomous agents, and per-call model selection are unsupported.
 - **Cancellation** — native inference has no abort signal. SDK close waits for active work; successful cleanup permits reconnection on the next tool call while retaining the browser. Cancellation does not undo browser input or guarantee that a native model request stops.
-- **Existing browser access** — an attached browser can also be changed by its user; the reservation coordinates DSH Sessions only.
+- **Existing browser access** — an attached browser can also be changed by its user; the reservation coordinates MWF Sessions only.
 - **Cleanup failure** — failed SDK drain retains an attached-browser reservation because native extension work may continue. Final cleanup of a launched browser can release its reservation after both Chromium and its Worker terminate, even if SDK drain failed. Worker, owned-process, or profile cleanup failure retains the reservation; restart the host before selecting another provider.
-- **DSH model integration** — Session model routing, DSH credential reuse, underlying inference request/response capture, and integration into DSH Session usage accounting are deferred. Returned tool data and SDK metadata remain replayable.
+- **MWF model integration** — Session model routing, MWF credential reuse, underlying inference request/response capture, and integration into MWF Session usage accounting are deferred. Returned tool data and SDK metadata remain replayable.
 
 <a id="dev-note"></a>
 ### Dev Note

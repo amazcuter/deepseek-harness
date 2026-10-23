@@ -35,9 +35,9 @@ The published `./tsdown` export `typertPlugin()` changes with items 5–7 (`tran
 
 All numbers come from one shared Linux host (256 vCPU, 4 TB memory, load average 23–111 during runs) with Node v24.18.0, TypeScript 6.0.3, and tsdown 0.22.2 (rolldown 1.1.1).
 
-- **Host tsdown:** `node node_modules/tsdown/dist/run.mjs --config-loader native --env.DSH_BUILD_FACE host`, deleting every `lib/typert.*` before each run; variants run interleaved and sequentially, 3–4 samples per group. Items 2–4 come from the first round (starting from the baseline) and items 5–7 from the second round (starting from the code with items 2–4). Output comparison covers SHA-256 of the 743 top-level files of `packages/*/*/lib`, `apps/*/lib`, and `vendor/*/lib` (140 of them Typert artifacts). Medians of two groups running identical code differ by 0–0.11 s; samples within a group spread by up to 2.5 s.
+- **Host tsdown:** `node node_modules/tsdown/dist/run.mjs --config-loader native --env.MWF_BUILD_FACE host`, deleting every `lib/typert.*` before each run; variants run interleaved and sequentially, 3–4 samples per group. Items 2–4 come from the first round (starting from the baseline) and items 5–7 from the second round (starting from the code with items 2–4). Output comparison covers SHA-256 of the 743 top-level files of `packages/*/*/lib`, `apps/*/lib`, and `vendor/*/lib` (140 of them Typert artifacts). Medians of two groups running identical code differ by 0–0.11 s; samples within a group spread by up to 2.5 s.
 - **Client test aggregate:** `tsc -p tsconfig.client.json --extendedDiagnostics` with prebuilt references and a fresh tsBuildInfo file; six samples of identical code spread by 3.8 s in Check (about 6%).
-- **Client tsdown:** `node node_modules/tsdown/dist/run.mjs --config-loader native --env.DSH_BUILD_FACE client` on a built tree. The item 8 prototype ran three rounds in rotated order with a baseline spread of 1.56 s; the final implementation and the original ran interleaved, three samples each. Output comparison covers every file of `{packages,apps,vendor,native}/**/lib/**`, excluding `*.tsbuildinfo`.
+- **Client tsdown:** `node node_modules/tsdown/dist/run.mjs --config-loader native --env.MWF_BUILD_FACE client` on a built tree. The item 8 prototype ran three rounds in rotated order with a baseline spread of 1.56 s; the final implementation and the original ran interleaved, three samples each. Output comparison covers every file of `{packages,apps,vendor,native}/**/lib/**`, excluding `*.tsbuildinfo`.
 
 ### 1. Only the root manifest declares React type packages
 
@@ -122,7 +122,7 @@ All numbers come from one shared Linux host (256 vCPU, 4 TB memory, load average
 - **Filter `transform` by code content (item 7):** rolldown interprets `^` and `\s` with Rust regex semantics, which differ from JavaScript on lone CR, U+2028, and BOM, so a decorated module could be missed.
 - **Build a process-wide manifest index on `globalThis` (item 8):** The prototype saves about as much time as item 8, but it is process-global state without an owner, violating the shared-state ownership rule in the [package rules](../../../../packages/AGENTS.md).
 - **Disable tsdown's gzip report (item 8):** `--no-report` lowers Client tsdown by 0.95 s, within the 1.56 s baseline spread.
-- **Add rolldown filters to DSH `resolveId`/`load` hooks (item 8):** Lowers it by 1.16 s, within noise.
+- **Add rolldown filters to MWF `resolveId`/`load` hooks (item 8):** Lowers it by 1.16 s, within noise.
 - **Memoize the input-isolation check per module id (item 8):** Lowers it by 0.93 s, within noise; on top of the manifest index it saves only another 0.18 s.
 
 ## Consequences

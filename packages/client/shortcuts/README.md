@@ -3,7 +3,7 @@ description: "Customize application keyboard commands for each device"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-shortcuts
+# @metaworkflow/client-shortcuts
 
 English | [中文](README.zh.md)
 
@@ -31,7 +31,7 @@ The Web app bundle mounts this package automatically. Feature plugins register c
 
 Feature plugins contribute read-only sequences through `registerFixed()` and observe locally arbitrated input through `observeFixedInput()`. Fixed rows follow the owning registration and locale; owners may use the `application` display group without making the action editable. Each action declares at least one physical combination and has no saved overrides. These combinations participate in conflict checks and cannot be assigned to editable commands. The Host's `stopSequenceMs` setting controls the maximum double-Escape interval, defaults to 500 milliseconds, and accepts integers from 1 to 2,147,483,646 so expiry stays within the browser timer limit; pages adopt the validated value on load.
 
-Preferences store only overrides: a missing command inherits its default, `null` clears its binding, and restoring a default removes its override. Restore All affects only the current runtime/platform profile. Web uses origin-local `dsh.keybindings.v1` storage; Desktop uses Electron's device-local `userData/keybindings.json`, independently of Harness home and workspace settings. The schema version is independent of Session data. macOS and Windows Desktop read version 1 without rewriting it and save version 2 on the next successful edit; version 2 adds optional `secondCode`. Web and Linux retain their existing binding restrictions.
+Preferences store only overrides: a missing command inherits its default, `null` clears its binding, and restoring a default removes its override. Restore All affects only the current runtime/platform profile. Web uses origin-local `mwf.keybindings.v1` storage; Desktop uses Electron's device-local `userData/keybindings.json`, independently of Harness home and workspace settings. The schema version is independent of Session data. macOS and Windows Desktop read version 1 without rewriting it and save version 2 on the next successful edit; version 2 adds optional `secondCode`. Web and Linux retain their existing binding restrictions.
 
 Windows and macOS Desktop accept one or two distinct supported non-modifier keys, with zero to four modifiers. Two-key bindings require overlapping presses in either order; sequential presses do not match. Modifier-only bindings are rejected. A single key and a pair containing that key conflict when their modifiers match, including keys reserved by fixed actions. Previously saved bindings that overlap a mounted fixed action remain visible but cannot execute. All effective bindings, including Command+C and Ctrl+C, take priority over native actions, editors, terminals, embedded pages, and modal controls. Recording and input-method composition remain protected. A pair takes priority only once both keys are held; the first key retains its normal behavior and may insert a character.
 

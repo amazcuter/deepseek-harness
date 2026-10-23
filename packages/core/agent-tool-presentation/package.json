@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-agent-tool-presentation",
+  "name": "@metaworkflow/agent-tool-presentation",
   "description": "Agent-plane presentation selector: composes one agent's tools as PTC mode or native tool calls",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -32,16 +32,16 @@
     "@deepseek-ai/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh-tools": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-ptc-runtime": "workspace:*",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/ptc-runtime": "workspace:*",
+    "@metaworkflow/scope": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   }
 }

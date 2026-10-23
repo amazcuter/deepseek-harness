@@ -32,18 +32,18 @@ export default async function open(url) {
     headers: { cookie: setCookie.split(';', 1)[0] },
   })
   const html = await response.text()
-  console.log(`dsh browser-open: ${JSON.stringify({
+  console.log(`mwf browser-open: ${JSON.stringify({
     url,
     status: response.status,
-    bootManifest: html.includes('__DSH_BOOT__'),
+    bootManifest: html.includes('__MWF_BOOT__'),
     apiKeyPresent: process.env.DEEPSEEK_API_KEY !== undefined,
-    dshHomePresent: process.env.DSH_HOME !== undefined,
+    mwfHomePresent: process.env.MWF_HOME !== undefined,
   })}`)
   // The Windows launcher writes the server-exit marker only while its helper
   // remains alive, so the assembled test detects an early helper exit.
   const launcher = spawn(process.execPath, [
     '--eval', handoffProbe,
-    '--', join(process.cwd(), `.dsh-browser-open-${process.ppid}`), String(process.pid),
+    '--', join(process.cwd(), `.mwf-browser-open-${process.ppid}`), String(process.pid),
   ], { stdio: 'ignore' })
   launcher.unref()
   return launcher

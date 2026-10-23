@@ -42,7 +42,7 @@ type MatchFiles = (
 const { matchFiles } = ts as typeof ts & { readonly matchFiles: MatchFiles | undefined }
 
 /** Absolute directory that holds every in-memory workspace; it does not exist on disk. */
-export const MEMORY_ROOT = resolve('/dsh-typert-memory')
+export const MEMORY_ROOT = resolve('/mwf-typert-memory')
 
 /** The unmodified fixture workspace on disk, read once per spec file. */
 export const fixtureRoot = resolve(import.meta.dirname, 'fixtures/type-model')

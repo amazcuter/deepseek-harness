@@ -3,7 +3,7 @@
  * `internal/modules/cjs/loader`'s `Module` caches and loaders, `internal/modules/package_json_reader`, and the
  * `modules` binding from `internal/bootstrap/realm`. The Worker's own `require` does not route through them, so
  * they keep Node's member names for replacement and refuse when called.
- * @module @deepseek-ai/dsh-experimental-webworker-runtime/src/node/internal_modules/package-surfaces
+ * @module @metaworkflow/experimental-webworker-runtime/src/node/internal_modules/package-surfaces
  */
 import { notAvailableError, notImplementedFail } from '../notImplementedFail.ts'
 

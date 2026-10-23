@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-plugin-market",
+  "name": "@metaworkflow/plugin-market",
   "description": "Configured plugin market indexes for the Web Discover page and the plugin_market agent tool",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -49,11 +49,11 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-package-manifest": "workspace:*",
-    "@deepseek-ai/dsh-plugin-market-index": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*",
+    "@metaworkflow/app-boot": "workspace:*",
+    "@metaworkflow/package-manifest": "workspace:*",
+    "@metaworkflow/plugin-market-index": "workspace:*",
+    "@metaworkflow/timeout": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*",
     "@deepseek-ai/schemastery": "workspace:~",
     "minisearch": "^7.2.0",
     "semver": "^7.8.5",
@@ -62,13 +62,13 @@
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-plugin-manager": "workspace:*",
-    "@deepseek-ai/dsh-settings": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@metaworkflow/plugin-manager": "workspace:*",
+    "@metaworkflow/settings": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/dsh-settings": {
+    "@metaworkflow/settings": {
       "optional": true
     }
   },
@@ -76,14 +76,14 @@
     "@deepseek-ai/cordis": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
     "@deepseek-ai/cosmokit": "workspace:~",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-config-editor": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-plugin-manager": "workspace:*",
-    "@deepseek-ai/dsh-settings": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
+    "@metaworkflow/app-boot": "workspace:*",
+    "@metaworkflow/config-editor": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/plugin-manager": "workspace:*",
+    "@metaworkflow/settings": "workspace:*",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
     "@types/semver": "^7.8.0"
   }
 }

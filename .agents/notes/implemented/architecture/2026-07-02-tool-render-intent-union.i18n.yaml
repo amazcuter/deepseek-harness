@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-07-02-tool-render-intent-union.md
 /agent-note-tagged-render-intent-union-for-tool-call-presentation:
-  en: 599dd6f91059580e
-  zh: b6a46767bb4198e6
+  en: ba2d142e1df24b29
+  zh: ccf9f04c21e14ce9
 /agent-note-tagged-render-intent-union-for-tool-call-presentation/problem:
   en: 3a4b92dca651b979
   zh: 6b10ce7ba3681180
@@ -12,11 +12,11 @@
   en: aff6d789bde63f17
   zh: 73782526b46a3ee5
 /agent-note-tagged-render-intent-union-for-tool-call-presentation/decision/why-a-tagged-union-beats-the-field-bag:
-  en: ed7b15039050e65e
-  zh: a719562b5fcdbd4e
+  en: de480330e3b06227
+  zh: bc90cfce33382419
 /agent-note-tagged-render-intent-union-for-tool-call-presentation/decision/producer-mapping:
-  en: c87f22a29caef002
-  zh: 7bfd28c1df80b8a1
+  en: edd0fb052e5ff757
+  zh: 66915550b020c895
 /agent-note-tagged-render-intent-union-for-tool-call-presentation/decision/terminal-fallback-ownership:
   en: 0bb2f60726afc4d9
   zh: 60040141447b4a2e
@@ -33,5 +33,5 @@
   en: e9d60967a9b3f9bd
   zh: 6dfa9ac30d847879
 /agent-note-tagged-render-intent-union-for-tool-call-presentation/related:
-  en: 00bdd1bb918bc844
-  zh: b6d40587041e3245
+  en: f902f07115e206ea
+  zh: d34f6ed6e6a08292

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { parseDshArgs } from '../src/args.ts'
+import { parseMwfArgs } from '../src/args.ts'
 
-const parse = (argv: string[], manageDesktopProfile = false) => parseDshArgs(argv, '1.2.3', manageDesktopProfile)
+const parse = (argv: string[], manageDesktopProfile = false) => parseMwfArgs(argv, '1.2.3', manageDesktopProfile)
 
 /** Capture the process exit code while muting Commander's output. */
 function exitCode(argv: string[], manageDesktopProfile = false): number {
@@ -20,7 +20,7 @@ function exitCode(argv: string[], manageDesktopProfile = false): number {
 
 afterEach(() => { vi.restoreAllMocks() })
 
-describe('parseDshArgs', () => {
+describe('parseMwfArgs', () => {
   it('routes profile boots and shorthand, handing the rest to the app', () => {
     expect(parse(['--profile', 'tui'])).toEqual({ mode: 'profile', profile: 'tui', patches: [], args: [] })
     expect(parse(['--profile', 'tui', '--patch', 'a.yml', '--patch', 'b.yml']))
@@ -138,7 +138,7 @@ describe('parseDshArgs', () => {
   ])('prints the plugin forwarder help for %j', (...argv: string[]) => {
     const stdout = vi.spyOn(process.stdout, 'write').mockReturnValue(true)
     expect(exitCode(argv)).toBe(0)
-    expect(stdout.mock.calls.map(([chunk]) => String(chunk)).join('')).toContain('Usage: dsh plugin [options] [args...]')
+    expect(stdout.mock.calls.map(([chunk]) => String(chunk)).join('')).toContain('Usage: mwf plugin [options] [args...]')
   })
 
   it.each(['desktop', 'Desktop', 'DESKTOP'])('permits installed Desktop plugin commands for %s', (profile) => {

@@ -5,57 +5,57 @@
 /:
   en: 356614b4af1ad375
   zh: f76a068b5f056574
-/deepseek-ai-dsh-session-telemetry-otel:
-  en: f8ea869792c8b207
-  zh: bc076172ce22ba9b
-/deepseek-ai-dsh-session-telemetry-otel/summary:
-  en: 828903209ef34983
-  zh: 8eac63f1e8df15d8
-/deepseek-ai-dsh-session-telemetry-otel/table-of-contents:
+/metaworkflow-session-telemetry-otel:
+  en: a6a18ba3609b11d2
+  zh: a67299628e9cd5d6
+/metaworkflow-session-telemetry-otel/summary:
+  en: a8e36ddb6f60a8eb
+  zh: 942ca383c87d45d0
+/metaworkflow-session-telemetry-otel/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-session-telemetry-otel/use-this-package:
+/metaworkflow-session-telemetry-otel/use-this-package:
   en: 9b82f2819ddaa3f4
   zh: b6ad90b11e7e0ef7
-/deepseek-ai-dsh-session-telemetry-otel/use-this-package/modes:
-  en: bc7e598148a7f8c3
-  zh: 0209c6aa258ec134
-/deepseek-ai-dsh-session-telemetry-otel/use-this-package/minimal-configuration:
+/metaworkflow-session-telemetry-otel/use-this-package/modes:
+  en: e6356325cee9ead0
+  zh: 8b579b69e26f3b67
+/metaworkflow-session-telemetry-otel/use-this-package/minimal-configuration:
   en: 11845fd50dc0a494
   zh: ee990bfca3621bd3
-/deepseek-ai-dsh-session-telemetry-otel/use-this-package/what-leaves-the-machine:
-  en: 2a5ddd227e400455
-  zh: 74b7bd9b9161b054
-/deepseek-ai-dsh-session-telemetry-otel/use-this-package/failures-and-shutdown:
+/metaworkflow-session-telemetry-otel/use-this-package/what-leaves-the-machine:
+  en: 6296fc9d79d71f20
+  zh: 260ca9dabbbe2ca4
+/metaworkflow-session-telemetry-otel/use-this-package/failures-and-shutdown:
   en: a66831cb9de57e04
   zh: 3ada28bb868e0932
-/deepseek-ai-dsh-session-telemetry-otel/understand-the-implementation:
+/metaworkflow-session-telemetry-otel/understand-the-implementation:
   en: ee672a6a6f0fa02d
   zh: c3bab8e6b60e768c
-/deepseek-ai-dsh-session-telemetry-otel/understand-the-implementation/design-concept:
+/metaworkflow-session-telemetry-otel/understand-the-implementation/design-concept:
   en: 34f8a88224a1f6cf
   zh: 40839dabaea39602
-/deepseek-ai-dsh-session-telemetry-otel/understand-the-implementation/source-map:
+/metaworkflow-session-telemetry-otel/understand-the-implementation/source-map:
   en: 0b99d2e5c27213cd
   zh: 3cbdaa7f6a45d81a
-/deepseek-ai-dsh-session-telemetry-otel/understand-the-implementation/capture-wiring:
+/metaworkflow-session-telemetry-otel/understand-the-implementation/capture-wiring:
   en: 5c85eb0992eb5b2b
   zh: a19cdd5814c0e2b9
-/deepseek-ai-dsh-session-telemetry-otel/understand-the-implementation/field-mapping:
+/metaworkflow-session-telemetry-otel/understand-the-implementation/field-mapping:
   en: a42e9e081fb93bee
   zh: b8e817c2455278b9
-/deepseek-ai-dsh-session-telemetry-otel/further-exploration:
-  en: 155b75490ec65d86
-  zh: 07d37d6e4ac90c89
-/deepseek-ai-dsh-session-telemetry-otel/model-experience:
+/metaworkflow-session-telemetry-otel/further-exploration:
+  en: f4570284fd73ec05
+  zh: c37c6a4e2d4db4bf
+/metaworkflow-session-telemetry-otel/model-experience:
   en: a5a1c890ddacd9a9
   zh: 019c0d113e141853
-/deepseek-ai-dsh-session-telemetry-otel/model-experience/kv-cache-effect:
+/metaworkflow-session-telemetry-otel/model-experience/kv-cache-effect:
   en: 7593cf5d0d2cedd6
   zh: f57cc48a1b5cbfa9
-/deepseek-ai-dsh-session-telemetry-otel/known-limitations-and-deferred-work:
-  en: 5d0b88f8256bd782
-  zh: 36b8d64645ed6c2e
-/deepseek-ai-dsh-session-telemetry-otel/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-session-telemetry-otel/known-limitations-and-deferred-work:
+  en: 529330c3ddfecbac
+  zh: 1e9e832a50fb8256
+/metaworkflow-session-telemetry-otel/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

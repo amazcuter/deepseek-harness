@@ -3,7 +3,7 @@ description: "IANA time-zone validation and canonicalization for maintainers acc
 kind: "package-library"
 ---
 
-# dsh-util-time
+# mwf-util-time
 
 English | [中文](README.zh.md)
 
@@ -34,7 +34,7 @@ Call it at the boundary that receives the zone, before the value reaches anythin
 ## API
 
 ```ts
-import { canonicalClientTimeZone } from '@deepseek-ai/dsh-util-time'
+import { canonicalClientTimeZone } from '@metaworkflow/util-time'
 ```
 
 | Export | Role |
@@ -44,7 +44,7 @@ import { canonicalClientTimeZone } from '@deepseek-ai/dsh-util-time'
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through the consumer that records a canonical zone on a durable message, from which `dsh-time-context` renders the turn's model-visible zone instruction and timestamp.
+Indirectly, through the consumer that records a canonical zone on a durable message, from which `mwf-time-context` renders the turn's model-visible zone instruction and timestamp.
 
 #### KV Cache effect
 

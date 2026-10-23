@@ -53,7 +53,7 @@ beforeEach(() => {
   state.pnpm = '11.7.0'
   state.failure = undefined
   process.argv = [process.execPath, 'prepare-runtime.ts']
-  vi.stubEnv('DSH_DESKTOP_PACKAGING_RUN_DIR', undefined)
+  vi.stubEnv('MWF_DESKTOP_PACKAGING_RUN_DIR', undefined)
   state.preparePrimary.mockImplementation(async () => {
     if (state.failure === 'primary') throw new Error('primary preparation failed')
     const root = join(state.root, 'runtime', 'primary-runtime')
@@ -84,7 +84,7 @@ it.each(['mac-arm64', 'mac-x64', 'win-x64'] as const)('prepares %s with one pnpm
   expect(existsSync(join(runtime, 'pnpm'))).toBe(false)
   expect(existsSync(join(runtime, 'primary-runtime', 'dependencies', 'pnpm', 'bin', 'pnpm.mjs'))).toBe(true)
   expect(existsSync(join(runtime, 'bin', 'node'))).toBe(true)
-  expect(existsSync(join(runtime, 'cli', 'bin', windows ? 'dsh.cmd' : 'dsh'))).toBe(true)
+  expect(existsSync(join(runtime, 'cli', 'bin', windows ? 'mwf.cmd' : 'mwf'))).toBe(true)
   expect(readFileSync(join(runtime, 'cli', 'command-manager.js'), 'utf8')).toBe('command manager fixture')
   expect(existsSync(join(runtime, 'cli', 'command-path.ps1'))).toBe(true)
   expect(JSON.parse(readFileSync(join(runtime, 'versions.json'), 'utf8'))).toEqual({

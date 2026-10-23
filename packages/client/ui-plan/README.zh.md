@@ -3,7 +3,7 @@ description: "Web GUI 的 plan 模式状态徽章：显示 plan 模式已开启�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-plan
+# @metaworkflow/client-ui-plan
 
 [English](README.md) | 中文
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-与 `ui-conversation` 及 `dsh-plan-mode` 一起挂载本插件；plan 模式激活时，徽章随即占据 composer 的 plan 座位（访问模式控件右侧）。经 `/plan` 命令路径进入 plan 模式——从 composer 的 `+` Command 菜单选择「计划」，或键入 `/plan`——再用徽章将其关闭。
+与 `ui-conversation` 及 `mwf-plan-mode` 一起挂载本插件；plan 模式激活时，徽章随即占据 composer 的 plan 座位（访问模式控件右侧）。经 `/plan` 命令路径进入 plan 模式——从 composer 的 `+` Command 菜单选择「计划」，或键入 `/plan`——再用徽章将其关闭。
 
 ### 徽章显示什么
 
@@ -66,9 +66,9 @@ kind: "package-reference"
 
 当 plan surface 不够用时阅读以下页面。它们从徽章进入 plan 模式领域与 composer 外壳。
 
-- [dsh-plan-mode](../../plan/plan-mode/README.zh.md)——拥有 plan 模式、`/plan` 命令、投影与 policy 段。
+- [mwf-plan-mode](../../plan/plan-mode/README.zh.md)——拥有 plan 模式、`/plan` 命令、投影与 policy 段。
 - [ui-conversation](../ui-conversation/README.zh.md)——声明 composer 的 `conversation.input.plan` 座位与 placeholder locale 键。
-- [工具目录](../../../docs/tool-catalog.zh.md#deepseek-aidsh-plan-mode)——模型退出 plan 模式所用的 `exit_plan_mode` 工具 schema。
+- [工具目录](../../../docs/tool-catalog.zh.md#metaworkflowplan-mode)——模型退出 plan 模式所用的 `exit_plan_mode` 工具 schema。
 - [客户端包映射](../README.zh.md)——相邻的浏览器 UI 包。
 
 -----
@@ -76,7 +76,7 @@ kind: "package-reference"
 <a id="model-experience"></a>
 ## 模型体验
 
-间接地，通过 chip 派发的 `/plan off` 命令行：`dsh-plan-mode` 拥有该命令行驱动的模型可见 policy 段、退出工具 schema 与已记录状态。
+间接地，通过 chip 派发的 `/plan off` 命令行：`mwf-plan-mode` 拥有该命令行驱动的模型可见 policy 段、退出工具 schema 与已记录状态。
 
 #### KV Cache 影响
 

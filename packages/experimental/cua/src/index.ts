@@ -2,15 +2,15 @@
 import { join } from 'node:path'
 import { Buffer } from 'node:buffer'
 import { tmpdir } from 'node:os'
-import { withFileLock } from '@deepseek-ai/dsh-atomic-write'
+import { withFileLock } from '@metaworkflow/atomic-write'
 import type { Context, Volatile } from '@deepseek-ai/cordis'
 import Schema from '@deepseek-ai/schemastery'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { ComputerUseProviderName } from '@deepseek-ai/dsh-computer-use/brand'
-import { admitEncodedImages } from '@deepseek-ai/dsh-attachment'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import type { ContentBlock } from '@deepseek-ai/dsh-llm'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { Agent } from '@metaworkflow/agent'
+import { ComputerUseProviderName } from '@metaworkflow/computer-use/brand'
+import { admitEncodedImages } from '@metaworkflow/attachment'
+import type { ImageAttachmentRef } from '@metaworkflow/attachment'
+import type { ContentBlock } from '@metaworkflow/llm'
+import type { JsonValue } from '@metaworkflow/util-values'
 import { z } from 'zod'
 import { NativeClient, NativeError, type NativeClientConfig, type NativeChannelFactory } from './native-client.ts'
 import { ApplicationAuthorizationResult, ApplicationAccess } from './application-access.ts'
@@ -18,12 +18,12 @@ import type { CuaApplicationGrant, CuaApplicationId } from './application-types.
 import type { CuaAppHandle, CuaOperation } from './types.ts'
 import { AppResult, NativeScreenshotResult, Request, ScreenshotResult, StateResult, WindowsResult } from './protocol.ts'
 import { CuaCoordinates } from './coordinates.ts'
-import type {} from '@deepseek-ai/dsh-system-prompt'
-import type { ToolExecution } from '@deepseek-ai/dsh-tools'
-import type {} from '@deepseek-ai/dsh-subprocess'
-import type {} from '@deepseek-ai/dsh-computer-use'
-import type {} from '@deepseek-ai/dsh-ptc-runtime'
-import type {} from '@deepseek-ai/dsh-settings'
+import type {} from '@metaworkflow/system-prompt'
+import type { ToolExecution } from '@metaworkflow/tools'
+import type {} from '@metaworkflow/subprocess'
+import type {} from '@metaworkflow/computer-use'
+import type {} from '@metaworkflow/ptc-runtime'
+import type {} from '@metaworkflow/settings'
 import type {} from '@deepseek-ai/cordis-plugin-loader'
 
 
@@ -97,7 +97,7 @@ export const CuaConfig = Schema.object({
 
 
 function executionAgent(execution: Readonly<ToolExecution>): Agent {
-  if (!execution.agent) throw new Error('dsh-cua requires an agent-owned execution')
+  if (!execution.agent) throw new Error('mwf-cua requires an agent-owned execution')
   return execution.agent
 }
 
@@ -180,7 +180,7 @@ export function installCua(ctx: Context, config: CuaConfig, backend: CuaBackend)
   }>()
   const closedOwners = new WeakSet<Agent>()
   function ownerFor(agent: Agent) {
-    if (closedOwners.has(agent) || ctx.agents.get(agent.id) !== agent) throw new Error('dsh-cua agent has been disposed')
+    if (closedOwners.has(agent) || ctx.agents.get(agent.id) !== agent) throw new Error('mwf-cua agent has been disposed')
     const existing = ownerCleanups.get(agent)
     if (existing) return existing
     const controller = new AbortController()
@@ -199,13 +199,13 @@ export function installCua(ctx: Context, config: CuaConfig, backend: CuaBackend)
         }
       })
     }
-    const release = agent.ctx.effect(() => close, 'dsh-cua.agent')
+    const release = agent.ctx.effect(() => close, 'mwf-cua.agent')
     const owner = { close, release, signal: controller.signal, coordinates: new CuaCoordinates() }
     ownerCleanups.set(agent, owner)
     return owner
   }
   ctx.effect(function* () {
-    yield ctx.computerUse.register(ComputerUseProviderName('dsh-cua'))
+    yield ctx.computerUse.register(ComputerUseProviderName('mwf-cua'))
     yield async () => {
       lifetime.abort()
       const permissions = Promise.allSettled([access.dispose()])
@@ -215,7 +215,7 @@ export function installCua(ctx: Context, config: CuaConfig, backend: CuaBackend)
       const releases = await Promise.allSettled(owners.map(owner => owner.release()))
       const errors: unknown[] = []
       for (const result of [...await permissions, ...results, ...releases]) if (result.status === 'rejected') errors.push(result.reason)
-      if (errors.length > 0) throw new AggregateError(errors, 'dsh-cua helper cleanup failed')
+      if (errors.length > 0) throw new AggregateError(errors, 'mwf-cua helper cleanup failed')
     }
     const callNative = async (request: CuaOperation, execution: Readonly<CuaExecution>) => {
       const { method, params: parsedParams } = request
@@ -252,7 +252,7 @@ export function installCua(ctx: Context, config: CuaConfig, backend: CuaBackend)
           pixelWidth: image.width, pixelHeight: image.height, coordinateSpace: 'screenshot-pixels', attachment }
       }
       const result = method === 'paste'
-        ? await withFileLock(join(tmpdir(), 'dsh-cua-system-clipboard'), requestNative, { waitMs: config.timeoutMs, signal })
+        ? await withFileLock(join(tmpdir(), 'mwf-cua-system-clipboard'), requestNative, { waitMs: config.timeoutMs, signal })
         : await requestNative()
       if (method === 'getApp') {
         const prepared = AppResult.extend({ pid: AppResult.shape.pid.nullable() }).parse(result)
@@ -321,12 +321,12 @@ export function installCua(ctx: Context, config: CuaConfig, backend: CuaBackend)
       },
     })
     yield ctx.systemPrompt.section({
-      name: 'computer-use:dsh-cua', order: ctx.systemPrompt.getSectionOrder('TOOL_COMPUTER_USE'),
+      name: 'computer-use:mwf-cua', order: ctx.systemPrompt.getSectionOrder('TOOL_COMPUTER_USE'),
       text: () => ctx.get('ptcRuntime')?.programFormat !== 'repl' ? backend.guidance : `${backend.guidance}
 
 Persistent PTC initialization:
 var { connectCua } = await import(${JSON.stringify(new URL('../lib/bridge.js', import.meta.url).href)});
 var cua = connectCua(() => tools.cua, text => console.log(text));`,
     })
-  }, 'dsh-cua.runtime')
+  }, 'mwf-cua.runtime')
 }

@@ -6,7 +6,7 @@
  * The worker's unsolicited `view-text` frame opens the page's text viewer.
  */
 
-import type { IndexInjection } from '@deepseek-ai/dsh-host-webserver'
+import type { IndexInjection } from '@metaworkflow/host-webserver'
 import type {
   TunnelAbortFrame as AbortFrame,
   TunnelOutboundFrame as ResponseFrame,
@@ -58,12 +58,12 @@ interface TunnelStreamFailureMarker {
 
 /** Error carrying stream semantics across independently bundled Client code. */
 class TunnelLogicalStreamError extends Error {
-  readonly dshRemoteStreamFailure: TunnelStreamFailureMarker
+  readonly mwfRemoteStreamFailure: TunnelStreamFailureMarker
 
   constructor(failure: TunnelStreamErrorFrame['failure'], options?: ErrorOptions) {
     super(failure.message, options)
     this.name = 'TunnelLogicalStreamError'
-    this.dshRemoteStreamFailure = failure.kind === 'remote'
+    this.mwfRemoteStreamFailure = failure.kind === 'remote'
       ? { kind: 'remote', code: failure.code, details: failure.details }
       : { kind: 'carrier' }
   }

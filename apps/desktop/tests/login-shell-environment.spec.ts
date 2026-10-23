@@ -10,11 +10,11 @@ import {
 const account = vi.hoisted(() => ({ userInfo: vi.fn() }))
 vi.mock('node:os', async importOriginal => ({ ...await importOriginal<typeof import('node:os')>(), userInfo: account.userInfo }))
 
-const DELIMITER = '_DSH_SHELL_ENV_DELIMITER_'
+const DELIMITER = '_MWF_SHELL_ENV_DELIMITER_'
 const config = { timeoutMs: 5_000 }
 let directory: string
 
-beforeEach(() => { directory = mkdtempSync(join(tmpdir(), 'dsh-login-shell-')) })
+beforeEach(() => { directory = mkdtempSync(join(tmpdir(), 'mwf-login-shell-')) })
 afterEach(() => { rmSync(directory, { recursive: true, force: true }) })
 
 /** Whether `pid` has exited; Linux can keep a killed process as a zombie until its new parent reaps it. */
@@ -40,12 +40,12 @@ function shell(name: string, body: string): string {
 describe('resolveDesktopLoginShellConfig', () => {
   it('defaults to ten seconds and accepts an override', () => {
     expect(resolveDesktopLoginShellConfig({})).toEqual({ timeoutMs: 10_000 })
-    expect(resolveDesktopLoginShellConfig({ DSH_DESKTOP_LOGIN_SHELL_TIMEOUT_MS: '2500' })).toEqual({ timeoutMs: 2_500 })
+    expect(resolveDesktopLoginShellConfig({ MWF_DESKTOP_LOGIN_SHELL_TIMEOUT_MS: '2500' })).toEqual({ timeoutMs: 2_500 })
   })
 
   it.each(['999', '1.5', 'soon', '2147483648'])('rejects %s', (value) => {
-    expect(() => resolveDesktopLoginShellConfig({ DSH_DESKTOP_LOGIN_SHELL_TIMEOUT_MS: value }))
-      .toThrow('DSH_DESKTOP_LOGIN_SHELL_TIMEOUT_MS must be an integer from 1000 through 2147483647')
+    expect(() => resolveDesktopLoginShellConfig({ MWF_DESKTOP_LOGIN_SHELL_TIMEOUT_MS: value }))
+      .toThrow('MWF_DESKTOP_LOGIN_SHELL_TIMEOUT_MS must be an integer from 1000 through 2147483647')
   })
 })
 
@@ -80,13 +80,13 @@ describe('parseLoginShellOutput', () => {
 
 describe('mergeLoginShellEnvironment', () => {
   it('lets shell values win except probe-session and launcher-owned names', () => {
-    const base = { PATH: '/usr/bin', HOME: '/home/user', DSH_DESKTOP_DSH_DIR: '/launcher', PWD: '/' }
+    const base = { PATH: '/usr/bin', HOME: '/home/user', MWF_DESKTOP_MWF_DIR: '/launcher', PWD: '/' }
     const merged = mergeLoginShellEnvironment(base, {
       PATH: '/login/bin:/usr/bin', XDG_CACHE_HOME: '/cache', PWD: '/home/user', OLDPWD: '/', SHLVL: '2', _: '/usr/bin/env',
       DISABLE_AUTO_UPDATE: 'true', ZSH_TMUX_AUTOSTARTED: 'true', ZSH_TMUX_AUTOSTART: 'false',
-      DSH_DESKTOP_DSH_DIR: '/rc', DSH_HOME: '/rc-home', ELECTRON_RUN_AS_NODE: '1',
+      MWF_DESKTOP_MWF_DIR: '/rc', MWF_HOME: '/rc-home', ELECTRON_RUN_AS_NODE: '1',
     })
-    expect(merged).toEqual({ PATH: '/login/bin:/usr/bin', HOME: '/home/user', DSH_DESKTOP_DSH_DIR: '/launcher', PWD: '/', XDG_CACHE_HOME: '/cache' })
+    expect(merged).toEqual({ PATH: '/login/bin:/usr/bin', HOME: '/home/user', MWF_DESKTOP_MWF_DIR: '/launcher', PWD: '/', XDG_CACHE_HOME: '/cache' })
     expect(base.PATH).toBe('/usr/bin')
   })
 })

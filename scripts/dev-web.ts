@@ -1,14 +1,14 @@
 /**
- * The Web development loop: build once, serve through `dsh web`, and keep every
+ * The Web development loop: build once, serve through `mwf web`, and keep every
  * browser-side artifact rebuilt on source edits, in one terminal.
  *
  * Stages, in order: `pnpm run build:artifacts` (skipped by `--skip-build`), three
- * long-lived watchers, then `dsh web` (skipped by `--no-serve`). The watchers
+ * long-lived watchers, then `mwf web` (skipped by `--no-serve`). The watchers
  * exist because the compile shell links built lib products rather than
  * sources: `tsc -b tsconfig.client.json --watch` emits `lib/types` (the tsdown
  * lib entries are that emit, not `src`), tsdown watch bundles `lib/index.js`
  * and `lib/client.js`, and `vite build --watch` rewrites `apps/web/dist`, which
- * `dsh web` serves. A missing watcher does not fail — it silently shows the
+ * `mwf web` serves. A missing watcher does not fail — it silently shows the
  * previous artifact, so an edit appears to do nothing; any stage exiting on its
  * own therefore stops the loop with exit code 1.
  *
@@ -19,11 +19,11 @@
  * MUST NOT run beside `pnpm run build` or `build:artifacts`: they write the same `lib/` and
  * `apps/web/dist/` trees. The build stage here finishes before any watcher starts.
  *
- * Usage: `pnpm run dev:web [--skip-build] [--no-serve] [--poll[=ms]] [dsh web arguments]`.
+ * Usage: `pnpm run dev:web [--skip-build] [--no-serve] [--poll[=ms]] [mwf web arguments]`.
  * `--skip-build` requires the artifact tree from a prior `build` or `build:artifacts`: every
  * watcher is incremental over the previous stage's output and none of them
  * bootstraps a missing tree. `--no-serve` keeps only the watchers, for a
- * `dsh web` started elsewhere. `--poll` switches the source watchers to polling
+ * `mwf web` started elsewhere. `--poll` switches the source watchers to polling
  * (default 500ms): network mounts (weka) deliver no inotify events, so native
  * watching sees the initial build only and never a source change. Polling has
  * to reach tsc too — a native-watching tsc never re-emits `lib/types`, which
@@ -56,8 +56,8 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url))
 /** Client-face type emit feeding every tsdown lib entry in the watch set. */
 const CLIENT_TYPE_PROGRAM = 'tsconfig.client.json'
 
-/** Compile-shell workspace whose dist `dsh web` serves. */
-const SHELL_PACKAGE = '@deepseek-ai/dsh-web-frontend'
+/** Compile-shell workspace whose dist `mwf web` serves. */
+const SHELL_PACKAGE = '@metaworkflow/web-frontend'
 
 /**
  * Test infrastructure builds through the client preset but never enters the
@@ -78,15 +78,15 @@ export function devWebBuildEnvironment(
   return clientBuildProcessEnvironment(environment, repositoryClientBuildEnvironment(root, environment))
 }
 
-/** Resolved `dev-web` command line: the script's own flags plus the arguments forwarded to `dsh web`. */
+/** Resolved `dev-web` command line: the script's own flags plus the arguments forwarded to `mwf web`. */
 export interface DevWebArguments {
   /** Skip the `pnpm run build:artifacts` that otherwise precedes the watchers. */
   readonly skipBuild: boolean
-  /** Start `dsh web`; false keeps only the rebuild watchers beside an already running server. */
+  /** Start `mwf web`; false keeps only the rebuild watchers beside an already running server. */
   readonly serve: boolean
   /** Source-watcher polling interval in milliseconds; undefined selects native watching. */
   readonly pollInterval: number | undefined
-  /** Arguments forwarded verbatim to `dsh web`, in order. */
+  /** Arguments forwarded verbatim to `mwf web`, in order. */
   readonly appArgs: readonly string[]
 }
 
@@ -96,11 +96,11 @@ const DEFAULT_POLL_INTERVAL = 500
 /**
  * Parse the script's command line. `--skip-build`, `--no-serve`, and `--poll[=ms]`
  * belong to this script; a bare `--` is dropped; every other token is forwarded
- * to `dsh web`.
+ * to `mwf web`.
  * @param argv - arguments after the script path.
  * @returns the resolved flags and forwarded arguments.
  * @throws Error when `--poll` carries a non-positive or non-integer interval, or
- * when `--no-serve` leaves forwarded arguments without a `dsh web` process.
+ * when `--no-serve` leaves forwarded arguments without a `mwf web` process.
  */
 export function parseDevWebArguments(argv: readonly string[]): DevWebArguments {
   let skipBuild = false
@@ -118,14 +118,14 @@ export function parseDevWebArguments(argv: readonly string[]): DevWebArguments {
     } else appArgs.push(arg)
   }
   if (!serve && appArgs.length > 0) {
-    throw new Error(`dev-web: --no-serve leaves no dsh web process for ${appArgs[0] ?? ''}`)
+    throw new Error(`dev-web: --no-serve leaves no mwf web process for ${appArgs[0] ?? ''}`)
   }
   return { skipBuild, serve, pollInterval, appArgs }
 }
 
 /**
  * Discover the watch workspace by declaration: every packages/<group>/<name>
- * whose package.json carries `dsh.client` with platform "web" is a client
+ * whose package.json carries `mwf.client` with platform "web" is a client
  * plugin bundle emitter. Scanned once at startup — a package added while
  * watching means restarting this script.
  * @param root - repository root containing the grouped package directories.
@@ -135,9 +135,9 @@ export function discoverPluginDirs(root = repoRoot): string[] {
   const dirs: string[] = []
   for (const manifestPath of globSync('packages/*/*/package.json', { cwd: root }).sort()) {
     const manifest = JSON.parse(readFileSync(join(root, manifestPath), 'utf8')) as {
-      dsh?: { client?: { platform?: unknown } }
+      mwf?: { client?: { platform?: unknown } }
     }
-    if (manifest.dsh?.client?.platform === 'web') dirs.push(dirname(manifestPath).split(sep).join('/'))
+    if (manifest.mwf?.client?.platform === 'web') dirs.push(dirname(manifestPath).split(sep).join('/'))
   }
   return dirs
 }
@@ -145,7 +145,7 @@ export function discoverPluginDirs(root = repoRoot): string[] {
 /**
  * Discover the statically linked library packages: the other half of the same
  * partition {@link discoverPluginDirs} takes. A package that builds through the
- * client preset without declaring `dsh.client` has no loader-delivered browser
+ * client preset without declaring `mwf.client` has no loader-delivered browser
  * half, so the compile shell links its `lib/index.js` instead — and an edit to
  * its source reaches the browser only once that bundle is rewritten. Deriving
  * the set from the build preset rather than a hand list keeps it correct when
@@ -161,9 +161,9 @@ export function discoverLibraryDirs(root = repoRoot): string[] {
     if (dir.startsWith(TEST_INFRASTRUCTURE_PREFIX)) continue
     if (!readFileSync(join(root, configPath), 'utf8').includes('tsdown.client.ts')) continue
     const manifest = JSON.parse(readFileSync(join(root, dir, 'package.json'), 'utf8')) as {
-      dsh?: { client?: unknown }
+      mwf?: { client?: unknown }
     }
-    if (manifest.dsh?.client === undefined) dirs.push(dir)
+    if (manifest.mwf?.client === undefined) dirs.push(dir)
   }
   return dirs
 }
@@ -283,7 +283,7 @@ export class StageSupervisor {
 }
 
 /**
- * Grace period per escalation step. `dsh web` gives its plugin tree five seconds
+ * Grace period per escalation step. `mwf web` gives its plugin tree five seconds
  * to dispose after the first signal; escalating earlier would turn the graceful
  * drain into a forced exit.
  */
@@ -337,7 +337,7 @@ if (isMain) {
     options = parseDevWebArguments(process.argv.slice(2))
   } catch (error) {
     console.error(error instanceof Error ? error.message : error)
-    console.error('dev-web: usage: pnpm run dev:web [--skip-build] [--no-serve] [--poll[=ms]] [dsh web arguments]')
+    console.error('dev-web: usage: pnpm run dev:web [--skip-build] [--no-serve] [--poll[=ms]] [mwf web arguments]')
     process.exit(1)
   }
 
@@ -372,18 +372,18 @@ if (isMain) {
 
   const buildEnvironment = devWebBuildEnvironment(repoRoot, process.env)
   for (const name of Object.keys(process.env)) {
-    if (name === CLIENT_BUILD_PROFILE_SELECTOR || name.startsWith('DSH_CLIENT_')) {
+    if (name === CLIENT_BUILD_PROFILE_SELECTOR || name.startsWith('MWF_CLIENT_')) {
       Reflect.deleteProperty(process.env, name)
     }
   }
   for (const [name, value] of Object.entries(buildEnvironment)) {
-    if (name.startsWith('DSH_CLIENT_') && value !== undefined) process.env[name] = value
+    if (name.startsWith('MWF_CLIENT_') && value !== undefined) process.env[name] = value
   }
 
   const pluginDirs = discoverPluginDirs()
   const libraryDirs = discoverLibraryDirs()
   if (pluginDirs.length === 0) {
-    console.error('dev-web: no dsh.client (platform "web") packages found under packages/')
+    console.error('dev-web: no mwf.client (platform "web") packages found under packages/')
     process.exit(1)
   }
   if (libraryDirs.length === 0) {
@@ -415,19 +415,19 @@ if (isMain) {
     // running vite from anywhere but apps/web silently switches which react copy
     // the bundle gets.
     spawnStage(supervisor, 'vite build --watch', 'pnpm', ['--filter', SHELL_PACKAGE, 'run', 'watch'], false)
-    // The same launch vector as the root `dsh` script, so the served Host runs
-    // from source exactly as `pnpm dsh web` would.
+    // The same launch vector as the root `mwf` script, so the served Host runs
+    // from source exactly as `pnpm mwf web` would.
     if (options.serve) {
-      spawnStage(supervisor, 'dsh web', process.execPath, [
+      spawnStage(supervisor, 'mwf web', process.execPath, [
         '--import', 'tsx/esm', 'apps/cli/src/bin.ts', 'web', ...options.appArgs,
       ], false)
     }
     console.log(
-      `dev-web: watching ${String(pluginDirs.length)} dsh.client plugin packages`
+      `dev-web: watching ${String(pluginDirs.length)} mwf.client plugin packages`
       + ` and ${String(libraryDirs.length)} statically linked library packages`
       + (options.pollInterval !== undefined ? ` (polling ${String(options.pollInterval)}ms)` : '')
       + `, plus tsc -b ${CLIENT_TYPE_PROGRAM} and the ${SHELL_PACKAGE} dist build`
-      + (options.serve ? ', serving through dsh web' : '')
+      + (options.serve ? ', serving through mwf web' : '')
       + ':\n  '
       + [...pluginDirs, ...libraryDirs].join('\n  '),
     )

@@ -1,12 +1,12 @@
 /** Turn a source list into a validated format-1 index, reusing cached results for unchanged releases and commits. */
 import { existsSync } from 'node:fs'
 import { join, posix } from 'node:path'
-import { parseMarketIndex } from '@deepseek-ai/dsh-plugin-market-index'
+import { parseMarketIndex } from '@metaworkflow/plugin-market-index'
 import semver from 'semver'
 import { cacheKey, gitRefs, npmPackument, npmTarball, withGitObjects, type FetchLimits, type GitObjects, type GitTransports } from './fetchers.ts'
 import { readJsonFile, writeIfChanged, type PackageFiles } from './files.ts'
 import { GENERATED_ICON, readDisplayMetadata, type Display, type IconFile } from './metadata.ts'
-import { dshRange, findBundlePackages, isBundle, readManifest, type Manifest } from './packages.ts'
+import { mwfRange, findBundlePackages, isBundle, readManifest, type Manifest } from './packages.ts'
 import type { Source } from './sources.ts'
 
 /** One generated version, in the field order of the format. */
@@ -14,7 +14,7 @@ export interface GeneratedVersion {
   readonly version: string
   readonly publishTimestamp: number
   readonly source: Readonly<Record<string, string>>
-  readonly engines?: { readonly dsh: string }
+  readonly engines?: { readonly mwf: string }
 }
 
 /** One generated plugin, in the field order of the format. */
@@ -132,10 +132,10 @@ function releaseOf(
   name: string, manifest: Manifest, version: string, publishTimestamp: number, source: Record<string, string>,
   warn: (message: string) => void,
 ): Release | undefined {
-  const range = dshRange(manifest)
+  const range = mwfRange(manifest)
   const release = {
     name,
-    version: { version, publishTimestamp, source, ...typeof range === 'string' ? { engines: { dsh: range } } : {} },
+    version: { version, publishTimestamp, source, ...typeof range === 'string' ? { engines: { mwf: range } } : {} },
   }
   const problem = range instanceof Error ? range.message : invalid([entryOf(name, [release])])?.replace('$.plugins[0]', 'entry')
   if (problem === undefined) return release
@@ -169,7 +169,7 @@ async function readNpm(source: Extract<Source, { kind: 'npm' }>, options: Genera
   })
   const highest = entryOf(source.name, releases).versions[0]?.version
   if (highest === undefined) {
-    warn('no published version declares dsh.bundle')
+    warn('no published version declares mwf.bundle')
     return []
   }
   const file = cache.file('npm', options.registry, options.inlineIconBytes, source.name, releases.map(release => release.version.version).sort())
@@ -287,7 +287,7 @@ async function readGit(source: Extract<Source, { kind: 'git' }>, options: Genera
 /** Names of the bundle packages on the default branch, by package directory. */
 async function headPackages(files: PackageFiles, warn: (message: string) => void): Promise<{ path: string; name: string }[]> {
   const paths = await findBundlePackages(files, warn)
-  if (paths.length === 0) warn('no package declares dsh.bundle')
+  if (paths.length === 0) warn('no package declares mwf.bundle')
   const packages: { path: string; name: string }[] = []
   for (const path of paths) {
     const name = (await readManifest(files.within(path), ''))?.name

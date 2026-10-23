@@ -3,59 +3,59 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/attachment/attachment-local/README.md
 /:
-  en: 5d8d225549347391
-  zh: 0fc0e5ee73acf917
-/deepseek-ai-dsh-attachment-local:
-  en: d43be6d0218e5f22
-  zh: 444ec4f8125c08b9
-/deepseek-ai-dsh-attachment-local/summary:
-  en: 2350024cee2e9954
-  zh: 73a4900b1e40013b
-/deepseek-ai-dsh-attachment-local/table-of-contents:
+  en: 0e39e65f49dd84e6
+  zh: 9d679013691fbcca
+/metaworkflow-attachment-local:
+  en: 9623d944f8bd5f6b
+  zh: 62f9b4abf8df733e
+/metaworkflow-attachment-local/summary:
+  en: ac5e244877cee826
+  zh: 2573ba7ee1edc87f
+/metaworkflow-attachment-local/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-attachment-local/use-this-package:
+/metaworkflow-attachment-local/use-this-package:
   en: 912a19be4b59ff8a
   zh: 9c14694cf2ebbaf2
-/deepseek-ai-dsh-attachment-local/use-this-package/minimal-configuration:
-  en: b34e09c3236f81f1
-  zh: c541b5dc22c8f307
-/deepseek-ai-dsh-attachment-local/use-this-package/where-your-images-are-stored-and-how-long-they-last:
-  en: 4ee90b8f74baa38c
-  zh: 9c577709ec55eb82
-/deepseek-ai-dsh-attachment-local/use-this-package/what-happens-when-you-attach-an-image:
+/metaworkflow-attachment-local/use-this-package/minimal-configuration:
+  en: deb72bf67698b174
+  zh: 47be2596a2d5b9df
+/metaworkflow-attachment-local/use-this-package/where-your-images-are-stored-and-how-long-they-last:
+  en: 9b9c6583eeecacf7
+  zh: 792c637456aa963a
+/metaworkflow-attachment-local/use-this-package/what-happens-when-you-attach-an-image:
   en: 75ba799b1e4edba4
   zh: 06c5f76200e8da8a
-/deepseek-ai-dsh-attachment-local/use-this-package/what-can-go-wrong:
+/metaworkflow-attachment-local/use-this-package/what-can-go-wrong:
   en: 377696b2dc08b170
   zh: 6b831ef31c93f712
-/deepseek-ai-dsh-attachment-local/understand-the-implementation:
+/metaworkflow-attachment-local/understand-the-implementation:
   en: e44b0aa3e234a0ef
   zh: b7dd6829478eb7f1
-/deepseek-ai-dsh-attachment-local/understand-the-implementation/design-decisions:
+/metaworkflow-attachment-local/understand-the-implementation/design-decisions:
   en: dcd9857653645420
   zh: a27259a09f17465d
-/deepseek-ai-dsh-attachment-local/understand-the-implementation/write-and-read-paths:
-  en: 609ccc784a87b770
-  zh: bc702582cf2b3316
-/deepseek-ai-dsh-attachment-local/understand-the-implementation/source-map:
+/metaworkflow-attachment-local/understand-the-implementation/write-and-read-paths:
+  en: 41f8e14410fc16a8
+  zh: 9a2b0c6f93d033f1
+/metaworkflow-attachment-local/understand-the-implementation/source-map:
   en: 05af85aa85934d01
   zh: 1c89e80d496dc0a3
-/deepseek-ai-dsh-attachment-local/further-exploration:
-  en: f8b09b2542211379
-  zh: 57a8fa44aa76b737
-/deepseek-ai-dsh-attachment-local/model-experience:
+/metaworkflow-attachment-local/further-exploration:
+  en: ff947ed855c8a06e
+  zh: ab3fe8da60f55967
+/metaworkflow-attachment-local/model-experience:
   en: 2e18b3dfbc5af126
   zh: aaee1745632c561a
-/deepseek-ai-dsh-attachment-local/model-experience/kv-cache-effect:
+/metaworkflow-attachment-local/model-experience/kv-cache-effect:
   en: 64670486210bdab7
   zh: 44c988dd6268c1ff
-/deepseek-ai-dsh-attachment-local/known-limitations-and-deferred-work:
+/metaworkflow-attachment-local/known-limitations-and-deferred-work:
   en: 46a33da5b3740127
   zh: c3ac244228b81d8f
-/deepseek-ai-dsh-attachment-local/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-attachment-local/known-limitations-and-deferred-work/dev-note:
   en: d56846da29ad869c
   zh: 41e655e01351fd1d
-/deepseek-ai-dsh-attachment-local/known-limitations-and-deferred-work/dev-note/future-retention-and-remote-storage:
-  en: d4bbda6aadc3c879
-  zh: 97a22323e77affb3
+/metaworkflow-attachment-local/known-limitations-and-deferred-work/dev-note/future-retention-and-remote-storage:
+  en: 0eaa6570003fc315
+  zh: b2685af7bbf9432e

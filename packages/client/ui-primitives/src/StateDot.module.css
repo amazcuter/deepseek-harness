@@ -41,7 +41,7 @@
 
 .spinnerMotion {
   transform-origin: center;
-  animation: dsh-state-dot-spin 1.5s linear infinite;
+  animation: mwf-state-dot-spin 1.5s linear infinite;
 }
 
 .spinnerTrack,
@@ -58,14 +58,14 @@
 
 .spinnerArc {
   stroke-dasharray: 12 150;
-  animation: dsh-state-dot-dash 1.5s ease-in-out infinite;
+  animation: mwf-state-dot-dash 1.5s ease-in-out infinite;
 }
 
-@keyframes dsh-state-dot-spin {
+@keyframes mwf-state-dot-spin {
   to { transform: rotate(360deg); }
 }
 
-@keyframes dsh-state-dot-dash {
+@keyframes mwf-state-dot-dash {
   0% {
     stroke-dasharray: 12 150;
     stroke-dashoffset: 0;

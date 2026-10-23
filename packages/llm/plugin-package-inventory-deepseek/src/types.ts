@@ -12,8 +12,8 @@ export interface DeepSeekPluginPackageInventoryExtension {
   readonly packages: readonly DeepSeekPluginPackageIdentity[]
 }
 
-declare module '@deepseek-ai/dsh-deepseek-llm-api-extensions/types' {
+declare module '@metaworkflow/deepseek-llm-api-extensions/types' {
   interface DeepSeekLlmApiExtensionMap {
-    dsh_plugin_packages: DeepSeekPluginPackageInventoryExtension
+    mwf_plugin_packages: DeepSeekPluginPackageInventoryExtension
   }
 }

@@ -1,14 +1,14 @@
 /** Exact historical conversion refusals; current-generation fixtures never qualify. */
 export const expectedUnsupported: Readonly<Partial<Record<string, { sourceVersion: number; reason: string }>>> = {
-  'packages/experimental/webworker-runtime/tests/fixtures/vfs-example/home/sessions/--dsh-workspace--/preview-architecture-review/session.v2.jsonl': {
+  'packages/experimental/webworker-runtime/tests/fixtures/vfs-example/home/sessions/--mwf-workspace--/preview-architecture-review/session.v2.jsonl': {
     sourceVersion: 2,
     reason: 'session snapshot line 3: format v2 surface before first step cannot acquire a system head without changing chronology',
   },
-  'packages/experimental/webworker-runtime/tests/fixtures/vfs-example/home/sessions/--dsh-workspace--/preview-follow-up-builder/session.v2.jsonl': {
+  'packages/experimental/webworker-runtime/tests/fixtures/vfs-example/home/sessions/--mwf-workspace--/preview-follow-up-builder/session.v2.jsonl': {
     sourceVersion: 2,
     reason: 'session snapshot line 3: format v2 surface before first step cannot acquire a system head without changing chronology',
   },
-  'packages/experimental/webworker-runtime/tests/fixtures/vfs-example/home/sessions/--dsh-workspace--/preview-showcase/session.v2.jsonl': {
+  'packages/experimental/webworker-runtime/tests/fixtures/vfs-example/home/sessions/--mwf-workspace--/preview-showcase/session.v2.jsonl': {
     sourceVersion: 2,
     reason: 'session snapshot line 3: format v2 surface before first step cannot acquire a system head without changing chronology',
   },

@@ -14,11 +14,11 @@ import {
 import { tmpdir } from 'node:os'
 import { join, posix, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Win32Error } from '@deepseek-ai/dsh-win32-process'
+import { Win32Error } from '@metaworkflow/win32-process'
 import type {
   CurrentTokenProcessBindings,
   NativePtr,
-} from '@deepseek-ai/dsh-win32-process'
+} from '@metaworkflow/win32-process'
 import {
   cleanupLinuxLaunchFiles,
   consumeLinuxLaunchRequest,
@@ -112,7 +112,7 @@ function internals(overrides: Partial<SpawnRunnerInternals> = {}): SpawnRunnerIn
 async function runWindows(
   host: FakeRunnerHost,
   native: SpawnRunnerInternals,
-  start: unknown = { type: 'start', cwd: 'C:\\target', env: { TARGET: 'yes', dsh_subprocess_runner: 'restored' } },
+  start: unknown = { type: 'start', cwd: 'C:\\target', env: { TARGET: 'yes', mwf_subprocess_runner: 'restored' } },
   targetArgv: string[] = ['tool.exe', 'literal arg'],
 ): Promise<void> {
   const running = runSpawnRunner(
@@ -169,7 +169,7 @@ describe('closed runner protocol', () => {
   })
 
   it('removes the private directory when request creation fails partway through', () => {
-    const isolatedTmp = mkdtempSync(join(tmpdir(), 'dsh-launch-failure-spec-'))
+    const isolatedTmp = mkdtempSync(join(tmpdir(), 'mwf-launch-failure-spec-'))
     vi.stubEnv('TMPDIR', isolatedTmp)
     vi.stubEnv('TMP', isolatedTmp)
     vi.stubEnv('TEMP', isolatedTmp)
@@ -229,8 +229,8 @@ describe('closed runner protocol', () => {
     cleanupLinuxLaunchFiles(files)
     cleanupLinuxLaunchFiles(files)
 
-    const target = join(tmpdir(), `dsh-runner-cleanup-target-${String(process.pid)}`)
-    const link = join(tmpdir(), `dsh-runner-cleanup-link-${String(process.pid)}`)
+    const target = join(tmpdir(), `mwf-runner-cleanup-target-${String(process.pid)}`)
+    const link = join(tmpdir(), `mwf-runner-cleanup-link-${String(process.pid)}`)
     scratch.push(target, link)
     mkdirSync(target, { recursive: true })
     symlinkSync(target, link)
@@ -343,7 +343,7 @@ describe('runner launch inputs', () => {
     expect(invocation[0]).toBe(process.execPath)
     expect(invocation).toContain(import.meta.resolve('tsx/esm'))
     expect(runnerInvocationAvailable(invocation)).toBe(true)
-    expect(runnerInvocationAvailable(['/definitely/missing-dsh-runner'])).toBe(false)
+    expect(runnerInvocationAvailable(['/definitely/missing-mwf-runner'])).toBe(false)
     expect(runnerInvocationAvailable(['node'])).toBe(true)
     expect(runnerInvocationAvailable(['node', 'runner.js'])).toBe(true)
 
@@ -356,7 +356,7 @@ describe('runner launch inputs', () => {
   })
 
   it('loads the source runner from an isolated application cwd', () => {
-    const directory = mkdtempSync(join(tmpdir(), 'dsh-runner-cwd-'))
+    const directory = mkdtempSync(join(tmpdir(), 'mwf-runner-cwd-'))
     scratch.push(directory)
     const invocation = spawnRunnerInvocation()
     const env = runnerEnvironment('unused', invocation)
@@ -445,7 +445,7 @@ describe('runner launch inputs', () => {
     expect(resolveWindowsExecutable('missing.cmd', 'C:\\target', {}, () => false, noSearchEnvironment))
       .toBeUndefined()
 
-    const directory = mkdtempSync(join(tmpdir(), 'dsh-windows-resolver-'))
+    const directory = mkdtempSync(join(tmpdir(), 'mwf-windows-resolver-'))
     scratch.push(directory)
     const executable = join(directory, 'direct.exe')
     const directoryCandidate = join(directory, 'directory')
@@ -522,7 +522,7 @@ describe('Linux one-shot exec bootstrap', () => {
   })
 
   it.skipIf(process.platform === 'win32')('preserves symlink-sensitive parent traversal in PATH candidates', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-linux-path-symlink-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-linux-path-symlink-'))
     scratch.push(root)
     const cwd = join(root, 'cwd')
     const target = join(root, 'target')
@@ -708,13 +708,13 @@ describe('Windows Job runner protocol owner', () => {
     expect(native.resolveWindowsExecutable).toHaveBeenCalledWith(
       'tool.exe',
       'C:\\target',
-      { TARGET: 'yes', dsh_subprocess_runner: 'restored' },
+      { TARGET: 'yes', mwf_subprocess_runner: 'restored' },
       undefined,
       { SAFE: 'bootstrap' },
     )
     expect(native.spawnCurrentTokenJobProcess).toHaveBeenCalledWith(expect.anything(), {
       command: 'tool.exe', applicationName: 'C:\\resolved\\tool.exe', args: ['literal arg'], cwd: 'C:\\target',
-      env: { TARGET: 'yes', dsh_subprocess_runner: 'restored' },
+      env: { TARGET: 'yes', mwf_subprocess_runner: 'restored' },
       stdio: { stdin: 4, stdout: 5, stderr: 6 },
     })
     expect(closeFileDescriptor).toHaveBeenCalledTimes(3)

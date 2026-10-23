@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-api-remotes",
+  "name": "@metaworkflow/api-remotes",
   "description": "Remote BFF assembly for application-selected Host capabilities",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -30,10 +30,10 @@
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json"
   },
-  "dsh": {
+  "mwf": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-api-gateway"
+        "@metaworkflow/api-gateway"
       ],
       "platform": "web",
       "immediately": true
@@ -52,52 +52,52 @@
     "lib/types/**/*.d.ts"
   ],
   "dependencies": {
-    "@deepseek-ai/dsh-deque": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*"
+    "@metaworkflow/deque": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-scope": "workspace:*"
+    "@metaworkflow/scope": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-preset-registry": "workspace:*",
-    "@deepseek-ai/dsh-api-gateway": "workspace:*",
-    "@deepseek-ai/dsh-api-job-controller": "workspace:*",
-    "@deepseek-ai/dsh-api-session-controller": "workspace:*",
-    "@deepseek-ai/dsh-api-settings-controller": "workspace:*",
-    "@deepseek-ai/dsh-api-workspace-controller": "workspace:*",
-    "@deepseek-ai/dsh-api-workspace-files": "workspace:*",
-    "@deepseek-ai/dsh-client-connection": "workspace:*",
-    "@deepseek-ai/dsh-client-file-upload": "workspace:*",
-    "@deepseek-ai/dsh-commands": "workspace:*",
-    "@deepseek-ai/dsh-cordis-host-runner": "workspace:*",
-    "@deepseek-ai/dsh-credentials": "workspace:*",
-    "@deepseek-ai/dsh-file-reference": "workspace:*",
-    "@deepseek-ai/dsh-goal": "workspace:*",
-    "@deepseek-ai/dsh-host-plugin-inventory": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-message-feedback": "workspace:*",
-    "@deepseek-ai/dsh-permission-presets": "workspace:*",
-    "@deepseek-ai/dsh-schedule": "workspace:*",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-reference": "workspace:*",
-    "@deepseek-ai/dsh-settings": "workspace:*",
-    "@deepseek-ai/dsh-subagent": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-user-approval": "workspace:*",
-    "@deepseek-ai/dsh-user-questions": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/agent-preset-registry": "workspace:*",
+    "@metaworkflow/api-gateway": "workspace:*",
+    "@metaworkflow/api-job-controller": "workspace:*",
+    "@metaworkflow/api-session-controller": "workspace:*",
+    "@metaworkflow/api-settings-controller": "workspace:*",
+    "@metaworkflow/api-workspace-controller": "workspace:*",
+    "@metaworkflow/api-workspace-files": "workspace:*",
+    "@metaworkflow/client-connection": "workspace:*",
+    "@metaworkflow/client-file-upload": "workspace:*",
+    "@metaworkflow/commands": "workspace:*",
+    "@metaworkflow/cordis-host-runner": "workspace:*",
+    "@metaworkflow/credentials": "workspace:*",
+    "@metaworkflow/file-reference": "workspace:*",
+    "@metaworkflow/goal": "workspace:*",
+    "@metaworkflow/host-plugin-inventory": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/message-feedback": "workspace:*",
+    "@metaworkflow/permission-presets": "workspace:*",
+    "@metaworkflow/schedule": "workspace:*",
+    "@metaworkflow/scope": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-reference": "workspace:*",
+    "@metaworkflow/settings": "workspace:*",
+    "@metaworkflow/subagent": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/user-approval": "workspace:*",
+    "@metaworkflow/user-questions": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
     "zod": "4.4.3",
-    "@deepseek-ai/dsh-command-feedback": "workspace:*",
-    "@deepseek-ai/dsh-api-terminal-controller": "workspace:*",
-    "@deepseek-ai/dsh-plugin-manager": "workspace:*",
-    "@deepseek-ai/dsh-plugin-market": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-plugin-manager": "workspace:*",
-    "@deepseek-ai/dsh-office-to-pdf": "workspace:*",
-    "@deepseek-ai/dsh-api-account-controller": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
-    "@deepseek-ai/dsh-client-product-analytics": "workspace:*"
+    "@metaworkflow/command-feedback": "workspace:*",
+    "@metaworkflow/api-terminal-controller": "workspace:*",
+    "@metaworkflow/plugin-manager": "workspace:*",
+    "@metaworkflow/plugin-market": "workspace:*",
+    "@metaworkflow/client-ui-plugin-manager": "workspace:*",
+    "@metaworkflow/office-to-pdf": "workspace:*",
+    "@metaworkflow/api-account-controller": "workspace:*",
+    "@metaworkflow/deepseek-account": "workspace:*",
+    "@metaworkflow/client-product-analytics": "workspace:*"
   }
 }

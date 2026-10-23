@@ -1,7 +1,7 @@
 /** Reusable user contents inside a caller-owned message row. */
 import { Fragment } from 'react'
-import type { FactoryComponentPropsOf } from '@deepseek-ai/dsh-client-ui-slots'
-import { fileExtension, FileTypeIcon, fileSizeText, JsonBlock } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { FactoryComponentPropsOf } from '@metaworkflow/client-ui-slots'
+import { fileExtension, FileTypeIcon, fileSizeText, JsonBlock } from '@metaworkflow/client-ui-primitives'
 import css from './MessageItem.module.css'
 
 const EMPTY_LABELS: readonly string[] = []

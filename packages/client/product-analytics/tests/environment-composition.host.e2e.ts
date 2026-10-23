@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { platform } from 'node:os'
 import { expect, it } from 'vitest'
 import { z } from 'zod'
-import { runLoaderSmoke, LOADER_SMOKE_TEST_TIMEOUT_MS } from '@deepseek-ai/dsh-loader-smoke'
+import { runLoaderSmoke, LOADER_SMOKE_TEST_TIMEOUT_MS } from '@metaworkflow/loader-smoke'
 
 it('adds real system metadata to the existing event through Loader and OTLP', async () => {
   const driver = resolve(import.meta.dirname, 'fixtures/environment.host.ts')

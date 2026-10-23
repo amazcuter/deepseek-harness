@@ -9,7 +9,7 @@ import type { ModuleLoaderV1, ModuleLoaderV2, ResolveResult } from '@deepseek-ai
 import { imports as resolvePackageImports, type Package as ResolvePackageManifest } from 'resolve.exports'
 import type { RuntimeResolutionEntry, RuntimeResolution } from '../profile.ts'
 
-const WORKER_RESOLUTION_KEY = '@deepseek-ai/dsh-app-boot/profile-resolution'
+const WORKER_RESOLUTION_KEY = '@metaworkflow/app-boot/profile-resolution'
 const EMPTY_ATTRIBUTES: ImportAttributes = Object.freeze({})
 
 interface CommonJsParent {

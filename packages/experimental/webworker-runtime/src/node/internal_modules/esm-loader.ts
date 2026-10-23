@@ -2,7 +2,7 @@
  * `internal/modules/esm/loader` cascaded loader for the Worker. {@link createCascadedLoader} builds the object with
  * the Node v24.18.0 (v2) loader members this repository calls: `resolveSync` and `import` over one Worker module
  * loader, and an empty `loadCache`. ES module jobs are unavailable on this platform.
- * @module @deepseek-ai/dsh-experimental-webworker-runtime/src/node/internal_modules/esm-loader
+ * @module @metaworkflow/experimental-webworker-runtime/src/node/internal_modules/esm-loader
  */
 import { notAvailableError } from '../notImplementedFail.ts'
 import { LoadCache } from './module-map.ts'

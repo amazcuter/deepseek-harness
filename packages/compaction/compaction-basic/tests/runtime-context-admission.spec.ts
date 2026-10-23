@@ -3,13 +3,13 @@ import { mkdtemp, realpath, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import { createUserMessage, LlmAdapter, ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
-import TokenMeter from '@deepseek-ai/dsh-token-meter'
-import { defineContentToolFixture } from '@deepseek-ai/dsh-tools'
-import BasicCompaction from '@deepseek-ai/dsh-compaction-basic'
+import { createUserMessage, LlmAdapter, ToolCallId } from '@metaworkflow/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@metaworkflow/llm'
+import { SessionId } from '@metaworkflow/session'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@metaworkflow/agent-loop-testkit'
+import TokenMeter from '@metaworkflow/token-meter'
+import { defineContentToolFixture } from '@metaworkflow/tools'
+import BasicCompaction from '@metaworkflow/compaction-basic'
 import { expect, it } from 'vitest'
 
 class CompactionAdapter extends LlmAdapter {
@@ -39,7 +39,7 @@ class CompactionAdapter extends LlmAdapter {
 }
 
 it('retains required cwd in the first request after proactive compaction with optional context disabled', async () => {
-  const root = await realpath(await mkdtemp(join(tmpdir(), 'dsh-compaction-admission-')))
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'mwf-compaction-admission-')))
   const ctx = new Context()
   try {
     await mountAgentLoopTestDependencies(ctx, {

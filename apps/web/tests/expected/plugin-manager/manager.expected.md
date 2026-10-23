@@ -45,5 +45,5 @@
     - text: Registry description for the fixture bundle.
     - switch "启用 @fixture/bundle"
   - listitem:
-    - button "查看 dsh-web-scaffold-defaults": dsh-web-scaffold-defaults
-    - switch "启用 dsh-web-scaffold-defaults" [checked]
+    - button "查看 mwf-web-scaffold-defaults": mwf-web-scaffold-defaults
+    - switch "启用 mwf-web-scaffold-defaults" [checked]

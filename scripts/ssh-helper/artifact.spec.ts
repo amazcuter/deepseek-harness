@@ -9,11 +9,11 @@ import { extractHelper } from '../verify-ssh-helper-artifact.ts'
 import { prepareSshRelease } from './release.ts'
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-helper-archive-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-helper-archive-'))
   onTestFinished(() => rm(root, { recursive: true, force: true }))
-  const payload = join(root, 'dsh-ssh-helper')
+  const payload = join(root, 'mwf-ssh-helper')
   await mkdir(join(payload, 'native/system'), { recursive: true })
-  await writeFile(join(payload, 'dsh-ssh-helper'), 'fixture executable')
+  await writeFile(join(payload, 'mwf-ssh-helper'), 'fixture executable')
   await writeFile(join(payload, 'native/system/package.json'), '{}')
   const metadata = {
     format: 1, version: '1.0.0', commit: 'a'.repeat(40), dirty: false,
@@ -30,7 +30,7 @@ async function fixture() {
 it('validates the exact unpacked inventory and rejects altered bytes', async () => {
   const test = await fixture()
   expect(await verifyPayload(test.payload)).toEqual(test.metadata)
-  await writeFile(join(test.payload, 'dsh-ssh-helper'), 'changed executable')
+  await writeFile(join(test.payload, 'mwf-ssh-helper'), 'changed executable')
   await expect(verifyPayload(test.payload)).rejects.toThrow('digest differs')
 })
 
@@ -58,7 +58,7 @@ it.skipIf(process.platform === 'win32')('rejects links before extracting an arch
   await symlink('/etc/passwd', join(test.payload, 'outside'))
   await expect(payloadFiles(test.payload)).rejects.toThrow('symbolic link')
   const archive = join(test.root, 'linked.tar.gz')
-  await createTar({ cwd: test.root, file: archive, gzip: true }, ['dsh-ssh-helper'])
+  await createTar({ cwd: test.root, file: archive, gzip: true }, ['mwf-ssh-helper'])
   const extracted = join(test.root, 'unpack')
   await mkdir(extracted)
   await expect(extractHelper(archive, extracted)).rejects.toThrow('Invalid SSH helper archive entry')
@@ -67,13 +67,13 @@ it.skipIf(process.platform === 'win32')('rejects links before extracting an arch
 it('extracts and verifies a portable archive in a new directory', async () => {
   const test = await fixture()
   const archive = join(test.root, 'helper.tar.gz')
-  await createTar({ cwd: test.root, file: archive, gzip: true, portable: true }, ['dsh-ssh-helper'])
+  await createTar({ cwd: test.root, file: archive, gzip: true, portable: true }, ['mwf-ssh-helper'])
   const extracted = join(test.root, 'relocated')
   await mkdir(extracted)
   const directory = await extractHelper(archive, extracted)
   expect(dirname(directory)).toBe(extracted)
   expect(await verifyPayload(directory)).toEqual(test.metadata)
-  expect(await readFile(join(directory, 'dsh-ssh-helper'), 'utf8')).toBe('fixture executable')
+  expect(await readFile(join(directory, 'mwf-ssh-helper'), 'utf8')).toBe('fixture executable')
 })
 
 it('reads minimum macOS versions without accepting a linked library version as the OS version', () => {
@@ -90,12 +90,12 @@ it('publishes only a complete clean-source matrix with native and no-Node eviden
   for (const target of SSH_HELPER_TARGETS) {
     const parent = join(test.root, target)
     await mkdir(parent)
-    const payload = join(parent, 'dsh-ssh-helper')
+    const payload = join(parent, 'mwf-ssh-helper')
     await cp(test.payload, payload, { recursive: true })
     const manifest = { ...test.metadata, target }
     await writeFile(join(payload, 'manifest.json'), JSON.stringify(manifest))
-    const archive = join(archives, `dsh-ssh-helper-1.0.0-${target.slice('node24-'.length)}.tar.gz`)
-    await createTar({ cwd: parent, file: archive, gzip: true, portable: true }, ['dsh-ssh-helper'])
+    const archive = join(archives, `mwf-ssh-helper-1.0.0-${target.slice('node24-'.length)}.tar.gz`)
+    await createTar({ cwd: parent, file: archive, gzip: true, portable: true }, ['mwf-ssh-helper'])
     await writeFile(`${archive}.sha256`, `${await fileDigest(archive)}  archive\n`)
     const runtime = { checks, nodeVersion: 'v24.1.0', platform: target.includes('linux') ? 'linux' : 'darwin', sandboxLane: 'required' }
     await writeFile(join(archives, `${target}.json`), JSON.stringify({ manifest, runtime, restrictedWorker: true, readonlyInstall: true, concurrentColdStarts: 2 }))

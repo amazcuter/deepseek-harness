@@ -5,8 +5,8 @@ import {
   NO_START_CAPABILITIES,
   type SubagentStartRequest,
   type SubagentProvider,
-} from '@deepseek-ai/dsh-subagent'
-import { SessionId } from '@deepseek-ai/dsh-session'
+} from '@metaworkflow/subagent'
+import { SessionId } from '@metaworkflow/session'
 
 export const name = 'subagent-result-diagnostic'
 export const inject = ['subagents']

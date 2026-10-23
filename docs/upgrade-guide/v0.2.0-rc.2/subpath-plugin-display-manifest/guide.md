@@ -24,4 +24,4 @@ In v0.2.0-rc.2, Plugin Manager and Settings read a subpath plugin such as `my-pl
    ```
 
 3. Remove the `./search/package.json` export and its file.
-4. Run `pnpm run verify-package-meta` in a DSH checkout, or open Plugin Manager, and confirm the subpath row shows its title, description, and image.
+4. Run `pnpm run verify-package-meta` in a MWF checkout, or open Plugin Manager, and confirm the subpath row shows its title, description, and image.

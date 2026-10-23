@@ -4,8 +4,8 @@ import { fileMediaUrl } from '../src/index.ts'
 describe('fileMediaUrl', () => {
   it.each(['/work/测试 文件#100%.png', 'C:\\work\\测试 文件.png'])(
     'preserves the decoded native path %s under a mounted application', (path) => {
-      const url = new URL(fileMediaUrl('https://host/tools/dsh/', path)!)
-      expect(url.pathname).toBe('/tools/dsh/api/file')
+      const url = new URL(fileMediaUrl('https://host/tools/mwf/', path)!)
+      expect(url.pathname).toBe('/tools/mwf/api/file')
       expect(url.searchParams.get('path')).toBe(path)
     },
   )
@@ -14,17 +14,17 @@ describe('fileMediaUrl', () => {
       expect(fileMediaUrl('https://host/', path)).toBeUndefined()
     },
   )
-  it.each(['dsh-app://app/', 'dsh-app://app/index.html'])(
+  it.each(['mwf-app://app/', 'mwf-app://app/index.html'])(
     'serves decoded native paths through the Desktop application %s', (base) => {
       for (const path of ['/work/测试 文件#100%.png', 'C:\\work\\测试 文件.png']) {
         const url = new URL(fileMediaUrl(base, path)!)
-        expect(url.href.split('?')[0]).toBe('dsh-app://app/api/file')
+        expect(url.href.split('?')[0]).toBe('mwf-app://app/api/file')
         expect(url.searchParams.get('path')).toBe(path)
       }
     },
   )
-  it.each(['file:///app/', 'dsh-app://shell/', 'dsh-app://app.example/', 'dsh-app://app:80/',
-    'dsh-app://user@app/', 'dsh-app://app@other/', 'about:blank'])(
+  it.each(['file:///app/', 'mwf-app://shell/', 'mwf-app://app.example/', 'mwf-app://app:80/',
+    'mwf-app://user@app/', 'mwf-app://app@other/', 'about:blank'])(
     'rejects an unsupported application base %s', (base) => {
       expect(fileMediaUrl(base, '/work/image.png')).toBeUndefined()
     },

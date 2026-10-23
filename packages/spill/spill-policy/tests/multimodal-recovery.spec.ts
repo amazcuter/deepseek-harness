@@ -3,32 +3,32 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import LocalAttachments from '@deepseek-ai/dsh-attachment-local'
-import FileSystem from '@deepseek-ai/dsh-fs-local'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
+import { provideWorkingDirectoryFixture } from '@metaworkflow/agent-loop-testkit'
+import type { Agent } from '@metaworkflow/agent'
+import type { ImageAttachmentRef } from '@metaworkflow/attachment'
+import LocalAttachments from '@metaworkflow/attachment-local'
+import FileSystem from '@metaworkflow/fs-local'
+import * as ToolFs from '@metaworkflow/tool-fs'
 import {
   createAssistantMessage, createToolResultMessage, createUserMessage, LlmAdapter, LlmRuntime,
   resolveImageAttachmentAccess, ToolCallId,
-} from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, GenerateOptions, ImageBlock, StreamChunk, UserMessage } from '@deepseek-ai/dsh-llm'
-import { deepSeekImageRequestPricing, resolveAdapterOptions } from '@deepseek-ai/dsh-llm-deepseek'
-import { prepareImages } from '@deepseek-ai/dsh-llm-deepseek/src/images.ts'
-import { serialize } from '@deepseek-ai/dsh-llm-deepseek/src/serialize.ts'
-import { createMcpToolDefinition } from '@deepseek-ai/dsh-mcp-client'
-import NodeRuntime from '@deepseek-ai/dsh-ptc-runtime-node'
-import Sandbox from '@deepseek-ai/dsh-sandbox-local'
-import SandboxPolicy from '@deepseek-ai/dsh-sandbox-policy'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjections from '@deepseek-ai/dsh-session-projection'
-import LocalSpillStore from '@deepseek-ai/dsh-spill-local'
-import Subprocess from '@deepseek-ai/dsh-subprocess-local'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import { estimateContent } from '@deepseek-ai/dsh-token-meter/estimate'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@metaworkflow/llm'
+import type { ContentBlock, GenerateOptions, ImageBlock, StreamChunk, UserMessage } from '@metaworkflow/llm'
+import { deepSeekImageRequestPricing, resolveAdapterOptions } from '@metaworkflow/llm-deepseek'
+import { prepareImages } from '@metaworkflow/llm-deepseek/src/images.ts'
+import { serialize } from '@metaworkflow/llm-deepseek/src/serialize.ts'
+import { createMcpToolDefinition } from '@metaworkflow/mcp-client'
+import NodeRuntime from '@metaworkflow/ptc-runtime-node'
+import Sandbox from '@metaworkflow/sandbox-local'
+import SandboxPolicy from '@metaworkflow/sandbox-policy'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import SessionProjections from '@metaworkflow/session-projection'
+import LocalSpillStore from '@metaworkflow/spill-local'
+import Subprocess from '@metaworkflow/subprocess-local'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import { estimateContent } from '@metaworkflow/token-meter/estimate'
+import ToolRuntime from '@metaworkflow/tools'
+import type { JsonValue } from '@metaworkflow/util-values'
 import sharp from 'sharp'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import * as SpillPolicy from '../src/index.ts'
@@ -43,7 +43,7 @@ const textOf = (content: readonly ContentBlock[]): string => content.filter(bloc
 const imagesOf = (content: readonly ContentBlock[]): ImageBlock[] => content.filter((block): block is ImageBlock => block.type === 'image')
 
 async function setup(mode: 'native' | 'ptc' = 'native') {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-image-recovery-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-image-recovery-'))
   const ctx = new Context()
   provideWorkingDirectoryFixture(ctx, root)
   onTestFinished(async () => {
@@ -52,7 +52,7 @@ async function setup(mode: 'native' | 'ptc' = 'native') {
   await ctx.plugin(SystemPrompt)
   await ctx.plugin(ToolRuntime, { mode })
   await ctx.plugin(FileSystem, { cwd: root })
-  await ctx.plugin(LocalAttachments, { dshHome: join(root, 'home') })
+  await ctx.plugin(LocalAttachments, { mwfHome: join(root, 'home') })
   await ctx.plugin(ToolFs)
   await ctx.plugin(LocalSpillStore, { root: join(root, 'spill'), cleanupPeriodDays: 0 })
   await ctx.plugin(SessionProjections)

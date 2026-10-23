@@ -1,9 +1,9 @@
 ---
-description: "dsh Web 客户端的 ask_user_question 功能：附着式提问卡片、计时等待、草稿、迟到回复与 plan-review 审批卡片。"
+description: "mwf Web 客户端的 ask_user_question 功能：附着式提问卡片、计时等待、草稿、迟到回复与 plan-review 审批卡片。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-user-questions
+# @metaworkflow/client-ui-user-questions
 
 [English](README.md) | 中文
 
@@ -39,7 +39,7 @@ Web 客户端在聊天输入框旁显示 agent（智能体）的提问。用户�
 
 ### plan-review 卡片
 
-`plan-review` 意图——由 `dsh-plan-mode` 在 `exit_plan_mode` 审阅上设置——渲染紧凑审批卡片：顶部为带“查看全文”链接的“计划待审”条带，正文显示计划标题和两行纯文本摘要，底部提供“要求修改”和“同意执行”。条带使用共享 warning 状态点，并在任一操作结算期间切换为 ongoing loading。通过链接或聊天历史中的常驻卡片可在侧边栏阅读完整计划。“同意执行”用提问方的批准标签回答；“要求修改”以 `ASK_CANCELLED` 拒绝等待，让编辑器归位供用户输入反馈，不会提交批准。卡片不单列拒绝按钮。
+`plan-review` 意图——由 `mwf-plan-mode` 在 `exit_plan_mode` 审阅上设置——渲染紧凑审批卡片：顶部为带“查看全文”链接的“计划待审”条带，正文显示计划标题和两行纯文本摘要，底部提供“要求修改”和“同意执行”。条带使用共享 warning 状态点，并在任一操作结算期间切换为 ongoing loading。通过链接或聊天历史中的常驻卡片可在侧边栏阅读完整计划。“同意执行”用提问方的批准标签回答；“要求修改”以 `ASK_CANCELLED` 拒绝等待，让编辑器归位供用户输入反馈，不会提交批准。卡片不单列拒绝按钮。
 
 ### 失败与恢复
 
@@ -69,7 +69,7 @@ Web 客户端在聊天输入框旁显示 agent（智能体）的提问。用户�
 
 ### 重新打开面板
 
-本包填充 `userQuestionPanels`——`dsh-client-ui-tool` 为其 `ask_user_question` 行声明的可选能力。`reveal(sessionId, callId)` 把该调用的卡片重新发布为同优先级中最后一个待处理交互，编辑器位置于是再次显示它；当本客户端没有该调用的卡片时返回 `false`——例如旧版未命名的请求、另一个浏览器的问题，或投影已关闭的卡片。问题是否仍可回答取自 `userQuestions` 会话投影，由该行直接读取，因此这项能力自身不携带状态。
+本包填充 `userQuestionPanels`——`mwf-client-ui-tool` 为其 `ask_user_question` 行声明的可选能力。`reveal(sessionId, callId)` 把该调用的卡片重新发布为同优先级中最后一个待处理交互，编辑器位置于是再次显示它；当本客户端没有该调用的卡片时返回 `false`——例如旧版未命名的请求、另一个浏览器的问题，或投影已关闭的卡片。问题是否仍可回答取自 `userQuestions` 会话投影，由该行直接读取，因此这项能力自身不携带状态。
 
 投影只列出仍可回答的调用，因此 `review(sessionId, callId, record)` 用该行从自己转录中解析出的问题与回答建卡。这张卡片没有回答通道也没有倒计时，投影清扫不会碰它，关闭它是移除而非留在注册表里。仍持有实时卡片的调用显示实时那张，过期副本不会替换正在进行的请求；同理，只读卡片渲染记录本身，只从实时卡片留下的草稿里取页码。
 
@@ -79,7 +79,7 @@ Web 客户端在聊天输入框旁显示 agent（智能体）的提问。用户�
 
 ### 文案与 locale
 
-编辑器外框文案（翻页器、按钮、占位符、校验提示）是双语的：插件在 `dsh-client-locale` 的 `question` 命名空间下注册 zh/en 词典，并通过 inject face 把绑定的翻译函数和 locale 快照源交给该条目，因此切换语言会重新渲染已挂载的编辑器。问题与选项文本来自模型并原样渲染；载体失败消息也不经翻译直接显示。
+编辑器外框文案（翻页器、按钮、占位符、校验提示）是双语的：插件在 `mwf-client-locale` 的 `question` 命名空间下注册 zh/en 词典，并通过 inject face 把绑定的翻译函数和 locale 快照源交给该条目，因此切换语言会重新渲染已挂载的编辑器。问题与选项文本来自模型并原样渲染；载体失败消息也不经翻译直接显示。
 
 </details>
 
@@ -101,11 +101,11 @@ Web 客户端在聊天输入框旁显示 agent（智能体）的提问。用户�
 <a id="model-experience"></a>
 ## 模型体验
 
-间接影响模型体验：本包在 Web 客户端呈现 `dsh-tool-ask-user` 所拥有的模型可见 schema 与答案渲染。
+间接影响模型体验：本包在 Web 客户端呈现 `mwf-tool-ask-user` 所拥有的模型可见 schema 与答案渲染。
 
 #### KV Cache 影响
 
-不会直接失效；模型可见的工具调用与结果由 `dsh-tool-ask-user` 拥有。
+不会直接失效；模型可见的工具调用与结果由 `mwf-tool-ask-user` 拥有。
 
 ## 已知限制与延期工作
 

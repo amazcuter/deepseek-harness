@@ -24,5 +24,5 @@ it('samples the offset when it is called instead of caching the first reading', 
 })
 
 it.each([undefined, ''])('refuses an empty client build version instead of reporting it', (version) => {
-  expect(() => accountClientMetadata('en', version)).toThrow(/DSH_CLIENT_VERSION/)
+  expect(() => accountClientMetadata('en', version)).toThrow(/MWF_CLIENT_VERSION/)
 })

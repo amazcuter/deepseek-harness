@@ -1,9 +1,9 @@
 /** Shared projection of the live LLM registry into the browser model catalog. */
 
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import type {} from '@deepseek-ai/dsh-settings'
-import type { LlmModelInfo } from '@deepseek-ai/dsh-llm'
+import { RemoteError } from '@metaworkflow/typert-protocol'
+import { credentialRef } from '@metaworkflow/credentials'
+import type {} from '@metaworkflow/settings'
+import type { LlmModelInfo } from '@metaworkflow/llm'
 import type { Context } from '@deepseek-ai/cordis'
 import type {
   ModelCatalog,

@@ -11,11 +11,11 @@ describe.skipIf(!built)('persistent PTC published exports', () => {
   it('retains variables through the built provider and sibling process entry', async () => {
     const script = `
       const { Context } = await import('@deepseek-ai/cordis')
-      const { default: NodeRuntime } = await import('@deepseek-ai/dsh-ptc-runtime-node')
+      const { default: NodeRuntime } = await import('@metaworkflow/ptc-runtime-node')
       const ctx = new Context()
       try {
         for (const name of ['session-projection', 'fs-local', 'subprocess-local', 'sandbox-local', 'sandbox-policy']) {
-          await ctx.plugin((await import('@deepseek-ai/dsh-' + name)).default)
+          await ctx.plugin((await import('@metaworkflow/' + name)).default)
         }
         await ctx.plugin(NodeRuntime, { executionMode: 'persistent-in-memory' })
         const stateOwner = {}

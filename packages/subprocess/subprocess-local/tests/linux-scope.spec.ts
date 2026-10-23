@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { PassThrough } from 'node:stream'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SubprocessSpawnSpec } from '@deepseek-ai/dsh-subprocess'
+import type { SubprocessSpawnSpec } from '@metaworkflow/subprocess'
 import {
   confirmLinuxManager,
   LinuxScopeNotStartedError,
@@ -83,7 +83,7 @@ afterEach(() => {
 })
 
 function missingUnit() {
-  return { status: 1, stdout: '', stderr: 'Unit dsh.scope could not be found.' }
+  return { status: 1, stdout: '', stderr: 'Unit mwf.scope could not be found.' }
 }
 
 function activeUnit(state = 'active') {
@@ -249,7 +249,7 @@ describe('Linux native capability selection', () => {
   })
 
   it('confirms the user manager from a listening socket before querying systemctl', () => {
-    const runtime = mkdtempSync(join(tmpdir(), 'dsh-runtime-'))
+    const runtime = mkdtempSync(join(tmpdir(), 'mwf-runtime-'))
     directories.push(runtime)
     const socket = join(runtime, 'systemd', 'private')
     const table = join(runtime, 'unix')
@@ -284,7 +284,7 @@ describe('Linux native capability selection', () => {
   })
 
   it.skipIf(process.platform !== 'linux')('reads a real listening socket from the kernel socket table', async () => {
-    const runtime = mkdtempSync(join(tmpdir(), 'dsh-运行时-'))
+    const runtime = mkdtempSync(join(tmpdir(), 'mwf-运行时-'))
     directories.push(runtime)
     mkdirSync(join(runtime, 'systemd'))
     const server = createServer()
@@ -310,7 +310,7 @@ describe('Linux native capability selection', () => {
   })
 
   it('matches a socket path outside ASCII in the kernel socket table', () => {
-    const runtime = mkdtempSync(join(tmpdir(), 'dsh-运行时-'))
+    const runtime = mkdtempSync(join(tmpdir(), 'mwf-运行时-'))
     directories.push(runtime)
     const table = join(runtime, 'unix')
     writeFileSync(table, `0000000048ab7e3a: 00000002 00000000 00010000 0001 01 77 ${join(runtime, 'systemd', 'private')}\n`)
@@ -323,7 +323,7 @@ describe('Linux native capability selection', () => {
   })
 
   it.skipIf(process.platform === 'win32')('identifies the systemd-run binary that PATH resolves', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-path-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-path-'))
     directories.push(root)
     const fileEntry = join(root, 'file-entry')
     writeFileSync(fileEntry, '')
@@ -977,7 +977,7 @@ describe('Linux scope establishment and quiescence', () => {
   it('keeps signal failures scoped to final kill proof and stays idempotent after stop', async () => {
     const spawnSync = vi.fn()
       .mockReturnValueOnce({ status: 1, stdout: '', stderr: '' })
-      .mockReturnValueOnce({ status: 1, stderr: 'Unit dsh.scope could not be found.' })
+      .mockReturnValueOnce({ status: 1, stderr: 'Unit mwf.scope could not be found.' })
       .mockReturnValueOnce({ status: 1, stdout: '', stderr: '' })
       .mockReturnValueOnce({ status: 0, stdout: '', stderr: '' })
     const states = [activeUnit(), activeUnit('failed')]
@@ -1125,7 +1125,7 @@ describe('Linux PTY bootstrap reuse', () => {
     const requestPath = scope.env[SUBPROCESS_RUNNER_ENV]
     if (requestPath === undefined) throw new Error('missing PTY request')
     expect(scope.args).toEqual([
-      '--user', '--scope', '--quiet', '--collect', expect.stringMatching(/^--unit=dsh-terminal-/u),
+      '--user', '--scope', '--quiet', '--collect', expect.stringMatching(/^--unit=mwf-terminal-/u),
       '--', '/usr/bin/node', '/runner.js', '--', 'bash', '--noprofile',
     ])
     expect(consumeLinuxLaunchRequest(requestPath)).toEqual({ cwd: '/target', env: { TARGET: 'yes' } })

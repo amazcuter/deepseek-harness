@@ -1,8 +1,8 @@
 /** Mount the headless snapshot's parent preset before Agent publication checks. */
 
 import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent-preset-registry'
+import type {} from '@metaworkflow/agent'
+import type {} from '@metaworkflow/agent-preset-registry'
 
 export const name = 'parent-agent-preset'
 export const inject = ['agentPresets']

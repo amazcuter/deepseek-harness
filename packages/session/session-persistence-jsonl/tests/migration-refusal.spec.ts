@@ -1,12 +1,12 @@
 /** Durable EOF refusals preserve historical generations and never fall back from the selected generation. */
 
 import { Context } from '@deepseek-ai/cordis'
-import { SESSION_FORMAT_VERSION, SessionId } from '@deepseek-ai/dsh-session'
-import { createSessionFormatCatalogWithChildren } from '@deepseek-ai/dsh-session-format-catalog'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import type { SessionFormatJsonObject } from '@deepseek-ai/dsh-session-format'
-import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@deepseek-ai/dsh-session-persistence'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { SESSION_FORMAT_VERSION, SessionId } from '@metaworkflow/session'
+import { createSessionFormatCatalogWithChildren } from '@metaworkflow/session-format-catalog'
+import type { SessionEvent } from '@metaworkflow/session'
+import type { SessionFormatJsonObject } from '@metaworkflow/session-format'
+import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@metaworkflow/session-persistence'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
 import { createHash } from 'node:crypto'
 import { mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -124,7 +124,7 @@ const migrationRefusals = [
     tail: { type: 'session-log-deepseek/delivery-accepted', data: {
       sessionId: id, throughSeq: prefix.length - 1, sessionFormatVersion: 3,
     } },
-    diagnostic: '@deepseek-ai/dsh-session-format-v2-to-v3 refuses this format v2 Session: format v2 delivery marker claims target format v3',
+    diagnostic: '@metaworkflow/session-format-v2-to-v3 refuses this format v2 Session: format v2 delivery marker claims target format v3',
   },
   {
     name: 'source message colliding with the generated system ID',
@@ -170,7 +170,7 @@ let root: string
 const contexts: Context[] = []
 
 beforeEach(async () => {
-  root = await mkdtemp(join(tmpdir(), 'dsh-migration-refusal-'))
+  root = await mkdtemp(join(tmpdir(), 'mwf-migration-refusal-'))
 })
 
 afterEach(async () => {

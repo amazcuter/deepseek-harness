@@ -2,13 +2,13 @@
 description: "客户端资源模型：按协议注册的提供方把 URL 地址解析为实时值，任何 slot 组件都通过 useResource 标准钩子读取。"
 kind: "package-reference"
 ---
-# @deepseek-ai/dsh-client-resources
+# @metaworkflow/client-resources
 
 [English](README.md) | 中文
 
 ## 概述
 
-当组件只知道实时数据的 URL 地址，而数据由另一个客户端包拥有时，请使用客户端资源；例如 tab 记录、链接或提及。资源地址使用 `dsh-resource://<type>/…`；需要作用域的协议把作用域编进路径。组件通过公开的 `useResource` 钩子接收当前值与后续更新。不支持的协议与非资源 scheme（例如 `sidebar://guide`）不指向任何资源。
+当组件只知道实时数据的 URL 地址，而数据由另一个客户端包拥有时，请使用客户端资源；例如 tab 记录、链接或提及。资源地址使用 `mwf-resource://<type>/…`；需要作用域的协议把作用域编进路径。组件通过公开的 `useResource` 钩子接收当前值与后续更新。不支持的协议与非资源 scheme（例如 `sidebar://guide`）不指向任何资源。
 
 ## 目录
 
@@ -33,7 +33,7 @@ kind: "package-reference"
 <a id="read-a-resource"></a>
 ### 读取资源
 
-每个 slot 组件都在 props 上收到 `useResource`。`useResource<P>(address)` 以类型参数命名协议，返回 `{ status, value, failure }`：地址协议没有提供方（或地址不是 `dsh-resource://` URL）时为 `none`，提供方尚未产出值时为 `loading`，`live` 携带最新一个 `ok` 帧的值，`failed` 表示最新一帧报告了失败，失败放在最后一个值旁。通过钩子订阅就是钉住资源的方式；另一个持有者让资源保持存活时，新挂载的组件立刻读到最新值。
+每个 slot 组件都在 props 上收到 `useResource`。`useResource<P>(address)` 以类型参数命名协议，返回 `{ status, value, failure }`：地址协议没有提供方（或地址不是 `mwf-resource://` URL）时为 `none`，提供方尚未产出值时为 `loading`，`live` 携带最新一个 `ok` 帧的值，`failed` 表示最新一帧报告了失败，失败放在最后一个值旁。通过钩子订阅就是钉住资源的方式；另一个持有者让资源保持存活时，新挂载的组件立刻读到最新值。
 
 <a id="provide-a-protocol"></a>
 ### 提供协议
@@ -41,7 +41,7 @@ kind: "package-reference"
 协议所属的客户端包在 `ResourceProtocolMap` 声明其值类型，并以自有 effect 注册一个提供方。`open` 产出 `RemoteResult` 帧：先是当前内容，之后每次变化一帧，失败以 `ok: false` 帧而非抛错表达；必须在 `signal` 中止时停止：
 
 ```ts ignore-check
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface ResourceProtocolMap { note: NoteView }
 }
 

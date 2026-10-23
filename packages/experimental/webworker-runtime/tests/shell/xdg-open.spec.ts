@@ -5,7 +5,7 @@ import { hostFileSystem } from '../../src/shell/fs-access.ts'
 import { spawn } from '../../src/node/builtin_modules/implemented/child_process.ts'
 import { setTextViewer, XDG_OPEN_EXECUTABLE } from '../../src/shell/process/xdg-open.ts'
 
-const PROFILE = '/dsh/home/profiles/preview'
+const PROFILE = '/mwf/home/profiles/preview'
 
 beforeEach(() => {
   const vfs = new MemoryVfs()

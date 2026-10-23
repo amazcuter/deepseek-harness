@@ -10,7 +10,7 @@ import {
 import { ZH_BROWSER_LOCALE } from './support.ts'
 
 const MODE = webSnapshotMode()
-const MOUNT = '/tools/dsh/'
+const MOUNT = '/tools/mwf/'
 
 describe.skipIf(MODE === 'record')('web e2e: public mount through a prefix-stripping proxy', () => {
   let scaffold: WebScaffold

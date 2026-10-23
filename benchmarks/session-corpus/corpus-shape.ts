@@ -7,7 +7,7 @@
 const QUANTILES = [10, 20, 30, 40, 50, 60, 70, 75, 80, 85, 90, 92, 94, 96, 97, 98, 99, 99.3, 99.6, 99.8, 99.9, 100] as const
 
 /**
- * Aggregate quantiles of 1,650 local DSH Sessions measured on 2026-09-28
+ * Aggregate quantiles of 1,650 local MWF Sessions measured on 2026-09-28
  * (newest generation per Session; top-level and subagent Sessions together).
  * Only counts and byte totals were extracted; no content, identity, or path.
  */

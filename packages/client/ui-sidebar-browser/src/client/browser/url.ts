@@ -19,7 +19,7 @@ export type BrowserAddressResult =
 /**
  * Parse one address-bar value into the fixed protocol allowlist.
  * @param input - user or typed-open input.
- * @param applicationOrigin - current DSH document origin, blocked for HTTPS.
+ * @param applicationOrigin - current MWF document origin, blocked for HTTPS.
  * @returns a canonical target or the refusal reason.
  */
 export function parseBrowserAddress(input: string, applicationOrigin?: string): BrowserAddressResult {

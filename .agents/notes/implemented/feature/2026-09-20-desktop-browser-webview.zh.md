@@ -17,7 +17,7 @@ Desktop 通过 `ElectronWebViewImpl` 使用 `<webview>`; Web 保留显式启用�
 [Sidebar 稳定挂载决策](../architecture/2026-09-20-sidebar-retained-tab-layout.zh.md)负责真实 CSS 布局中的保活会话与 Tab 容器。Workspace 存储所有权与 guest 基础安全配置仍由本文负责。
 
 - `BrowserController` 负责地址命令与可恢复的展示状态。原生 history 留在 guest 内；真实 URL 与标题观察更新持久化地址。
-- 控制器注册表按 DSH Session 索引，不依赖呈现绑定的存活期。重新绑定只替换存储写入方，不重建页面。
+- 控制器注册表按 MWF Session 索引，不依赖呈现绑定的存活期。重新绑定只替换存储写入方，不重建页面。
 - `electron/pages.ts` 组装 Electron 导航提供方和呈现对象. `ElectronWebViewImpl` 负责 guest 租约与原生导航; `ElectronWebviewPresentation` 创建标签并挂载到 Sidebar 持有的内容容器内.
 - Desktop Browser 类型声明 `keepMounted`。Sidebar 在隐藏和停靠切换时保留其 DOM 祖先，CSS 负责布局与裁剪。停靠手势期间禁用 guest 指针输入，Body 内的放置提示使用普通层叠。物理卸载会取消未完成的挂载并释放 guest，之后重新挂载时从已知地址重建。
 - tab occurrence 取消、插件卸载与窗口销毁会释放 guest。guest 崩溃留下可重试的失败状态；刷新创建新 guest。应用重启展示保存的标题与 URL，等待显式恢复；用户恢复或提交地址之前不创建 guest。不恢复页面内存或原生 history。
@@ -28,7 +28,7 @@ Browser 分别拥有 Host 与 Client 编译程序。Desktop 和 Host 聚合配�
 
 ### Storage ownership
 
-`DesktopBrowserGuests` 为每个规范化 CWD 存储账号分配随机、非持久化的 Electron partition。Client 使用 Host 规范化后的 `WorkspaceView.path`，不使用 Workspace 记录 UUID，因此在同一目录重建 Workspace 不改变存储账号 key。DSH Session 解析到同一 CWD 的 Browser Tab 共享账号；没有可解析 Workspace 的 Session 仍单独隔离。Workspace 归属在 Client 收到权威基线后解析，并在一次 guest occurrence 内保持不变。CWD key 控制共享关系，不决定是否落盘。
+`DesktopBrowserGuests` 为每个规范化 CWD 存储账号分配随机、非持久化的 Electron partition。Client 使用 Host 规范化后的 `WorkspaceView.path`，不使用 Workspace 记录 UUID，因此在同一目录重建 Workspace 不改变存储账号 key。MWF Session 解析到同一 CWD 的 Browser Tab 共享账号；没有可解析 Workspace 的 Session 仍单独隔离。Workspace 归属在 Client 收到权威基线后解析，并在一次 guest occurrence 内保持不变。CWD key 控制共享关系，不决定是否落盘。
 
 关闭 tab 只释放它的 guest，不清空账号的 Cookie 或存储。Cookie、localStorage、IndexedDB、Service Worker 与缓存由 partition 持有，并继续遵循普通 origin 规则。DOM、原生 history 与 sessionStorage 仍由页面持有。账号 partition 在同一 Electron 进程内重建窗口后仍保留，但不跨应用退出持久化。
 
@@ -36,7 +36,7 @@ Browser 分别拥有 Host 与 Client 编译程序。Desktop 和 Host 聚合配�
 
 只有主应用窗口启用 `webviewTag`。主进程只接受该窗口应用顶层 frame 发起的 guest 申请，并在放行前校验一次性租约、partition 与无活动内容的初始 `about:blank` 文档。主进程替换 renderer 提供的偏好：不启用 Node integration、guest preload、嵌套 webview、plugin、不安全内容、模态对话框或拖放导航；sandbox、context isolation 与 Web security 保持开启。
 
-guest Session 不注册应用协议，也不继承应用的认证请求转发。权限请求与检查、设备访问、屏幕捕获、下载、原生弹窗与 HTTP 认证提示全部拒绝。通过检查且不带 POST body 的直接 HTTP(S) 弹窗请求，通过活动租约路由为新 Sidebar Tab；脚本操作空白窗口和 POST 弹窗流程仍不支持。导航接受不带内嵌凭据的 HTTP(S)；请求过滤拒绝本地文件、特权协议与已知 DSH Host 地址，包括常见 loopback 别名。这不是通用的私有网络或 DNS rebinding 防火墙。
+guest Session 不注册应用协议，也不继承应用的认证请求转发。权限请求与检查、设备访问、屏幕捕获、下载、原生弹窗与 HTTP 认证提示全部拒绝。通过检查且不带 POST body 的直接 HTTP(S) 弹窗请求，通过活动租约路由为新 Sidebar Tab；脚本操作空白窗口和 POST 弹窗流程仍不支持。导航接受不带内嵌凭据的 HTTP(S)；请求过滤拒绝本地文件、特权协议与已知 MWF Host 地址，包括常见 loopback 别名。这不是通用的私有网络或 DNS rebinding 防火墙。
 
 Desktop toolbar 没有关闭 sandbox 的开关。实现不增加远程调试端口或 browser-use 集成。未来的自动化提供方需要经过认证、限定 target 的 broker，而不是访问全部应用 target。把 target/生命周期句柄与导航命令分开的方式，与 Playwright 的 Android WebView 和 Page 对象区分相同；设备级输入属于另一项职责。
 

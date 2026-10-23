@@ -6,7 +6,7 @@
  * Thread started by the pass's first `buildStart`, so bundling continues on the
  * main thread while Typert analyzes; the pass's first `writeBundle` awaits the
  * result and writes every artifact once.
- * @module @deepseek-ai/dsh-typert-generator/tsdown
+ * @module @metaworkflow/typert-generator/tsdown
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -79,7 +79,7 @@ export function typertPlugin(pluginOptions: TypertPluginOptions = {}): TypertPlu
     return generation
   }
   return {
-    name: 'dsh-typert-generator',
+    name: 'mwf-typert-generator',
     buildStart(inputOptions) {
       // tsdown builds every workspace package concurrently through this one
       // plugin instance; the first package build to start launches generation.

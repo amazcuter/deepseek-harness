@@ -1,9 +1,9 @@
 ---
-description: "The Subagent settings page on the dsh web client's Plugins page: delegation depth and capacity over the subagent namespace, and the models agents may choose over subagent-model-selection, on one page with one save."
+description: "The Subagent settings page on the mwf web client's Plugins page: delegation depth and capacity over the subagent namespace, and the models agents may choose over subagent-model-selection, on one page with one save."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-settings-subagent
+# @metaworkflow/client-ui-settings-subagent
 
 English | [中文](README.zh.md)
 

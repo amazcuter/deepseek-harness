@@ -1,4 +1,4 @@
-# Experimental Agent Teams profile layer. Apply after dsh-base so these replacements
+# Experimental Agent Teams profile layer. Apply after mwf-base so these replacements
 # keep direct delegation and coordination on the Team tools.
 
 - id: tool-subagent-control
@@ -15,7 +15,7 @@
 
 - insert:
     - id: agent-team
-      name: '@deepseek-ai/dsh-experimental-agent-team'
+      name: '@metaworkflow/experimental-agent-team'
       config:
         maxMembers: 8
         maxTasks: 256
@@ -23,10 +23,10 @@
         disposalTimeoutMs: 5000
 
     - id: tool-agent-team
-      name: '@deepseek-ai/dsh-experimental-tool-agent-team'
+      name: '@metaworkflow/experimental-tool-agent-team'
       config:
         freshProvider: spawn
         forkProvider: fork
 
     - id: ui-agent-team
-      name: '@deepseek-ai/dsh-experimental-client-ui-agent-team'
+      name: '@metaworkflow/experimental-client-ui-agent-team'

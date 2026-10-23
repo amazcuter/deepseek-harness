@@ -3,11 +3,11 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/bug-fix/2026-08-20-attachment-read-quarantine.md
 /agent-note-quarantine-unreadable-historical-attachments:
-  en: 044cc37c349ad018
-  zh: ba3336ebf923aeeb
+  en: 9ea342f95d55a93d
+  zh: 7f818efa0c88b302
 /agent-note-quarantine-unreadable-historical-attachments/problem:
-  en: 8652fbd5afd34170
-  zh: b6399f48311b0a7d
+  en: 1eadfef34ef6d932
+  zh: b27a32871a4caa29
 /agent-note-quarantine-unreadable-historical-attachments/proposal:
   en: 2a7c272551d37bba
   zh: cf58b062d716d301

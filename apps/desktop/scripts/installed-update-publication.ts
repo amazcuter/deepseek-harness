@@ -100,7 +100,7 @@ async function verifiedUploadReceipt(prepared: Awaited<ReturnType<typeof verifie
 
 async function startupEvidence(manifest: string, directory: string | undefined) {
   const run = await readInstalledUpdateRun(manifest)
-  if (!directory || !resolve(directory).replaceAll('\\', '/').endsWith(`/dsh-update-qualification/${run.id}/journals`)) {
+  if (!directory || !resolve(directory).replaceAll('\\', '/').endsWith(`/mwf-update-qualification/${run.id}/journals`)) {
     throw new Error('installed update: original installed application journal directory is required before successor publication')
   }
   const report = await inspectInstalledUpdateJournals(directory, run.versions)

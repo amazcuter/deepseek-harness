@@ -2,7 +2,7 @@
 # script comes from the scenario's committed session JSONL.
 
 - id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+  name: '@metaworkflow/llm-deepseek-api-key'
   disabled: true
 
 - id: plugin-package-inventory-deepseek
@@ -12,13 +12,13 @@
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@deepseek-ai/dsh-session-persistence-jsonl'
+  name: '@metaworkflow/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
+    root: !!js mwfHomePath('sessions')
     compression: none
 
 - id: sandbox
-  name: '@deepseek-ai/dsh-sandbox-local'
+  name: '@metaworkflow/sandbox-local'
   config:
     runnerCommand:
       - bash
@@ -30,7 +30,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@metaworkflow/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -46,7 +46,7 @@
 
 - insert:
     - id: skill-office
-      name: '@deepseek-ai/dsh-skill-office'
+      name: '@metaworkflow/skill-office'
       disabled: false
       config:
         assetRoot: !!js process.cwd() + '/office-skills'

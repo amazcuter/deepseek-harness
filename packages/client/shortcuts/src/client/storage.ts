@@ -3,7 +3,7 @@ import { ShortcutPersistence } from '../protocol.ts'
 import type { DesktopShortcutsApi, ShortcutConfigSnapshot, ShortcutDefinition, ShortcutPlatform } from '../protocol.ts'
 
 /** Browser-profile and origin-local preference key. */
-export const SHORTCUT_STORAGE_KEY = 'dsh.keybindings.v1'
+export const SHORTCUT_STORAGE_KEY = 'mwf.keybindings.v1'
 
 /**
  * Connect localStorage and same-origin external updates to the shared transaction coordinator.
@@ -36,5 +36,5 @@ export function webShortcutStorage(window: Window, platform: ShortcutPlatform,
  * @returns the restricted Desktop API, or undefined while the preload is unavailable.
  */
 export function desktopShortcutStorage(window: Window): DesktopShortcutsApi | undefined {
-  return (window as Window & { dshDesktop?: { shortcuts?: DesktopShortcutsApi } }).dshDesktop?.shortcuts
+  return (window as Window & { mwfDesktop?: { shortcuts?: DesktopShortcutsApi } }).mwfDesktop?.shortcuts
 }

@@ -3,53 +3,53 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-sidebar/README.md
 /:
-  en: 7884381c2c554eca
-  zh: e6d7199a9bb2f0f8
-/deepseek-ai-dsh-client-ui-sidebar:
-  en: e357f49fb1d1710e
-  zh: 2e61922b104f77eb
-/deepseek-ai-dsh-client-ui-sidebar/summary:
-  en: af17f03561e5372b
-  zh: 91a1b9f6c7a51025
-/deepseek-ai-dsh-client-ui-sidebar/table-of-contents:
+  en: db1f7ae7c8124f02
+  zh: f92d281ca4698f3e
+/metaworkflow-client-ui-sidebar:
+  en: 00792cb32c52c38c
+  zh: f830a76042477535
+/metaworkflow-client-ui-sidebar/summary:
+  en: 15b555fcc24591e9
+  zh: 415c748c98a85225
+/metaworkflow-client-ui-sidebar/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-client-ui-sidebar/use-this-package:
+/metaworkflow-client-ui-sidebar/use-this-package:
   en: a970f0547496634f
   zh: 36ef9a85b26e19f1
-/deepseek-ai-dsh-client-ui-sidebar/use-this-package/brand-and-new-session:
-  en: 098f85b9287d3147
-  zh: b921c128ac37d2cd
-/deepseek-ai-dsh-client-ui-sidebar/use-this-package/global-panel-entries:
+/metaworkflow-client-ui-sidebar/use-this-package/brand-and-new-session:
+  en: 186c807e385c843c
+  zh: 1f673c46565e091e
+/metaworkflow-client-ui-sidebar/use-this-package/global-panel-entries:
   en: 5d3300d3506254c5
   zh: 541ae1ee1e10b921
-/deepseek-ai-dsh-client-ui-sidebar/use-this-package/collapse-behavior:
-  en: 20e744360b4be2cc
-  zh: a90be7e8526bbb21
-/deepseek-ai-dsh-client-ui-sidebar/use-this-package/macos-desktop:
-  en: 28e3639ed58492e0
-  zh: 4896acd767287c8a
-/deepseek-ai-dsh-client-ui-sidebar/use-this-package/scrollbars:
+/metaworkflow-client-ui-sidebar/use-this-package/collapse-behavior:
+  en: 0a07de29060978bc
+  zh: a2b6331b8d36208a
+/metaworkflow-client-ui-sidebar/use-this-package/macos-desktop:
+  en: 9cf1fd0d9383b2d9
+  zh: bb51785a60706796
+/metaworkflow-client-ui-sidebar/use-this-package/scrollbars:
   en: d053b1ed0f4fd293
   zh: ff25a56541f57530
-/deepseek-ai-dsh-client-ui-sidebar/understand-the-implementation:
+/metaworkflow-client-ui-sidebar/understand-the-implementation:
   en: 676cd4c309b4110d
   zh: 25d1bd0b2c7db645
-/deepseek-ai-dsh-client-ui-sidebar/understand-the-implementation/slot-discipline:
+/metaworkflow-client-ui-sidebar/understand-the-implementation/slot-discipline:
   en: 6eefc5c45abe8a8f
   zh: 20b651e48a0ea903
-/deepseek-ai-dsh-client-ui-sidebar/further-exploration:
-  en: 5083bbf74e47bb67
-  zh: 0236e569178756a2
-/deepseek-ai-dsh-client-ui-sidebar/model-experience:
+/metaworkflow-client-ui-sidebar/further-exploration:
+  en: 34ff97425d62a753
+  zh: 352dc7ff5af66b07
+/metaworkflow-client-ui-sidebar/model-experience:
   en: 3120df665299c634
   zh: 1d9f365d091d0d2a
-/deepseek-ai-dsh-client-ui-sidebar/model-experience/kv-cache-effect:
+/metaworkflow-client-ui-sidebar/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/deepseek-ai-dsh-client-ui-sidebar/known-limitations-and-deferred-work:
+/metaworkflow-client-ui-sidebar/known-limitations-and-deferred-work:
   en: 262db5b10dfb7d98
   zh: c1b5cf6aa58b054e
-/deepseek-ai-dsh-client-ui-sidebar/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-client-ui-sidebar/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

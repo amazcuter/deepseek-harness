@@ -6,7 +6,7 @@ import { createInterface } from 'node:readline'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import { expect, it } from 'vitest'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
+import { resolveExampleLaunch } from '@metaworkflow/loader-smoke'
 
 it.each([
   { state: 'idle', cancelFirst: false },
@@ -14,7 +14,7 @@ it.each([
   { state: 'idle', cancelFirst: true },
   { state: 'running', cancelFirst: true },
 ])('preserves Agent cleanup during Web shutdown ($state, cancel first: $cancelFirst)', { retry: 0 }, async ({ state, cancelFirst }) => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-web-agent-shutdown-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-web-agent-shutdown-'))
   try {
     const patch = join(root, 'shutdown.patch.yml')
     const resultPath = join(root, 'result.json')
@@ -34,9 +34,9 @@ it.each([
       tsconfigPath: fileURLToPath(new URL('../../../tsconfig.json', import.meta.url)),
       configArgs: ['--profile', 'web', '--patch', patch, '--no-open', '--port', '0'],
       env: {
-        DSH_HOME: join(root, '.dsh'),
-        DSH_AGENTS_HOME: join(root, '.agents'),
-        DSH_TELEMETRY_DISABLED: '1',
+        MWF_HOME: join(root, '.mwf'),
+        MWF_AGENTS_HOME: join(root, '.agents'),
+        MWF_TELEMETRY_DISABLED: '1',
       },
     })
     const child = execa(launch.command, launch.args, {
@@ -59,7 +59,7 @@ it.each([
       expect(result.timedOut, result.stderr).toBe(false)
       expect(result.signal, result.stderr).toBeUndefined()
       expect(result.exitCode, result.stderr).toBe(0)
-      expect(result.stderr).not.toMatch(/dsh: fatal|projection registration is not active/u)
+      expect(result.stderr).not.toMatch(/mwf: fatal|projection registration is not active/u)
       const evidence: unknown = JSON.parse(await readFile(resultPath, 'utf8'))
       expect(evidence).toMatchObject({
         abortHandled: 1,

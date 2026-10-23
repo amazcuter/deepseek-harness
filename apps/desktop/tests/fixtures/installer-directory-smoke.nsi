@@ -8,12 +8,12 @@ LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 LangString decompressionFailed ${LANG_ENGLISH} "Payload extraction failed"
 
 !macro installApplicationFiles
-  !insertmacro dshExtractPayload "${PAYLOAD_FILE}"
+  !insertmacro mwfExtractPayload "${PAYLOAD_FILE}"
 !macroend
 !ifdef SOURCE_DLL
   LoadLanguageFile "${NSISDIR}\Contrib\Language files\SimpChinese.nlf"
   !include "..\..\installer\strings.nsh"
-  !define DSH_INSTALLER_LOG_DIR "${REPORT_DIR}"
+  !define MWF_INSTALLER_LOG_DIR "${REPORT_DIR}"
   !include "..\..\scripts\installer.nsh"
 !else
   !include "..\..\scripts\installer-directories.nsh"
@@ -29,45 +29,45 @@ Section
     File "/oname=$PLUGINSDIR\window-frame.dll" "${SOURCE_DLL}"
   !endif
   StrCpy $INSTDIR "${TARGET_DIR}"
-  !insertmacro dshStageApplication
+  !insertmacro mwfStageApplication
   !ifdef RESTORE_CONFLICT
-    Rename $dshFinalDirectory $dshOldDirectory
-    StrCpy $dshOldMoved "1"
-    CreateDirectory $dshFinalDirectory
-    FileOpen $0 "$dshFinalDirectory\unrelated.txt" w
+    Rename $mwfFinalDirectory $mwfOldDirectory
+    StrCpy $mwfOldMoved "1"
+    CreateDirectory $mwfFinalDirectory
+    FileOpen $0 "$mwfFinalDirectory\unrelated.txt" w
     FileWrite $0 "unrelated file"
     FileClose $0
-    StrCpy $dshDirectorySource $dshNewDirectory
-    StrCpy $dshDirectoryDestination $dshFinalDirectory
-    !insertmacro dshDirectoryOperation "$dshDirectorySource" "$dshDirectoryDestination" $dshDirectoryError "promote"
-    Call dshRollbackDirectories
-    !insertmacro dshReportDirectoryFailure
-    Rename $dshFinalDirectory "${TARGET_DIR}.conflict"
-    Call dshCleanupDirectories
+    StrCpy $mwfDirectorySource $mwfNewDirectory
+    StrCpy $mwfDirectoryDestination $mwfFinalDirectory
+    !insertmacro mwfDirectoryOperation "$mwfDirectorySource" "$mwfDirectoryDestination" $mwfDirectoryError "promote"
+    Call mwfRollbackDirectories
+    !insertmacro mwfReportDirectoryFailure
+    Rename $mwfFinalDirectory "${TARGET_DIR}.conflict"
+    Call mwfCleanupDirectories
     SetErrorLevel 2
     Quit
   !endif
   !ifdef CANCELLED
     SetErrorLevel 2
-    Call dshCleanupDirectories
+    Call mwfCleanupDirectories
     Quit
   !endif
   !ifdef MISSING_STAGE
     ; A missing source makes the second rename fail after the old directory moved.
-    RMDir /r "\\?\$dshNewDirectory"
+    RMDir /r "\\?\$mwfNewDirectory"
   !endif
   !ifdef LOCKED_STAGE
-    System::Call 'kernel32::CreateFileW(w "$dshNewDirectory\asset.txt", i 0x80000000, i 1, p 0, i 3, i 0, p 0) p.r9'
+    System::Call 'kernel32::CreateFileW(w "$mwfNewDirectory\asset.txt", i 0x80000000, i 1, p 0, i 3, i 0, p 0) p.r9'
   !endif
-  Call dshPromoteDirectories
+  Call mwfPromoteDirectories
   IfErrors failed
-  !insertmacro dshFinishDirectories
+  !insertmacro mwfFinishDirectories
   SetErrorLevel 0
   Quit
   failed:
   !ifdef LOCKED_STAGE
     System::Call 'kernel32::CloseHandle(p r9)'
-    Call dshCleanupDirectories
+    Call mwfCleanupDirectories
   !endif
   SetErrorLevel 2
   Quit

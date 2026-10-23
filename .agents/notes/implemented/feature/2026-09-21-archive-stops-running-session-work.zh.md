@@ -28,9 +28,9 @@
 
 **用客户端的活动镜像把归档动作置灰。** 那需要从列表投影自行推导运行中的回合、运行中的子代理、所属任务和活动提醒，且可能与宿主不一致（无主任务、没有宿主 Agent 的子代理）。一次被拒绝的往返就能拿到宿主自己的清单。
 
-**让 workspace 或 schedule 包依赖 agent 注册表。** waterfall 与 parallel 事件让 Agent 注册表、任务注册表接缝、Subagent runtime 和 Schedule 插件无需向实体注册表新增依赖边就能提供各自的族；每一方都为事件类型新增了指向 `dsh-workspace` 的可选纯类型边，方向是自然的"特性依赖实体"（`dsh-workspace` 不依赖它们中的任何一个，因此不成环）。
+**让 workspace 或 schedule 包依赖 agent 注册表。** waterfall 与 parallel 事件让 Agent 注册表、任务注册表接缝、Subagent runtime 和 Schedule 插件无需向实体注册表新增依赖边就能提供各自的族；每一方都为事件类型新增了指向 `mwf-workspace` 的可选纯类型边，方向是自然的"特性依赖实体"（`mwf-workspace` 不依赖它们中的任何一个，因此不成环）。
 
-**由 API Session Controller 报告各族。** 控制器看得到每个活 Agent、任务注册表和 Session header 上的血缘字段，本可以自己枚举回合、子代理和任务——但那样它就得认识每个 owner 的词汇（描述符与名称、父级原因的取消、任务归属）。Agent 注册表、任务接缝与 Subagent runtime 本来就拥有这些词汇，所以每一族都跟着自己的 owner；控制器只保留只读归档集合与 header 字段的血缘步骤门禁。门禁也不能反过来搬进 `dsh-workspace`：各 owner 现在依赖它的类型，workspace 包再依赖 Agent 的事件词汇就会成环。
+**由 API Session Controller 报告各族。** 控制器看得到每个活 Agent、任务注册表和 Session header 上的血缘字段，本可以自己枚举回合、子代理和任务——但那样它就得认识每个 owner 的词汇（描述符与名称、父级原因的取消、任务归属）。Agent 注册表、任务接缝与 Subagent runtime 本来就拥有这些词汇，所以每一族都跟着自己的 owner；控制器只保留只读归档集合与 header 字段的血缘步骤门禁。门禁也不能反过来搬进 `mwf-workspace`：各 owner 现在依赖它的类型，workspace 包再依赖 Agent 的事件词汇就会成环。
 
 **只由活着的 Session 报告 `schedule` 族。** 已存储的任务才是权威，且比其 Session 的 Agent 活得更久，因此以存活为条件会让存储行被武装的冷 Session 静默归档，其到期行随后投递进一个被门禁以 `blocked` 收口的回合，在没有模型步的情况下消耗掉这次触发（[归档准入读取已存储的任务](2026-09-22-archive-admission-reads-stored-tasks.zh.md)）。
 

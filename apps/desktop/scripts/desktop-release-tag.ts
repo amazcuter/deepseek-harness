@@ -26,7 +26,7 @@ export interface DesktopReleaseTagResult {
 /**
  * Name the tag one published version carries.
  * @param version - Version the release published.
- * @returns The tag name, distinct from the `dsh-v*` tags the npm family publishes from.
+ * @returns The tag name, distinct from the `mwf-v*` tags the npm family publishes from.
  */
 export function desktopReleaseTag(version: string): string {
   return `desktop-v${version}`

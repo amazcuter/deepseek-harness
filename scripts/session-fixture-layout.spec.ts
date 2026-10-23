@@ -1,9 +1,9 @@
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { createAssistantMessage } from '@deepseek-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION, SessionSeq, type SessionEvent } from '@deepseek-ai/dsh-session'
-import { parseSessionLog, prepareSessionSnapshotFixtureForComparison } from '@deepseek-ai/dsh-llm-replay'
-import { scrubSessionSnapshot } from '@deepseek-ai/dsh-session-snapshot'
+import { createAssistantMessage } from '@metaworkflow/llm'
+import { SESSION_FORMAT_VERSION, SessionSeq, type SessionEvent } from '@metaworkflow/session'
+import { parseSessionLog, prepareSessionSnapshotFixtureForComparison } from '@metaworkflow/llm-replay'
+import { scrubSessionSnapshot } from '@metaworkflow/session-snapshot'
 import {
   canonicalSessionFixture,
   inspectSessionFixtureLayouts,
@@ -198,10 +198,10 @@ describe('canonicalSessionFixture', () => {
 describe('isPhysicalSessionFixture', () => {
   it('recognizes fixtures that preserve physical persistence encoding', () => {
     expect(isPhysicalSessionFixture(
-      'packages/experimental/webworker-runtime/tests/fixtures/vfs-example/home/sessions/--dsh-workspace--/main/session.jsonl',
+      'packages/experimental/webworker-runtime/tests/fixtures/vfs-example/home/sessions/--mwf-workspace--/main/session.jsonl',
     )).toBe(true)
     expect(isPhysicalSessionFixture(
-      'packages/experimental/webworker-runtime/tests/fixtures/vfs-example/home/sessions/--dsh-workspace--/main/session.v1.jsonl',
+      'packages/experimental/webworker-runtime/tests/fixtures/vfs-example/home/sessions/--mwf-workspace--/main/session.v1.jsonl',
     )).toBe(true)
     expect(isPhysicalSessionFixture(
       'scripts/snapshots/python-sdk-single-exe/advanced/session.1.jsonl',

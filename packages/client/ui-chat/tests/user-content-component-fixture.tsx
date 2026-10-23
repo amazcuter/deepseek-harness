@@ -1,7 +1,7 @@
 /** Production user content for component units; registry integration uses SlotTestRuntime. */
 import { createElement, type ComponentProps } from 'react'
-import type { PropsLocale, PropsRenderFactories, PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
-import type { UserTextInput } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { PropsLocale, PropsRenderFactories, PropsRenderSlots } from '@metaworkflow/client-ui-slots'
+import type { UserTextInput } from '@metaworkflow/client-ui-conversation/client'
 import { createUserTextFixture } from '../../ui-conversation/tests/user-text-component-fixture.client.tsx'
 import type { UserContentInput } from '../src/client/contract/slots.ts'
 import { UserContent } from '../src/client/chat/UserContent.tsx'

@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-19-no-unknown-casts.md
 /agent-note-prohibit-new-assertions-to-unknown:
-  en: d05b7f323025e1b9
-  zh: fa84da1b6dbbd40a
+  en: d1a6af020aed1f7f
+  zh: 88a9bf8497696752
 /agent-note-prohibit-new-assertions-to-unknown/problem:
   en: de8fd99f06ce9378
   zh: 627e67ac20b16e56

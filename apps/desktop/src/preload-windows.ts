@@ -10,7 +10,7 @@ export function syncWindowsAppearance(): void {
   const mark = (): void => {
     const root = document.documentElement
     root.dataset.windowsTitlebar = ''
-    root.style.setProperty('--dsh-windows-titlebar-height', `${WINDOWS_TITLEBAR_HEIGHT}px`)
+    root.style.setProperty('--mwf-windows-titlebar-height', `${WINDOWS_TITLEBAR_HEIGHT}px`)
   }
   // The root can be absent before the HTML parser creates it.
   if ((document.documentElement as HTMLElement | null) !== null) mark()

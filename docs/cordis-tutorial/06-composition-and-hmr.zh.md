@@ -22,7 +22,7 @@ Cordis 配置项除了 `name` 和 `config`，还接受其他元数据：
 
 ## 热模块替换
 
-卸载会释放 effect（[第 2 章](02-lifecycle-and-effects.zh.md)），加载则遵循依赖关系（[第 3 章](03-services.zh.md)），因此 HMR 可以先卸载、再加载，以替换正在运行的插件。`@deepseek-ai/dsh-hmr` 插件会监视文件，并在保存时执行这一过程。
+卸载会释放 effect（[第 2 章](02-lifecycle-and-effects.zh.md)），加载则遵循依赖关系（[第 3 章](03-services.zh.md)），因此 HMR 可以先卸载、再加载，以替换正在运行的插件。`@metaworkflow/hmr` 插件会监视文件，并在保存时执行这一过程。
 
 在 `tmp/cordis-tutorial` 中编写 `cordis.yml`：
 
@@ -32,7 +32,7 @@ Cordis 配置项除了 `name` 和 `config`，还接受其他元数据：
 - id: timer
   name: '@deepseek-ai/cordis-plugin-timer'
 - id: hmr
-  name: '@deepseek-ai/dsh-hmr'
+  name: '@metaworkflow/hmr'
   config:
     root: ['.']
 - id: hello
@@ -110,4 +110,4 @@ needs-timer is PENDING — a required service is missing
 
 下一章：[进入 harness](07-into-the-harness.zh.md)：把相同模式用于真实的 harness 服务。
 
-[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
+[![](https://img.shields.io/badge/powered_by-mwf-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)

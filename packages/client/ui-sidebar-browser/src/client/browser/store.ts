@@ -1,6 +1,6 @@
 /** Persisted Browser tab snapshots shared by the body and title slots. */
-import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-store'
-import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
+import { defineStore, type EngineStoreHandle } from '@metaworkflow/client-store'
+import type { TabId } from '@metaworkflow/client-ui-dockkit'
 import type { BrowserTabState } from './BrowserPersistence.ts'
 
 /** All Browser tabs in one Session-scoped store. */
@@ -20,7 +20,7 @@ type BrowserActions = {
 export function createBrowserStore(): EngineStoreHandle<BrowserState, BrowserActions> {
   return defineStore({
     init: (): BrowserState => ({ byTab: {} }),
-    persist: 'dsh.sidebar-browser.v1',
+    persist: 'mwf.sidebar-browser.v1',
     actions: {
       replace: (draft, tabId: TabId, state: BrowserTabState) => { draft.byTab[tabId] = state },
       forget: (draft, tabId: TabId) => {

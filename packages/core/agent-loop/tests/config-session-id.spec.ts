@@ -1,24 +1,24 @@
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createUserMessage } from '@metaworkflow/llm'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import LlmRuntime from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import AgentRegistry, { type Agent } from '@deepseek-ai/dsh-agent'
-import type { SessionHandle } from '@deepseek-ai/dsh-session-persistence'
+import LlmRuntime from '@metaworkflow/llm'
+import type { ContextFormed } from '@metaworkflow/llm'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import type { SessionEvent } from '@metaworkflow/session'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRuntime from '@metaworkflow/tools'
+import AgentRegistry, { type Agent } from '@metaworkflow/agent'
+import type { SessionHandle } from '@metaworkflow/session-persistence'
 
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import AgentLoop, { CONFIGURED_AGENT_IDENTITIES_KEY } from '@deepseek-ai/dsh-agent-loop'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
+import AgentLoop, { CONFIGURED_AGENT_IDENTITIES_KEY } from '@metaworkflow/agent-loop'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }
@@ -110,7 +110,7 @@ describe('config-driven session id', () => {
   })
 
   it('rejects duplicate exact ids before asynchronous configured startup', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-exact-duplicate-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-exact-duplicate-'))
     dirs.push(root)
     const ctx = await makeCoreContext()
     await ctx.plugin(JsonlSessionPersistence, { root })
@@ -129,7 +129,7 @@ describe('config-driven session id', () => {
   })
 
   it('restores a materialized exact id across an AgentLoop-only reload', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-exact-reload-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-exact-reload-'))
     dirs.push(root)
     const ctx = await makeCoreContext()
     await ctx.plugin(JsonlSessionPersistence, { root })
@@ -158,7 +158,7 @@ describe('config-driven session id', () => {
   })
 
   it('waits for a draining exact-id lifecycle during an overlapping reload', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-exact-overlap-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-exact-overlap-'))
     dirs.push(root)
     const ctx = await makeCoreContext()
     await ctx.plugin(JsonlSessionPersistence, { root })
@@ -205,7 +205,7 @@ describe('config-driven session id', () => {
   })
 
   it('cancels an exact-id reload while the prior lifecycle is still draining', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-exact-cancel-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-exact-cancel-'))
     dirs.push(root)
     const ctx = await makeCoreContext()
     await ctx.plugin(JsonlSessionPersistence, { root })
@@ -261,7 +261,7 @@ describe('config-driven session id', () => {
   })
 
   it('contains an exact-id persistence open failure', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-exact-failure-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-exact-failure-'))
     dirs.push(root)
     const ctx = await makeCoreContext()
     await ctx.plugin(JsonlSessionPersistence, { root })
@@ -297,7 +297,7 @@ describe('config-driven session id', () => {
   })
 
   it('contains startup and observer failures whose string coercion throws', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-exact-unrenderable-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-exact-unrenderable-'))
     dirs.push(root)
     const ctx = await makeCoreContext()
     await ctx.plugin(JsonlSessionPersistence, { root })
@@ -335,7 +335,7 @@ describe('config-driven session id', () => {
   it.each(['resolve', 'reject'] as const)(
     'abandons an exact-id open that later %ss when AgentLoop disposal starts',
     async (outcome) => {
-      const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-exact-dispose-'))
+      const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-exact-dispose-'))
       dirs.push(root)
       const ctx = await makeCoreContext()
       await ctx.plugin(JsonlSessionPersistence, { root })
@@ -386,7 +386,7 @@ describe('config-driven session id', () => {
   })
 
   it('config-driven create uses a fresh ${id}-session-<uuid> per run (restart-safe)', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-session-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-session-'))
     dirs.push(root)
     const idPattern = /^cfg-session-[0-9a-f-]{36}$/
     // Run 1: a config agent persists a turn under a generated session id.
@@ -434,7 +434,7 @@ describe('config-driven session id', () => {
   })
 
   it('config-driven resumeSessionId continues a persisted session', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-resume-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-resume-'))
     dirs.push(root)
 
     // Run 1: a programmatically-created agent on a KNOWN session id persists a
@@ -481,7 +481,7 @@ describe('config-driven session id', () => {
   })
 
   it('config-driven resume of a missing session is contained: logs a warning, no agent, no crash', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-resume-miss-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-resume-miss-'))
     dirs.push(root)
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
@@ -509,7 +509,7 @@ describe('config-driven session id', () => {
 
 describe('startup reporting after factory teardown', () => {
   it('suppresses the configured-restore failure report once the loop is disposed', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-cfg-disposed-report-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-cfg-disposed-report-'))
     dirs.push(root)
     const ctx = await makeCoreContext()
     await ctx.plugin(JsonlSessionPersistence, { root })

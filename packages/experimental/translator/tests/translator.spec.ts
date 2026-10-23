@@ -1,7 +1,7 @@
 import { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import { TimeoutReason } from '@deepseek-ai/dsh-timeout'
-import { boot } from '@deepseek-ai/dsh-app-boot'
+import { TimeoutReason } from '@metaworkflow/timeout'
+import { boot } from '@metaworkflow/app-boot'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { once } from 'node:events'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
@@ -217,7 +217,7 @@ describe('anonymous translator', () => {
 
   it('boots a real Loader composition and translates through its configured provider', async () => {
     const { config, requests } = await fixture((_req, res) => { json(res, bingPayload) })
-    const root = await mkdtemp(join(tmpdir(), 'dsh-translator-composition-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-translator-composition-'))
     cleanups.push(async () => { await rm(root, { recursive: true, force: true }) })
     const source = await readFile(new URL('./fixtures/cordis.yml', import.meta.url), 'utf8')
     const path = join(root, 'cordis.yml')

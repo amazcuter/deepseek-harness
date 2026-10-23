@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-deque",
+  "name": "@metaworkflow/deque",
   "description": "Zero-dependency circular deque with amortized constant-time end operations and bounded vacant storage",
   "version": "0.2.1-rc.2",
   "publishConfig": {

@@ -1,4 +1,4 @@
-"""Locate and execute the bundled dsh CLI shipped with the Python SDK runtime.
+"""Locate and execute the bundled mwf CLI shipped with the Python SDK runtime.
 
 Two runtime carriers coexist under ``runtime/``, both injected by the repo's
 ``scripts/build-exe-for-python-sdk.ts`` build (neither is checked into git):
@@ -14,9 +14,9 @@ Two runtime carriers coexist under ``runtime/``, both injected by the repo's
   system Node >= 22.19. It is the current checkout's source build, never
   selected automatically, and excluded from wheel/sdist distributions.
 
-Both carriers execute the same dsh command grammar. The Python SDK selects the
-``sdk`` profile and requires an explicit Harness home; the installed ``dsh``
-console command requires ``DSH_HOME`` for the same reason.
+Both carriers execute the same mwf command grammar. The Python SDK selects the
+``sdk`` profile and requires an explicit Harness home; the installed ``mwf``
+console command requires ``MWF_HOME`` for the same reason.
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ from ._resources import validate_downloads, validate_resources, office_launch_ar
 
 PACKAGE_METADATA_FILENAME = "deepseek-harness-runtime.json"
 
-RUNTIME_MODE_ENV_VAR = "DSH_RUNTIME_MODE"
+RUNTIME_MODE_ENV_VAR = "MWF_RUNTIME_MODE"
 
 _PLATFORM_TAGS = {"linux": "linux", "darwin": "macos", "win32": "win"}
 _ARCH_TAGS = {"x86_64": "x64", "amd64": "x64", "arm64": "arm64", "aarch64": "arm64"}
@@ -99,7 +99,7 @@ def resolve_bundled_launch_args(mode: str | None = None) -> tuple[str, ...]:
     """The argv tuple that launches the bundled runtime.
 
     Mode selection: the explicit ``mode`` argument wins, then the
-    ``DSH_RUNTIME_MODE`` environment variable (``exe`` | ``node``), then
+    ``MWF_RUNTIME_MODE`` environment variable (``exe`` | ``node``), then
     automatic resolution. Automatic resolution finds the production exe ONLY —
     the dev-only node carrier must be selected explicitly so a production
     deployment can never silently ride on a source build. Returns
@@ -155,7 +155,7 @@ def _node_launch_args() -> tuple[str, str]:
 
 def _download(resource: str) -> Path:
     result = subprocess.run(resolve_bundled_launch_args(), capture_output=True, encoding="utf-8",
-                            env={**os.environ, "DSH_RUNTIME_DOWNLOAD": resource})
+                            env={**os.environ, "MWF_RUNTIME_DOWNLOAD": resource})
     if result.returncode:
         raise RuntimeError(result.stderr.strip() or f"resource download failed with exit code {result.returncode}")
     path = json.loads(result.stdout)
@@ -168,7 +168,7 @@ def download_office() -> Path:
     """Download the locked npm Office sidecar and standalone Node into the resource cache.
 
     Return its absolute directory. Reuse completed downloads; failures leave no
-    published partial installation. DSH_RESOURCE_CACHE selects the cache root.
+    published partial installation. MWF_RESOURCE_CACHE selects the cache root.
     This explicit operation requires network access on a cache miss, not a
     Harness home, agent, or model. Other SDK operations never trigger downloads.
     """
@@ -180,7 +180,7 @@ def download_primary_runtime() -> Path:
 
     Return the absolute primary-runtime directory. This is independent of the
     Office engine download and does not copy resources into a Harness home.
-    Completed downloads are reused; DSH_RESOURCE_CACHE selects the cache root.
+    Completed downloads are reused; MWF_RESOURCE_CACHE selects the cache root.
     """
     path = _download("primary")
     validate_resources(path.parent, _current_platform_tag())
@@ -194,11 +194,11 @@ def resolve_office_launch_args() -> tuple[str, str]:
 
 
 def main() -> None:
-    """Launch the CLI with explicit DSH_HOME; wait on Windows, replace the process on POSIX."""
-    if not os.environ.get("DSH_HOME", "").strip():
+    """Launch the CLI with explicit MWF_HOME; wait on Windows, replace the process on POSIX."""
+    if not os.environ.get("MWF_HOME", "").strip():
         print(
-            "dsh: the Python runtime command requires an explicit DSH_HOME; "
-            "it never uses ~/.dsh implicitly",
+            "mwf: the Python runtime command requires an explicit MWF_HOME; "
+            "it never uses ~/.mwf implicitly",
             file=sys.stderr,
         )
         raise SystemExit(2)

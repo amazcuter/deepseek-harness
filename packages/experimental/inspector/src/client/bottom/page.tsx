@@ -2,13 +2,13 @@
 import type { Context } from '@deepseek-ai/cordis'
 import { useCallback, useId, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { Button, IconCloseOutlineRegular, Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type { ShortcutCommandId } from '@deepseek-ai/dsh-client-shortcuts/client'
-import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import { Button, IconCloseOutlineRegular, Tooltip } from '@metaworkflow/client-ui-primitives'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@metaworkflow/client-ui-slots'
+import type { ShortcutCommandId } from '@metaworkflow/client-shortcuts/client'
+import type {} from '@metaworkflow/client-ui-layout/client'
+import type {} from '@metaworkflow/client-ui-renderer/client'
+import type {} from '@metaworkflow/client-locale/client'
 import type { InspectorSourceId } from '../../shared/bridge/ids.ts'
 import { bindInspectorKeyboard } from './keyboard.ts'
 import { InspectorResizeHandle } from './resize.tsx'
@@ -46,7 +46,7 @@ function InspectorPage({ t, frontendUrl, close, bindFrame, usePanel }:
       </Tooltip>
     </header>
     {state !== 'unopened' && <iframe ref={frameRef} className={css.page} src={frontendUrl} title={t('frameTitle')}
-      name="dsh-nodejs-inspector" referrerPolicy="no-referrer" data-inspector-devtools />}
+      name="mwf-nodejs-inspector" referrerPolicy="no-referrer" data-inspector-devtools />}
   </section>
 }
 

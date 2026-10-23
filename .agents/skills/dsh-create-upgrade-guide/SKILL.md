@@ -3,7 +3,7 @@ name: dsh-create-upgrade-guide
 description: Use when a deepseek-harness change breaks an externally perceptible surface (CLI, profiles, cordis.yml or settings keys, persisted user data, SDK or wire APIs, published package entry points), or when changing a surface that an unreleased upgrade guide already covers, to write or update docs/upgrade-guide/v<version>/<item>/guide.md.
 ---
 
-# DSH Create Upgrade Guide
+# MWF Create Upgrade Guide
 
 An upgrade guide tells a reader who runs release vT what to change to run the next release. Write it in the change that introduces the break, as soon as the break is recognized; do not defer it to release preparation.
 
@@ -11,7 +11,7 @@ An upgrade guide tells a reader who runs release vT what to change to run the ne
 
 Write a guide only for breaks that someone outside the repository can observe after upgrading:
 
-- `dsh` commands, flags, and profile names;
+- `mwf` commands, flags, and profile names;
 - `cordis.yml`, patch, overlay, and settings keys or their accepted values;
 - persisted user data: Session logs, SQLite stores, and user data directories;
 - TypeScript and Python SDK exports, JSON-RPC, HTTP, and ACP messages;
@@ -41,7 +41,7 @@ Start from the [upgrade-guide template](../dsh-doc/templates/upgrade-guide.md). 
 
 `Change` states the old and new behavior of the surface and who is affected. `Migration` lists ordered steps that name exact files, keys, commands, or symbols, and states how to confirm the migration worked.
 
-When a guide needs more than 500 words, the extra text belongs elsewhere: link source files or symbols instead of restating code, move rationale into an [Agent Note](../../notes/README.md), and turn repeated mechanical steps into a script or `dsh` command that the guide invokes.
+When a guide needs more than 500 words, the extra text belongs elsewhere: link source files or symbols instead of restating code, move rationale into an [Agent Note](../../notes/README.md), and turn repeated mechanical steps into a script or `mwf` command that the guide invokes.
 
 Follow [dsh-prose-standard](../dsh-prose-standard/SKILL.md). Write the Chinese counterpart in the same change under the [bilingual pairing rules](../../../docs/AGENTS.md), then record the pair with `pnpm run verify-translation-pairing --write docs/upgrade-guide/v<version>/<item>/guide.md`.
 

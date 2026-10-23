@@ -11,7 +11,7 @@ import {
   readProfileManifest,
   resolveProfileDir,
   writeProfileManifest,
-} from '@deepseek-ai/dsh-app-boot'
+} from '@metaworkflow/app-boot'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { execa } from 'execa'
 import { initializeProfileFromDefault } from '../src/profile-boot.ts'
@@ -53,7 +53,7 @@ async function waitForFile(file: string): Promise<void> {
 
 /** Run one assertion against a private Harness home and remove it afterwards. */
 function withHome(assertion: (home: string) => void): void {
-  const home = mkdtempSync(join(tmpdir(), 'dsh-profile-from-default-'))
+  const home = mkdtempSync(join(tmpdir(), 'mwf-profile-from-default-'))
   try {
     assertion(home)
   } finally {
@@ -70,10 +70,10 @@ describe('initializeProfileFromDefault', () => {
         const dir = resolveProfileDir('custom', home)
         const manifest = readProfileManifest('test', dir)
         expect(manifest).toEqual({
-          name: 'dsh-profile-custom',
+          name: 'mwf-profile-custom',
           private: true,
           dependencies: {},
-          dsh: { profile: { bundles: [...template.bundles] } },
+          mwf: { profile: { bundles: [...template.bundles] } },
         })
         expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('[]')
         expect(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')).toContain('nodeLinker: hoisted')
@@ -95,7 +95,7 @@ describe('initializeProfileFromDefault', () => {
       const targetDir = resolveProfileDir('rescue', home)
       const target = readProfileManifest('test', targetDir)
       expect(target.dependencies).toEqual({})
-      expect(target.dsh?.profile).toEqual({
+      expect(target.mwf?.profile).toEqual({
         bundles: [...PROFILE_TEMPLATES.web!.bundles],
       })
       expect(readFileSync(join(targetDir, PROFILE_PATCH_FILENAME), 'utf8')).not.toContain('local-only')
@@ -115,10 +115,10 @@ describe('initializeProfileFromDefault', () => {
       initializeProfileFromDefault('rescue', 'web', home)
 
       expect(readProfileManifest('test', dir)).toEqual({
-        name: 'dsh-profile-rescue',
+        name: 'mwf-profile-rescue',
         private: true,
         dependencies: {},
-        dsh: { profile: { bundles: [...PROFILE_TEMPLATES.web!.bundles] } },
+        mwf: { profile: { bundles: [...PROFILE_TEMPLATES.web!.bundles] } },
       })
       expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).not.toContain('existing')
       expect(existsSync(join(dir, 'node_modules'))).toBe(false)
@@ -135,7 +135,7 @@ describe('initializeProfileFromDefault', () => {
       initializeProfileFromDefault('rescue', 'web', home)
 
       expect(existsSync(join(dir, 'residual'))).toBe(false)
-      expect(readProfileManifest('test', dir).dsh?.profile).toEqual(PROFILE_TEMPLATES.web)
+      expect(readProfileManifest('test', dir).mwf?.profile).toEqual(PROFILE_TEMPLATES.web)
     })
   })
 
@@ -197,7 +197,7 @@ describe('initializeProfileFromDefault', () => {
       expect(() => {
         initializeProfileFromDefault('rescue', 'web', home)
       }).toThrow('profile "rescue" was recreated concurrently')
-      expect(readProfileManifest('test', dir).dsh?.profile).toEqual({ bundles: ['concurrent-bundle'] })
+      expect(readProfileManifest('test', dir).mwf?.profile).toEqual({ bundles: ['concurrent-bundle'] })
       expect(readdirSync(dirname(dir))).toEqual(['rescue'])
     })
   })
@@ -236,7 +236,7 @@ describe('initializeProfileFromDefault', () => {
   })
 
   it('leaves one complete template copy after two synchronized processes replace the target', async () => {
-    const home = mkdtempSync(join(tmpdir(), 'dsh-profile-from-default-race-'))
+    const home = mkdtempSync(join(tmpdir(), 'mwf-profile-from-default-race-'))
     const gate = join(home, 'start')
     const ready = [join(home, 'ready-1'), join(home, 'ready-2')]
     const children = ready.map(marker => execa(
@@ -253,7 +253,7 @@ describe('initializeProfileFromDefault', () => {
         expect(result.stderr).toContain('was recreated concurrently')
       }
       const dir = resolveProfileDir('rescue', home)
-      expect(readProfileManifest('test', dir).dsh?.profile).toEqual(PROFILE_TEMPLATES.web)
+      expect(readProfileManifest('test', dir).mwf?.profile).toEqual(PROFILE_TEMPLATES.web)
       expect(readdirSync(dirname(dir))).toEqual(['rescue'])
     } finally {
       for (const child of children) child.kill('SIGKILL')

@@ -10,7 +10,7 @@ import type { Plugin } from 'vite'
  */
 export function katexWoff2Fonts(): Plugin {
   return {
-    name: 'dsh-katex-woff2-fonts',
+    name: 'mwf-katex-woff2-fonts',
     enforce: 'pre',
     transform(code, id) {
       if (!/\/node_modules\/katex\/dist\/katex(?:\.min)?\.css(?:\?|$)/u.test(id.replaceAll('\\', '/'))) return

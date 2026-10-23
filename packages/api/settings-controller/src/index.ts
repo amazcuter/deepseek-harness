@@ -4,19 +4,19 @@
  * `ctx.settings`, owned by the class below; and `credentials`, mounted from
  * here as its own plugin.
  *
- * @module @deepseek-ai/dsh-api-settings-controller
+ * @module @metaworkflow/api-settings-controller
  */
 
 import { Context } from '@deepseek-ai/cordis'
 import {
   openNativeTextFile,
-} from '@deepseek-ai/dsh-native-command'
-import type { SettingsDescriptor, SettingsPathOp, SettingsForms } from '@deepseek-ai/dsh-settings'
+} from '@metaworkflow/native-command'
+import type { SettingsDescriptor, SettingsPathOp, SettingsForms } from '@metaworkflow/settings'
 import type {
   SettingsDescribeValue, SettingsNamespaceView, SettingsPathOpView,
-} from '@deepseek-ai/dsh-settings/types'
-import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@metaworkflow/settings/types'
+import { Remote, RemoteError, TypertRemoteService } from '@metaworkflow/typert-protocol'
+import type { JsonValue } from '@metaworkflow/util-values'
 import { z } from 'zod'
 import { CredentialsController } from './credentials.ts'
 import type { SettingsDocumentOpenValue } from './types.ts'
@@ -218,7 +218,7 @@ export class SettingsController extends TypertRemoteService {
     if (settings === undefined) {
       throw new RemoteError(
         'gateway/internal',
-        'settings service is absent: mount @deepseek-ai/dsh-settings with @deepseek-ai/dsh-config-editor in the profile composition',
+        'settings service is absent: mount @metaworkflow/settings with @metaworkflow/config-editor in the profile composition',
         {},
       )
     }

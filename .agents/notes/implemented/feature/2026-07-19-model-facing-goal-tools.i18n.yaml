@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-07-19-model-facing-goal-tools.md
 /agent-note-model-facing-same-session-goal-tools:
-  en: 4d9b039620654dd6
-  zh: e8703b6a1723f910
+  en: 88fd75334e61c13b
+  zh: 80ea01b5eefebeab
 /agent-note-model-facing-same-session-goal-tools/problem:
   en: f8e860155bfc0b43
   zh: 3279c90b622e8c08
 /agent-note-model-facing-same-session-goal-tools/decision:
-  en: 0ab1e1c40cb2dac9
-  zh: b4180b6681c130b2
+  en: b7a3682dbb704cf4
+  zh: ccae179e251debbb
 /agent-note-model-facing-same-session-goal-tools/decision/tools-and-model-contract:
   en: 288a819f644611c9
   zh: d6bd7986ba091519
@@ -30,5 +30,5 @@
   en: e254571a176b37e5
   zh: 01f76aff35e3618d
 /agent-note-model-facing-same-session-goal-tools/known-limitations-and-deferred-work:
-  en: 61e119f3d8dc130d
-  zh: 1d543c4143d4cc21
+  en: 8704021715b961e7
+  zh: b53c30a96b196d46

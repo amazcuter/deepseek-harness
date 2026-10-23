@@ -3,13 +3,13 @@ description: "面向用户与维护者的文件型凭据提供方：选择、配
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-credentials-local
+# @metaworkflow/credentials-local
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-credentials-local` 把 API 密钥和其他机密保存在 harness home 下的私有文件中。你可以通过配置界面保存凭据，也可以直接编辑文件；变更会自动重载，保存的值也会跨重启保留。凭据查找采用固定优先级：存储文件优先，其次是启动环境、项目 `.env` 和 harness home 的 `.env`；新保存的值会立即覆盖环境中的旧值。只有你的 OS 用户能读取该文件，但 agent（智能体）的工具进程以同一用户身份运行，因此该存储无法向 agent 隔离机密。
+`mwf-credentials-local` 把 API 密钥和其他机密保存在 harness home 下的私有文件中。你可以通过配置界面保存凭据，也可以直接编辑文件；变更会自动重载，保存的值也会跨重启保留。凭据查找采用固定优先级：存储文件优先，其次是启动环境、项目 `.env` 和 harness home 的 `.env`；新保存的值会立即覆盖环境中的旧值。只有你的 OS 用户能读取该文件，但 agent（智能体）的工具进程以同一用户身份运行，因此该存储无法向 agent 隔离机密。
 
 ## 目录
 
@@ -34,7 +34,7 @@ kind: "package-reference"
 ### 设置
 
 ```yaml
-- name: '@deepseek-ai/dsh-credentials-local'
+- name: '@metaworkflow/credentials-local'
   config:
     path: /absolute/path/to/.credentials.yaml
 ```
@@ -42,11 +42,11 @@ kind: "package-reference"
 | 字段 | 默认值 | 含义 |
 |---|---|---|
 | `path` | `<harness home>/.credentials.yaml` | 凭据文件所在位置 |
-| `dshHome` | `$DSH_HOME` 或 `~/.dsh` | `path` 缺省时使用的 harness home |
+| `mwfHome` | `$MWF_HOME` 或 `~/.mwf` | `path` 缺省时使用的 harness home |
 | `watch` | `true` | 文件在磁盘上变化时自动重载 |
 | `debounceMs` | `100` | 变化后等待这么久再重载，单位为毫秒 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-credentials-local)完整列出了所有受支持字段及其 JSDoc，是这些信息的真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#metaworkflowcredentials-local)完整列出了所有受支持字段及其 JSDoc，是这些信息的真源。
 
 ### 存储与移除密钥
 
@@ -54,7 +54,7 @@ kind: "package-reference"
 
 ```ts
 import type { Context } from '@deepseek-ai/cordis'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
+import { credentialRef } from '@metaworkflow/credentials'
 
 declare const ctx: Context
 
@@ -73,11 +73,11 @@ await ctx.credentials.unset(ref)                // remove
 | 位置 | 可写？ | 优先于 |
 |---|---|---|
 | 存储文件 | 是（`set`/`unset`） | 一切 |
-| 你启动时的环境（`DEEPSEEK_API_KEY=… dsh`） | 不在此处 | 两个 `.env` 文件 |
+| 你启动时的环境（`DEEPSEEK_API_KEY=… mwf`） | 不在此处 | 两个 `.env` 文件 |
 | 项目的 `.env`（`<invocation cwd>/.env`） | 不在此处 | 主目录 `.env` |
-| 主目录的 `.env`（`$DSH_HOME/.env`） | 不在此处 | 无 |
+| 主目录的 `.env`（`$MWF_HOME/.env`） | 不在此处 | 无 |
 
-存储文件优先，因为通过产品明确保存的凭据必须对每个提供方一致生效（[决策](../../../.agents/notes/implemented/architecture/2026-10-09-stored-credential-precedence.zh.md)）。启动环境——`DEEPSEEK_API_KEY=… dsh`、CI 机密、容器 `-e`——在没有存储值时作为后备；随后是项目 `.env`，最后是 harness home 的 `.env`。保存总是写入胜出的那一层，因此 `describe` 对每个引用都报告 `writable: true`，其 `source` 指明当前提供该值的位置。环境层是启动时拍摄的启动器[环境快照](../../util/launch-environment/README.zh.md)，因此启动之后才导出的变量不会被看到。
+存储文件优先，因为通过产品明确保存的凭据必须对每个提供方一致生效（[决策](../../../.agents/notes/implemented/architecture/2026-10-09-stored-credential-precedence.zh.md)）。启动环境——`DEEPSEEK_API_KEY=… mwf`、CI 机密、容器 `-e`——在没有存储值时作为后备；随后是项目 `.env`，最后是 harness home 的 `.env`。保存总是写入胜出的那一层，因此 `describe` 对每个引用都报告 `writable: true`，其 `source` 指明当前提供该值的位置。环境层是启动时拍摄的启动器[环境快照](../../util/launch-environment/README.zh.md)，因此启动之后才导出的变量不会被看到。
 
 ### 凭据文件本身
 
@@ -198,7 +198,7 @@ YAML 解析器自己的消息会引用出错的那行源码，而在这份文档
 - **同一引用的并发写入是后写胜出**——写锁加读-改-写让并发写入者不会丢掉彼此的条目，但两个写入者编辑同一个引用时仍以较后的写入为准；没有修订检查。
 - **同 UID 进程可以读取该文档**——文件效果沙箱模式不会拒绝读取，OS 钥匙串提供方仍是延后项。
 - **环境变化不可见**——快照在启动时冻结，因此启动之后 export 的变量既不会进入解析，也不会进入 `describe`；要更换来自环境的凭据需要重启。
-- **原子但不具备崩溃持久性**——继承自 `dsh-atomic-write`；存储在启动时重新读取。
+- **原子但不具备崩溃持久性**——继承自 `mwf-atomic-write`；存储在启动时重新读取。
 
 <a id="dev-note"></a>
 ### 开发备注

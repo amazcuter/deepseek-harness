@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page, Route } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { deriveReplayScript } from '@deepseek-ai/dsh-llm-replay'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import { deriveReplayScript } from '@metaworkflow/llm-replay'
+import { SessionId } from '@metaworkflow/session'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, parseSeedFixture, readPersistedEvents, seedSession, watchConsole, webSnapshotMode, type WebScaffold,
@@ -46,7 +46,7 @@ describe.skipIf(MODE === 'record')('web e2e: recorded collapse timing', () => {
     prompt = prompts[0]!
     const continuation = deriveReplayScript(parseSeedFixture(fixture).events).at(-1)
     expect(continuation?.kind).toBe('chunks')
-    replayDir = await mkdtemp(join(tmpdir(), 'dsh-collapse-timing-replay-'))
+    replayDir = await mkdtemp(join(tmpdir(), 'mwf-collapse-timing-replay-'))
     const replayOverride = join(replayDir, 'replay.override.json')
     // Reuse the recorded final reasoning and answer without repeating historical tool-call ids.
     await writeFile(replayOverride, JSON.stringify([continuation]))

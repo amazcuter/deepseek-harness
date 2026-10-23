@@ -20,8 +20,8 @@ Function un.CleanData
   ${IfNot} ${Errors}
     Return
   ${EndIf}
-  ; Only a DSH_HOME published as a Windows environment variable is visible here.
-  ReadEnvStr $UnHome DSH_HOME
+  ; Only a MWF_HOME published as a Windows environment variable is visible here.
+  ReadEnvStr $UnHome MWF_HOME
   ClearErrors
   StrCpy $UnTarget "$APPDATA\${PRODUCT_FILENAME}"
   Call un.RemoveData
@@ -31,6 +31,6 @@ Function un.CleanData
     Call un.RemoveData
     System::Call '$PLUGINSDIR\window-frame.dll::UninstallRemoveEmptyParents(w "$UnTarget", w "$APPDATA") ?c'
   !endif
-  StrCpy $UnTarget "$LOCALAPPDATA\${DSH_UPDATER_CACHE_NAME}"
+  StrCpy $UnTarget "$LOCALAPPDATA\${MWF_UPDATER_CACHE_NAME}"
   Call un.RemoveData
 FunctionEnd

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ReactNode } from 'react'
-import type { ConvViewProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { ConvViewProps } from '@metaworkflow/client-ui-conversation/client'
 import type { ChatFlowOwnerProps, ChatNodeHookContext, ChatViewSlotProps } from '../src/client/contract/slots.ts'
 
 describe('Chat View type chain', () => {

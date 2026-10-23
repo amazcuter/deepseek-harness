@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Include from '@deepseek-ai/cordis-plugin-include'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import WebServer from '@deepseek-ai/dsh-host-webserver'
+import WebServer from '@metaworkflow/host-webserver'
 import { apply, internals } from '../src/index.ts'
 
 const contexts: Context[] = []
@@ -27,14 +27,14 @@ afterEach(async () => {
   internals.resolveDistIndex = originalResolveDistIndex
   internals.openBrowser = originalOpenBrowser
   vi.unstubAllEnvs()
-  Reflect.deleteProperty(globalThis, '__dshWebAppApply')
-  Reflect.deleteProperty(globalThis, '__dshWebServer')
-  Reflect.deleteProperty(globalThis, '__dshConnection')
+  Reflect.deleteProperty(globalThis, '__mwfWebAppApply')
+  Reflect.deleteProperty(globalThis, '__mwfWebServer')
+  Reflect.deleteProperty(globalThis, '__mwfConnection')
 })
 
 describe('web app browser startup', () => {
   it('opens the canonical URL only after the complete page is reachable', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-web-browser-open-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-web-browser-open-'))
     tempRoots.push(root)
     const dist = join(root, 'dist')
     mkdirSync(dist)
@@ -45,16 +45,16 @@ describe('web app browser startup', () => {
     const webserverModule = join(root, 'webserver.mjs')
     const connectionModule = join(root, 'connection.mjs')
     const webAppModule = join(root, 'web-app.mjs')
-    writeFileSync(webserverModule, 'export default globalThis.__dshWebServer\n')
+    writeFileSync(webserverModule, 'export default globalThis.__mwfWebServer\n')
     writeFileSync(connectionModule, [
       "export const inject = ['webServer']",
-      "export const apply = ctx => ctx.provide('connection', globalThis.__dshConnection)",
+      "export const apply = ctx => ctx.provide('connection', globalThis.__mwfConnection)",
       '',
     ].join('\n'))
     writeFileSync(webAppModule, [
       "export const name = 'fixture-web-app'",
       "export const inject = ['webServer']",
-      'export const apply = (ctx, config) => globalThis.__dshWebAppApply(ctx, config)',
+      'export const apply = (ctx, config) => globalThis.__mwfWebAppApply(ctx, config)',
       '',
     ].join('\n'))
     const config = join(root, 'cordis.yml')
@@ -76,18 +76,18 @@ describe('web app browser startup', () => {
     ].join('\n'))
 
     const globals = globalThis as unknown as {
-      __dshWebAppApply: typeof apply
-      __dshWebServer: typeof WebServer
-      __dshConnection: {
+      __mwfWebAppApply: typeof apply
+      __mwfWebServer: typeof WebServer
+      __mwfConnection: {
         authenticatedUrl(baseUrl: string): string
         authorizeIndex(): boolean
         requestRejection(): undefined
         rpc: object
       }
     }
-    globals.__dshWebAppApply = apply
-    globals.__dshWebServer = WebServer
-    globals.__dshConnection = {
+    globals.__mwfWebAppApply = apply
+    globals.__mwfWebServer = WebServer
+    globals.__mwfConnection = {
       authenticatedUrl: (baseUrl) => {
         const url = new URL(baseUrl)
         url.searchParams.set('token', 'fixture-token')

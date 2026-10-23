@@ -6,9 +6,9 @@
  * @returns {{signatureCacheConcurrency: number}} Worker limit, defaulting to four when omitted.
  */
 export function resolveWindowsPackageSettings(environment) {
-  const value = environment.DSH_DESKTOP_WINDOWS_SIGNATURE_CACHE_CONCURRENCY ?? '4'
+  const value = environment.MWF_DESKTOP_WINDOWS_SIGNATURE_CACHE_CONCURRENCY ?? '4'
   if (!/^[1-8]$/u.test(value)) {
-    throw new Error('desktop package: DSH_DESKTOP_WINDOWS_SIGNATURE_CACHE_CONCURRENCY must be an integer from 1 to 8')
+    throw new Error('desktop package: MWF_DESKTOP_WINDOWS_SIGNATURE_CACHE_CONCURRENCY must be an integer from 1 to 8')
   }
   return { signatureCacheConcurrency: Number(value) }
 }

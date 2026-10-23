@@ -78,7 +78,7 @@ export async function verifyPayload(directory: string): Promise<ArtifactManifest
   if (new Set(declared).size !== declared.length || JSON.stringify(actual) !== JSON.stringify(declared)) {
     throw new Error('SSH helper payload file inventory differs from manifest.json')
   }
-  if (!declared.includes('dsh-ssh-helper') || !declared.includes('native/system/package.json')) throw new Error('SSH helper payload omits required runtime files')
+  if (!declared.includes('mwf-ssh-helper') || !declared.includes('native/system/package.json')) throw new Error('SSH helper payload omits required runtime files')
   for (const file of manifest.files) {
     const path = join(directory, file.path)
     if (await fileDigest(path) !== file.sha256) throw new Error(`SSH helper payload digest differs: ${file.path}`)

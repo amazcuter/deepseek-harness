@@ -20,7 +20,7 @@ function plist(xml: string): unknown {
   return JSON.parse(apple('/usr/bin/plutil', ['-convert', 'json', '-o', '-', '-'], xml).stdout) as unknown
 }
 function inspect(path: string): { certificate: string; details: string; entitlements: unknown } {
-  const directory = mkdtempSync(join(tmpdir(), 'dsh-signature-policy-'))
+  const directory = mkdtempSync(join(tmpdir(), 'mwf-signature-policy-'))
   try {
     const prefix = join(directory, 'certificate')
     const result = apple('/usr/bin/codesign', ['--display', '--verbose=4', `--extract-certificates=${prefix}`, '--entitlements', '-', '--xml', path])

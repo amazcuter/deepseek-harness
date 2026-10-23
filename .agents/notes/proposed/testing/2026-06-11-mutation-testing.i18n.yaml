@@ -3,11 +3,11 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/testing/2026-06-11-mutation-testing.md
 /agent-note-mutation-testing-as-the-coverage-counterweight:
-  en: 521fac2a2df2498e
-  zh: 9a508486144b2e74
+  en: 34dce9a828ebe634
+  zh: 4639edc69b17aa7b
 /agent-note-mutation-testing-as-the-coverage-counterweight/problem:
-  en: bb51340cca98a1be
-  zh: ee8e9297edf623bb
+  en: e7a5ceb8d893b653
+  zh: c99877e79a6a0005
 /agent-note-mutation-testing-as-the-coverage-counterweight/proposal:
   en: 4aa172d4d1c7e419
   zh: dae8a42d5693e509

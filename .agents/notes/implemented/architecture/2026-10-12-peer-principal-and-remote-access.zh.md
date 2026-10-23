@@ -24,7 +24,7 @@ Host 上的 Remote 方法此前无法得知本次调用代表谁，也无法按�
 | 部分 | 内容 |
 |---|---|
 | Peer 身份 | `PeerScope.principal` 与 `PeerScope.signal`；唯一 Peer 实现 `Peer`（`OperatorPeer` 改名）与 options 构造；删除 operator 概念与所有隐式 Peer 兜底；`connection.browserPeer`、`connection.createPeer()` 与 `fetch(request, peer)`；已 dispose 的 Peer 一律以 `gateway/peer-disposed` 拒绝；`user-rpc` source 落盘 `principal?` |
-| 方法级访问控制 | `@Remote` 的 `resources` 读取函数、`TypertResourceMap` 资源种类与 `typert.resources` 注册表（typert-protocol、typert-registry）；Gateway 把调用与转发事件解析为资源；新包 `@deepseek-ai/dsh-api-remote-access`（Host 面 + Client 面）：按 role、binding 与 policy 的 RBAC 判定 `decide(request)`、列表过滤 `allows()`、index 中的首份快照与访问快照流、access hooks |
+| 方法级访问控制 | `@Remote` 的 `resources` 读取函数、`TypertResourceMap` 资源种类与 `typert.resources` 注册表（typert-protocol、typert-registry）；Gateway 把调用与转发事件解析为资源；新包 `@metaworkflow/api-remote-access`（Host 面 + Client 面）：按 role、binding 与 policy 的 RBAC 判定 `decide(request)`、列表过滤 `allows()`、index 中的首份快照与访问快照流、access hooks |
 | 文档 | 一条代码评审标准与术语 |
 
 ### 两层概念：principal 与 peer
@@ -48,7 +48,7 @@ principal→peers 的对应表由创建方持有，例如 liveshare 每份授权
 只有 Peer 一个概念、一个实现，删除 operator 概念。
 
 ```text
-// @deepseek-ai/dsh-typert-protocol
+// @metaworkflow/typert-protocol
 export interface PeerScope {
   readonly id: PeerId
   /** Connection-lifetime registrations; disposed with the Peer. */
@@ -62,7 +62,7 @@ export interface PeerScope {
   dispose(): Promise<void>
 }
 
-// @deepseek-ai/dsh-client-connection
+// @metaworkflow/client-connection
 export class Peer implements PeerScope {
   constructor(owner: Context, options: { readonly principal: Principal; readonly interactions?: 'answer' | 'none' })
 }
@@ -81,7 +81,7 @@ interface ConnectionFetchHandler {
 }
 bridge(req, res, apiHandler, peer, maxRequestBodyBytes?)
 
-// @deepseek-ai/dsh-api-gateway
+// @metaworkflow/api-gateway
 interface InvokeRemoteRequest { …; readonly peer: PeerScope }                 // was `peer?`
 wireStream.open(endpoint, payload, uplink, peer: PeerScope, signal)          // was `PeerScope | undefined`
 ```
@@ -98,7 +98,7 @@ wireStream.open(endpoint, payload, uplink, peer: PeerScope, signal)          // 
 ### 身份类型
 
 ```text
-// @deepseek-ai/dsh-typert-protocol
+// @metaworkflow/typert-protocol
 
 /**
  * Merge-extensible caller identities. Each driver declares its own entry.
@@ -131,7 +131,7 @@ export function principalOf(invocation: RemoteInvocation | undefined): Principal
 
 ### 方法级访问控制
 
-资源类型与 `@Remote` 的 `resources` 读取函数在 `@deepseek-ai/dsh-typert-protocol`；资源种类在 typert 中与 lookups、Contexts 并列：`TypertResourceMap` 声明种类，`typert.resources` 保存每个种类的默认 wire 字段，lookup 与 Host Context adapter 声明其 wire 身份所属的资源种类。Gateway 把一次调用或一个转发事件解析为它访问的资源。判定、列表过滤与访问快照在新包 `@deepseek-ai/dsh-api-remote-access`（`packages/api/remote-access`），该包不读取任何参数字段。Gateway 与领域包对 remote-access 只做 type-only 依赖并 inject `remoteAccess`，值依赖只有 `dsh-typert-protocol`，不为 remote-access 新增 `package-dependency-policy` 条目。role、binding 与 policy 由业务包定义和注册，liveshare 为首个使用方。除内置的 `global` 外，remote-access 与 Gateway 中不出现任何资源种类名，符合 [`packages/api` 只承载通用编排](../../../../docs/defensive-patterns/remote-and-api.zh.md) 的评审规则。
+资源类型与 `@Remote` 的 `resources` 读取函数在 `@metaworkflow/typert-protocol`；资源种类在 typert 中与 lookups、Contexts 并列：`TypertResourceMap` 声明种类，`typert.resources` 保存每个种类的默认 wire 字段，lookup 与 Host Context adapter 声明其 wire 身份所属的资源种类。Gateway 把一次调用或一个转发事件解析为它访问的资源。判定、列表过滤与访问快照在新包 `@metaworkflow/api-remote-access`（`packages/api/remote-access`），该包不读取任何参数字段。Gateway 与领域包对 remote-access 只做 type-only 依赖并 inject `remoteAccess`，值依赖只有 `mwf-typert-protocol`，不为 remote-access 新增 `package-dependency-policy` 条目。role、binding 与 policy 由业务包定义和注册，liveshare 为首个使用方。除内置的 `global` 外，remote-access 与 Gateway 中不出现任何资源种类名，符合 [`packages/api` 只承载通用编排](../../../../docs/defensive-patterns/remote-and-api.zh.md) 的评审规则。
 
 #### 与 RBAC 的对应
 
@@ -156,13 +156,13 @@ export function principalOf(invocation: RemoteInvocation | undefined): Principal
 | 资源之间无继承 | `global` 不是其他资源的上级：`global` 上的授权不蕴含任何会话或工作区上的授权，工作区上的授权也不蕴含其中会话的授权 |
 | `global` 授权即显式全局授权 | 调用解析不出任何资源即访问 `global`。把某个 action 放进 `global` 级 role，等于允许该 principal 不受资源限制地调用它，属高危授权；方法被放行后仍可在内部用 `allows(resource)` 逐项细判 |
 
-#### 资源与资源读取（`@deepseek-ai/dsh-typert-protocol`、`@deepseek-ai/dsh-typert-registry`）
+#### 资源与资源读取（`@metaworkflow/typert-protocol`、`@metaworkflow/typert-registry`）
 
 ```text
 /** Merge-extensible resource kinds: the key is the kind, the value declares its identity type. */
 export interface TypertResourceMap {}
-//   @deepseek-ai/dsh-session/types:   session: TypertResource<SessionId>
-//   @deepseek-ai/dsh-workspace/types: workspace: TypertResource<WorkspaceId>
+//   @metaworkflow/session/types:   session: TypertResource<SessionId>
+//   @metaworkflow/workspace/types: workspace: TypertResource<WorkspaceId>
 
 // Runtime registries in typert
 ctx.typert.resources.register(kind, { field }): TypertDisposer
@@ -214,7 +214,7 @@ export function RemoteScope<This extends object, Args extends unknown[], Result>
 | 规则 | 内容 |
 |---|---|
 | 写法 | `@Remote({ name: 'page', resources: { session: (request) => request.address.kind === 'session' ? request.address.sessionId : request.address.childSessionId } })`；Context 方法写 `@RemoteScope('agent')`，由 Agent Context 的 `resource: 'session'` 得到会话资源，需要其他资源时写 `@RemoteScope('agent', { resources: { workspace: (request) => request.workspaceId } })`。多数方法不写 `resources`，由自动解析得到资源 |
-| 资源种类 | 资源种类由声明 id 类型的底层包合并：`session: TypertResource<SessionId>` 在 `@deepseek-ai/dsh-session/types`，`workspace: TypertResource<WorkspaceId>` 在 `@deepseek-ai/dsh-workspace/types`。session-controller 引用 commands 包，若在 session-controller 合并，commands 要引用 session-controller，形成 project reference 环。`global` 由 remote-access 内置，没有 id，不进 `TypertResourceMap`；typert 保留该名，`typert.resources.register('global', …)` 抛错 |
+| 资源种类 | 资源种类由声明 id 类型的底层包合并：`session: TypertResource<SessionId>` 在 `@metaworkflow/session/types`，`workspace: TypertResource<WorkspaceId>` 在 `@metaworkflow/workspace/types`。session-controller 引用 commands 包，若在 session-controller 合并，commands 要引用 session-controller，形成 project reference 环。`global` 由 remote-access 内置，没有 id，不进 `TypertResourceMap`；typert 保留该名，`typert.resources.register('global', …)` 抛错 |
 | 默认字段与声明 | 拥有该种类的领域在控制器构造时登记默认 wire 字段：`SessionController` 构造函数调用 `typert.resources.register('session', { field: 'sessionId' })`，`WorkspaceController` 构造函数登记 `workspace` → `workspaceId`；同一种类重复登记即抛错。Agent、Session 与 `workspaceFileScope` lookup 声明 `resource: 'session'`，agent 包的 Agent Context 声明 `resource: 'session'` |
 | 解析优先级 | 对每个资源种类依次取：① 该方法 `resources` 中该种类的读取函数；② 声明了该种类 `resource` 的每个 lookup 参数贡献其 wire 身份，省略的可选 lookup 参数不贡献；Context 方法的 Context 声明了该种类 `resource` 时，其 wire 身份同样贡献；③ 该种类的默认字段：命名参数中有同名顶层参数就读它，否则读第一个对象参数的同名字段。默认字段只表示一个身份，读到数组即为非法值 |
 | 参数来源 | 资源解析与 `decide()` 的 `args` 读取经 Typert 编译类型校验后的命名参数：每个 JSON 参数由其 codec 解码一次，类型未声明的对象字段被移除，分派复用该值，因此调用方无法用未声明字段改变资源；lookup 参数与 Context 身份取 wire 身份，此时不解析 lookup、不激活 Agent |
@@ -255,7 +255,7 @@ subagent 地址读取的是子会话转录，因此其资源是子会话。Clien
 
 不需要非 owner 访问的方法不做任何声明，没有 role 列出它即被拒。subagent `prompt` 的请求字段为 `parentSessionId` / `childSessionId`，自动解析不到会话，解析为 `global`，因此不得放进任何 `global` 级 role；`session/search` 在方法内按会话逐项过滤命中。`subagents/list` 不是 Remote 端点（`SubagentRuntime.list()` 未标 `@Remote`）。
 
-#### role、binding 与 policy（`@deepseek-ai/dsh-api-remote-access`）
+#### role、binding 与 policy（`@metaworkflow/api-remote-access`）
 
 ```text
 /** Remote endpoint `ns/method`, or `event:<name>` for one forwarded event; endpoint segments never contain `:`. */
@@ -441,7 +441,7 @@ interface RemoteAccessGrant {
 }
 
 /** Window global carrying a page's opening baseline. */
-export const REMOTE_ACCESS_SNAPSHOT_KEY = '__DSH_REMOTE_ACCESS__'
+export const REMOTE_ACCESS_SNAPSHOT_KEY = '__MWF_REMOTE_ACCESS__'
 ```
 
 | 行为 | 说明 |
@@ -462,18 +462,18 @@ access hooks 只按 action 与资源判断，不看调用参数；调用时 cond
 Client 面走框架标准 hook 注入，不引入 React context。组件只经 props 拿到 hook，不 import remote-access 的值。
 
 ```text
-// @deepseek-ai/dsh-api-remote-access/client
+// @metaworkflow/api-remote-access/client
 interface ClientRemoteAccess {            // Client service ctx.remoteAccess
   source(kind: TypertResourceKind, id: string, action: string): HostObservable<boolean>
 }
 GlobalStandardProps.useRemoteAccess: (action: RemoteEndpoint) => boolean                  // remote-access; the global resource
 
-// @deepseek-ai/dsh-client-ui-session (injects remoteAccess)
+// @metaworkflow/client-ui-session (injects remoteAccess)
 GlobalStandardProps.useSessionAccess: (sessionId: SessionId, action: RemoteEndpoint) => boolean
 SessionStandardProps.useAccess: (action: RemoteEndpoint) => boolean
 SessionMaybeStandardProps.useAccess: (action: RemoteEndpoint) => boolean | undefined
 
-// @deepseek-ai/dsh-client-ui-workspace (injects remoteAccess)
+// @metaworkflow/client-ui-workspace (injects remoteAccess)
 GlobalStandardProps.useWorkspaceAccess: (workspaceId: WorkspaceId, action: RemoteEndpoint) => boolean
 
 // RemoteEndpoint = Extract<keyof TypertRemoteMap, string>
@@ -490,7 +490,7 @@ GlobalStandardProps.useWorkspaceAccess: (workspaceId: WorkspaceId, action: Remot
 | 不回退 | 会话资源上查询非会话方法（如 `useAccess('session/create')`）读该会话资源上的判定结果，不回退 `global` 答案 |
 | 无快照 | owner 为 true，快照流终止失败后亦然；没有注入 baseline 或快照流终止失败的非 owner 页面为 false，终止失败会连同错误与“刷新页面”的提示一并报告；断线重连期间保留上次快照；注入的 baseline 格式错误时挂载失败；Host 仍对每次调用执行检查。hook 从不发请求 |
 | 示例消费方 | ui-workspace 会话行菜单的 fork 入口读 `useSessionAccess(sessionId, 'session/fork')`，不允许时不渲染；ui-chat turn tail 的分叉按钮读会话资源上的 `useAccess('session/fork')`，不允许时不渲染。替换 #3854 的 `clientWritePolicy` 留给 #3854 |
-| 测试 | `@deepseek-ai/dsh-client-test-runtime` 导出 `allowAllAccess` props 与 `allowAllAccessPlugin`；TestClient 像 api-remotes 一样去掉 remote-access 行并装入全允许服务，SlotTestRuntime 在 ui-session 之前装入 |
+| 测试 | `@metaworkflow/client-test-runtime` 导出 `allowAllAccess` props 与 `allowAllAccessPlugin`；TestClient 像 api-remotes 一样去掉 remote-access 行并装入全允许服务，SlotTestRuntime 在 ui-session 之前装入 |
 
 ### 安全不变量
 

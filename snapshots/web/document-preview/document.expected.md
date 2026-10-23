@@ -37,7 +37,7 @@
 ## PDF
 
 - Viewer menu hidden: true
-- Worker: dsh-pdf
+- Worker: mwf-pdf
 - Continuous pages: 2
 - Zoom reveal: hidden -> bottom hover -> delayed hidden
 - Zoom modes: fit width -> 100% -> 150% -> fit width

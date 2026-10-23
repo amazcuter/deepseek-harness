@@ -16,7 +16,7 @@ function fixture(): string {
 it('retains target-local storage only when the setting is absent', () => {
   expect(resolveMacOSSignatureCacheDirectory({}, '/build/mac-arm64')).toBe(join('/build/mac-arm64', 'signature-cache'))
   for (const path of ['', 'relative/cache', '~/ci/cache', '/cache\0invalid']) {
-    expect(() => resolveMacOSSignatureCacheDirectory({ DSH_DESKTOP_MACOS_SIGNATURE_CACHE_DIR: path }, '/build')).toThrow(/absolute directory/u)
+    expect(() => resolveMacOSSignatureCacheDirectory({ MWF_DESKTOP_MACOS_SIGNATURE_CACHE_DIR: path }, '/build')).toThrow(/absolute directory/u)
   }
 })
 
@@ -52,7 +52,7 @@ describe.skipIf(process.platform === 'win32')('private external macOS storage', 
       mkdirSync(checkout)
       const file = join(checkout, 'runtime')
       writeFileSync(file, 'unsigned bytes', { mode: 0o755 })
-      const selected = resolveMacOSSignatureCacheDirectory({ DSH_DESKTOP_MACOS_SIGNATURE_CACHE_DIR: cache }, checkout)
+      const selected = resolveMacOSSignatureCacheDirectory({ MWF_DESKTOP_MACOS_SIGNATURE_CACHE_DIR: cache }, checkout)
       expect(await cachedMacOSSignature(file, selected, { policy: 'same certificate and tools', sign, verify })).toBe(hit)
       expect(readFileSync(file, 'utf8')).toBe('signed bytes')
       rmSync(checkout, { recursive: true })

@@ -14,10 +14,10 @@
 
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 // Type-only: pulls the ctx.remote merge into this program.
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
-import type { SessionSummary } from '@deepseek-ai/dsh-api-session-controller/client'
-import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type {} from '@deepseek-ai/dsh-agent-preset-registry/types'
+import type {} from '@metaworkflow/api-remotes/client'
+import type { SessionSummary } from '@metaworkflow/api-session-controller/client'
+import { createSnapshotStore, type SnapshotStore } from '@metaworkflow/client-store'
+import type {} from '@metaworkflow/agent-preset-registry/types'
 import { presetOptions, readRoster } from './settings-store.ts'
 import type { AgentPresetOption } from './settings-store.ts'
 

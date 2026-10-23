@@ -12,20 +12,20 @@ import { testProfileResolution } from './profiles/headless/tests/profile-resolut
  */
 
 const repoRoot = fileURLToPath(new URL('../../../', import.meta.url))
-const dshSourceBin = 'apps/cli/src/bin.ts'
+const mwfSourceBin = 'apps/cli/src/bin.ts'
 
-describe('dsh SOURCE launcher (node --import tsx/esm)', () => {
+describe('mwf SOURCE launcher (node --import tsx/esm)', () => {
   testProfileResolution('src')
 
   it('launches the source CLI without building', async () => {
     const rootPackage = JSON.parse(await readFile(new URL('../../../package.json', import.meta.url), 'utf8')) as {
       readonly scripts?: Record<string, string>
     }
-    expect(rootPackage.scripts?.dsh).toBe('node --import tsx/esm apps/cli/src/bin.ts')
+    expect(rootPackage.scripts?.mwf).toBe('node --import tsx/esm apps/cli/src/bin.ts')
   })
 
   it('boots the source entry and requires a profile', async () => {
-    const result = await execa(process.execPath, ['--import', 'tsx/esm', dshSourceBin], {
+    const result = await execa(process.execPath, ['--import', 'tsx/esm', mwfSourceBin], {
       cwd: repoRoot,
       input: '',
       timeout: 25_000,
@@ -33,7 +33,7 @@ describe('dsh SOURCE launcher (node --import tsx/esm)', () => {
       reject: false,
     })
     if (result.timedOut) {
-      throw new Error(`dsh source launch did not exit within 25s. stdout:\n${result.stdout}\nstderr:\n${result.stderr}`)
+      throw new Error(`mwf source launch did not exit within 25s. stdout:\n${result.stdout}\nstderr:\n${result.stderr}`)
     }
     expect(result.exitCode).not.toBe(0)
     expect(result.stderr).toContain('--profile <name> is required')

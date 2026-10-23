@@ -25,10 +25,10 @@ env:
   # Cloudflare Pages project receiving the upload. Its preview deployments are
   # the surface the Access application protects; the project's production branch
   # is deliberately a name no deployment uses, so no unprotected URL exists.
-  CF_PROJECT: dsh-build-preview
+  CF_PROJECT: mwf-build-preview
   # CI runs must never report to the production telemetry endpoint baked into
   # apps/cli/cordis.yml (AppCLIEntry disables the row when set).
-  DSH_TELEMETRY_DISABLED: '1'
+  MWF_TELEMETRY_DISABLED: '1'
 
 jobs:
   preview:
@@ -75,12 +75,12 @@ jobs:
 
       - name: Build the preview page and pack the VFS image
         env:
-          DSH_CLIENT_TITLE: DSH preview pr-${{ github.event.pull_request.number }}
-        run: pnpm --filter @deepseek-ai/dsh-web-frontend run build:preview
+          MWF_CLIENT_TITLE: MWF preview pr-${{ github.event.pull_request.number }}
+        run: pnpm --filter @metaworkflow/web-frontend run build:preview
 
       # Sourcemaps carry complete sources and stay off the deployment platform.
       # index.html is the served page, which cannot boot without a host
-      # injecting window.__DSH_BOOT__; replacing it with the worker page makes
+      # injecting window.__MWF_BOOT__; replacing it with the worker page makes
       # the deployment root the usable entry instead of a page that never boots.
       - name: Shape the upload
         run: |
@@ -155,7 +155,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          marker='<!-- dsh-preview-url -->'
+          marker='<!-- mwf-preview-url -->'
           existing=$(gh pr view "$PR" --json comments \
             --jq "[.comments[] | select(.body | contains(\"$marker\")) | .url] | first // empty")
           if [ -n "$existing" ]; then

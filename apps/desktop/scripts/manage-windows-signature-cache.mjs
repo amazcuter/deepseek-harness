@@ -12,13 +12,13 @@ if ([values.from !== undefined, values.usage === true, values.clear === true].fi
   throw new Error('Specify exactly one of --from <old-cache>, --usage or --clear')
 }
 const environment = values.directory === undefined ? loadDesktopPackageEnvironment('win32', process.env, undefined, { unsigned: true })
-  : { DSH_DESKTOP_WINDOWS_SIGNATURE_CACHE_DIR: values.directory }
+  : { MWF_DESKTOP_WINDOWS_SIGNATURE_CACHE_DIR: values.directory }
 const root = resolveWindowsSignatureCacheDirectory(environment)
 const record = event => process.stdout.write(`${JSON.stringify(event)}\n`)
 await withWindowsSigningStage({ stage: values.from !== undefined ? 'cache-migration' : 'cache-maintenance', record }, async () => {
   await prepareWindowsSignatureCacheDirectory(root)
   if (values.from !== undefined) {
-    const source = resolveWindowsSignatureCacheDirectory({ DSH_DESKTOP_WINDOWS_SIGNATURE_CACHE_DIR: values.from })
+    const source = resolveWindowsSignatureCacheDirectory({ MWF_DESKTOP_WINDOWS_SIGNATURE_CACHE_DIR: values.from })
     await prepareWindowsSignatureCacheDirectory(source, true)
     record({ type: 'signature-cache-migration-summary', ...await migrateSignatureCache({ source, root, record }) })
     return

@@ -3,13 +3,13 @@ description: "面向发送官方 DeepSeek 请求的部署，说明活跃 Loader 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-plugin-package-inventory-deepseek
+# @metaworkflow/plugin-package-inventory-deepseek
 
 [English](README.md) | 中文
 
 ## 概述
 
-用于 DeepSeek 官方 LLM API 请求的尽力收集型活跃 Loader 插件包清单。该函数插件注入 Loader、存活 Agent 注册表与 `ctx.deepseekLlmApiExtensions`，并拥有 `dsh_plugin_packages` 字段。当官方 API 需要活动包清单进行请求诊断时，请启用它。
+用于 DeepSeek 官方 LLM API 请求的尽力收集型活跃 Loader 插件包清单。该函数插件注入 Loader、存活 Agent 注册表与 `ctx.deepseekLlmApiExtensions`，并拥有 `mwf_plugin_packages` 字段。当官方 API 需要活动包清单进行请求诊断时，请启用它。
 
 ## 目录
 
@@ -26,7 +26,7 @@ kind: "package-reference"
 
 | 配置键 | 默认值 | 含义 |
 |---|---:|---|
-| `enabled` | `true` | 注册 `dsh_plugin_packages` 贡献。将其设为 `false` 可省略包元数据。 |
+| `enabled` | `true` | 注册 `mwf_plugin_packages` 贡献。将其设为 `false` 可省略包元数据。 |
 
 随附 profile 使用该默认值，因此只要准备成功，每个 DeepSeek 官方请求都会携带包清单。
 
@@ -39,7 +39,7 @@ kind: "package-reference"
 
 每个普通配置项使用其所属 Loader 树的基址。standing preset 的根配置项使用宿主基址，与 preset Loader 对裸包的显式覆写保持一致；嵌套 include 仍使用自身基址。相对与绝对模块会向上查找最近的 manifest（元数据清单）；`name` 不是非空白字符串的 manifest 会被省略。`version` 缺失或无效时，只上报名称，不受 `private` 影响。拥有自身 manifest 的嵌套目录不会继承父包的身份。包解析、manifest 读取或 JSON 解析失败时，系统只省略对应配置项，并对每个模块只记录一次警告；清单元数据不会阻塞模型请求。系统按名称和可选版本去重，并使用与 locale 无关的比较排序；只有名称的配置项排在同名且有版本的配置项之前，不同版本仍分开保留。
 
-版本 1 的 `dsh_plugin_packages` 字段包含 `{ name, version }` 或 `{ name }` 配置项；仅当 `version` 为非空白字符串时才包含该字段。系统会排除禁用、pending、failed、disposed、unloading 状态，结构性 `cordis:` 配置项，普通依赖，没有所属包身份的松散文件，以编程方式挂载的子 fiber，以及内存动态插件。
+版本 1 的 `mwf_plugin_packages` 字段包含 `{ name, version }` 或 `{ name }` 配置项；仅当 `version` 为非空白字符串时才包含该字段。系统会排除禁用、pending、failed、disposed、unloading 状态，结构性 `cordis:` 配置项，普通依赖，没有所属包身份的松散文件，以编程方式挂载的子 fiber，以及内存动态插件。
 
 <a id="model-experience"></a>
 ## 模型体验
@@ -48,7 +48,7 @@ kind: "package-reference"
 
 #### 模型看到的内容
 
-无。`dsh_plugin_packages` 是位于模型消息、系统提示词与工具 schema 之外的提供方元数据。
+无。`mwf_plugin_packages` 是位于模型消息、系统提示词与工具 schema 之外的提供方元数据。
 
 #### Token 影响
 

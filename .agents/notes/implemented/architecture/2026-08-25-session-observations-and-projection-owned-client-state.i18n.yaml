@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-25-session-observations-and-projection-owned-client-state.md
 /agent-note-session-observations-and-projection-owned-client-state:
-  en: 00b84161c373744e
-  zh: 7243e7f32ae1fa3f
+  en: 672bc9ab7bc6b866
+  zh: 2e13f2e05105d19e
 /agent-note-session-observations-and-projection-owned-client-state/problem:
   en: af1f72affe6ae77e
   zh: 3d76b6310bc572b1
@@ -30,11 +30,11 @@
   en: efded09f0cd30a8e
   zh: 5e16580a39ff3359
 /agent-note-session-observations-and-projection-owned-client-state/decision/client-merge-rules:
-  en: fb8740be674e4708
-  zh: 7dc0c89558f51792
+  en: fe8f03ea72b3ef05
+  zh: d32ec751cf79a572
 /agent-note-session-observations-and-projection-owned-client-state/decision/domain-applications:
-  en: 4dcae9e00148b11e
-  zh: acfd1b6831cf50fe
+  en: ec8ba3159376a00f
+  zh: 3a5f3f7d825217c3
 /agent-note-session-observations-and-projection-owned-client-state/decision/failure-and-readiness-boundaries:
   en: 0f90a8bccedf9e71
   zh: 8452dfdf0af00fb3
@@ -45,8 +45,8 @@
   en: 110ca8005f618ad1
   zh: 8f3e83d59334b278
 /agent-note-session-observations-and-projection-owned-client-state/decision/relationship-to-existing-decisions:
-  en: 8d699dfc22ab5c5f
-  zh: 8dcd9fc6bd1594db
+  en: 1037bae30bc3650e
+  zh: e61cab49f09a78cb
 /agent-note-session-observations-and-projection-owned-client-state/verification:
   en: df17217023668428
   zh: 88f7da4deffc6bf9

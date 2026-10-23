@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-21-desktop-page-close-shortcuts.md
 /agent-note-desktop-close-shortcuts-follow-page-focus:
-  en: e6ce0bc9592af8ba
-  zh: b43fa4c48c634e27
+  en: e1152b9c1ecfc770
+  zh: b22a02497672929b
 /agent-note-desktop-close-shortcuts-follow-page-focus/problem:
   en: feb9d491ad4a9016
   zh: 291f0e6c913b0b19
 /agent-note-desktop-close-shortcuts-follow-page-focus/decision:
-  en: f076fb4b2098899d
-  zh: 6f136e9d11714e02
+  en: 516c5fcdbf2a659e
+  zh: a74512d07dc27a34
 /agent-note-desktop-close-shortcuts-follow-page-focus/alternatives-considered:
   en: 10c7bb2fc87bdd16
   zh: 796ecde8bcf09d34

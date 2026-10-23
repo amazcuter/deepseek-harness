@@ -3,53 +3,53 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/experimental/skill-badge/README.md
 /:
-  en: c32f79a869ebd48a
-  zh: 44e64fb59fa75e57
-/deepseek-ai-dsh-skill-badge:
-  en: 2e49dd1b621b834d
-  zh: 1eb37e3b23098c77
-/deepseek-ai-dsh-skill-badge/summary:
-  en: 49bdd760ee9e4370
-  zh: 2a4e68a7ef28d3e6
-/deepseek-ai-dsh-skill-badge/table-of-contents:
+  en: 9edaf4068c18eb37
+  zh: b53a6d74c72bcf55
+/metaworkflow-skill-badge:
+  en: e01c3c15214b3cfc
+  zh: eba6a1cf15eb0f5e
+/metaworkflow-skill-badge/summary:
+  en: 5b76fa5588b2b6a8
+  zh: a45f0dc49d9a8ba4
+/metaworkflow-skill-badge/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-skill-badge/use-this-package:
-  en: 0da087eb29c565b0
-  zh: ec86044ef1255440
-/deepseek-ai-dsh-skill-badge/use-this-package/when-to-choose-it:
+/metaworkflow-skill-badge/use-this-package:
+  en: 7a4e2ea9a956d273
+  zh: 16883f6faf1e1ee9
+/metaworkflow-skill-badge/use-this-package/when-to-choose-it:
   en: 4e424f3ab2a8b5b1
   zh: e38162f15f0a8354
-/deepseek-ai-dsh-skill-badge/use-this-package/enable-the-plugin:
-  en: a52d308db24e47bc
-  zh: 4e79dae8fa75e484
-/deepseek-ai-dsh-skill-badge/use-this-package/what-the-badge-skill-provides:
+/metaworkflow-skill-badge/use-this-package/enable-the-plugin:
+  en: 7e53111a00c02d86
+  zh: 5159b43c6859ab8f
+/metaworkflow-skill-badge/use-this-package/what-the-badge-skill-provides:
   en: 7144db5613266a9b
   zh: d1b7edf6c1253e9a
-/deepseek-ai-dsh-skill-badge/use-this-package/observable-success-and-failures:
+/metaworkflow-skill-badge/use-this-package/observable-success-and-failures:
   en: dd749b384f657fa8
   zh: d2ab3f5adf29bd33
-/deepseek-ai-dsh-skill-badge/understand-the-implementation:
+/metaworkflow-skill-badge/understand-the-implementation:
   en: 63465b0133f30e85
   zh: 84bebb7c1fe0ceba
-/deepseek-ai-dsh-skill-badge/understand-the-implementation/design-concept:
+/metaworkflow-skill-badge/understand-the-implementation/design-concept:
   en: 52ff92fad6d26ee9
   zh: 071c7859c158513d
-/deepseek-ai-dsh-skill-badge/understand-the-implementation/source-map:
+/metaworkflow-skill-badge/understand-the-implementation/source-map:
   en: 259b9b2073da8ddd
   zh: e0d621f0a3b0470c
-/deepseek-ai-dsh-skill-badge/further-exploration:
-  en: 1b5434b8bcbd5b0b
-  zh: d170cddf3837e655
-/deepseek-ai-dsh-skill-badge/model-experience:
-  en: b9912bc3f1ba0680
-  zh: e288cc67b6d079f6
-/deepseek-ai-dsh-skill-badge/model-experience/kv-cache-effect:
+/metaworkflow-skill-badge/further-exploration:
+  en: 9d63c879b43cdc4c
+  zh: 8b1bfeaaf9a8e0d8
+/metaworkflow-skill-badge/model-experience:
+  en: cdee317fd7ad811e
+  zh: d3c2dcf451fdde60
+/metaworkflow-skill-badge/model-experience/kv-cache-effect:
   en: 5b5bcb4fc0513bef
   zh: 67a1d939c6a18c2e
-/deepseek-ai-dsh-skill-badge/known-limitations-and-deferred-work:
+/metaworkflow-skill-badge/known-limitations-and-deferred-work:
   en: c7e405ebbc1d4602
   zh: 05a57fb4359da265
-/deepseek-ai-dsh-skill-badge/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-skill-badge/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -2,8 +2,8 @@
 import { readFile } from 'node:fs/promises'
 import { isMap, isNode, isScalar, isSeq, parseDocument } from 'yaml'
 import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
-import { composeEntries, loadOptionalPatches, readBundlePatches, type ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import { writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
+import { composeEntries, loadOptionalPatches, readBundlePatches, type ProfileContext } from '@metaworkflow/app-boot'
+import { writeFileAtomic } from '@metaworkflow/atomic-write'
 
 /** Flatten only the groups addressable by the profile's patch composer.
  * @param rows Composed top-level entries.
@@ -37,8 +37,8 @@ export async function writePluginEnabled(profile: ProfileContext, id: string, na
   const error = document.errors[0]
   if (error !== undefined) throw error
   if (!isSeq(document.contents)) throw new Error('Profile patch must be a YAML sequence')
-  const patches = loadOptionalPatches('dsh', filename) ?? []
-  const bundlePatches = readBundlePatches('dsh', profile)
+  const patches = loadOptionalPatches('mwf', filename) ?? []
+  const bundlePatches = readBundlePatches('mwf', profile)
   const items = document.contents.items
   const target = items.findLast((item, index) => {
     if (!isMap(item) || document.getIn([index, 'id']) !== id || item.has('insert')) return false

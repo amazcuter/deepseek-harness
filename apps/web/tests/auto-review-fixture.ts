@@ -13,7 +13,7 @@ export const AUTO_REVIEW_FIXTURE = {
 
 /** Save a fixed-state screenshot when the calling validation requests evidence. */
 export async function captureAutoReviewState(page: Page, name: string): Promise<void> {
-  const directory = process.env.DSH_AUTO_REVIEW_SCREENSHOT_DIR
+  const directory = process.env.MWF_AUTO_REVIEW_SCREENSHOT_DIR
   if (directory === undefined) return
   await mkdir(directory, { recursive: true })
   await page.screenshot({ path: join(directory, `${name}.png`), fullPage: true })

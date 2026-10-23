@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/architecture/2026-09-10-session-capability-protocols.md
 /agent-note-session-capability-protocols:
-  en: ca990e74165b25e8
-  zh: f6749481ec3787e9
+  en: 2cf75954b1ad0cd7
+  zh: 96bfd614a73f2536
 /agent-note-session-capability-protocols/problem:
   en: dc259b9d03444112
   zh: 3f7ea3fc166f4f8d

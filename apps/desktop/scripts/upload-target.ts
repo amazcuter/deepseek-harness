@@ -47,7 +47,7 @@ export function resolveCredentialUploadEnvironment(
   if (destination.environment !== selected || destination.bucket !== bucket) {
     throw new Error('desktop upload: credential launcher deployment or bucket differs from the packaged release destination')
   }
-  if (injectedEnvironment.DSH_DESKTOP_AUTO_UPDATE_ENV !== selected
+  if (injectedEnvironment.MWF_DESKTOP_AUTO_UPDATE_ENV !== selected
     || injectedEnvironment[`${selected === 'test' ? 'DOWNLOAD_TEST' : 'DOWNLOAD_PROD'}_COS_BUCKET`] !== bucket) {
     throw new Error('desktop upload: credential launcher environment differs from its explicit arguments')
   }

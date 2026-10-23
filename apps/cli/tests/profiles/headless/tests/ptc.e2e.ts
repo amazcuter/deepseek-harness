@@ -3,32 +3,32 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { createUserMessage, ToolCallId, HarnessError } from '@deepseek-ai/dsh-llm'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import { RUN_CODE_NAME, defineTool } from '@deepseek-ai/dsh-tools'
-import type { ToolExecutionResult } from '@deepseek-ai/dsh-tools'
-import type { Agent } from '@deepseek-ai/dsh-agent'
+import { createUserMessage, ToolCallId, HarnessError } from '@metaworkflow/llm'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import type { SessionEvent } from '@metaworkflow/session'
+import { RUN_CODE_NAME, defineTool } from '@metaworkflow/tools'
+import type { ToolExecutionResult } from '@metaworkflow/tools'
+import type { Agent } from '@metaworkflow/agent'
 
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import { LocalBashExecutor } from '@deepseek-ai/dsh-bash-local'
-import * as BashEnvPlugin from '@deepseek-ai/dsh-shell-env'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import * as ToolBash from '@deepseek-ai/dsh-tool-bash'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import NodeRuntime from '@deepseek-ai/dsh-ptc-runtime-node'
-import Sandbox from '@deepseek-ai/dsh-sandbox-local'
-import SandboxPolicy from '@deepseek-ai/dsh-sandbox-policy'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
-import * as AgentInstructions from '@deepseek-ai/dsh-agent-instructions'
-import LocalJobRegistry from '@deepseek-ai/dsh-jobs-local'
-import * as ToolJobs from '@deepseek-ai/dsh-tool-jobs'
-import CordisHostRunner from '@deepseek-ai/dsh-cordis-host-runner'
-import * as ToolCordis from '@deepseek-ai/dsh-tool-cordis'
-import * as CordisInspectProviders from '@deepseek-ai/dsh-tool-cordis/host'
+import AgentLoop from '@metaworkflow/agent-loop'
+import { mountAgentLoopTestDependencies } from '@metaworkflow/agent-loop-testkit'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import { LocalBashExecutor } from '@metaworkflow/bash-local'
+import * as BashEnvPlugin from '@metaworkflow/shell-env'
+import LocalSubprocessRuntime from '@metaworkflow/subprocess-local'
+import * as ToolBash from '@metaworkflow/tool-bash'
+import * as LlmDeepSeek from '@metaworkflow/llm-deepseek-api-key'
+import NodeRuntime from '@metaworkflow/ptc-runtime-node'
+import Sandbox from '@metaworkflow/sandbox-local'
+import SandboxPolicy from '@metaworkflow/sandbox-policy'
+import LocalFileSystem from '@metaworkflow/fs-local'
+import * as ToolFs from '@metaworkflow/tool-fs'
+import * as AgentInstructions from '@metaworkflow/agent-instructions'
+import LocalJobRegistry from '@metaworkflow/jobs-local'
+import * as ToolJobs from '@metaworkflow/tool-jobs'
+import CordisHostRunner from '@metaworkflow/cordis-host-runner'
+import * as ToolCordis from '@metaworkflow/tool-cordis'
+import * as CordisInspectProviders from '@metaworkflow/tool-cordis/host'
 
 /**
  * With-key PTC mode proof: a real model receives only `run_code`, composes two
@@ -201,7 +201,7 @@ describe('PTC mode typed values: keyless real-process contracts', () => {
   })
 
   it('returns a background job id, settles the outer run, and polls that id to completion', async () => {
-    workdir = await mkdtemp(join(tmpdir(), 'dsh-ptc-background-'))
+    workdir = await mkdtemp(join(tmpdir(), 'mwf-ptc-background-'))
     ctx = await backgroundPtcModeHarness(workdir)
 
     const jobId = completion(await runCode(ctx, `
@@ -224,7 +224,7 @@ describe('PTC mode typed values: keyless real-process contracts', () => {
   }, 15_000)
 
   it('pre-abort spawns nothing; post-publication abort leaves job_kill as the cancellation owner', { timeout: 15_000, retry: 0 }, async () => {
-    workdir = await mkdtemp(join(tmpdir(), 'dsh-ptc-task-cancel-'))
+    workdir = await mkdtemp(join(tmpdir(), 'mwf-ptc-task-cancel-'))
     ctx = await backgroundPtcModeHarness(workdir)
 
     const pre = new AbortController()
@@ -274,7 +274,7 @@ describe('PTC mode typed values: keyless real-process contracts', () => {
   })
 
   it('keeps foreground bash coupled to the outer signal', async () => {
-    workdir = await mkdtemp(join(tmpdir(), 'dsh-ptc-foreground-cancel-'))
+    workdir = await mkdtemp(join(tmpdir(), 'mwf-ptc-foreground-cancel-'))
     ctx = await backgroundPtcModeHarness(workdir)
     const controller = new AbortController()
     const startedAt = Date.now()
@@ -325,7 +325,7 @@ function waitForIdle(harness: Context, agent: Agent): Promise<void> {
 
 describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC mode: real model writes a program over real tools', () => {
   it('collapses the wire tool list to [run_code], bridges sub-calls, and returns curated output', async () => {
-    workdir = await mkdtemp(join(tmpdir(), 'dsh-ptc-e2e-'))
+    workdir = await mkdtemp(join(tmpdir(), 'mwf-ptc-e2e-'))
     ctx = await ptcModeHarness(workdir)
     const agent = await ctx.agentLoop.create(SessionId('e2e-ptc'), { provider: 'deepseek-official', model: 'deepseek-v4-flash' }, { cwd: workdir })
 
@@ -370,7 +370,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC mode: real model writes a pr
   }, 180_000)
 
   it('projects nested workspace instructions discovered by an fs sub-call', async () => {
-    workdir = await mkdtemp(join(tmpdir(), 'dsh-ptc-workspace-e2e-'))
+    workdir = await mkdtemp(join(tmpdir(), 'mwf-ptc-workspace-e2e-'))
     await mkdir(join(workdir, '.git'), { recursive: true })
     await mkdir(join(workdir, 'pkg/deep'), { recursive: true })
     await writeFile(join(workdir, 'pkg/AGENTS.md'), `If asked for the PTC mode workspace handshake, reply with exactly ${WORKSPACE_PROBE} and nothing else.\n`)

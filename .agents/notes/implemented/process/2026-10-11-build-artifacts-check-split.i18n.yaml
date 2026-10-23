@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-10-11-build-artifacts-check-split.md
 /agent-note-split-build-artifacts-and-build-check-with-build-running-both-concurrently:
-  en: b1a98fdd8008dce1
-  zh: 15bdc2f2c2584226
+  en: d0c5bac34cb5df27
+  zh: 5d6b3d645139d48a
 /agent-note-split-build-artifacts-and-build-check-with-build-running-both-concurrently/problem:
   en: bc382ad1f1e71352
   zh: 44189bf0f69a0bf7
@@ -15,26 +15,26 @@
   en: 174241330463841d
   zh: 7fe361c07e634053
 /agent-note-split-build-artifacts-and-build-check-with-build-running-both-concurrently/decision/steps-and-dependencies:
-  en: 43e78e255306cd43
-  zh: a741d5ef1c7379f3
+  en: 84ada00c4a2d4168
+  zh: e93e5078ba0e59b0
 /agent-note-split-build-artifacts-and-build-check-with-build-running-both-concurrently/decision/scheduling-failure-and-output:
-  en: 4b324f92307d3691
-  zh: e0cf4411a747f7e5
+  en: a5316a0cbc4d18ab
+  zh: 47fc3e5235fc0544
 /agent-note-split-build-artifacts-and-build-check-with-build-running-both-concurrently/decision/callers:
-  en: 55c55eea07fdb459
-  zh: ab78cdfa4d04a5e7
+  en: 45e4c99333ce817d
+  zh: 7a5e00d27bbc59d0
 /agent-note-split-build-artifacts-and-build-check-with-build-running-both-concurrently/decision/measurements:
-  en: b3a753ac2aab6073
-  zh: 19cbd0e32751896f
+  en: 97af788ab10b9625
+  zh: 59a93178228ed5a2
 /agent-note-split-build-artifacts-and-build-check-with-build-running-both-concurrently/decision/completeness-and-lossless-evidence:
-  en: 3cd40e0db9a2c89a
-  zh: 3f708be239779d0a
+  en: ffaaa852817d7fae
+  zh: 6981ad1683f6603c
 /agent-note-split-build-artifacts-and-build-check-with-build-running-both-concurrently/decision/intentional-trade-offs-not-lossless:
-  en: 14370bc5b54e1278
-  zh: 7ac933092d3e9954
+  en: beda11f4ae0e4878
+  zh: fbbc24883c40e385
 /agent-note-split-build-artifacts-and-build-check-with-build-running-both-concurrently/alternatives-considered:
-  en: 54905b912d17c74e
-  zh: 86a298004c8024e3
+  en: 614f93b9e1c19a55
+  zh: e8050aafeb70889d
 /agent-note-split-build-artifacts-and-build-check-with-build-running-both-concurrently/consequences:
-  en: 083467f68d0f03ed
-  zh: 93400e9994b8c645
+  en: 06ca586c5ba41722
+  zh: 14aedffbb586ef62

@@ -33,7 +33,7 @@ describe('web e2e: Desktop update workspace chrome', () => {
           }
           Object.assign(window, {
             updateFixture: fixture,
-            dshDesktop: { protocolVersion: 1, updates: {
+            mwfDesktop: { protocolVersion: 1, updates: {
               status: async () => current,
               open: async () => { fixture.opens += 1 },
               subscribe(listener: (state: Presentation) => void) { listeners.add(listener); return () => listeners.delete(listener) },

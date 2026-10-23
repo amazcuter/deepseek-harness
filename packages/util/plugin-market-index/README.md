@@ -1,15 +1,15 @@
 ---
-description: "Plugin market index format 1 validation and install arguments for DSH readers and index generators."
+description: "Plugin market index format 1 validation and install arguments for MWF readers and index generators."
 kind: "package-library"
 ---
 
-# dsh-plugin-market-index
+# mwf-plugin-market-index
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Validator without runtime dependencies for format 1 of the plugin market index, the single JSON file that lists installable DSH bundles with their display metadata. [The format Agent Note](../../../.agents/notes/implemented/feature/2026-10-02-plugin-market-index-format.md) defines the document; this package is its executable rule set. DSH's [`dsh-plugin-market`](../../boot/plugin-market/README.md) reads indexes with it, and index generators validate their output with it before publishing.
+Validator without runtime dependencies for format 1 of the plugin market index, the single JSON file that lists installable MWF bundles with their display metadata. [The format Agent Note](../../../.agents/notes/implemented/feature/2026-10-02-plugin-market-index-format.md) defines the document; this package is its executable rule set. MWF's [`mwf-plugin-market`](../../boot/plugin-market/README.md) reads indexes with it, and index generators validate their output with it before publishing.
 
 ## Table of Contents
 
@@ -36,7 +36,7 @@ Install one version with `marketInstallTarget(name, version)`: it returns the ex
 ## API
 
 ```ts
-import { MarketIndexError, marketInstallTarget, parseMarketIndex } from '@deepseek-ai/dsh-plugin-market-index'
+import { MarketIndexError, marketInstallTarget, parseMarketIndex } from '@metaworkflow/plugin-market-index'
 ```
 
 | Export | Role |
@@ -50,7 +50,7 @@ import { MarketIndexError, marketInstallTarget, parseMarketIndex } from '@deepse
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through `dsh-plugin-market`, whose `plugin_market` tool returns validated plugins to the model.
+Indirectly, through `mwf-plugin-market`, whose `plugin_market` tool returns validated plugins to the model.
 
 #### KV Cache effect
 
@@ -60,7 +60,7 @@ None of its own. The tool result that carries plugins owns its request's cache b
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- **Generator obligations are unchecked** — the validator cannot verify that `name`, `version`, `publishTimestamp`, `engines.dsh`, or display fields match the package they describe, or that the package declares a bundle.
+- **Generator obligations are unchecked** — the validator cannot verify that `name`, `version`, `publishTimestamp`, `engines.mwf`, or display fields match the package they describe, or that the package declares a bundle.
 - **No size bound** — the caller bounds the document before parsing it.
 
 <a id="dev-note"></a>

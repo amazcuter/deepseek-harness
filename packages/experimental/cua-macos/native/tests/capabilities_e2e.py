@@ -52,16 +52,16 @@ def main():
     transcript = []
     helper = None
     pid = None
-    with tempfile.TemporaryDirectory(prefix="dsh-cua-capabilities-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="mwf-cua-capabilities-") as temporary:
         root = Path(temporary)
         application = root / "Capabilities Fixture.app"
         executable = application / "Contents/MacOS/CapabilitiesFixture"
         executable.parent.mkdir(parents=True)
         state_file = root / "state.json"
         info = {"CFBundleName": "Capabilities Fixture", "CFBundleDisplayName": "Capabilities Fixture",
-                "CFBundleIdentifier": "test.dsh.cua." + uuid.uuid4().hex,
+                "CFBundleIdentifier": "test.mwf.cua." + uuid.uuid4().hex,
                 "CFBundleExecutable": "CapabilitiesFixture", "CFBundlePackageType": "APPL",
-                "DSHFixtureStatePath": str(state_file)}
+                "MWFFixtureStatePath": str(state_file)}
         (application / "Contents/Info.plist").write_bytes(plistlib.dumps(info))
         subprocess.run(["swiftc", str(ROOT / "tests/CapabilitiesFixture.swift"), "-o", str(executable)], check=True)
         try:

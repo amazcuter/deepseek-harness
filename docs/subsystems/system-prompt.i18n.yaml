@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/system-prompt.md
 /system-prompt-assembly:
-  en: 7ad02b2146520e7b
-  zh: 93cb93c7aa12ceb4
+  en: 5889f842f9b941f7
+  zh: 71a8eeba79e3866a
 /system-prompt-assembly/assembly-context:
-  en: 371539c21c1ffc45
-  zh: ea429ea5a0c19215
+  en: cec2880fa3dd38e1
+  zh: a845420c31b4e441
 /system-prompt-assembly/tool-provider-result:
   en: 89cb015bf2e3e7a5
   zh: b4340e853b34c777
 /system-prompt-assembly/prompt-sections:
-  en: e31de7452a4f1186
-  zh: db697d4db7f88642
+  en: c1717e5d34a71694
+  zh: c8e8d20411d7bd34
 /system-prompt-assembly/dynamic-prompt-context:
   en: 2abb13dec8e6d041
   zh: 8cf434f360d8a519

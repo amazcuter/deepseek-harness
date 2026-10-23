@@ -7,7 +7,7 @@
  * into. Run ends, the next digit, and the next key-block `END` line are
  * memoized per text across queries, so each is measured once per text.
  */
-import type { UserTextNode } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextNode } from '@metaworkflow/client-ui-conversation/client'
 import {
   ADDRESS, ALNUM, ALNUM_DASH, BOUNDED, GOOGLE, KEY_BLOCK, LABEL, LOWER, PREFIXED, RUN, SCHEME, SK, UPPER_ALNUM, USER, WORD,
 } from './credential-formats.ts'

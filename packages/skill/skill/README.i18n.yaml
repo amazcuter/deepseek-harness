@@ -5,60 +5,60 @@
 /:
   en: ab82ac4bcc012854
   zh: 3e2a2326e66f4bc3
-/deepseek-ai-dsh-skill:
-  en: 083f1e1c7ffedaad
-  zh: e52812b66ea22539
-/deepseek-ai-dsh-skill/summary:
-  en: dac8069f518e183c
-  zh: 2e4f2983030f9270
-/deepseek-ai-dsh-skill/table-of-contents:
+/metaworkflow-skill:
+  en: 27b2c1a07eb4e500
+  zh: 67dfe6fba3610f57
+/metaworkflow-skill/summary:
+  en: 290cb1e735a2ad2b
+  zh: f876fbdb2d71b65e
+/metaworkflow-skill/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-skill/use-this-package:
+/metaworkflow-skill/use-this-package:
   en: cb13ae81a3e0ae68
   zh: e709d66f4b6b4dd5
-/deepseek-ai-dsh-skill/use-this-package/when-to-choose-it:
-  en: ce05cda6706f18b7
-  zh: 3262ebdaf645cb9a
-/deepseek-ai-dsh-skill/use-this-package/mount-and-configure:
-  en: b8f130e081d14307
-  zh: d227ad3298b20238
-/deepseek-ai-dsh-skill/use-this-package/what-the-registry-gives-you:
+/metaworkflow-skill/use-this-package/when-to-choose-it:
+  en: a1bd21df78f80e67
+  zh: f9d7e03ef136c686
+/metaworkflow-skill/use-this-package/mount-and-configure:
+  en: 4abc493ad36ef646
+  zh: fe8a97233f64c64b
+/metaworkflow-skill/use-this-package/what-the-registry-gives-you:
   en: 0cb7936c76a84e45
   zh: a1fb8572481af54c
-/deepseek-ai-dsh-skill/use-this-package/observable-success-and-failures:
+/metaworkflow-skill/use-this-package/observable-success-and-failures:
   en: b7331b6a9c0d5bb2
   zh: 3ea0785c3a8c7330
-/deepseek-ai-dsh-skill/understand-the-implementation:
+/metaworkflow-skill/understand-the-implementation:
   en: 89be1dad151abb04
   zh: 9a1915c4d55bb9d2
-/deepseek-ai-dsh-skill/understand-the-implementation/design-concept:
+/metaworkflow-skill/understand-the-implementation/design-concept:
   en: c0fb1850f00f24b1
   zh: 226883ab5635435d
-/deepseek-ai-dsh-skill/understand-the-implementation/source-map:
+/metaworkflow-skill/understand-the-implementation/source-map:
   en: c7f6f2ecb227c68b
   zh: b2e924975aec9692
-/deepseek-ai-dsh-skill/understand-the-implementation/catalog-collection:
+/metaworkflow-skill/understand-the-implementation/catalog-collection:
   en: 58a9b57dc504b69f
   zh: 8fe8011247bc3f2b
-/deepseek-ai-dsh-skill/understand-the-implementation/loading-and-staleness:
+/metaworkflow-skill/understand-the-implementation/loading-and-staleness:
   en: e855d39692737103
   zh: 396aa887a78989ec
-/deepseek-ai-dsh-skill/understand-the-implementation/invalidation:
+/metaworkflow-skill/understand-the-implementation/invalidation:
   en: d73258316127f5b5
   zh: ddc6690f88922782
-/deepseek-ai-dsh-skill/further-exploration:
-  en: 6aeabc2349d39438
-  zh: 91855eb502e5f12f
-/deepseek-ai-dsh-skill/model-experience:
-  en: 84f7d6e986f88425
-  zh: 0fdc2326d8efb13e
-/deepseek-ai-dsh-skill/model-experience/kv-cache-effect:
+/metaworkflow-skill/further-exploration:
+  en: 923325f20454bcd8
+  zh: 1b9e603bdfb79876
+/metaworkflow-skill/model-experience:
+  en: 16bfd19cd77eba1c
+  zh: d13a20098f2bd592
+/metaworkflow-skill/model-experience/kv-cache-effect:
   en: 628a45ff9f6b0e74
   zh: fda70b0eed2df1d7
-/deepseek-ai-dsh-skill/known-limitations-and-deferred-work:
+/metaworkflow-skill/known-limitations-and-deferred-work:
   en: c5456e001203fd7a
   zh: 3cc6fa50700eec13
-/deepseek-ai-dsh-skill/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-skill/known-limitations-and-deferred-work/dev-note:
   en: 259ce6914314397d
   zh: d500b1f988a83999

@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/develop/framework/index.md
 /plugins-and-lifecycle:
-  en: bc1c66795191727b
-  zh: e0666a674ca9921c
+  en: ea2523776a27a478
+  zh: 1fc445d1cf36c90a
 /plugins-and-lifecycle/fiber-state-machine:
   en: 66b51bb63094de1a
   zh: 1d9f70611c9930ea
@@ -21,11 +21,11 @@
   en: 1d23337dbcc4ae61
   zh: ad003f8b5e325801
 /plugins-and-lifecycle/hot-replacement-hmr:
-  en: ca8495ec7369856c
-  zh: 54db7540aceb4b09
+  en: 7862eac3c61edf8a
+  zh: cd9b31e1bcea4521
 /plugins-and-lifecycle/example-lifecycle:
   en: e17160970571b690
   zh: e49149cd82e77801
 /plugins-and-lifecycle/next-steps:
-  en: c245d538e75eef67
-  zh: 2e0ad34a2022aee3
+  en: 912dc9f44fcc4488
+  zh: d10a3c39fb764dc6

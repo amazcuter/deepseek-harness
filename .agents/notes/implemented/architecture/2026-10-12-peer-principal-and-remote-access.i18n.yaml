@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-12-peer-principal-and-remote-access.md
 /agent-note-peer-principals-and-method-level-remote-access-control:
-  en: 0c0fd0f567bd5c89
-  zh: 464e34d05737a7bc
+  en: c29f7c8f352deca0
+  zh: 618ab2d5e3d45a6a
 /agent-note-peer-principals-and-method-level-remote-access-control/problem:
   en: f5b70ee2c0a3e32a
   zh: 68776a916cb41f11
@@ -12,8 +12,8 @@
   en: a15c7c13f167e5ac
   zh: 63bcc2ef60c2f344
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/scope:
-  en: 86061e5578d06871
-  zh: 08eb605fcd38329d
+  en: 9a2f78e6f7e9d914
+  zh: 22bb1d13e7df399d
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/two-layers-principal-and-peer:
   en: 6663ea33561eee82
   zh: 722fd3b8fae0ef90
@@ -27,20 +27,20 @@
   en: a01ac57fc71a84f0
   zh: 3e488ef3da5e4b8c
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control:
-  en: a55516339b0d49dd
-  zh: 3281df9ea7878fc0
+  en: 5f2e78506d963d7a
+  zh: f9b6d398aebb781b
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/correspondence-with-rbac:
   en: a78a2410eb52f777
   zh: a868bf1b0e690c9f
-/agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/resources-and-resource-readers-deepseek-ai-dsh-typert-protocol-deepseek-ai-dsh-typert-registry:
-  en: 625b20552962e268
-  zh: 1136c0fd7cdc6901
+/agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/resources-and-resource-readers-metaworkflow-typert-protocol-metaworkflow-typert-registry:
+  en: f9c607d09630c0af
+  zh: a45dcb096955037a
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/endpoint-resources:
   en: ec1677d8e338e115
   zh: 6bedd163f208eaa9
-/agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/roles-bindings-and-policies-deepseek-ai-dsh-api-remote-access:
-  en: e57f396239ea9f56
-  zh: ddb26278b1521ceb
+/agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/roles-bindings-and-policies-metaworkflow-api-remote-access:
+  en: 713830a454ebc84b
+  zh: 86d6f211408124c9
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/example-share-viewer:
   en: 3c911f57f0f6ca4b
   zh: 1509781eeda4c922
@@ -57,23 +57,23 @@
   en: 41d7ac1faf2448d7
   zh: 6d523895a9abae68
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/client-face:
-  en: 7be28cd7e19e5377
-  zh: 30b5aee957271d6c
+  en: e3ab142e917a29c2
+  zh: eb323d603a093742
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/security-invariants:
-  en: 2094587c320b6ccc
-  zh: 3a1d2a6b343500f4
+  en: eb6305615b9b94ba
+  zh: f23f92835ce6fc51
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/recording-the-message-source:
-  en: 2ee3abed24d418f4
-  zh: 25653dd24b95c220
+  en: b4209e0e18d27788
+  zh: 28539775eb64e37e
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/code-review-rule-and-documentation:
-  en: e9a2e0d1534b8fe7
-  zh: 085813c0b2b3c0d8
+  en: 619474849723f77f
+  zh: 2e004f463217d58e
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/out-of-scope-and-future-work:
-  en: a84e07716719e3b5
-  zh: 9649ccb4a035a1df
+  en: b099dd7cb5a0ba09
+  zh: 3016efb869a8f89d
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/relation-to-existing-notes:
-  en: 305ec45a7cd85ed7
-  zh: d2cd4209a56b1d0c
+  en: ee87ce0df89c75fb
+  zh: 88bc88602e9e59fa
 /agent-note-peer-principals-and-method-level-remote-access-control/alternatives-considered:
   en: 130df2981ba550df
   zh: e9a0a89af6fb50a3

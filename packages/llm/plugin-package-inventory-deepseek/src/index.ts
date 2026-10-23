@@ -2,7 +2,7 @@
  * Active Loader-backed plugin package inventory for official DeepSeek requests.
  * Host entries and the requesting agent's standing preset are resolved at request time;
  * installed dependencies and plugin fibers without Loader-backed package identity are excluded.
- * @module @deepseek-ai/dsh-plugin-package-inventory-deepseek
+ * @module @metaworkflow/plugin-package-inventory-deepseek
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -11,13 +11,13 @@ import { dirname, isAbsolute, join, parse } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { FiberState, type Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@metaworkflow/brand'
 import type { EntryTree } from '@deepseek-ai/cordis-plugin-loader'
-import type {} from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-agent-preset-registry'
-import type {} from '@deepseek-ai/dsh-app-boot'
+import type {} from '@metaworkflow/agent'
+import type {} from '@metaworkflow/deepseek-llm-api-extensions'
+import type { SessionId } from '@metaworkflow/session'
+import type {} from '@metaworkflow/agent-preset-registry'
+import type {} from '@metaworkflow/app-boot'
 import type { DeepSeekPluginPackageIdentity, DeepSeekPluginPackageInventoryExtension } from './types.ts'
 import type {} from './types.ts'
 
@@ -30,7 +30,7 @@ export const inject = ['agents', 'deepseekLlmApiExtensions', 'loader']
 
 /** Plugin-package request contribution configuration. */
 export interface Config {
-  /** Contribute `dsh_plugin_packages` to official DeepSeek requests. Defaults to `true`. */
+  /** Contribute `mwf_plugin_packages` to official DeepSeek requests. Defaults to `true`. */
   enabled?: boolean
 }
 
@@ -192,7 +192,7 @@ function collectActivePluginPackages(
 }
 
 /**
- * Register the complete `dsh_plugin_packages` request contribution when enabled.
+ * Register the complete `mwf_plugin_packages` request contribution when enabled.
  * @param ctx - plugin context carrying Loader entry metadata and the DeepSeek request-extension registry.
  * @param config - validated default-on configuration.
  */
@@ -202,7 +202,7 @@ export function apply(ctx: Context, config: Config): void {
   const resolver = new PackageIdentityResolver(hostBaseUrl, ctx.get('pluginPackages'))
   // Unreadable identities are re-resolved on every request; log each module once.
   const unreadable = new Set<string>()
-  ctx.deepseekLlmApiExtensions.register('dsh_plugin_packages', {
+  ctx.deepseekLlmApiExtensions.register('mwf_plugin_packages', {
     prepare: (request) => {
       const value: DeepSeekPluginPackageInventoryExtension = {
         version: 1,

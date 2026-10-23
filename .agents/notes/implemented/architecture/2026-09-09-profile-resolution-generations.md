@@ -16,7 +16,7 @@ Profile startup computes one immutable `RuntimeResolution` and installs it into 
 
 ### One selection algorithm
 
-The package traversal belongs to `@deepseek-ai/dsh-app-boot` beside profile loading. Ordinary Node, source launches, packaged executables, and the Electron Host consume the same runtime resolution and interception.
+The package traversal belongs to `@metaworkflow/app-boot` beside profile loading. Ordinary Node, source launches, packaged executables, and the Electron Host consume the same runtime resolution and interception.
 
 The installation manifest is the first root. Its graph traverses `dependencies` followed by `peerDependencies` breadth-first, resolving each edge from the manifest that declares it. The first installed package reached under a name owns that name. Selected bundle roots then run in profile order, with each earlier root's complete graph taking precedence over every later root. Names supplied by the installation are reserved, and bundle package roots themselves do not become plugin fallbacks. Missing declared packages are skipped.
 
@@ -60,7 +60,7 @@ ESM `import` and CommonJS `require` select these versions. Within each module fo
 
 The [source launcher](2026-07-29-dsh-source-launch-tsx-esm.md) uses tsx's ESM-only hook. tsx skips tsconfig `paths` for an importer URL containing `/node_modules/`. A logical workspace symlink used as a fallback declaring anchor can therefore select built `lib/` exports, while imports from the resulting real workspace files select `src/` through the paths map. Real declaring anchors let workspace imports follow the source map consistently; packages without a matching workspace mapping keep ordinary package-export resolution.
 
-For example, `@deepseek-ai/dsh-tools` creates its scheduler key with `Symbol()`. A Tools instance loaded from `lib/` cannot expose that scheduler through a key imported from the separate `src/` module instance. Source launches keep Tools and AgentLoop in `src/`; plain Node launches keep them in `lib/`. The scheduler retains its local Symbol; correct imports share one module instance.
+For example, `@metaworkflow/tools` creates its scheduler key with `Symbol()`. A Tools instance loaded from `lib/` cannot expose that scheduler through a key imported from the separate `src/` module instance. Source launches keep Tools and AgentLoop in `src/`; plain Node launches keep them in `lib/`. The scheduler retains its local Symbol; correct imports share one module instance.
 
 The source launcher does not install a CommonJS TypeScript hook. `createRequire().resolve()` still selects the package's published JavaScript entry and requires that file to exist. Source-mode resolution tests therefore use fixture-provided CommonJS files; checks of real installation CommonJS entries run with build outputs present.
 
@@ -93,7 +93,7 @@ The runtime resolution lists the packages it supplies; Loader entries form the a
 
 The resolver does not expose `imported(entry)` and does not observe ModuleJobs, wrap Entry methods, associate fibers with import calls, replace registry or tree methods, or adapt HMR transactions. Package-directory queries use the same package selection, including current ancestor peer declarations for linked importers, but do not validate the requested subpath or load its file. Non-Node importers that need package metadata must explicitly implement the same resolver interface.
 
-The implementation lives under `app-boot/src/profile-resolution/`. `service.ts` provides the long-lived `ctx.pluginPackages` and owns the main-thread interception and the Worker resolution lifetime; `resolver.ts` implements runtime resolution lookup and the Node Internal adapters; `worker-bootstrap.ts` installs the inherited runtime resolution in one thread. Profile selection and runtime resolution construction remain in `profile.ts`. Workers reference the bootstrap only through the public `@deepseek-ai/dsh-app-boot/worker/profile-resolution-bootstrap` export.
+The implementation lives under `app-boot/src/profile-resolution/`. `service.ts` provides the long-lived `ctx.pluginPackages` and owns the main-thread interception and the Worker resolution lifetime; `resolver.ts` implements runtime resolution lookup and the Node Internal adapters; `worker-bootstrap.ts` installs the inherited runtime resolution in one thread. Profile selection and runtime resolution construction remain in `profile.ts`. Workers reference the bootstrap only through the public `@metaworkflow/app-boot/worker/profile-resolution-bootstrap` export.
 
 The service definition and provider remain together in `app-boot` because profile boot owns the resolver lifetime. Extracting a separate capability seam becomes warranted when a launcher-independent provider or independently evolving consumers require it.
 
@@ -111,9 +111,9 @@ A retained package keeps its normalized directory, version, and scope; installat
 
 ### Filesystem and runtime carriers
 
-The resolver does not create, update, or remove fallback symlinks and proxy packages. Runtime resolution entries occupy their package names at `$DSH_HOME/profiles/node_modules`; every other name sees that directory as an ordinary ancestor. Construction records links to directories outside the shared profiles tree and the active profile itself, including targets without their own manifest. Installation-scope package directories stay outside linked interception even when a broader linked root contains them. Eligible linked importers retain native ancestor order and per-position peer mappings. The [lookup-order Note](2026-09-19-profile-resolution-lookup-order.md) records precedence and scope. Writable profile state and package-manager transactions remain outside the resolver.
+The resolver does not create, update, or remove fallback symlinks and proxy packages. Runtime resolution entries occupy their package names at `$MWF_HOME/profiles/node_modules`; every other name sees that directory as an ordinary ancestor. Construction records links to directories outside the shared profiles tree and the active profile itself, including targets without their own manifest. Installation-scope package directories stay outside linked interception even when a broader linked root contains them. Eligible linked importers retain native ancestor order and per-position peer mappings. The [lookup-order Note](2026-09-19-profile-resolution-lookup-order.md) records precedence and scope. Writable profile state and package-manager transactions remain outside the resolver.
 
-Runtime resolution requires a supported Node Internal loader interface. The Electron Host runs through the Electron executable with `ELECTRON_RUN_AS_NODE=1`; packaged builds read the dsh tree from ASAR and map executable ASAR entries to electron-builder's unpacked tree. Pkg and Electron use the same runtime resolution mechanism as ordinary Node launches.
+Runtime resolution requires a supported Node Internal loader interface. The Electron Host runs through the Electron executable with `ELECTRON_RUN_AS_NODE=1`; packaged builds read the mwf tree from ASAR and map executable ASAR entries to electron-builder's unpacked tree. Pkg and Electron use the same runtime resolution mechanism as ordinary Node launches.
 
 ### Performance and verification
 
@@ -144,7 +144,7 @@ Behavior tests exercise root order, transitive and peer dependencies, local and 
 - One eager computation supplies the runtime resolution; startup neither writes nor retires module-resolution data.
 - [Generation tests](../../../../packages/boot/app-boot/tests/profile-resolution.spec.ts) cover installation and selected-bundle graphs with ordinary directories and recursive symlinks, including different dependency versions beside logical and real anchors. They also cover same-package profile declarer changes, retained-identity rejection, captured-directory recomputation, linked-root removal, same-target restoration, overlapping roots, native misses, new requests from loaded modules, and relink rejection after removal.
 - [Source-launch tests](../../../../apps/cli/tests/source-launch.compat.spec.ts) and [built-bin tests](../../../../apps/cli/tests/built-bin.e2e.ts) run both profile layouts through the real CLI. They assert ESM/CJS versions, loaded paths, per-format dependency identity, and consistent Tools/AgentLoop module instances with an accessible scheduler key.
-- Pkg and Electron carriers select runtime resolution; Electron executes its Host in Node mode from the ASAR-backed dsh tree while native executable entries remain unpacked.
+- Pkg and Electron carriers select runtime resolution; Electron executes its Host in Node mode from the ASAR-backed mwf tree while native executable entries remain unpacked.
 - ESM and CommonJS adapters share one router and delegate final resolution to Node without `module.registerHooks` or `_findPath` replacement.
 - Production metadata lookup does not record Loader import results or wrap Entry, registry, tree, or HMR methods.
 - The Node compatibility matrix runs main-thread resolver specifications across supported loader interfaces; service and bootstrap specifications cover Worker environment-data and installation interfaces without launching a built Worker.

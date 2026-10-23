@@ -3,13 +3,13 @@ description: "构建时 Typert 生成器：源代码类型分析、与编译器�
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-typert-generator
+# @metaworkflow/typert-generator
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-typert-generator` 让维护者把公开的 TypeScript 类型转换为构建产物和与编译器无关的模型。包通过 `./typert` 和可选的 `./client/typert` 导出选择加入；如果声明、发布清单、Remote 导出或 Zod 投影无法被正确表示，生成过程就会失败。仓库构建会生成可执行 schema factory 与配套声明，工具也可以调用 `WorkspaceAnalyzer` 完成检查或目录生成而不发布产物。生成过程只在构建时运行，绝不会进入实时 agent（智能体）会话。
+`mwf-typert-generator` 让维护者把公开的 TypeScript 类型转换为构建产物和与编译器无关的模型。包通过 `./typert` 和可选的 `./client/typert` 导出选择加入；如果声明、发布清单、Remote 导出或 Zod 投影无法被正确表示，生成过程就会失败。仓库构建会生成可执行 schema factory 与配套声明，工具也可以调用 `WorkspaceAnalyzer` 完成检查或目录生成而不发布产物。生成过程只在构建时运行，绝不会进入实时 agent（智能体）会话。
 
 ## 目录
 
@@ -54,7 +54,7 @@ factory 返回类实例，并保留 spec，直到 `descriptors` 或 `methods` ge
 
 缺少 JSDoc 或不支持工具 JSON Schema，不会阻止其他方面有效的普通生成及其严格 codec。元数据独立于投影保留解析器与可用文档：每个不受支持的输入变体或输出投影都省略 `jsonSchema`，并记录各自的 `jsonSchemaError`。工具消费方显式选择方法，并要求其所需文档和受支持的输入 schema；输出解析器是必需的，但输出 JSON Schema 是可选的，除非该消费方要求提供。仅有元数据不会让每个 Remote 方法自动成为工具。
 
-每个生成参数 spec 都包含从同一个 checker 解析后类型模型派生的 `codec` 和 `strictCodec`；分析器与模型不携带逐方法输入策略。`method.input()` 与 `{ strict: false }` 选择 Host 分发使用的普通 codec，其已声明对象接受并剥离未知字段。`method.input({ strict: true })` 为解析和受支持的 JSON Schema 选择递归关闭的已声明对象。两种具名参数封装都拒绝额外参数；显式 JSON 与字典键保持开放，具名字典字段也须满足索引值类型的约束。严格解析先展开具名字段与索引值的联合分支，再合并并关闭每个受支持的对象组合，包括可选字段和可空索引值。`result` 保留唯一的普通 codec。工具投影的目标是 [`@deepseek-ai/dsh-tools`](../../core/tools/src/json-schema.ts) 对工具参数、工具输出和生成的 PTC SDK 强制执行的 tool-schema 子集；它支持标量、对象、数组和互斥联合类型，规范的 `JsonValue` 与字符串键 JSON 字典无需递归引用。子集之外的类型会被报告，而不是以更弱的 schema 投影。TypeScript 未表达的数值范围与其他语义规则仍由操作拥有者负责。
+每个生成参数 spec 都包含从同一个 checker 解析后类型模型派生的 `codec` 和 `strictCodec`；分析器与模型不携带逐方法输入策略。`method.input()` 与 `{ strict: false }` 选择 Host 分发使用的普通 codec，其已声明对象接受并剥离未知字段。`method.input({ strict: true })` 为解析和受支持的 JSON Schema 选择递归关闭的已声明对象。两种具名参数封装都拒绝额外参数；显式 JSON 与字典键保持开放，具名字典字段也须满足索引值类型的约束。严格解析先展开具名字段与索引值的联合分支，再合并并关闭每个受支持的对象组合，包括可选字段和可空索引值。`result` 保留唯一的普通 codec。工具投影的目标是 [`@metaworkflow/tools`](../../core/tools/src/json-schema.ts) 对工具参数、工具输出和生成的 PTC SDK 强制执行的 tool-schema 子集；它支持标量、对象、数组和互斥联合类型，规范的 `JsonValue` 与字符串键 JSON 字典无需递归引用。子集之外的类型会被报告，而不是以更弱的 schema 投影。TypeScript 未表达的数值范围与其他语义规则仍由操作拥有者负责。
 
 `WorkspaceTypertGenerator` 先分析每个选中 face 的所有贡献方，再筛选要生成产物的包，因此包子集保留与完整构建相同的声明合并结果和输出字节。
 
@@ -107,7 +107,7 @@ JSON、YAML、SVG、PNG、JPEG 和 WebP 资源导出不提供 TypeScript 声明�
 
 ### 分析与 face
 
-Host 与 Client 是两个独立的 TypeScript 程序。直接项目引用确定编译器 face 的成员归属，`dsh.client` 包子路径则确定运行时 face 的贡献；`package.json#exports` 划定所有跨包公开边界，跨 face 的边只能来自导入或重新导出。解析到本包内部模块的相对导入会沿该模块的重新导出继续追踪，直到出现包说明符，因此包内转发模块保留原始声明引用；解析到其他包的相对导入会失败。`check` 模式遇到语法或语义诊断、缺失的公开类型标注、跨包私有引用，以及模型无法无损保留的可达声明合并时都会失败；`write` 模式插入类型检查器推导出的标注，并返回无诊断的 check 模式模型。NPM 依赖拥有的类型继续以 `external` 引用表示，不会被展开。流方法的返回类型可以是 `Iterable<Out>`、`AsyncIterable<Out>` 或协议包的 `RemoteStream<Out, In>`，后者与标准库包装器一样按符号名与声明所在包识别；第二个类型参数不为 `never` 时产出描述符的上行编解码器，生成的 Client 签名则返回 `RemoteStreamHandle<Out, In>`。
+Host 与 Client 是两个独立的 TypeScript 程序。直接项目引用确定编译器 face 的成员归属，`mwf.client` 包子路径则确定运行时 face 的贡献；`package.json#exports` 划定所有跨包公开边界，跨 face 的边只能来自导入或重新导出。解析到本包内部模块的相对导入会沿该模块的重新导出继续追踪，直到出现包说明符，因此包内转发模块保留原始声明引用；解析到其他包的相对导入会失败。`check` 模式遇到语法或语义诊断、缺失的公开类型标注、跨包私有引用，以及模型无法无损保留的可达声明合并时都会失败；`write` 模式插入类型检查器推导出的标注，并返回无诊断的 check 模式模型。NPM 依赖拥有的类型继续以 `external` 引用表示，不会被展开。流方法的返回类型可以是 `Iterable<Out>`、`AsyncIterable<Out>` 或协议包的 `RemoteStream<Out, In>`，后者与标准库包装器一样按符号名与声明所在包识别；第二个类型参数不为 `never` 时产出描述符的上行编解码器，生成的 Client 签名则返回 `RemoteStreamHandle<Out, In>`。
 
 ### 生成与发布约定
 

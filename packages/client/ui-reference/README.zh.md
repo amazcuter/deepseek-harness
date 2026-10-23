@@ -3,13 +3,13 @@ description: "Web @file 与 @session 引用 source：候选项、排序，以及
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-reference
+# @metaworkflow/client-ui-reference
 
 [English](README.md) | 中文
 
 ## 概述
 
-Web 用户需要从同一个 `@` 补全菜单提及文件、文件夹或会话时，可以使用 `dsh-client-ui-reference`。菜单先列出文件，再列出会话；其中一组无法加载时，另一组仍然可用。选择文件、文件夹或会话会插入带稳定剪贴板形式的原子引用；文件夹行还允许用户在不关闭补全的情况下继续下钻。文件行省略多余的根目录位置，会话行仅在工作区与当前工作区不同时显示该工作区。会话 mention 会在捕获模型上下文前接受校验，而浏览候选项不会影响模型。
+Web 用户需要从同一个 `@` 补全菜单提及文件、文件夹或会话时，可以使用 `mwf-client-ui-reference`。菜单先列出文件，再列出会话；其中一组无法加载时，另一组仍然可用。选择文件、文件夹或会话会插入带稳定剪贴板形式的原子引用；文件夹行还允许用户在不关闭补全的情况下继续下钻。文件行省略多余的根目录位置，会话行仅在工作区与当前工作区不同时显示该工作区。会话 mention 会在捕获模型上下文前接受校验，而浏览候选项不会影响模型。
 
 ## 目录
 
@@ -31,7 +31,7 @@ Web 用户需要从同一个 `@` 补全菜单提及文件、文件夹或会话�
 
 选择文件会关闭补全，并显示为带文件图标与业务色文件名的原子行内引用。目录行携带两个动词：选定 pick（点击行主体或 Enter）把文件夹本身解析为同类原子引用——文件夹图标、带尾斜杠的标签、以规范 `@dir/` mention 为序列化形式；钻取动作（Tab 或行尾 chevron）则保持带文件夹图标的可编辑路径纯文本，并让菜单在尾部斜杠处保持活跃，用户可以继续进入下一层。包含空白的路径使用 `@"path with spaces"`，用户显式打开的引号会继续保留。
 
-选择会话会插入一个原子的行内引用，其隐藏 `ref` 与剪贴板表示均为宿主返回的规范 `@[label](dsh-session:…)` mention；可见形式为聊天气泡图标加会话标题。发送会经 `session.prompt` 携带该 mention，session-reference 服务会在 `agent/pre-step` 校验它并捕获模型上下文。
+选择会话会插入一个原子的行内引用，其隐藏 `ref` 与剪贴板表示均为宿主返回的规范 `@[label](mwf-session:…)` mention；可见形式为聊天气泡图标加会话标题。发送会经 `session.prompt` 携带该 mention，session-reference 服务会在 `agent/pre-step` 校验它并捕获模型上下文。
 
 ### 失败行为
 
@@ -57,7 +57,7 @@ Web 用户需要从同一个 `@` 补全菜单提及文件、文件夹或会话�
 
 ### 序列化
 
-文件选择把共享 `@path` 语法所定义的自然文本保留为隐藏的序列化与剪贴板形式。会话选择使用规范的 `@[label](dsh-session:…)` mention；序列化永远不会根据可见标题重建身份。
+文件选择把共享 `@path` 语法所定义的自然文本保留为隐藏的序列化与剪贴板形式。会话选择使用规范的 `@[label](mwf-session:…)` mention；序列化永远不会根据可见标题重建身份。
 
 插件还向 [UserText](../ui-conversation/README.zh.md#sent-user-text) 注册文件和目录匹配器，并拥有它们的 `conversation.user.text.node` renderer。每次查询返回原文偏移之后的下一个完整引用，不执行文件发现；共享计算器按原文位置裁定重叠。可交互的文件节点通过 Injection 接收绑定 Session 的 `openFile`；导航失败时保留引用，提供局部重试／关闭对话框。目录节点仍为标签。
 

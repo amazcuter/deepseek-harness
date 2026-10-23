@@ -1,5 +1,5 @@
 /**
- * Real-load-path guard for @deepseek-ai/dsh-tool-fs-search. `tool-fs-search` is
+ * Real-load-path guard for @metaworkflow/tool-fs-search. `tool-fs-search` is
  * a NAMESPACE plugin with `inject` — so a stray `export default apply` would
  * make the cordis Loader's `unwrapExports` (`exports.default ?? exports`)
  * collapse the module to the bare `apply` function, DROPPING `inject`. The
@@ -14,16 +14,16 @@
  * red, revert.
  */
 
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { provideWorkingDirectoryFixture } from '@metaworkflow/agent-loop-testkit'
 import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import * as toolFsSearch from '@deepseek-ai/dsh-tool-fs-search'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRuntime from '@metaworkflow/tools'
+import LocalSubprocessRuntime from '@metaworkflow/subprocess-local'
+import * as toolFsSearch from '@metaworkflow/tool-fs-search'
 
-describe('dsh-tool-fs-search real-load-path guard', () => {
+describe('mwf-tool-fs-search real-load-path guard', () => {
   it('has no default export and keeps name/inject/Config through unwrapExports', () => {
     expect('default' in toolFsSearch).toBe(false)
 

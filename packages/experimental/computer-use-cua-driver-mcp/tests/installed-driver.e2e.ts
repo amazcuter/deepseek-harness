@@ -1,21 +1,21 @@
 /** Explicit opt-in compatibility check against an installed Cua Driver executable. */
 import { isAbsolute } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import ComputerUse from '@deepseek-ai/dsh-computer-use'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
+import ComputerUse from '@metaworkflow/computer-use'
+import { ToolCallId } from '@metaworkflow/llm'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRuntime from '@metaworkflow/tools'
 import { expect, it } from 'vitest'
 import * as Provider from '../src/index.ts'
 
-const executable = process.env.DSH_COMPUTER_USE_MCP_EXECUTABLE
+const executable = process.env.MWF_COMPUTER_USE_MCP_EXECUTABLE
 
 function driverArguments(): string[] {
-  const raw = process.env.DSH_COMPUTER_USE_MCP_ARGS
+  const raw = process.env.MWF_COMPUTER_USE_MCP_ARGS
   if (raw === undefined) return ['mcp']
   const args: unknown = JSON.parse(raw)
   if (!Array.isArray(args) || !args.every((arg: unknown): arg is string => typeof arg === 'string')) {
-    throw new Error('DSH_COMPUTER_USE_MCP_ARGS must be a JSON array of strings')
+    throw new Error('MWF_COMPUTER_USE_MCP_ARGS must be a JSON array of strings')
   }
   return args
 }
@@ -25,7 +25,7 @@ it.skipIf(executable === undefined || executable === '')(
   { retry: 0 },
   async ({ signal }) => {
     if (executable === undefined || !isAbsolute(executable)) {
-      throw new Error('DSH_COMPUTER_USE_MCP_EXECUTABLE must be an absolute executable path')
+      throw new Error('MWF_COMPUTER_USE_MCP_EXECUTABLE must be an absolute executable path')
     }
     const ctx = new Context()
     try {

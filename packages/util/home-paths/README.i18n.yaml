@@ -5,51 +5,51 @@
 /:
   en: 412be6dc9650b620
   zh: 2a8c5a9f8567823e
-/deepseek-ai-dsh-home-paths:
-  en: 6a18bcb84ce35987
-  zh: f26144b659925421
-/deepseek-ai-dsh-home-paths/summary:
-  en: 52245b057c8de494
-  zh: cd18fb40ad09aecc
-/deepseek-ai-dsh-home-paths/table-of-contents:
+/metaworkflow-home-paths:
+  en: 50291a4210da4543
+  zh: 571f2aa1053526f9
+/metaworkflow-home-paths/summary:
+  en: 21d98526c39d656a
+  zh: b093538c75acf800
+/metaworkflow-home-paths/table-of-contents:
   en: 80b31a934611cb4a
   zh: 05f3f7f9cb2fd881
-/deepseek-ai-dsh-home-paths/use-this-package:
+/metaworkflow-home-paths/use-this-package:
   en: 5322022224da2f27
   zh: d5cba67f4ea3e429
-/deepseek-ai-dsh-home-paths/use-this-package/resolving-the-home:
-  en: e681c83a7977404f
-  zh: 618c04e09385c417
-/deepseek-ai-dsh-home-paths/use-this-package/resolving-the-shared-agents-root:
-  en: 899c53a36b4a77cd
-  zh: 216532c8876d201d
-/deepseek-ai-dsh-home-paths/use-this-package/displaying-a-home:
-  en: 5296a54cce9be374
-  zh: e408ce14b8be4698
-/deepseek-ai-dsh-home-paths/use-this-package/expanding-user-paths:
+/metaworkflow-home-paths/use-this-package/resolving-the-home:
+  en: c2d4431b59b54a1d
+  zh: 23791bf643a72659
+/metaworkflow-home-paths/use-this-package/resolving-the-shared-agents-root:
+  en: 141fdcfa606a8aec
+  zh: 9fe81d514e8128b2
+/metaworkflow-home-paths/use-this-package/displaying-a-home:
+  en: e9bbf1a126cd61c5
+  zh: 53fd068e99023ed7
+/metaworkflow-home-paths/use-this-package/expanding-user-paths:
   en: 80bf5dead177c1d8
   zh: 6faf257afbb9c246
-/deepseek-ai-dsh-home-paths/use-this-package/canonicalizing-watch-paths:
+/metaworkflow-home-paths/use-this-package/canonicalizing-watch-paths:
   en: 55c5d8179de704c5
   zh: b86395e9605807cd
-/deepseek-ai-dsh-home-paths/understand-the-implementation:
+/metaworkflow-home-paths/understand-the-implementation:
   en: 3f97bd4606e12d4a
   zh: 8f09f108141a478e
-/deepseek-ai-dsh-home-paths/understand-the-implementation/source-map:
+/metaworkflow-home-paths/understand-the-implementation/source-map:
   en: 584610e67c4aa386
   zh: 766f77e35c65193d
-/deepseek-ai-dsh-home-paths/understand-the-implementation/resolution-rules:
-  en: 0315e0bd66f98ac6
-  zh: ba3a26a19e0bda5c
-/deepseek-ai-dsh-home-paths/understand-the-implementation/canonicalization-mechanics:
+/metaworkflow-home-paths/understand-the-implementation/resolution-rules:
+  en: 0d36073553cc1966
+  zh: 329226018c2472cc
+/metaworkflow-home-paths/understand-the-implementation/canonicalization-mechanics:
   en: a79aecd162317dc2
   zh: 342f9bae0231c3de
-/deepseek-ai-dsh-home-paths/further-exploration:
-  en: 20c1a7aad2c891e7
-  zh: 66977a9714e6eff8
-/deepseek-ai-dsh-home-paths/known-limitations-and-deferred-work:
+/metaworkflow-home-paths/further-exploration:
+  en: 2ed907797ee65c95
+  zh: 2f19b0d6bc4ca142
+/metaworkflow-home-paths/known-limitations-and-deferred-work:
   en: aa4aecf31a596da0
   zh: 22dea997610fae2d
-/deepseek-ai-dsh-home-paths/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-home-paths/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -5,30 +5,30 @@
 /:
   en: d8af9b6bbb50c868
   zh: 984ac08f172ac4b6
-/deepseek-ai-dsh-experimental-plugin-market-bundle:
-  en: c8315ff66be4cfb9
-  zh: d721a9496d8b0a8d
-/deepseek-ai-dsh-experimental-plugin-market-bundle/summary:
-  en: 511ede0c4e7cd9df
-  zh: 207687c55aca6f00
-/deepseek-ai-dsh-experimental-plugin-market-bundle/table-of-contents:
+/metaworkflow-experimental-plugin-market-bundle:
+  en: be094d969462de92
+  zh: 7ccc9fe1c460ac0d
+/metaworkflow-experimental-plugin-market-bundle/summary:
+  en: f935ebc97f277b3b
+  zh: ae768e23e8747b4a
+/metaworkflow-experimental-plugin-market-bundle/table-of-contents:
   en: 76368b6b1da79c80
   zh: 434cf3c1f5db33cd
-/deepseek-ai-dsh-experimental-plugin-market-bundle/use-this-package:
+/metaworkflow-experimental-plugin-market-bundle/use-this-package:
   en: 4929999ed97cbcaf
   zh: a815fca7044326fc
-/deepseek-ai-dsh-experimental-plugin-market-bundle/understand-the-implementation:
+/metaworkflow-experimental-plugin-market-bundle/understand-the-implementation:
   en: 6cdb2c0f794b001f
   zh: f18ba67b927b09b8
-/deepseek-ai-dsh-experimental-plugin-market-bundle/model-experience:
-  en: 54885876bee4591c
-  zh: 407252554800511c
-/deepseek-ai-dsh-experimental-plugin-market-bundle/model-experience/kv-cache-effect:
+/metaworkflow-experimental-plugin-market-bundle/model-experience:
+  en: 48ddfc77321c0cab
+  zh: 8ce1c2d3bfc5d38e
+/metaworkflow-experimental-plugin-market-bundle/model-experience/kv-cache-effect:
   en: dc60f12c8d3b0e79
   zh: 6eb3928424a7f783
-/deepseek-ai-dsh-experimental-plugin-market-bundle/known-limitations-and-deferred-work:
+/metaworkflow-experimental-plugin-market-bundle/known-limitations-and-deferred-work:
   en: 779241f2dfb59f6d
   zh: 0cda06e940d61664
-/deepseek-ai-dsh-experimental-plugin-market-bundle/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-experimental-plugin-market-bundle/known-limitations-and-deferred-work/dev-note:
   en: 0225ba087c5266f3
   zh: 4e706f1b2b984e63

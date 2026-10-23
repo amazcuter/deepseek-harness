@@ -6,10 +6,10 @@ import { onTestFinished } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import Timer from '@deepseek-ai/cordis-plugin-timer'
-import { boot, initProfile, readProfilePatches, type ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import ConfigEditor from '@deepseek-ai/dsh-config-editor'
-import Hmr from '@deepseek-ai/dsh-hmr'
-import DefaultModel from '@deepseek-ai/dsh-agent-default-model'
+import { boot, initProfile, readProfilePatches, type ProfileContext } from '@metaworkflow/app-boot'
+import ConfigEditor from '@metaworkflow/config-editor'
+import Hmr from '@metaworkflow/hmr'
+import DefaultModel from '@metaworkflow/agent-default-model'
 import Settings from '../src/index.ts'
 
 export async function configurationFixture(options: { schema?: z; apply?: (ctx: Context, config: unknown) => void; hmr?: boolean } = {}) {
@@ -20,7 +20,7 @@ export async function configurationFixture(options: { schema?: z; apply?: (ctx: 
   const bundle = join(dir, 'node_modules', 'test-bundle')
   mkdirSync(bundle, { recursive: true })
   writeFileSync(join(home, 'package.json'), '{"name":"test-installation"}\n')
-  writeFileSync(join(bundle, 'package.json'), JSON.stringify({ name: 'test-bundle', version: '1.0.0', dsh: { bundle: { patch: 'cordis.patch.yml' } } }))
+  writeFileSync(join(bundle, 'package.json'), JSON.stringify({ name: 'test-bundle', version: '1.0.0', mwf: { bundle: { patch: 'cordis.patch.yml' } } }))
   writeFileSync(join(bundle, 'cordis.patch.yml'), JSON.stringify([{ insert: [
     { id: 'config-editor', name: 'cordis:editor' },
     { id: 'settings', name: 'cordis:settings' },

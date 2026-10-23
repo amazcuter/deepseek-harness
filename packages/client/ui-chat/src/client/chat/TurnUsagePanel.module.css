@@ -19,15 +19,15 @@
   align-items: center;
   gap: 4px;
   min-width: 0;
-  height: calc(28px + var(--dsh-content-font-delta, 0px));
+  height: calc(28px + var(--mwf-content-font-delta, 0px));
   padding: 6px 8px;
   border: none;
   border-radius: var(--dsw-radius-sm);
   background: transparent;
   color: var(--dsw-alias-label-tertiary);
-  font-size: calc(var(--dsh-content-font-size-secondary, 13px) - 1px);
+  font-size: calc(var(--mwf-content-font-size-secondary, 13px) - 1px);
   font-variant-numeric: tabular-nums;
-  line-height: calc(24px + var(--dsh-content-font-delta, 0px));
+  line-height: calc(24px + var(--mwf-content-font-delta, 0px));
   white-space: nowrap;
   cursor: pointer;
 }
@@ -41,8 +41,8 @@
 }
 
 .trigger svg {
-  width: calc(15px + var(--dsh-content-font-delta, 0px));
-  height: calc(15px + var(--dsh-content-font-delta, 0px));
+  width: calc(15px + var(--mwf-content-font-delta, 0px));
+  height: calc(15px + var(--mwf-content-font-delta, 0px));
   flex: none;
 }
 
@@ -59,7 +59,7 @@
 @media (max-width: 480px) {
   .trigger {
     justify-content: center;
-    width: calc(28px + var(--dsh-content-font-delta, 0px));
+    width: calc(28px + var(--mwf-content-font-delta, 0px));
     padding: 6px;
   }
 

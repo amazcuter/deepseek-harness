@@ -1,10 +1,10 @@
 /** Resolve CWD-keyed Electron storage after the authoritative Workspace list has arrived. */
-import type { WorkspaceSource } from '@deepseek-ai/dsh-api-workspace-controller/client'
+import type { WorkspaceSource } from '@metaworkflow/api-workspace-controller/client'
 
 /**
  * Use the Workspace's canonical CWD, not its record id; ungrouped Sessions remain isolated.
  * @param source - authoritative Workspace membership.
- * @param sessionId - owning DSH Session.
+ * @param sessionId - owning MWF Session.
  * @param signal - guest initialization lifetime.
  * @returns the storage account for this occurrence.
  */

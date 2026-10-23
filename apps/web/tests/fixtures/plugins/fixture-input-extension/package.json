@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "exports": { ".": "./index.js", "./client": "./client.js" },
-  "dsh": {
+  "mwf": {
     "bundle": { "patch": "./cordis.patch.yml" },
     "client": { "platform": "web" }
   }

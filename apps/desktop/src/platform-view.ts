@@ -2,7 +2,7 @@
 import type { EventEmitter } from 'node:events'
 import { createHash, randomUUID } from 'node:crypto'
 import { WebContentsView, session, shell, type Session, type View, type WebFrameMain } from 'electron'
-import { mergePlatformCookies, platformClientHeaders, type PlatformSession } from '@deepseek-ai/dsh-deepseek-account'
+import { mergePlatformCookies, platformClientHeaders, type PlatformSession } from '@metaworkflow/deepseek-account'
 import { desktopClientMetadata } from './client-metadata.ts'
 
 import { PLATFORM_IPC, type PlatformLocale } from './platform-ipc.ts'
@@ -98,8 +98,8 @@ export class DesktopPlatformView {
       owner.webContents.removeListener('destroyed', closeOwnedView)
       owner.removeListener('closed', closeOwnedView)
     }
-    const partition = account.userId === null ? `dsh-platform-${randomUUID()}`
-      : `persist:dsh-platform-${createHash('sha256').update(JSON.stringify([account.origin, account.userId])).digest('hex')}`
+    const partition = account.userId === null ? `mwf-platform-${randomUUID()}`
+      : `persist:mwf-platform-${createHash('sha256').update(JSON.stringify([account.origin, account.userId])).digest('hex')}`
     const browserSession = session.fromPartition(partition)
     // Sanitize persisted authentication even after an unclean previous process exit.
     const failure = await this.cleanStorage(browserSession)
@@ -137,7 +137,7 @@ export class DesktopPlatformView {
     })
     const view = new WebContentsView({ webPreferences: {
       session: browserSession, preload: this.preload, sandbox: true, contextIsolation: true,
-      additionalArguments: [`--dsh-platform-origin=${account.origin}`],
+      additionalArguments: [`--mwf-platform-origin=${account.origin}`],
       nodeIntegration: false, webSecurity: true,
     } })
     this.view = view

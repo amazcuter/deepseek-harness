@@ -14,9 +14,9 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
-import { SessionAlreadyOwnedError } from '@deepseek-ai/dsh-session-persistence'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { SessionId, SessionSeq } from '@metaworkflow/session'
+import { SessionAlreadyOwnedError } from '@metaworkflow/session-persistence'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
 
 const SESSION = 'two-process-lease'
 
@@ -32,7 +32,7 @@ const HOLDER = fileURLToPath(new URL('./fixtures/lease-holder.mjs', import.meta.
 
 describe('two-process write lock (built lib)', () => {
   it('excludes a live holder process and takes over immediately after its crash', { timeout: 30_000 }, async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-lease-2proc-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-lease-2proc-'))
     dirs.push(root)
 
     const holder = spawn(process.execPath, [HOLDER, root, SESSION], {

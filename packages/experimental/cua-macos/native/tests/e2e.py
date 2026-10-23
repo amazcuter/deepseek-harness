@@ -1,6 +1,6 @@
 """Opt-in macOS integration against a disposable two-window AppKit application.
 
-Build dsh-cua-native first, then run this file with Python 3. macOS Accessibility
+Build mwf-cua-native first, then run this file with Python 3. macOS Accessibility
 and Screen Recording permission must already be granted to the responsible host.
 The fixture records its own received actions; native dispatch success is not the
 assertion. --artifacts saves fixture-only screenshots and a private transcript.
@@ -101,8 +101,8 @@ def main():
     transcript = []
     if os.uname().sysname != "Darwin":
         raise RuntimeError("this opt-in check requires macOS")
-    with tempfile.TemporaryDirectory(prefix="dsh-cua-fixture-") as directory:
-        fixture_binary = Path(directory) / "dsh-cua-fixture"
+    with tempfile.TemporaryDirectory(prefix="mwf-cua-fixture-") as directory:
+        fixture_binary = Path(directory) / "mwf-cua-fixture"
         state_path = Path(directory) / "state.json"
         subprocess.run(["swiftc", str(ROOT / "tests" / "Fixture.swift"), "-o", str(fixture_binary)], check=True)
         fixture_args = [str(fixture_binary), str(state_path)]
@@ -138,8 +138,8 @@ def main():
             deadline = time.monotonic() + 5
             while True:
                 windows = call("listWindows", owner)
-                primary = next(window for window in windows if window["title"] == "DSH CUA primary fixture")
-                secondary = next(window for window in windows if window["title"] == "DSH CUA secondary fixture")
+                primary = next(window for window in windows if window["title"] == "MWF CUA primary fixture")
+                secondary = next(window for window in windows if window["title"] == "MWF CUA secondary fixture")
                 actual = json.loads(state_path.read_text())
                 sizes = [[window["bounds"]["width"], window["bounds"]["height"]] for window in [primary, secondary]]
                 if sizes == [actual["primaryWindowSize"], actual["secondaryWindowSize"]]:

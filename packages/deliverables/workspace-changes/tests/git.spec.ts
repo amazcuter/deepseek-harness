@@ -3,10 +3,10 @@ import { chmod, mkdir, readdir, readFile, realpath, writeFile } from 'node:fs/pr
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
+import LocalSubprocessRuntime from '@metaworkflow/subprocess-local'
 import { GitRunner, blobText, diffTrees, ignoredPaths, locateGitWorkspace, snapshotTree, treeBlob } from '../src/git.ts'
 import { TurnRecorder } from '../src/recorder.ts'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
+import SessionStore, { SessionId } from '@metaworkflow/session'
 import { git, scratchDir, startTurn, toolCall } from './support.ts'
 
 /** An object directory factory under a scratch root. */
@@ -30,7 +30,7 @@ const signal = new AbortController().signal
 
 describe('GitRunner', () => {
   it('ignores ambient indexed Git configuration after the credential scrub', async () => {
-    const cwd = await scratchDir('dsh-git-env-', cleanups)
+    const cwd = await scratchDir('mwf-git-env-', cleanups)
     git(cwd, 'init', '-q', '-b', 'main')
     const { git: command } = await runner()
     vi.stubEnv('GIT_CONFIG_COUNT', '1')
@@ -46,7 +46,7 @@ describe('GitRunner', () => {
   })
 
   it('reports timeouts and external aborts as failures', async () => {
-    const cwd = await scratchDir('dsh-git-runner-', cleanups)
+    const cwd = await scratchDir('mwf-git-runner-', cleanups)
     const { git: slow } = await runner({ timeoutMs: 1, outputMaxBytes: 1024 })
     await expect(slow.run(['--version'], { cwd, signal })).rejects.toThrow('timed out after 1ms')
     const { git: quick } = await runner()
@@ -61,7 +61,7 @@ describe('GitRunner', () => {
 
 describe('snapshots and diffs', () => {
   it('snapshots a repository whose index holds unmerged entries without touching that index', async () => {
-    const cwd = await scratchDir('dsh-git-conflict-', cleanups)
+    const cwd = await scratchDir('mwf-git-conflict-', cleanups)
     git(cwd, 'init', '-q', '-b', 'main')
     await writeFile(join(cwd, 'f.txt'), 'base\n')
     git(cwd, 'add', '-A'); git(cwd, 'commit', '-q', '-m', 'base')
@@ -74,7 +74,7 @@ describe('snapshots and diffs', () => {
     expect(() => git(cwd, 'merge', 'side')).toThrow()
     expect(git(cwd, 'status', '--porcelain')).toContain('UU f.txt')
     const { git: runnerGit } = await runner()
-    const workspace = await locateGitWorkspace(runnerGit, cwd, objectsIn(await scratchDir('dsh-git-store-', cleanups)), signal)
+    const workspace = await locateGitWorkspace(runnerGit, cwd, objectsIn(await scratchDir('mwf-git-store-', cleanups)), signal)
     expect(workspace?.root).toBe(await realpath(cwd))
     const tree = await snapshotTree(runnerGit, workspace!, signal)
     expect(tree).toMatch(/^[0-9a-f]{40,64}$/)
@@ -82,9 +82,9 @@ describe('snapshots and diffs', () => {
   })
 
   it('fails loudly when the addressed repository cannot be written or diffed', async () => {
-    const cwd = await scratchDir('dsh-git-broken-', cleanups)
+    const cwd = await scratchDir('mwf-git-broken-', cleanups)
     const { git: runnerGit } = await runner()
-    const store = objectsIn(await scratchDir('dsh-git-store-', cleanups))
+    const store = objectsIn(await scratchDir('mwf-git-store-', cleanups))
     expect(await locateGitWorkspace(runnerGit, cwd, store, signal)).toBeNull()
     const broken = { root: cwd, gitDir: join(cwd, 'missing'), scratch: cwd, env: {}, excludes: [] }
     await expect(snapshotTree(runnerGit, broken, signal)).rejects.toThrow('git add in')
@@ -107,36 +107,36 @@ describe('snapshots and diffs', () => {
 
 describe('repository edge cases', () => {
   it.skipIf(process.platform === 'win32')('snapshots past an unreadable file', async () => {
-    const cwd = await scratchDir('dsh-git-unreadable-', cleanups)
+    const cwd = await scratchDir('mwf-git-unreadable-', cleanups)
     git(cwd, 'init', '-q', '-b', 'main')
     await writeFile(join(cwd, 'ok.txt'), 'ok\n')
     await writeFile(join(cwd, 'locked.txt'), 'locked\n')
     await chmod(join(cwd, 'locked.txt'), 0o000)
     cleanups.push(() => chmod(join(cwd, 'locked.txt'), 0o644))
     const { git: runnerGit } = await runner()
-    const store = objectsIn(await scratchDir('dsh-git-store-', cleanups))
+    const store = objectsIn(await scratchDir('mwf-git-store-', cleanups))
     const workspace = (await locateGitWorkspace(runnerGit, cwd, store, signal))!
     expect(await snapshotTree(runnerGit, workspace, signal)).toMatch(/^[0-9a-f]{40,64}$/)
   })
 
   it('refuses an index that exists but cannot be copied instead of starting from an empty one', async () => {
-    const cwd = await scratchDir('dsh-git-bad-index-', cleanups)
+    const cwd = await scratchDir('mwf-git-bad-index-', cleanups)
     git(cwd, 'init', '-q', '-b', 'main')
     await mkdir(join(cwd, '.git', 'index'))
     const { git: runnerGit } = await runner()
-    const store = objectsIn(await scratchDir('dsh-git-store-', cleanups))
+    const store = objectsIn(await scratchDir('mwf-git-store-', cleanups))
     const workspace = (await locateGitWorkspace(runnerGit, cwd, store, signal))!
     await expect(snapshotTree(runnerGit, workspace, signal)).rejects.toThrow()
   })
 
   it('reports a repository git cannot read instead of treating it as absent', async () => {
-    const cwd = await scratchDir('dsh-git-unsupported-', cleanups)
+    const cwd = await scratchDir('mwf-git-unsupported-', cleanups)
     git(cwd, 'init', '-q')
     const config = join(cwd, '.git', 'config')
     const original = await readFile(config, 'utf8')
     await writeFile(config, original.replace(/repositoryformatversion = \d+/, 'repositoryformatversion = 99'))
     const { git: runnerGit } = await runner()
-    const store = objectsIn(await scratchDir('dsh-git-store-', cleanups))
+    const store = objectsIn(await scratchDir('mwf-git-store-', cleanups))
     await expect(locateGitWorkspace(runnerGit, cwd, store, signal)).rejects.toThrow('git rev-parse failed')
     await writeFile(config, original)
     const blocked = join(cwd, 'store-file')
@@ -147,14 +147,14 @@ describe('repository edge cases', () => {
 
 describe('treeBlob and blobText', () => {
   it('locates a blob by its literal path, sizes it, reads it, and reports trees and missing paths as null', async () => {
-    const cwd = await scratchDir('dsh-git-blob-', cleanups)
+    const cwd = await scratchDir('mwf-git-blob-', cleanups)
     git(cwd, 'init', '-q', '-b', 'main')
     await mkdir(join(cwd, 'dir'))
     await writeFile(join(cwd, 'dir', 'inner.txt'), 'inner\n')
     await writeFile(join(cwd, 'a[1].txt'), 'bracket\n')
     await writeFile(join(cwd, 'a1.txt'), 'plain\n')
     const { git: runnerGit } = await runner()
-    const workspace = await locateGitWorkspace(runnerGit, cwd, objectsIn(await scratchDir('dsh-git-store-', cleanups)), signal)
+    const workspace = await locateGitWorkspace(runnerGit, cwd, objectsIn(await scratchDir('mwf-git-store-', cleanups)), signal)
     if (workspace === null) throw new Error('repository not located')
     const tree = await snapshotTree(runnerGit, workspace, signal)
     const bracket = await treeBlob(runnerGit, workspace, tree, 'a[1].txt', signal)
@@ -168,13 +168,13 @@ describe('treeBlob and blobText', () => {
 
 describe('TurnRecorder', () => {
   it('stays silent when disposed while git work is pending, and warns on failures otherwise', async () => {
-    const cwd = await scratchDir('dsh-recorder-', cleanups)
+    const cwd = await scratchDir('mwf-recorder-', cleanups)
     const { ctx, git: runnerGit } = await runner()
     const session = ctx.sessions.create(SessionId('recorder'), { meta: { cwd } })
     const warnings: string[] = []
     let release!: (runner: GitRunner | null) => void
     const gate = new Promise<GitRunner | null>((resolve) => { release = resolve })
-    const tempRoot = await scratchDir('dsh-git-store-', cleanups)
+    const tempRoot = await scratchDir('mwf-git-store-', cleanups)
     const env = { git: gate, tempRoot, maxFiles: 10, maxFileBytes: 1024, diffTimeoutMs: 100, warn: (m: string) => { warnings.push(m) } }
     const disposed = new TurnRecorder(session, cwd, env)
     disposed.start(1)
@@ -196,7 +196,7 @@ describe('TurnRecorder', () => {
   })
 
   it('removes its snapshot objects on disposal and never creates them outside a repository', async () => {
-    const tempRoot = await scratchDir('dsh-git-store-', cleanups)
+    const tempRoot = await scratchDir('mwf-git-store-', cleanups)
     const { ctx, git: runnerGit } = await runner()
     const env = {
       git: Promise.resolve(runnerGit), tempRoot, maxFiles: 10, maxFileBytes: 1024, diffTimeoutMs: 100,
@@ -206,12 +206,12 @@ describe('TurnRecorder', () => {
     plain.start(1)
     await plain.settled()
     await plain.dispose()
-    const cwd = await scratchDir('dsh-recorder-repo-', cleanups)
+    const cwd = await scratchDir('mwf-recorder-repo-', cleanups)
     git(cwd, 'init', '-q', '-b', 'main')
     const repo = new TurnRecorder(ctx.sessions.create(SessionId('repo'), { meta: { cwd } }), cwd, env)
     repo.start(1)
     await repo.settled()
-    const [objects, ...others] = (await readdir(tempRoot)).filter(entry => entry.startsWith('dsh-workspace-changes-'))
+    const [objects, ...others] = (await readdir(tempRoot)).filter(entry => entry.startsWith('mwf-workspace-changes-'))
     expect(others).toEqual([])
     expect(objects).toBeDefined()
     await repo.dispose()
@@ -219,7 +219,7 @@ describe('TurnRecorder', () => {
   })
 
   it('keeps its own directory out of the snapshots when the temporary root lies inside the work tree', async () => {
-    const cwd = await scratchDir('dsh-recorder-tmp-in-tree-', cleanups)
+    const cwd = await scratchDir('mwf-recorder-tmp-in-tree-', cleanups)
     git(cwd, 'init', '-q', '-b', 'main')
     await writeFile(join(cwd, 'tracked.txt'), 'one\n')
     git(cwd, 'add', '-A'); git(cwd, 'commit', '-q', '-m', 'init')

@@ -53,7 +53,7 @@ describe('desktop toolchain preflight', () => {
   })
 
   it('reports the archive reader when it cannot run', async () => {
-    const empty = await mkdtemp(join(tmpdir(), 'dsh-no-tools-'))
+    const empty = await mkdtemp(join(tmpdir(), 'mwf-no-tools-'))
     directories.push(empty)
     const saved = { PATH: process.env.PATH, Path: process.env.Path }
     try {
@@ -74,7 +74,7 @@ describe('desktop toolchain preflight', () => {
   })
 
   it('writes nothing into the working directory while probing', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'dsh-probe-cwd-'))
+    const directory = await mkdtemp(join(tmpdir(), 'mwf-probe-cwd-'))
     directories.push(directory)
     await writeFile(join(directory, 'sentinel'), '')
     await probeDesktopToolchain('darwin', {})

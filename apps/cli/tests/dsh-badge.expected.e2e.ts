@@ -1,25 +1,25 @@
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
+import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@metaworkflow/loader-smoke'
 const binScript = fileURLToPath(new URL('./fixtures/dsh-badge/snapshot.ts', import.meta.url))
 const configPath = fileURLToPath(new URL('./fixtures/dsh-badge/cordis.yml', import.meta.url))
 const defaultConfigPath = fileURLToPath(new URL('./fixtures/dsh-badge/default.cordis.yml', import.meta.url))
 const tsconfigPath = fileURLToPath(new URL('../../../tsconfig.json', import.meta.url))
 const badgeAssetsPath = fileURLToPath(new URL('../../../packages/experimental/skill-badge/assets/', import.meta.url))
 
-describe('dsh badge assembled snapshot', () => {
+describe('mwf badge assembled snapshot', () => {
   it('advertises and loads the opt-in bundled skill through the shipped app', async () => {
     const disabled = await runLoaderSmoke({
-      label: 'disabled dsh badge skill snapshot',
-      tempDirPrefix: 'headless-snapshot-dsh-badge-disabled-',
+      label: 'disabled mwf badge skill snapshot',
+      tempDirPrefix: 'headless-snapshot-mwf-badge-disabled-',
       binScript,
       libBinScript: binScript,
       configPath: defaultConfigPath,
       tsconfigPath,
     })
     const enabled = await runLoaderSmoke({
-      label: 'dsh badge skill snapshot',
-      tempDirPrefix: 'headless-snapshot-dsh-badge-',
+      label: 'mwf badge skill snapshot',
+      tempDirPrefix: 'headless-snapshot-mwf-badge-',
       binScript,
       libBinScript: binScript,
       configPath,
@@ -58,7 +58,7 @@ describe('dsh badge assembled snapshot', () => {
       A skill is a reusable set of task-specific instructions. The following skills are available in this session:
 
       <available_skills>
-      - \`dsh-badge\`: Add the official “powered by dsh” badge to documents, pull requests, merge requests, and other content produced with DeepSeek Harness. Use whenever creating a pull request or merge request. Also use when the user asks for a dsh badge, powered-by-dsh attribution, or a reusable dsh badge asset or snippet.
+      - \`dsh-badge\`: Add the official “powered by mwf” badge to documents, pull requests, merge requests, and other content produced with DeepSeek Harness. Use whenever creating a pull request or merge request. Also use when the user asks for a mwf badge, powered-by-mwf attribution, or a reusable mwf badge asset or snippet.
       </available_skills>
 
       If the user names a skill, or the task clearly matches a skill's description, call the \`skill\` tool with the exact skill name before taking task actions. Load all applicable skills, then follow their full instructions. This catalog contains summaries only; do not infer or follow a skill's instructions until it has been loaded.
@@ -77,14 +77,14 @@ describe('dsh badge assembled snapshot', () => {
       </skill_resources>
 
       <skill_instructions>
-      # dsh Badge
+      # mwf Badge
 
-      Add the official “powered by dsh” badge without recreating or restyling it.
+      Add the official “powered by mwf” badge without recreating or restyling it.
 
       ## Assets
 
       - Local PNG: [\`dsh-badge.png\`](dsh-badge.png), 726×120 source image; render at 121×20
-      - Shields.io image URL: \`https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white\`
+      - Shields.io image URL: \`https://img.shields.io/badge/powered_by-mwf-4D6BFE?style=flat-square&logo=deepseek&logoColor=white\`
       - Project URL: \`https://github.com/deepseek-ai/deepseek-harness\`
 
       ## Markdown
@@ -92,13 +92,13 @@ describe('dsh badge assembled snapshot', () => {
       Use this linked badge in Markdown:
 
       \`\`\`markdown
-      [![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
+      [![](https://img.shields.io/badge/powered_by-mwf-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
       \`\`\`
 
       If attribution should not be linked, use:
 
       \`\`\`markdown
-      ![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)
+      ![](https://img.shields.io/badge/powered_by-mwf-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)
       \`\`\`
 
       ## Usage rules
@@ -116,14 +116,14 @@ describe('dsh badge assembled snapshot', () => {
           ],
           "isError": false,
           "value": {
-            "content": "# dsh Badge
+            "content": "# mwf Badge
 
-      Add the official “powered by dsh” badge without recreating or restyling it.
+      Add the official “powered by mwf” badge without recreating or restyling it.
 
       ## Assets
 
       - Local PNG: [\`dsh-badge.png\`](dsh-badge.png), 726×120 source image; render at 121×20
-      - Shields.io image URL: \`https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white\`
+      - Shields.io image URL: \`https://img.shields.io/badge/powered_by-mwf-4D6BFE?style=flat-square&logo=deepseek&logoColor=white\`
       - Project URL: \`https://github.com/deepseek-ai/deepseek-harness\`
 
       ## Markdown
@@ -131,13 +131,13 @@ describe('dsh badge assembled snapshot', () => {
       Use this linked badge in Markdown:
 
       \`\`\`markdown
-      [![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
+      [![](https://img.shields.io/badge/powered_by-mwf-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
       \`\`\`
 
       If attribution should not be linked, use:
 
       \`\`\`markdown
-      ![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)
+      ![](https://img.shields.io/badge/powered_by-mwf-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)
       \`\`\`
 
       ## Usage rules
@@ -157,7 +157,7 @@ describe('dsh badge assembled snapshot', () => {
           },
         },
         "summary": {
-          "description": "Add the official “powered by dsh” badge to documents, pull requests, merge requests, and other content produced with DeepSeek Harness. Use whenever creating a pull request or merge request. Also use when the user asks for a dsh badge, powered-by-dsh attribution, or a reusable dsh badge asset or snippet.",
+          "description": "Add the official “powered by mwf” badge to documents, pull requests, merge requests, and other content produced with DeepSeek Harness. Use whenever creating a pull request or merge request. Also use when the user asks for a mwf badge, powered-by-mwf attribution, or a reusable mwf badge asset or snippet.",
           "invocation": {
             "modelInvocable": true,
             "userInvocable": true,

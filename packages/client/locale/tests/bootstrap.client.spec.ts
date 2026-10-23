@@ -1,7 +1,7 @@
 /** Native initialization precedes Client mounting and does not persist automatic locale choices. */
 import { Context } from '@deepseek-ai/cordis'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { stubConfigForm } from '@deepseek-ai/dsh-client-test-runtime'
+import { stubConfigForm } from '@metaworkflow/client-test-runtime'
 import { apply, LocaleRuntime } from '../src/client/index.ts'
 import { parseLocaleBootstrap } from '../src/client/bootstrap.ts'
 import type { LocaleSettings } from '../src/locale-settings.ts'
@@ -12,7 +12,7 @@ describe('native locale initialization', () => {
   it('reports a failed native read instead of silently choosing a language', async () => {
     const ctx = new Context()
     const error = new Error('native settings unavailable')
-    vi.stubGlobal('__DSH_LOCALE__', { read: () => Promise.reject(error), onChange: vi.fn() })
+    vi.stubGlobal('__MWF_LOCALE__', { read: () => Promise.reject(error), onChange: vi.fn() })
     try {
       await expect(apply(ctx)).rejects.toBe(error)
       expect(ctx.get('locale')).toBeUndefined()

@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/postmortem/0001-acp-default-export-drops-inject.md
 /post-mortem-0001-acp-server-crashed-on-connect-export-default-dropped-the-plugin-s-inject:
-  en: d7e3ed1019ed04b5
-  zh: 23c6df9914b95d3a
+  en: ed2cb7bc74694774
+  zh: e6dd0f422e5fb79c
 /post-mortem-0001-acp-server-crashed-on-connect-export-default-dropped-the-plugin-s-inject/executive-summary:
   en: 4c04bfd12a9abc10
   zh: 65cd77656e04c2b5
 /post-mortem-0001-acp-server-crashed-on-connect-export-default-dropped-the-plugin-s-inject/summary:
-  en: 15b14cde0d25bf7e
-  zh: c392c2685acbfa0e
+  en: 42d6d937dd454fda
+  zh: 5fd9b28060532175
 /post-mortem-0001-acp-server-crashed-on-connect-export-default-dropped-the-plugin-s-inject/impact:
   en: c0280f3cf50c52de
   zh: c66f9d63463cbbe0
@@ -27,8 +27,8 @@
   en: ec8486bb598fea8c
   zh: 54119c30256686ea
 /post-mortem-0001-acp-server-crashed-on-connect-export-default-dropped-the-plugin-s-inject/guardrails-added:
-  en: 485f2ebdf38b0eac
-  zh: e96a6dd64aa83229
+  en: adad7cfbba30e67b
+  zh: fe5964422f125885
 /post-mortem-0001-acp-server-crashed-on-connect-export-default-dropped-the-plugin-s-inject/lessons:
   en: 0a548f66ad8f6b7d
   zh: 4703c08852f4b063

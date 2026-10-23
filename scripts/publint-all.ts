@@ -14,7 +14,7 @@ import ts from 'typescript'
 import { defaultParallelism } from './parallelism.ts'
 import { isBrowserBundleFormatFalsePositive } from './publint-browser-format.ts'
 
-const CONCURRENCY_ENV = 'DSH_PUBLINT_CONCURRENCY'
+const CONCURRENCY_ENV = 'MWF_PUBLINT_CONCURRENCY'
 const repositoryRoot = resolve(import.meta.dirname, '..')
 const { values: options } = parseArgs({
   args: process.argv.slice(2),

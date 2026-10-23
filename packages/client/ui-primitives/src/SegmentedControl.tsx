@@ -101,8 +101,8 @@ export function SegmentedControl<Value extends string>({
   }
 
   const indicator = {
-    '--dsh-segment-count': String(options.length),
-    '--dsh-segment-index': String(selected),
+    '--mwf-segment-count': String(options.length),
+    '--mwf-segment-index': String(selected),
   } as CSSProperties
 
   return (

@@ -8,17 +8,17 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import LlmRuntime from '@deepseek-ai/dsh-llm'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import LocalCredentialProvider from '@deepseek-ai/dsh-credentials-local'
+import LlmRuntime from '@metaworkflow/llm'
+import AgentRegistry from '@metaworkflow/agent'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import { credentialRef } from '@metaworkflow/credentials'
+import LocalCredentialProvider from '@metaworkflow/credentials-local'
 import { profileComposition } from '../../../settings/settings/tests/profile-composition.ts'
-import { getOrCreateAnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import * as SessionLogDeepSeek from '@deepseek-ai/dsh-session-log-deepseek'
-import * as DeepSeekPluginPackageInventory from '@deepseek-ai/dsh-plugin-package-inventory-deepseek'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
+import { getOrCreateAnonymousUserId } from '@metaworkflow/anonymous-user-id'
+import DeepSeekLlmApiExtensionRegistry from '@metaworkflow/deepseek-llm-api-extensions'
+import * as SessionLogDeepSeek from '@metaworkflow/session-log-deepseek'
+import * as DeepSeekPluginPackageInventory from '@metaworkflow/plugin-package-inventory-deepseek'
+import * as LlmDeepSeek from '@metaworkflow/llm-deepseek-api-key'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 import { sourceModuleLoader } from './helpers.ts'
@@ -44,8 +44,8 @@ async function loadComposition(
   // A reused root is the restart case: the same harness home, its documents
   // exactly as the previous process left them.
   const fresh = options.reuseRoot === undefined
-  root = options.reuseRoot ?? await mkdtemp(join(tmpdir(), 'dsh-llm-composition-'))
-  vi.stubEnv('DSH_HOME', root)
+  root = options.reuseRoot ?? await mkdtemp(join(tmpdir(), 'mwf-llm-composition-'))
+  vi.stubEnv('MWF_HOME', root)
   const settingsPath = join(root, 'profile', 'cordis.patch.yml')
   const credentialsPath = join(root, '.credentials.yaml')
   if (options.withDynamic && fresh) {
@@ -55,31 +55,31 @@ async function loadComposition(
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
     '- id: llm',
-    "  name: '@deepseek-ai/dsh-llm'",
+    "  name: '@metaworkflow/llm'",
     '- id: session',
-    "  name: '@deepseek-ai/dsh-session'",
+    "  name: '@metaworkflow/session'",
     '- id: agents',
-    "  name: '@deepseek-ai/dsh-agent'",
+    "  name: '@metaworkflow/agent'",
     '- id: deepseek-llm-api-extensions',
-    "  name: '@deepseek-ai/dsh-deepseek-llm-api-extensions'",
+    "  name: '@metaworkflow/deepseek-llm-api-extensions'",
     '- id: session-log-deepseek',
-    "  name: '@deepseek-ai/dsh-session-log-deepseek'",
+    "  name: '@metaworkflow/session-log-deepseek'",
     ...options.enableSessionLog !== undefined
       ? ['  config:', `    enabled: ${String(options.enableSessionLog)}`]
       : [],
     '- id: plugin-package-inventory-deepseek',
-    "  name: '@deepseek-ai/dsh-plugin-package-inventory-deepseek'",
+    "  name: '@metaworkflow/plugin-package-inventory-deepseek'",
     ...options.withDynamic
       ? [
         '- id: credentials',
-        "  name: '@deepseek-ai/dsh-credentials-local'",
+        "  name: '@metaworkflow/credentials-local'",
         '  config:',
         `    path: ${JSON.stringify(credentialsPath)}`,
         '    debounceMs: 10',
       ]
       : [],
     '- id: llm-deepseek',
-    "  name: '@deepseek-ai/dsh-llm-deepseek-api-key'",
+    "  name: '@metaworkflow/llm-deepseek-api-key'",
     '  config:',
     `    baseURL: ${JSON.stringify(options.baseURL)}`,
     '',
@@ -91,14 +91,14 @@ async function loadComposition(
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@deepseek-ai/dsh-llm', LlmRuntime],
-    ['@deepseek-ai/dsh-session', SessionStore],
-    ['@deepseek-ai/dsh-agent', AgentRegistry],
-    ['@deepseek-ai/dsh-deepseek-llm-api-extensions', DeepSeekLlmApiExtensionRegistry],
-    ['@deepseek-ai/dsh-session-log-deepseek', SessionLogDeepSeek],
-    ['@deepseek-ai/dsh-plugin-package-inventory-deepseek', DeepSeekPluginPackageInventory],
-    ['@deepseek-ai/dsh-credentials-local', LocalCredentialProvider],
-    ['@deepseek-ai/dsh-llm-deepseek-api-key', LlmDeepSeek],
+    ['@metaworkflow/llm', LlmRuntime],
+    ['@metaworkflow/session', SessionStore],
+    ['@metaworkflow/agent', AgentRegistry],
+    ['@metaworkflow/deepseek-llm-api-extensions', DeepSeekLlmApiExtensionRegistry],
+    ['@metaworkflow/session-log-deepseek', SessionLogDeepSeek],
+    ['@metaworkflow/plugin-package-inventory-deepseek', DeepSeekPluginPackageInventory],
+    ['@metaworkflow/credentials-local', LocalCredentialProvider],
+    ['@metaworkflow/llm-deepseek-api-key', LlmDeepSeek],
   ])
   // The custom importer bypasses Node resolution; mirror the package manifests
   // a deployed cordis.yml has beside its declared dependencies.
@@ -154,14 +154,14 @@ describe('llm-deepseek real dynamic composition', () => {
     session.append('turn/start', { turn: 1 })
 
     await assemble(ctx, { model: 'deepseek-v4-flash', messages: [], sessionId: session.id })
-    const request = server.requests[0] as { dsh_plugin_packages: { version: number; packages: unknown[] } }
-    expect(request).not.toHaveProperty('dsh_session_log')
-    expect(request.dsh_plugin_packages.packages).toEqual(expect.arrayContaining([
-      { name: '@deepseek-ai/dsh-deepseek-llm-api-extensions', version: '0.1.0-rc.8' },
-      { name: '@deepseek-ai/dsh-llm-deepseek-api-key', version: '0.1.0-rc.8' },
-      { name: '@deepseek-ai/dsh-session-log-deepseek', version: '0.1.0-rc.8' },
+    const request = server.requests[0] as { mwf_plugin_packages: { version: number; packages: unknown[] } }
+    expect(request).not.toHaveProperty('mwf_session_log')
+    expect(request.mwf_plugin_packages.packages).toEqual(expect.arrayContaining([
+      { name: '@metaworkflow/deepseek-llm-api-extensions', version: '0.1.0-rc.8' },
+      { name: '@metaworkflow/llm-deepseek-api-key', version: '0.1.0-rc.8' },
+      { name: '@metaworkflow/session-log-deepseek', version: '0.1.0-rc.8' },
     ]))
-    expect(request.dsh_plugin_packages.version).toBe(1)
+    expect(request.mwf_plugin_packages.version).toBe(1)
     expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)
   })
 
@@ -177,7 +177,7 @@ describe('llm-deepseek real dynamic composition', () => {
 
     await assemble(ctx, { model: 'deepseek-v4-flash', messages: [], sessionId: session.id })
     const request = server.requests[0] as {
-      dsh_session_log?: {
+      mwf_session_log?: {
         version: number
         session: { id: string }
         afterSeq: number
@@ -185,7 +185,7 @@ describe('llm-deepseek real dynamic composition', () => {
         events: Array<{ type: string; seq: number }>
       }
     }
-    expect(request.dsh_session_log).toMatchObject({
+    expect(request.mwf_session_log).toMatchObject({
       version: 1,
       session: { id: 'extension-composition-enabled' },
       afterSeq: -1,

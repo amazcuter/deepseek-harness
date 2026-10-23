@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-20-desktop-browser-webview.md
 /agent-note-retained-desktop-browser-webviews:
-  en: 59456b799c9d5d5e
-  zh: 19a88c553986b463
+  en: a54e462f108a5697
+  zh: ecf8035098b35f67
 /agent-note-retained-desktop-browser-webviews/problem:
   en: c6abffbd4077e427
   zh: a7a0a2c2a99cc70b
 /agent-note-retained-desktop-browser-webviews/decision:
-  en: f4970f18902b8974
-  zh: 2b1a5fa3fc05f256
+  en: 0576715becb98d26
+  zh: 499d2aa34d73f946
 /agent-note-retained-desktop-browser-webviews/decision/storage-ownership:
-  en: fac51097030c3670
-  zh: 86868bc1b9a6d8cf
+  en: 33dee8fa55b6a0ce
+  zh: 456e3562beded9bb
 /agent-note-retained-desktop-browser-webviews/decision/initial-guest-policy:
-  en: 21ab346f9a98863c
-  zh: efa115f530d22de3
+  en: 8bd5548314b2a5c1
+  zh: 48baf9f3340feb82
 /agent-note-retained-desktop-browser-webviews/alternatives-considered:
   en: 884daa089df32dcc
   zh: 7e16d740897555c9

@@ -13,7 +13,7 @@
  *
  * See packages/test-support/session-snapshot/README.md.
  *
- * @module @deepseek-ai/dsh-session-snapshot/harness
+ * @module @metaworkflow/session-snapshot/harness
  */
 
 import { cp, mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
@@ -35,7 +35,7 @@ import {
   type AgentUnderTest,
   type LaunchedAcpTestAgent,
 } from './launcher.ts'
-import { clearedProxyEnv } from '@deepseek-ai/dsh-http-proxy'
+import { clearedProxyEnv } from '@metaworkflow/http-proxy'
 import {
   assertPersistedSessionVersion,
   latestPersistedSessionPaths,
@@ -177,7 +177,7 @@ export interface RunOptions {
   /**
    * Recorded SUBAGENT child-session fixture paths (replay). A nested-agent
    * scenario ships one per child (`session.1.jsonl`, …); the harness forwards
-   * them to `dsh-llm-replay` via `$DSH_SNAPSHOT_CHILD_FILES` so each child
+   * them to `mwf-llm-replay` via `$MWF_SNAPSHOT_CHILD_FILES` so each child
    * session replays from its own recorded script. Empty for single-session
    * scenarios. Ignored in record mode (children are harvested, not replayed).
    */
@@ -226,7 +226,7 @@ export function snapshotSpillRoot(
   const scenario = basename(dirname(fixtureFile))
   const key = createHash('sha256').update(scenario).digest('hex').slice(0, 9)
   const root = platform === 'win32' ? '/t' : '/tmp'
-  return `${root}/dsh-acp-snap-${key}`
+  return `${root}/mwf-acp-snap-${key}`
 }
 
 /**
@@ -258,7 +258,7 @@ export async function runScenario(input: InputScript, opts: RunOptions): Promise
     }
     await opts.prepareWorkspace?.(cwd)
     const initialWorkspace = await captureWorkspaceSnapshot(cwd, {
-      ignoredRootEntries: ['.agents', '.dsh', '.dsh-profile-patches', '.dsh-snapshot-stream-ready'],
+      ignoredRootEntries: ['.agents', '.mwf', '.mwf-profile-patches', '.mwf-snapshot-stream-ready'],
     })
     const env: NodeJS.ProcessEnv = {
       ...opts.env,
@@ -268,16 +268,16 @@ export async function runScenario(input: InputScript, opts: RunOptions): Promise
       // host and record that proxy's error page as the expected output. `undefined` removes the
       // name from the child rather than setting it empty.
       ...clearedProxyEnv(),
-      DSH_SNAPSHOT: opts.mode,
-      DSH_SNAPSHOT_FILE: opts.fixtureFile,
-      DSH_SNAPSHOT_SESSIONS_ROOT: sessionsRoot,
-      DSH_SNAPSHOT_SPILL_ROOT: spillRoot,
-      DSH_SNAPSHOT_SPILL_LOCATOR_ROOT: snapshotSpillRoot(opts.fixtureFile),
-      DSH_HOME: join(cwd, '.dsh'),
-      DSH_AGENTS_HOME: join(cwd, '.agents'),
-      ...opts.overrideFile !== undefined ? { DSH_SNAPSHOT_OVERRIDE: opts.overrideFile } : {},
+      MWF_SNAPSHOT: opts.mode,
+      MWF_SNAPSHOT_FILE: opts.fixtureFile,
+      MWF_SNAPSHOT_SESSIONS_ROOT: sessionsRoot,
+      MWF_SNAPSHOT_SPILL_ROOT: spillRoot,
+      MWF_SNAPSHOT_SPILL_LOCATOR_ROOT: snapshotSpillRoot(opts.fixtureFile),
+      MWF_HOME: join(cwd, '.mwf'),
+      MWF_AGENTS_HOME: join(cwd, '.agents'),
+      ...opts.overrideFile !== undefined ? { MWF_SNAPSHOT_OVERRIDE: opts.overrideFile } : {},
       ...opts.childFiles !== undefined && opts.childFiles.length > 0
-        ? { DSH_SNAPSHOT_CHILD_FILES: opts.childFiles.join(delimiter) }
+        ? { MWF_SNAPSHOT_CHILD_FILES: opts.childFiles.join(delimiter) }
         : {},
     }
 
@@ -347,7 +347,7 @@ export async function runScenario(input: InputScript, opts: RunOptions): Promise
     // generated dirs still exist, ordered primary-first.
     sessionLogs = await harvestSessionLogs(sessionsRoot)
     const finalWorkspace = await captureWorkspaceSnapshot(cwd, {
-      ignoredRootEntries: ['.agents', '.dsh', '.dsh-profile-patches', '.dsh-snapshot-stream-ready'],
+      ignoredRootEntries: ['.agents', '.mwf', '.mwf-profile-patches', '.mwf-snapshot-stream-ready'],
     })
     return {
       rawStdout: launched.rawStdout(),
@@ -826,7 +826,7 @@ async function harvestSessionLogs(root: string): Promise<HarvestedLog[]> {
   // synchronously and strictly sequentially, so their createdAt values are
   // strictly ordered; the recordedId tiebreak only keeps a degenerate
   // same-millisecond collision (unreachable here) deterministic. This harvest
-  // order must match the replay load order in dsh-llm-replay's loadSessionScripts
+  // order must match the replay load order in mwf-llm-replay's loadSessionScripts
   // so session.<n>.jsonl maps to the same child on record and replay — replay
   // re-sorts childFiles by the same key, so the two stay consistent.
   logs.sort((a, b) => {

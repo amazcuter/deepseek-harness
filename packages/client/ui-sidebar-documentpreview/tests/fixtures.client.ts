@@ -10,14 +10,14 @@
 import { onTestFinished, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import { ResourceRegistry } from '../../resources/src/client/resources.ts'
-import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
+import type { PropsRenderSlots } from '@metaworkflow/client-ui-slots'
 import type { Mock } from 'vitest'
 import { act } from '@testing-library/react'
 import { createElement, useSyncExternalStore } from 'react'
-import type { RemoteFailure, RemoteResult } from '@deepseek-ai/dsh-api-remotes/client'
-import type { ResourceSnapshot } from '@deepseek-ai/dsh-client-resources/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { WorkspaceFileStat, WorkspaceFileText } from '@deepseek-ai/dsh-api-workspace-files/types'
+import type { RemoteFailure, RemoteResult } from '@metaworkflow/api-remotes/client'
+import type { ResourceSnapshot } from '@metaworkflow/client-resources/client'
+import type { SessionId } from '@metaworkflow/session/types'
+import type { WorkspaceFileStat, WorkspaceFileText } from '@metaworkflow/api-workspace-files/types'
 import type { TextPreviewProps } from '../src/client/TextPreview.tsx'
 import { textFace } from '../src/client/face.ts'
 import type { TextInjected } from '../src/client/face.ts'
@@ -27,7 +27,7 @@ import type { TextStore } from '../src/client/store.ts'
 import type { DocumentPreviewProps } from '../src/client/document/contract.ts'
 import { TextBody } from '../src/client/text/TextBody.tsx'
 import { textBodyDefinition } from '../src/client/text/index.ts'
-import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
+import type { TabId } from '@metaworkflow/client-ui-dockkit'
 
 type BodySlot = PropsRenderSlots<'sidebar.right.tab.document'>['renderSlot']
 
@@ -50,7 +50,7 @@ export const SESSION = 's-1' as SessionId
 export const PATH = 'work/notes.md'
 export const ABSOLUTE_PATH = '/host/project/work/notes.md'
 /** The tab's address: the file under this session's scope. */
-export const ADDRESS = 'dsh-resource://file/session/s-1/work/notes.md'
+export const ADDRESS = 'mwf-resource://file/session/s-1/work/notes.md'
 /** What the address names, as the face receives it. */
 export const FILE: SessionFile = { sessionId: SESSION, path: PATH }
 

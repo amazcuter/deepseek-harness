@@ -37,7 +37,7 @@
    owns the window drag over its own box — clearance included — so this page's
    top strip drags without a frame band. */
 :global([data-platform='darwin']) .pageHead {
-  padding-top: calc(28px + var(--dsh-frame-top-clearance, 0px));
+  padding-top: calc(28px + var(--mwf-frame-top-clearance, 0px));
 }
 
 .pageHeading {
@@ -201,10 +201,10 @@
 
 /* The package an install just enabled: a ring that fades while the list scrolls to it. */
 .card[data-plugin-highlight] {
-  animation: dsh-plugin-highlight 2400ms ease-out;
+  animation: mwf-plugin-highlight 2400ms ease-out;
 }
 
-@keyframes dsh-plugin-highlight {
+@keyframes mwf-plugin-highlight {
   0%,
   55% {
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--dsw-alias-state-business-primary) 40%, transparent);
@@ -247,8 +247,8 @@
   border-radius: var(--dsw-radius-xl);
   /* The page itself scrolls on the base surface. Anything that scrolls inside
      a card draws the l2 thumb (ui-theme styles/scrollbar.css rebinding contract). */
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --mwf-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --mwf-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
 .cardHead {
@@ -357,7 +357,7 @@
 /* Match Session search's pulse without coupling the two feature packages. */
 .skeletonFill {
   background: var(--dsw-alias-bg-skeleton);
-  animation: dsh-plugin-skeleton 2s cubic-bezier(0.36, 0, 0.64, 1) infinite;
+  animation: mwf-plugin-skeleton 2s cubic-bezier(0.36, 0, 0.64, 1) infinite;
 }
 
 /* Keep each real text line's height; center the shorter painted bar within it. */
@@ -384,7 +384,7 @@
   height: 20px;
 }
 
-@keyframes dsh-plugin-skeleton {
+@keyframes mwf-plugin-skeleton {
   0% { opacity: 1; }
   40% { opacity: 0.6; }
   80%, 100% { opacity: 1; }
@@ -1222,7 +1222,7 @@ label.registryOption {
 
 :global([data-platform='darwin']) .detailTop,
 :global([data-platform='darwin']) .moreHead {
-  padding-top: calc(28px + var(--dsh-frame-top-clearance, 0px));
+  padding-top: calc(28px + var(--mwf-frame-top-clearance, 0px));
 }
 
 .crumb {

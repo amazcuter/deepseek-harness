@@ -29,9 +29,9 @@ uv run --project python/sdk pytest
 
 LibreOffice Kit CI owns visible Office content checks through its installed Node API and CLI on macOS, Windows, and Linux when matching engine packages are published. Harness verifies the relocated Office sidecar through the installed-wheel smoke; the Python tests reject white, transparent, reversed, and text-free output.
 
-Set `DSH_OFFICE_TEST_ARTIFACTS` to a new directory to retain the installed-wheel smoke's Office inputs, PNGs, manifests, and failure diagnostics. CI uploads these files on success and failure; temporary runtime files are excluded.
+Set `MWF_OFFICE_TEST_ARTIFACTS` to a new directory to retain the installed-wheel smoke's Office inputs, PNGs, manifests, and failure diagnostics. CI uploads these files on success and failure; temporary runtime files are excluded.
 
-That suite drives fake runtime peers. `scripts/smoke-python-runtime.py` drives the packaged runtime instead. The `python-runtime` CI jobs build Linux x64 and Windows x64 on pull requests, and Linux arm64 plus both macOS architectures on master pushes. Each selected target installs the matching SDK and runtime wheels into a new Python 3.10 virtual environment, runs outside the checkout with `PYTHONPATH` and `DSH_RUNTIME_MODE` unset, proves that both modules and the executable came from those distributions, and then runs every keyless scenario. A focused local source-SDK run can select one built executable and scenario:
+That suite drives fake runtime peers. `scripts/smoke-python-runtime.py` drives the packaged runtime instead. The `python-runtime` CI jobs build Linux x64 and Windows x64 on pull requests, and Linux arm64 plus both macOS architectures on master pushes. Each selected target installs the matching SDK and runtime wheels into a new Python 3.10 virtual environment, runs outside the checkout with `PYTHONPATH` and `MWF_RUNTIME_MODE` unset, proves that both modules and the executable came from those distributions, and then runs every keyless scenario. A focused local source-SDK run can select one built executable and scenario:
 
 ```sh
 uv run --project python/sdk python scripts/smoke-python-runtime.py \
@@ -51,18 +51,18 @@ An interactive smoke test needs `DEEPSEEK_API_KEY` in the environment or reposit
 ```python
 from deepseek_harness import DeepSeekHarness
 
-with DeepSeekHarness(dsh_home="/absolute/path/to/test-dsh-home") as harness:
+with DeepSeekHarness(mwf_home="/absolute/path/to/test-mwf-home") as harness:
     print(harness.run("say hi").final_response)
 ```
 
-Alternatively export a non-empty `DSH_HOME`. The SDK rejects a launch that would silently use `~/.dsh`.
+Alternatively export a non-empty `MWF_HOME`. The SDK rejects a launch that would silently use `~/.mwf`.
 
 ## Run against Node source
 
-Repository contributors can select either development route; both execute the normal `dsh --profile sdk` launcher:
+Repository contributors can select either development route; both execute the normal `mwf --profile sdk` launcher:
 
-- Set `DSH_RUNTIME_MODE=node` to use the built Node carrier on system Node `>=22.19`. The build script refreshes this carrier, but distributions never include or auto-select it.
-- Set `dsh_bin` to the absolute built `apps/cli/lib/bin.js` path to exercise the checkout's CLI directly. Supply an explicit `dsh_home`, plus `profile` and ordered `patches` as needed.
+- Set `MWF_RUNTIME_MODE=node` to use the built Node carrier on system Node `>=22.19`. The build script refreshes this carrier, but distributions never include or auto-select it.
+- Set `mwf_bin` to the absolute built `apps/cli/lib/bin.js` path to exercise the checkout's CLI directly. Supply an explicit `mwf_home`, plus `profile` and ordered `patches` as needed.
 
 `python/sdk/tests/manual_sdk_agent_smoke.py` uses the internal `_launch_args` test adapter to exercise the unbuilt TypeScript CLI under tsx. Arbitrary argv replacement is intentionally absent from the public SDK.
 

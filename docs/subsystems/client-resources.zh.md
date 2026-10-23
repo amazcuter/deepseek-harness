@@ -2,20 +2,20 @@
 
 [English](client-resources.md) | 中文
 
-客户端资源模型把一个地址变成任何 Web Client 组件都能读的活数据。[`dsh-client-resources`](../../packages/client/resources/README.zh.md) 提供 `ctx.resources` 服务与 `useResource` 全局标准 hook；拥有某类内容的包为它的**协议**注册一个**提供方**，组件按**地址**读取该内容的当前状态，而无需引用拥有者的运行时。右侧 Sidebar 的 tab 是这个模型的第一个消费方（[右侧 Sidebar](sidebar-right.zh.md)）；决策记录见 [客户端资源模型 Agent Note](../../.agents/notes/implemented/architecture/2026-09-05-client-resource-model.zh.md)。
+客户端资源模型把一个地址变成任何 Web Client 组件都能读的活数据。[`mwf-client-resources`](../../packages/client/resources/README.zh.md) 提供 `ctx.resources` 服务与 `useResource` 全局标准 hook；拥有某类内容的包为它的**协议**注册一个**提供方**，组件按**地址**读取该内容的当前状态，而无需引用拥有者的运行时。右侧 Sidebar 的 tab 是这个模型的第一个消费方（[右侧 Sidebar](sidebar-right.zh.md)）；决策记录见 [客户端资源模型 Agent Note](../../.agents/notes/implemented/architecture/2026-09-05-client-resource-model.zh.md)。
 
 本页是面向开发者的参考：地址怎么写、提供方怎么注册、资源怎么读、状态与失败各是什么意思、模型怎样持有与释放一份资源。
 
 ## 地址
 
-资源地址是 `dsh-resource://<type>/…` 形式的 URL。host 命名协议，必须是 `ResourceProtocolMap` 的键；路径归协议自己，由其拥有者逐段做百分号编码。需要作用域的协议把作用域放进路径：`file` 协议的地址形如 `dsh-resource://file/session/<sessionId>/<path>`，其中 path 可以相对工作区根，也可以是保留前导斜杠的绝对路径，用 [`dsh-util-workspace-path`](../../packages/util/workspace-path/README.zh.md) 的 `fileAddressFor(sessionId, cwd, path)` 构造、`parseFileAddress(address)` 读回。模型本身只读 scheme 与 host：`protocolOf(address)` 对 `dsh-resource://` URL 返回小写 host，对其它任何字串返回 `undefined`。其它 scheme 下的地址——Sidebar 的 `sidebar://guide`——不指向资源，读作 `none`。
+资源地址是 `mwf-resource://<type>/…` 形式的 URL。host 命名协议，必须是 `ResourceProtocolMap` 的键；路径归协议自己，由其拥有者逐段做百分号编码。需要作用域的协议把作用域放进路径：`file` 协议的地址形如 `mwf-resource://file/session/<sessionId>/<path>`，其中 path 可以相对工作区根，也可以是保留前导斜杠的绝对路径，用 [`mwf-util-workspace-path`](../../packages/util/workspace-path/README.zh.md) 的 `fileAddressFor(sessionId, cwd, path)` 构造、`parseFileAddress(address)` 读回。模型本身只读 scheme 与 host：`protocolOf(address)` 对 `mwf-resource://` URL 返回小写 host，对其它任何字串返回 `undefined`。其它 scheme 下的地址——Sidebar 的 `sidebar://guide`——不指向资源，读作 `none`。
 
 | 地址 | 协议键 | 读作 |
 |---|---|---|
-| `dsh-resource://file/session/s1/notes/a.md` | `file` | 会话 `s1` 工作区根下 `notes/a.md` 的元数据（`file` 提供方已注册时） |
-| `dsh-resource://file/absolute/home/me/notes.md` | `file` | 可解析，但没有授权 Session，以 `workspace-file/unknown-workspace` 失败；不借用当前或 Tab Session |
-| `DSH-RESOURCE://File/session/s1/a` | `file` | 另一份记录：地址按字符串比较，`openResource` 只接受 `fileAddressFor` 生成的规范小写拼写 |
-| `dsh-resource://subagentchat/session/c1?parent=p1&mode=continuable` | `subagentchat` | 已寻址的 subagent Conversation；其值持有一个 `SessionReference`，直到资源关闭 |
+| `mwf-resource://file/session/s1/notes/a.md` | `file` | 会话 `s1` 工作区根下 `notes/a.md` 的元数据（`file` 提供方已注册时） |
+| `mwf-resource://file/absolute/home/me/notes.md` | `file` | 可解析，但没有授权 Session，以 `workspace-file/unknown-workspace` 失败；不借用当前或 Tab Session |
+| `MWF-RESOURCE://File/session/s1/a` | `file` | 另一份记录：地址按字符串比较，`openResource` 只接受 `fileAddressFor` 生成的规范小写拼写 |
+| `mwf-resource://subagentchat/session/c1?parent=p1&mode=continuable` | `subagentchat` | 已寻址的 subagent Conversation；其值持有一个 `SessionReference`，直到资源关闭 |
 | `sidebar://guide` | — | `none`：导航地址 |
 | `/home/me/notes.md` | — | `none`：不是 URL |
 
@@ -25,12 +25,12 @@
 
 ```ts ignore-check
 import type { Context } from '@deepseek-ai/cordis'
-import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
-import type {} from '@deepseek-ai/dsh-client-resources/client'
+import type { RemoteResult } from '@metaworkflow/typert-protocol'
+import type {} from '@metaworkflow/client-resources/client'
 
 interface NoteView { readonly title: string; readonly updatedAt: string }
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface ResourceProtocolMap { note: NoteView }
 }
 
@@ -62,8 +62,8 @@ export function apply(ctx: Context): void {
 | `failed` | 最新一帧报告了失败 | 保留的上一个 `ok` 值 | 该帧的 `RemoteFailure` |
 
 ```tsx ignore-check
-import type { PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-api-workspace-files/client'
+import type { PropsRuntime } from '@metaworkflow/client-ui-slots'
+import type {} from '@metaworkflow/api-workspace-files/client'
 
 type Props = PropsRuntime<'sidebar.right.pane.tab'>
 
@@ -85,7 +85,7 @@ export function FileHeader({ useTabInfo, useResource, t }: Props) {
 
 资源有持有者就存活：一个订阅中的 `useResource`，或一次钉住。`ctx.resources.pin(address, signal)` 在不订阅的情况下让资源保持打开直到 `signal` 中止，已中止的信号什么也不钉；右侧 Sidebar 在每条打开的 tab 记录存续期内钉住其地址，因此切 tab 卸载正文不关流。第一个持有者打开提供方的流；最后一个释放时中止它、丢弃值，并把快照回到 `loading`（有提供方）或 `none`（没有）。提供方在这次释放之后产出的帧被丢弃，迭代器被归还。`ctx.resources.source(address)` 是 hook 背后的裸 observable，按地址引用稳定，供 React 之外的调用方使用；只读它的快照不算持有（[生命周期](../../packages/client/resources/README.zh.md#lifecycle)）。
 
-多数流只推元数据而不推内容。`file` 提供方的值是 `WorkspaceFileStat { absolutePath, version, bytes? }`：首帧来自 Host 的 `stat`，后续观察更新版本。消费方自己经 Workspace Files Remote 命名空间读取内容；Preview 按 tab 独立刷新（[`dsh-api-workspace-files`](../../packages/api/workspace-files/README.zh.md)）。`subagentchat` 提供方保留已寻址 Session 并产出其 `SessionReference`，在资源 signal 中止时释放该 reference。
+多数流只推元数据而不推内容。`file` 提供方的值是 `WorkspaceFileStat { absolutePath, version, bytes? }`：首帧来自 Host 的 `stat`，后续观察更新版本。消费方自己经 Workspace Files Remote 命名空间读取内容；Preview 按 tab 独立刷新（[`mwf-api-workspace-files`](../../packages/api/workspace-files/README.zh.md)）。`subagentchat` 提供方保留已寻址 Session 并产出其 `SessionReference`，在资源 signal 中止时释放该 reference。
 
 ## 限制
 

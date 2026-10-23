@@ -18,7 +18,7 @@ describe('provider metadata', () => {
   })
 
   it('checks the staged snapshot even when the working file is fresh, without changing either', () => {
-    const fixture = mkdtempSync(join(tmpdir(), 'dsh-provider-data-'))
+    const fixture = mkdtempSync(join(tmpdir(), 'mwf-provider-data-'))
     const relative = 'packages/llm/llm-pi-ai/src/provider-data.generated.ts'
     const snapshot = readFileSync(new URL('../src/provider-data.generated.ts', import.meta.url), 'utf8')
     const git = (args: readonly string[]): string => execFileSync('git', [...args], { cwd: fixture, encoding: 'utf8' })

@@ -2,13 +2,13 @@
 description: "Client resource model: protocol-registered providers turn URL addresses into live values that any slot component reads through the useResource standard hook."
 kind: "package-reference"
 ---
-# @deepseek-ai/dsh-client-resources
+# @metaworkflow/client-resources
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Use client resources when a component knows live data only by URL address, such as a tab record, link, or mention, while another client package owns the data. Resource addresses use `dsh-resource://<type>/…`; protocols that need a scope encode it in the path. Components receive the current value and later updates through the public `useResource` hook. Unsupported protocols and non-resource schemes, such as `sidebar://guide`, resolve to no resource.
+Use client resources when a component knows live data only by URL address, such as a tab record, link, or mention, while another client package owns the data. Resource addresses use `mwf-resource://<type>/…`; protocols that need a scope encode it in the path. Components receive the current value and later updates through the public `useResource` hook. Unsupported protocols and non-resource schemes, such as `sidebar://guide`, resolve to no resource.
 
 ## Table of Contents
 
@@ -33,7 +33,7 @@ Nothing needs configuration to mount: the plugin provides `ctx.resources` and co
 <a id="read-a-resource"></a>
 ### Read a resource
 
-Every slot component receives `useResource` in its props. `useResource<P>(address)` names the protocol as the type argument and returns `{ status, value, failure }`: `none` when no provider is registered for the address's protocol (or the address is not a `dsh-resource://` URL), `loading` while the provider has not yielded, `live` with the latest `ok` frame's value, and `failed` when the latest frame reported a failure, with that failure beside the last value. Subscribing through the hook is what holds the resource open; a component that mounts while another holder keeps the resource alive reads the latest value at once.
+Every slot component receives `useResource` in its props. `useResource<P>(address)` names the protocol as the type argument and returns `{ status, value, failure }`: `none` when no provider is registered for the address's protocol (or the address is not a `mwf-resource://` URL), `loading` while the provider has not yielded, `live` with the latest `ok` frame's value, and `failed` when the latest frame reported a failure, with that failure beside the last value. Subscribing through the hook is what holds the resource open; a component that mounts while another holder keeps the resource alive reads the latest value at once.
 
 <a id="provide-a-protocol"></a>
 ### Provide a protocol
@@ -41,7 +41,7 @@ Every slot component receives `useResource` in its props. `useResource<P>(addres
 The protocol's owning client package declares its value type in `ResourceProtocolMap` and registers one provider as an owned effect. `open` yields `RemoteResult` frames: the current content first and one frame per later change, with a failure as an `ok: false` frame rather than a throw; it must stop when `signal` aborts:
 
 ```ts ignore-check
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface ResourceProtocolMap { note: NoteView }
 }
 

@@ -40,7 +40,7 @@ const VALID_ZH = VALID
   .replace('## Migration', '## 迁移')
 
 function fixtureRoot(files: Record<string, string>): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-upgrade-guides-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-upgrade-guides-'))
   roots.push(root)
   for (const [file, source] of Object.entries(files)) {
     const path = join(root, 'docs/upgrade-guide', file)

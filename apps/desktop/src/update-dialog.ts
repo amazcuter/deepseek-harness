@@ -4,7 +4,7 @@ import type { DesktopLocale } from './locale.ts'
 import type { DesktopUpdateOverlays } from './update-overlay.ts'
 
 /** Channels available only to the isolated update-dialog document. */
-export const UPDATE_DIALOG_IPC = { status: 'dsh-update-dialog:status', changed: 'dsh-update-dialog:changed', respond: 'dsh-update-dialog:respond' } as const
+export const UPDATE_DIALOG_IPC = { status: 'mwf-update-dialog:status', changed: 'mwf-update-dialog:changed', respond: 'mwf-update-dialog:respond' } as const
 
 /** Text and choices supplied by the main process, never by product documents. */
 export interface UpdateDialogView {
@@ -34,7 +34,7 @@ export interface UpdateDialogApi {
 }
 
 // main.ts's protocol.handle shell route serves this document and its renderer assets; the modal requires that route.
-const page = 'dsh-app://shell/update-dialog.html'
+const page = 'mwf-app://shell/update-dialog.html'
 
 /** One fading backdrop with replaceable confirmation content; aborted checks and mandatory policy cancel ordinary prompts. */
 export class DesktopUpdateDialog {

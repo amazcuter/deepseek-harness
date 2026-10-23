@@ -9,7 +9,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { NativeCommandRunner } from '@deepseek-ai/dsh-native-command'
+import type { NativeCommandRunner } from '@metaworkflow/native-command'
 import { OPEN_IN_APP_CATALOG, type OpenInAppApp } from '../src/catalog.ts'
 import {
   execCommand, launchDetachedApp, launchResolved, parseDesktopEntry, parseRegistryDump, resolveInternals,
@@ -26,7 +26,7 @@ afterEach(async () => {
 })
 
 async function tempRoot(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-spec-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-open-in-app-spec-'))
   roots.push(root)
   return root
 }
@@ -660,7 +660,7 @@ describe('launchDetachedApp', () => {
   })
 
   it('rejects a spawn failure, carrying the ENOENT code', async () => {
-    await expect(launchDetachedApp('dsh-definitely-missing-launcher', [], { watchMs: TIMEOUT_MS }))
+    await expect(launchDetachedApp('mwf-definitely-missing-launcher', [], { watchMs: TIMEOUT_MS }))
       .rejects.toMatchObject({ code: 'ENOENT' })
   })
 

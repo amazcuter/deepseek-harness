@@ -4,23 +4,23 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import LocalCredentialProvider from '@deepseek-ai/dsh-credentials-local'
-import type { DeepSeekAccount } from '@deepseek-ai/dsh-deepseek-account'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import WebRuntime, { WebError } from '@deepseek-ai/dsh-web'
+import AgentRegistry from '@metaworkflow/agent'
+import type { Agent } from '@metaworkflow/agent'
+import { credentialRef } from '@metaworkflow/credentials'
+import LocalCredentialProvider from '@metaworkflow/credentials-local'
+import type { DeepSeekAccount } from '@metaworkflow/deepseek-account'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import WebRuntime, { WebError } from '@metaworkflow/web'
 import {
   DeepSeekSearchProvider,
   DEEPSEEK_PROVIDER_ID,
-} from '@deepseek-ai/dsh-web-search-deepseek'
-import * as deepseekPlugin from '@deepseek-ai/dsh-web-search-deepseek'
+} from '@metaworkflow/web-search-deepseek'
+import * as deepseekPlugin from '@metaworkflow/web-search-deepseek'
 import { citationSnippets, mapAnthropicResponse } from '../src/provider.ts'
-import type { AnthropicResponse } from '@deepseek-ai/dsh-web-search-deepseek/src/types.ts'
+import type { AnthropicResponse } from '@metaworkflow/web-search-deepseek/src/types.ts'
 
 /** Construct the provider over a fixed options value; production passes a live thunk. */
-import type { DeepSeekSearchProviderOptions } from '@deepseek-ai/dsh-web-search-deepseek'
+import type { DeepSeekSearchProviderOptions } from '@metaworkflow/web-search-deepseek'
 
 const searchProvider = (options: DeepSeekSearchProviderOptions): DeepSeekSearchProvider =>
   new DeepSeekSearchProvider(() => options)
@@ -248,7 +248,7 @@ describe('DeepSeekSearchProvider account authentication', () => {
     const { url, headers } = first()
     expect(resolveAccountToken).toHaveBeenCalledWith(url)
     expect(resolveApiKey).not.toHaveBeenCalled()
-    expect(headers['x-dsh-auth-token']).toBe('account-token')
+    expect(headers['x-mwf-auth-token']).toBe('account-token')
     expect(headers).not.toHaveProperty('x-api-key')
     expect(headers).not.toHaveProperty('authorization')
   })
@@ -258,7 +258,7 @@ describe('DeepSeekSearchProvider account authentication', () => {
     await searchProvider({ ...options, resolveAccountToken: async () => token }).search({ query: 'q' })
     const { headers } = first()
     expect(headers['x-api-key']).toBe('ds-key')
-    expect(headers).not.toHaveProperty('x-dsh-auth-token')
+    expect(headers).not.toHaveProperty('x-mwf-auth-token')
   })
 
   it('maps an account resolver rejection to WEB_PROVIDER_ERROR without dispatching', async () => {
@@ -639,7 +639,7 @@ describe('web-search-deepseek plugin registration', () => {
   it('resolves the credential for each search so a stored or rotated key needs no restart', async () => {
     const previous = process.env.DEEPSEEK_API_KEY
     delete process.env.DEEPSEEK_API_KEY
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-web-search-credentials-'))
+    const dir = await mkdtemp(join(tmpdir(), 'mwf-web-search-credentials-'))
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => jsonResponse(searchResponse()))
     vi.stubGlobal('fetch', fetchMock)
     const ctx = new Context()
@@ -726,7 +726,7 @@ describe('web-search-deepseek account route selection', () => {
   it('authenticates with the account token when the initiating Session uses the account route', async () => {
     const { headers, asked } = await searchAs('deepseek-account')
     expect(asked).toEqual(['https://api.deepseek.com/anthropic/v1/messages'])
-    expect(headers['x-dsh-auth-token']).toBe('account-token')
+    expect(headers['x-mwf-auth-token']).toBe('account-token')
     expect(headers).not.toHaveProperty('x-api-key')
   })
 
@@ -734,6 +734,6 @@ describe('web-search-deepseek account route selection', () => {
     const { headers, asked } = await searchAs(provider)
     expect(asked).toEqual([])
     expect(headers['x-api-key']).toBe('ds-key')
-    expect(headers).not.toHaveProperty('x-dsh-auth-token')
+    expect(headers).not.toHaveProperty('x-mwf-auth-token')
   })
 })

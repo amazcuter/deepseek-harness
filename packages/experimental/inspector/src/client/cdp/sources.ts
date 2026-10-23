@@ -1,6 +1,6 @@
 /** Browser-side catalog for the Inspector Client bundle and its source map. */
 
-import { bytesToBase64 } from '@deepseek-ai/dsh-util-crypto'
+import { bytesToBase64 } from '@metaworkflow/util-crypto'
 import type {
   ClientScriptDescriptor,
   ClientSourceCommand,
@@ -11,7 +11,7 @@ import type {
 import { inspectorId } from '../../shared/identity.ts'
 import type { RuntimeScriptKey } from '../../shared/cdp/ids.ts'
 
-const PACKAGE_ID = '@deepseek-ai/dsh-experimental-inspector'
+const PACKAGE_ID = '@metaworkflow/experimental-inspector'
 const CLIENT_SCRIPT_KEY = inspectorId<'RuntimeScriptKey'>('client-bundle', 'scriptKey')
 
 /**
@@ -174,7 +174,7 @@ export class ClientSourceCatalog {
  * @returns A lazy catalog, or `undefined` outside the assembled web application.
  */
 export function discoverInspectorClientSourceCatalog(): ClientSourceCatalog | undefined {
-  const graph: unknown = Reflect.get(globalThis, '__DSH_BOOT__')
+  const graph: unknown = Reflect.get(globalThis, '__MWF_BOOT__')
   if (typeof graph !== 'object' || graph === null) return undefined
   const entries: unknown = Reflect.get(graph, 'entries')
   if (!Array.isArray(entries)) return undefined

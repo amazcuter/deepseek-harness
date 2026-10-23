@@ -1,10 +1,10 @@
 /** Reviewed synthetic tool history shared by continuation and child-catalog measurements. */
 
-import { AssistantStreamAccumulator } from '@deepseek-ai/dsh-llm/assistant-stream'
-import { MessageId, ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { Session, SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { AssistantStreamAccumulator } from '@metaworkflow/llm/assistant-stream'
+import { MessageId, ToolCallId } from '@metaworkflow/llm'
+import type { ContentBlock, StreamChunk } from '@metaworkflow/llm'
+import { Session, SessionId } from '@metaworkflow/session'
+import type { SessionEvent } from '@metaworkflow/session'
 
 /** Workload dimensions, independent of environment and recorded user material. */
 export const WORKLOAD = {

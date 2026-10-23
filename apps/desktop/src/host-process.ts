@@ -2,7 +2,7 @@
 
 import { spawn, type ChildProcess } from 'node:child_process'
 import { join } from 'node:path'
-import type { PlatformSession } from '@deepseek-ai/dsh-deepseek-account'
+import type { PlatformSession } from '@metaworkflow/deepseek-account'
 import { desktopNodeEnvironment } from './node-environment.ts'
 
 interface ReadyEvent {
@@ -70,7 +70,7 @@ function isDesktopHostEvent(message: unknown): message is DesktopHostEvent {
         || Array.isArray(session.requestHeaders)
         || Object.entries(session.requestHeaders).some(([name, value]) => typeof value !== 'string'
           || name !== name.toLowerCase() || /[\r\n]/.test(value)
-          || ['authorization', 'x-dsh-auth-token', 'host', 'content-length', 'transfer-encoding', 'connection', 'content-type'].includes(name)))) return false
+          || ['authorization', 'x-mwf-auth-token', 'host', 'content-length', 'transfer-encoding', 'connection', 'content-type'].includes(name)))) return false
       try {
         const url = new URL(session.origin)
         return url.origin === session.origin && !url.username && !url.password
@@ -185,7 +185,7 @@ export class DesktopHostProcess {
    */
   async start(): Promise<DesktopHostReady> {
     if (this.child !== undefined) return this.readyPromise
-    const entry = join(this.runtimeDir, 'node_modules', '@deepseek-ai', 'dsh-desktop-host', 'lib', 'index.js')
+    const entry = join(this.runtimeDir, 'node_modules', '@metaworkflow', 'desktop-host', 'lib', 'index.js')
     const child = spawn(this.node, [
       '--expose-internals',
       ...(this.inspectPort === undefined ? [] : [`--inspect=127.0.0.1:${String(this.inspectPort)}`]),
@@ -205,7 +205,7 @@ export class DesktopHostProcess {
     child.stdout?.pipe(process.stdout)
     child.on('message', (message: unknown) => {
       if (!isDesktopHostEvent(message)) {
-        this.fail(new Error('dsh desktop host sent an invalid IPC event'))
+        this.fail(new Error('mwf desktop host sent an invalid IPC event'))
         child.kill('SIGTERM')
         return
       }
@@ -213,7 +213,7 @@ export class DesktopHostProcess {
       else if (message.type === 'platform-session') this.onPlatformSession?.(message.session)
       else if (message.type === 'shutdown-complete') {
         if (this.stopping) this.shutdownCompleted = true
-        else this.fail(new Error('dsh desktop host acknowledged an unrequested shutdown'))
+        else this.fail(new Error('mwf desktop host acknowledged an unrequested shutdown'))
       }
       else if (message.type === 'fatal') this.fail(new DesktopHostFatalError(message.message, message.diagnostic))
       else {
@@ -226,8 +226,8 @@ export class DesktopHostProcess {
     this.exitPromise = new Promise<void>((resolve) => {
       child.once('close', (code) => {
         const suffix = this.stderr.trim() === '' ? '' : `: ${this.stderr.trim()}`
-        if (code !== 0 && code !== null) this.fail(new Error(`dsh desktop host exited with ${String(code)}${suffix}`))
-        else this.fail(new Error(`dsh desktop host stopped${suffix}`))
+        if (code !== 0 && code !== null) this.fail(new Error(`mwf desktop host exited with ${String(code)}${suffix}`))
+        else this.fail(new Error(`mwf desktop host stopped${suffix}`))
         resolve()
       })
     })
@@ -297,7 +297,7 @@ export class DesktopHostProcess {
     if (!await exitsWithin(exited, 5_000)) {
       child.kill('SIGKILL')
       if (!await exitsWithin(exited, 5_000)) {
-        throw new Error('dsh desktop host did not exit after SIGKILL')
+        throw new Error('mwf desktop host did not exit after SIGKILL')
       }
     }
     this.child = undefined

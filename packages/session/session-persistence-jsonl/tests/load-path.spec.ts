@@ -1,7 +1,7 @@
 /** JSONL plugin metadata must survive the Loader's module normalization. */
 import { expect, it } from 'vitest'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import * as JsonlPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import * as JsonlPersistence from '@metaworkflow/session-persistence-jsonl'
 
 it('retains the JSONL namespace and configuration through the Loader', () => {
   expect('default' in JsonlPersistence).toBe(false)

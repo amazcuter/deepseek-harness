@@ -9,23 +9,23 @@ describe('Inspector profile bundle', () => {
   it('publishes one layer containing both inspectors', () => {
     const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
       publishConfig: { access: string }
-      dsh: { bundle: { patch: string } }
+      mwf: { bundle: { patch: string } }
       dependencies: Record<string, string>
     }
     expect(manifest.publishConfig.access).toBe('public')
-    expect(manifest.dsh.bundle.patch).toBe('./cordis.patch.yml')
+    expect(manifest.mwf.bundle.patch).toBe('./cordis.patch.yml')
     expect(manifest.dependencies).toEqual({
-      '@deepseek-ai/dsh-experimental-inspector': 'workspace:*',
-      '@deepseek-ai/dsh-experimental-session-inspector': 'workspace:*',
+      '@metaworkflow/experimental-inspector': 'workspace:*',
+      '@metaworkflow/experimental-session-inspector': 'workspace:*',
     })
-    expect(yaml.load(readFileSync(new URL(`../${manifest.dsh.bundle.patch}`, import.meta.url), 'utf8'), {
+    expect(yaml.load(readFileSync(new URL(`../${manifest.mwf.bundle.patch}`, import.meta.url), 'utf8'), {
       schema: entryListSchema,
     })).toEqual([{ insert: [
       {
-        id: 'experimental-inspector', name: '@deepseek-ai/dsh-experimental-inspector',
+        id: 'experimental-inspector', name: '@metaworkflow/experimental-inspector',
         disabled: false, config: { captureFetch: true },
       },
-      { id: 'session-inspector', name: '@deepseek-ai/dsh-experimental-session-inspector' },
+      { id: 'session-inspector', name: '@metaworkflow/experimental-session-inspector' },
     ] }])
   })
 })

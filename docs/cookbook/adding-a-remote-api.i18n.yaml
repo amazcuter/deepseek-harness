@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cookbook/adding-a-remote-api.md
 /cookbook-adding-a-remote-api:
-  en: 246576de000498de
-  zh: 421cf6609455390b
+  en: 061580179dd99c1e
+  zh: 4868673c09ff741b
 /cookbook-adding-a-remote-api/1-declare-the-api:
   en: 59e2a48bf15a8789
   zh: 4c5e469e718a7da1
 /cookbook-adding-a-remote-api/2-declare-the-failures:
-  en: 1083ef8c3a7f88a4
-  zh: c3dee91a1222d217
+  en: 2f71b5eb59afdda0
+  zh: 04af9c69440ac1d7
 /cookbook-adding-a-remote-api/3-register-it-on-the-package:
-  en: 8094987f6720ab2c
-  zh: 305c9fee378491cc
+  en: f8f074d70230dd61
+  zh: 7f51b43b0e504d11
 /cookbook-adding-a-remote-api/4-consume-it-on-the-client:
   en: e731407eac4052b8
   zh: 7524dadfc4383db4
 /cookbook-adding-a-remote-api/5-test-it:
-  en: e9cc8025b9032332
-  zh: d3b290ade3b62462
+  en: d1bb9e2132e3644a
+  zh: a02217c70903c626
 /cookbook-adding-a-remote-api/verify:
-  en: e9a191d462935571
-  zh: d906d01236dfa9ff
+  en: 5d4f6d13d91cc3b0
+  zh: 65d49fb3c1f7a9b6

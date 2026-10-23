@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@deepseek-ai/dsh-session-format-catalog'
-import { SessionFormatEventCollector } from '@deepseek-ai/dsh-session-format'
-import type { SessionFormatArtifact, SessionFormatEvent } from '@deepseek-ai/dsh-session-format'
+import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@metaworkflow/session-format-catalog'
+import { SessionFormatEventCollector } from '@metaworkflow/session-format'
+import type { SessionFormatArtifact, SessionFormatEvent } from '@metaworkflow/session-format'
 import { releasedV4SessionFormatCodec, restoreReleasedV4Artifact } from '../src/index.ts'
 
 const header = { type: 'session', version: 2, id: 'canonical-v4', createdAt: 1, isSeeded: true, parentSession: 'parent', delegationDepth: 0 }

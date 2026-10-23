@@ -1,15 +1,15 @@
 ---
-description: "随包附带的「powered by dsh」徽章 skill（技能），供启用、使用或排查该可选徽章提供方的用户与维护者阅读。"
+description: "随包附带的「powered by mwf」徽章 skill（技能），供启用、使用或排查该可选徽章提供方的用户与维护者阅读。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-skill-badge
+# @metaworkflow/skill-badge
 
 [English](README.md) | 中文
 
 ## 概述
 
-agent（智能体）可以通过该内置提供方加载官方「powered by dsh」徽章 skill，并遵循其指令，给文档、PR（Pull Request）以及其他用 DeepSeek Harness 生成的内容添加署名徽章。该提供方没有配置；部署方需要显式安装并插入插件行。该 skill 同时提供 Markdown 片段和随包分发的 PNG，供无法可靠导入远程图片的系统使用。
+agent（智能体）可以通过该内置提供方加载官方「powered by mwf」徽章 skill，并遵循其指令，给文档、PR（Pull Request）以及其他用 DeepSeek Harness 生成的内容添加署名徽章。该提供方没有配置；部署方需要显式安装并插入插件行。该 skill 同时提供 Markdown 片段和随包分发的 PNG，供无法可靠导入远程图片的系统使用。
 
 ## 目录
 
@@ -25,9 +25,9 @@ agent（智能体）可以通过该内置提供方加载官方「powered by dsh�
 <a id="use-this-package"></a>
 ## 使用本包
 
-启用插件即可让 `dsh-badge` skill 出现在会话 skill 目录中；随后模型可以像加载任何其他 skill 一样加载它，并遵循其指令添加「powered by dsh」徽章。
+启用插件即可让 `dsh-badge` skill 出现在会话 skill 目录中；随后模型可以像加载任何其他 skill 一样加载它，并遵循其指令添加「powered by mwf」徽章。
 
-在插件页面中，此组件显示为 **DSH**，并使用 DSH 标签图标。它提供的 skill 名称为 `dsh-badge`。
+在插件页面中，此组件显示为 **MWF**，并使用 MWF 标签图标。它提供的 skill 名称为 `dsh-badge`。
 
 ### 何时选择
 
@@ -35,12 +35,12 @@ agent（智能体）可以通过该内置提供方加载官方「powered by dsh�
 
 ### 启用插件
 
-将 `@deepseek-ai/dsh-skill-badge` 安装到 profile，并插入插件行。默认组合不声明该行。
+将 `@metaworkflow/skill-badge` 安装到 profile，并插入插件行。默认组合不声明该行。
 
 ```yaml
 - insert:
     - id: skill-badge
-      name: '@deepseek-ai/dsh-skill-badge'
+      name: '@metaworkflow/skill-badge'
 ```
 
 启用后，`dsh-badge` 会出现在会话目录的可用 skill 中。该 skill 覆盖远程 Markdown 徽章（基于 Shields.io）和随包分发的 PNG 徽章资源，后者用于无法可靠获取远程图片的目标环境。
@@ -93,7 +93,7 @@ agent（智能体）可以通过该内置提供方加载官方「powered by dsh�
 <a id="model-experience"></a>
 ## 模型体验
 
-通过 `dsh-tool-skill` 间接影响模型；该包会把该提供方的目录条目和所选 skill 的正文渲染给模型。
+通过 `mwf-tool-skill` 间接影响模型；该包会把该提供方的目录条目和所选 skill 的正文渲染给模型。
 
 #### KV Cache 影响
 

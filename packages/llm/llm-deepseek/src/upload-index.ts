@@ -1,12 +1,12 @@
-/** Durable DeepSeek attachment-to-file-id index. @module dsh-llm-deepseek/upload-index */
+/** Durable DeepSeek attachment-to-file-id index. @module mwf-llm-deepseek/upload-index */
 
 import { createHash } from 'node:crypto'
 import { readFile, mkdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
-import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
-import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
-import { ImageVariantId } from '@deepseek-ai/dsh-attachment'
-import type { AttachmentId, ImageVariantId as ImageVariantIdType } from '@deepseek-ai/dsh-attachment'
+import { withFileLock, writeFileAtomic } from '@metaworkflow/atomic-write'
+import { resolveMwfHome } from '@metaworkflow/home-paths'
+import { ImageVariantId } from '@metaworkflow/attachment'
+import type { AttachmentId, ImageVariantId as ImageVariantIdType } from '@metaworkflow/attachment'
 import { DeepSeekFileId, DeepSeekFileScope } from './file-id.ts'
 import type { DeepSeekFileId as DeepSeekFileIdType, DeepSeekFileScope as DeepSeekFileScopeType } from './file-id.ts'
 
@@ -108,15 +108,15 @@ function reusable(record: DeepSeekUploadRecord, now: number, refreshMarginMs: nu
   return record.expiresAt - now > refreshMarginMs
 }
 
-/** Atomic local index shared by every DeepSeek session in this DSH home. */
+/** Atomic local index shared by every DeepSeek session in this MWF home. */
 export class DeepSeekUploadIndex {
   /** Absolute owner-private JSON index path. */
   readonly path: string
 
   /**
-   * @param path - explicit test path; omission uses `DSH_HOME/llm-deepseek/files-v3.json`.
+   * @param path - explicit test path; omission uses `MWF_HOME/llm-deepseek/files-v3.json`.
    */
-  constructor(path = join(resolveDshHome(), 'llm-deepseek', 'files-v3.json')) {
+  constructor(path = join(resolveMwfHome(), 'llm-deepseek', 'files-v3.json')) {
     this.path = path
   }
 

@@ -20,7 +20,7 @@ V3 是当前 durable Session format，不是 projection-cache version。`SESSION
 
 阶段 1–3 只重排代码所有权，不改变 V3 Session JSONL bytes、`SESSION_FORMAT_VERSION` 或用户启动方式。普通用户无需因本次 refactor 额外手工迁移或更改配置。首次打开受支持的旧格式时，现有 migration pipeline 会准备并发布 current V3 generation；大日志使用流式 stage，避免 whole-artifact 内存峰值。
 
-升级前仍应保留 `DSH_HOME` 的常规备份。若打开失败，应保留完整 session generation 与错误信息，不要删除旧文件；未来 provider 也必须把 unsupported future version、corruption、ownership conflict 和 migration failure 区分报告。查询索引与其他派生数据由系统重建，用户不需要手工迁移。
+升级前仍应保留 `MWF_HOME` 的常规备份。若打开失败，应保留完整 session generation 与错误信息，不要删除旧文件；未来 provider 也必须把 unsupported future version、corruption、ownership conflict 和 migration failure 区分报告。查询索引与其他派生数据由系统重建，用户不需要手工迁移。
 
 ### Provider 替换后的不变量
 

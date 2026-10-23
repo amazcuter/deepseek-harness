@@ -27,7 +27,7 @@ async function windows() {
  */
 export async function withWindowsSigningStage(options, operation) {
   const api = await windows()
-  const root = options.stateDirectory ?? join(homedir(), '.dsh-desktop-signing')
+  const root = options.stateDirectory ?? join(homedir(), '.mwf-desktop-signing')
   await mkdir(root, { recursive: true })
   const stat = await lstat(root)
   const normalize = value => toNamespacedPath(resolve(value)).toLowerCase()

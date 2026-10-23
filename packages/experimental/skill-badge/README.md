@@ -1,15 +1,15 @@
 ---
-description: "The bundled 'powered by dsh' badge skill for users and maintainers enabling, using, or debugging the optional badge provider."
+description: "The bundled 'powered by mwf' badge skill for users and maintainers enabling, using, or debugging the optional badge provider."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-skill-badge
+# @metaworkflow/skill-badge
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Agents can load the official "powered by dsh" badge skill from this bundled provider and follow its instructions for adding attribution badges to documents, PRs, and other content produced with DeepSeek Harness. The provider has no configuration; deployments install it and insert its plugin row explicitly. The skill ships both Markdown snippets and a packaged PNG for systems that cannot reliably import remote images.
+Agents can load the official "powered by mwf" badge skill from this bundled provider and follow its instructions for adding attribution badges to documents, PRs, and other content produced with DeepSeek Harness. The provider has no configuration; deployments install it and insert its plugin row explicitly. The skill ships both Markdown snippets and a packaged PNG for systems that cannot reliably import remote images.
 
 ## Table of Contents
 
@@ -25,9 +25,9 @@ Agents can load the official "powered by dsh" badge skill from this bundled prov
 <a id="use-this-package"></a>
 ## Use this package
 
-Enable the plugin to make the `dsh-badge` skill available in the session skill catalog; the model can then load it like any other skill and follow its instructions for adding a "powered by dsh" badge.
+Enable the plugin to make the `dsh-badge` skill available in the session skill catalog; the model can then load it like any other skill and follow its instructions for adding a "powered by mwf" badge.
 
-In Plugins, this component is named **DSH** and uses the DSH tag icon. Its skill is named `dsh-badge`.
+In Plugins, this component is named **MWF** and uses the MWF tag icon. Its skill is named `dsh-badge`.
 
 ### When to choose it
 
@@ -35,12 +35,12 @@ Choose this provider when content produced with DeepSeek Harness should carry of
 
 ### Enable the plugin
 
-Install `@deepseek-ai/dsh-skill-badge` into the profile and insert its plugin row. The default composition does not declare it.
+Install `@metaworkflow/skill-badge` into the profile and insert its plugin row. The default composition does not declare it.
 
 ```yaml
 - insert:
     - id: skill-badge
-      name: '@deepseek-ai/dsh-skill-badge'
+      name: '@metaworkflow/skill-badge'
 ```
 
 After enabling, `dsh-badge` appears in the available skills of the session catalog. The skill covers remote Markdown badges (Shields.io-based) and a packaged PNG badge asset for targets that cannot fetch remote images reliably.
@@ -93,7 +93,7 @@ Read these pages when the package-level contract is not enough. They move from t
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through `dsh-tool-skill`, which renders the provider's catalog entry and the selected skill body to the model.
+Indirectly, through `mwf-tool-skill`, which renders the provider's catalog entry and the selected skill body to the model.
 
 #### KV Cache effect
 

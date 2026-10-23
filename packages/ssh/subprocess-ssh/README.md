@@ -3,13 +3,13 @@ description: "Managed SSH subprocess and terminal behavior for Bash, LSP and Nod
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-subprocess-ssh
+# @metaworkflow/subprocess-ssh
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-subprocess-ssh` implements `ctx.subprocess` using the shared SSH helper. Executable lookup, ordinary processes, fd 7 control traffic and terminal sessions run beside the SSH filesystem. Remote native process owners govern termination and quiescence; consumers continue to own command semantics, output limits and execution deadlines.
+`mwf-subprocess-ssh` implements `ctx.subprocess` using the shared SSH helper. Executable lookup, ordinary processes, fd 7 control traffic and terminal sessions run beside the SSH filesystem. Remote native process owners govern termination and quiescence; consumers continue to own command semantics, output limits and execution deadlines.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this provider with [`dsh-ssh`](../ssh/README.md) and its filesystem provider. It has no deployment configuration of its own. `resolveExecutable()` checks the remote executable namespace; fully specified spawn requests supply the remote cwd, environment, stream dispositions and cleanup grace.
+Mount this provider with [`mwf-ssh`](../ssh/README.md) and its filesystem provider. It has no deployment configuration of its own. `resolveExecutable()` checks the remote executable namespace; fully specified spawn requests supply the remote cwd, environment, stream dispositions and cleanup grace.
 
 Ordinary spawn returns a handle while remote allocation proceeds. Piped stdin and the optional duplex control endpoint accept writes during allocation. Terminal allocation, writes, foreground inspection, signals and termination retain their asynchronous interfaces.
 

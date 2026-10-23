@@ -11,7 +11,7 @@
  * the worker host reports `process.platform === 'linux'`, so any other Windows
  * branch means a bug.
  */
-import { DSH_ROOT } from '../../../storage/paths.ts'
+import { MWF_ROOT } from '../../../storage/paths.ts'
 
 const CHAR_DOT = 46
 const CHAR_FORWARD_SLASH = 47
@@ -27,7 +27,7 @@ export interface ParsedPath {
 
 const cwd = (): string => {
   const scope = globalThis as { process?: { cwd?: () => string } }
-  return scope.process?.cwd?.() ?? DSH_ROOT
+  return scope.process?.cwd?.() ?? MWF_ROOT
 }
 
 function assertPath(path: unknown): asserts path is string {

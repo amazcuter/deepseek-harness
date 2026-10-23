@@ -5,19 +5,19 @@
   margin: 0 auto;
   width: calc(
     100% -
-    var(--dsh-composer-side-clearance) -
-    var(--dsh-composer-side-clearance) -
-    var(--dsh-composer-dock-inset) -
-    var(--dsh-composer-dock-inset) -
-    var(--dsh-composer-dock-inset) -
-    var(--dsh-composer-dock-inset)
+    var(--mwf-composer-side-clearance) -
+    var(--mwf-composer-side-clearance) -
+    var(--mwf-composer-dock-inset) -
+    var(--mwf-composer-dock-inset) -
+    var(--mwf-composer-dock-inset) -
+    var(--mwf-composer-dock-inset)
   );
   max-width: calc(
-    var(--dsh-composer-card-max-width) -
-    var(--dsh-composer-dock-inset) -
-    var(--dsh-composer-dock-inset) -
-    var(--dsh-composer-dock-inset) -
-    var(--dsh-composer-dock-inset)
+    var(--mwf-composer-card-max-width) -
+    var(--mwf-composer-dock-inset) -
+    var(--mwf-composer-dock-inset) -
+    var(--mwf-composer-dock-inset) -
+    var(--mwf-composer-dock-inset)
   );
   border: 0;
   --dsw-elevation-stroke-color: var(--dsw-alias-border-l1);
@@ -28,8 +28,8 @@
   /* The menu surface and the scrolling `.list` use the l2 scrollbar colors.
      Declared here because the custom properties inherit into `.list` (see
      ui-theme styles/scrollbar.css for the rebinding contract). */
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --mwf-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --mwf-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
 .body {

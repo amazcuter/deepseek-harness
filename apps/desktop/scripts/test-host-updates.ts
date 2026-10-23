@@ -34,7 +34,7 @@ try {
   const environment = Object.fromEntries(Object.entries(process.env).filter(([name]) =>
     /^(?:path|systemroot|windir|comspec|pathext)$/iu.test(name)))
   const child = spawn(process.execPath, [fileURLToPath(new URL('../tests/fixtures/host-update-qualification.mjs', import.meta.url)), root], {
-    cwd: root, env: { ...environment, DSH_HOME: join(root, 'home'), USERPROFILE: root, HOME: root,
+    cwd: root, env: { ...environment, MWF_HOME: join(root, 'home'), USERPROFILE: root, HOME: root,
       TEMP: root, TMP: root, TMPDIR: root }, stdio: 'inherit', windowsHide: true,
   })
   let timedOut = false

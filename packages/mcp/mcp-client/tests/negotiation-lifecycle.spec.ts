@@ -9,8 +9,8 @@ import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import { StreamableHTTPClientTransport, type Transport } from '@modelcontextprotocol/client'
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRuntime from '@metaworkflow/tools'
 import { startConnection, resolveReconnectPolicy } from '../src/connection.ts'
 import type { Config } from '../src/index.ts'
 
@@ -49,7 +49,7 @@ async function connection(factory: () => Transport, retry: boolean) {
 }
 
 async function stdioFixture() {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-mcp-negotiation-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-mcp-negotiation-'))
   onTestFinished(() => rm(root, { recursive: true, force: true }))
   const eventsPath = join(root, 'events.jsonl')
   const releasePath = join(root, 'release')

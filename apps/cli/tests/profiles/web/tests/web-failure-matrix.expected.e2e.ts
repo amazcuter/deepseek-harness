@@ -25,7 +25,7 @@ const failures = [
 type Failure = typeof failures[number][0]
 
 function fixture() {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-web-failure-matrix-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-web-failure-matrix-'))
   const home = join(root, 'home')
   mkdirSync(home)
   const events = join(root, 'events')
@@ -115,7 +115,7 @@ function fixture() {
 function start(f: ReturnType<typeof fixture>, extra: string[] = [], nodeArgs: string[] = []) {
   const child = execa(process.execPath, [...nodeArgs, bin, '--profile', 'web', '--patch', f.watcher, ...extra, '--no-open', '--port', '0'], {
     cwd: f.root,
-    env: { ...process.env, DSH_HOME: f.home, DSH_AGENTS_HOME: join(f.root, '.agents'), DSH_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-matrix-no-call', NODE_NO_WARNINGS: '1' },
+    env: { ...process.env, MWF_HOME: f.home, MWF_AGENTS_HOME: join(f.root, '.agents'), MWF_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-matrix-no-call', NODE_NO_WARNINGS: '1' },
     input: '', reject: false, timeout: 110_000, killSignal: 'SIGKILL',
   })
   let stdout = ''
@@ -133,8 +133,8 @@ function start(f: ReturnType<typeof fixture>, extra: string[] = [], nodeArgs: st
     } catch (cause) { throw new Error(`Web condition failed\n${stdout}\n${stderr}\n${readFileSync(f.diagnostics, 'utf8')}\n${readFileSync(f.events, 'utf8')}`, { cause }) }
   }
   async function serves(currentServer = false) {
-    await wait(() => /dsh web: http:\/\//u.test(stdout))
-    const url = currentServer ? readFileSync(f.serverUrl, 'utf8') : /dsh web: (http:\/\/[^\s]+)/u.exec(stdout)?.[1]
+    await wait(() => /mwf web: http:\/\//u.test(stdout))
+    const url = currentServer ? readFileSync(f.serverUrl, 'utf8') : /mwf web: (http:\/\/[^\s]+)/u.exec(stdout)?.[1]
     if (!url) throw new Error('Missing Web URL')
     const auth = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(10_000) })
     const cookie = auth.headers.get('set-cookie')?.split(';', 1)[0]
@@ -142,7 +142,7 @@ function start(f: ReturnType<typeof fixture>, extra: string[] = [], nodeArgs: st
     const response = await fetch(new URL('/', url), { headers: { cookie }, signal: AbortSignal.timeout(10_000) })
     expect(response.status).toBe(200)
     const html = await response.text()
-    expect(html).toContain('__DSH_BOOT__')
+    expect(html).toContain('__MWF_BOOT__')
     const bundlePath = /<script src="(plugins\/[^"]+)"/u.exec(html)?.[1]?.replaceAll('&amp;', '&')
     if (!bundlePath) throw new Error('Missing bootstrap bundle URL')
     const bundle = await fetch(new URL(bundlePath, url), { headers: { cookie }, signal: AbortSignal.timeout(10_000) })
@@ -200,7 +200,7 @@ describe.skipIf(!built)('Web process failure matrix', () => {
 
   it('rejects a non-loopback zone bind through the required Web runtime before readiness', async () => {
     const f = fixture()
-    const host = 'fe80::1%dsh-test'
+    const host = 'fe80::1%mwf-test'
     const network = join(f.root, 'zone-listen.mjs')
     // Mock only the OS bind: the real WebServer retains its configured zone,
     // and the shipped runtime row, Loader dependencies, and boot audit stay real.
@@ -219,11 +219,11 @@ describe.skipIf(!built)('Web process failure matrix', () => {
     try {
       const result = await app.child
       exit(result, 1)
-      expect(result.stderr).toContain('dsh: startup failed: 1 required plugin did not activate')
-      expect(result.stderr).toContain('  web-runtime (required)\n    Package: @deepseek-ai/dsh-web-app')
+      expect(result.stderr).toContain('mwf: startup failed: 1 required plugin did not activate')
+      expect(result.stderr).toContain('  web-runtime (required)\n    Package: @metaworkflow/web-app')
       expect(result.stderr).toContain(`bind address "${host}" carries an interface zone id`)
       expect(result.stderr).toContain('pass --public-url')
-      expect(result.stdout).not.toContain('dsh web: http')
+      expect(result.stdout).not.toContain('mwf web: http')
       expect(app.events()).toBe('witness apply 0\nwitness dispose 0\n')
     } finally {
       exit(await app.close(), 1)
@@ -240,7 +240,7 @@ describe.skipIf(!built)('Web process failure matrix', () => {
         if (required) {
           const result = await app.child
           exit(result, 1)
-          expect(result.stdout).not.toContain('dsh web: http://')
+          expect(result.stdout).not.toContain('mwf web: http://')
           expect(result.stderr).toContain('startup failed:')
           expect(app.events()).toBe('witness apply 1\nwitness dispose 1\n')
         } else {
@@ -302,7 +302,7 @@ describe.skipIf(!built)('Web process failure matrix', () => {
       const result = await app.child
       exit(result, 1)
       expect(result.stderr).toContain(diagnostic)
-      expect(result.stdout).not.toContain('dsh web: http://')
+      expect(result.stdout).not.toContain('mwf web: http://')
       expect(app.events()).toBe('')
     } finally { exit(await app.close(), 1) }
   })

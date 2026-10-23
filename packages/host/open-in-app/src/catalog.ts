@@ -18,7 +18,7 @@ export const PATH_TOKEN = '{path}'
  * argv. Its optional environment entries overlay the credential-scrubbed
  * parent environment; `windowsHide` is reserved for CLI adapters whose child
  * process opens the visible GUI. `shell-open` hands the directory to the
- * operating system shell's open verb through `dsh-native-command`'s path
+ * operating system shell's open verb through `mwf-native-command`'s path
  * opener — the channel the file managers use, because they are the OS default
  * for a directory and a direct `explorer.exe <dir>` spawn does not reliably
  * raise a window.

@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-api-account-controller",
+  "name": "@metaworkflow/api-account-controller",
   "description": "Expose safe account operations over authenticated Remote",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -50,14 +50,14 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-agent": "workspace:*"
+    "@metaworkflow/deepseek-account": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/agent": "workspace:*"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-agent": "workspace:*"
+    "@metaworkflow/deepseek-account": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/agent": "workspace:*"
   }
 }

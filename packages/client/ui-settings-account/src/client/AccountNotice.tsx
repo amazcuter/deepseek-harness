@@ -8,7 +8,7 @@
  */
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
-import { IconCloseOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
+import { IconCloseOutlineRegular } from '@metaworkflow/client-ui-primitives'
 import type { BonusNotice } from './bonus-notices.ts'
 import css from './AccountNotice.module.css'
 import { dismissNotice } from './notice-transition.ts'

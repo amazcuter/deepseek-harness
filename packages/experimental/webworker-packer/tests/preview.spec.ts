@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@deepseek-ai/dsh-session-format-catalog'
-import { sessionFormatLogFilename } from '@deepseek-ai/dsh-session-format'
+import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@metaworkflow/session-format-catalog'
+import { sessionFormatLogFilename } from '@metaworkflow/session-format'
 import { packPreviewFixture } from '../src/preview.ts'
 import { packVfsOverlay } from '../src/pack.ts'
 import { previewFixtures } from '../src/repository.ts'
@@ -19,7 +19,7 @@ afterEach(() => {
 })
 
 function source() {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-preview-source-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-preview-source-'))
   roots.push(root)
   const session = join(root, 'sessions', 'project', 'example')
   mkdirSync(session, { recursive: true })

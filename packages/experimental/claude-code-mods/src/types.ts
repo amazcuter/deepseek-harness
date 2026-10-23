@@ -98,7 +98,7 @@ export interface ModOn {
 export type ModRegister = (on: ModOn, options: PluginOptions) => unknown
 
 /**
- * One mod as a DSH plugin hands it to the bridge: the plugin identity Claude
+ * One mod as a MWF plugin hands it to the bridge: the plugin identity Claude
  * Code reads from `plugin.json`, the `register` its hooks module exports, and
  * the `options` that `register` receives (the mod's validated plugin config).
  */

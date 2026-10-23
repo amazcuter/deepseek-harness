@@ -16,7 +16,7 @@ import {
   type TypertResource,
   type TypertResourceReader,
   type TypertLookup,
-} from '@deepseek-ai/dsh-typert-protocol'
+} from '@metaworkflow/typert-protocol'
 
 type WireSessionId = string & { readonly __wire: 'protocol-access-session' }
 
@@ -25,7 +25,7 @@ interface AccessFixtureAgent {
   readonly protocolAccessAgentId: WireSessionId
 }
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@metaworkflow/typert-protocol' {
   interface PrincipalMap {
     /** Test-only non-owner caller shared by the access specs. */
     'test-guest': { readonly kind: 'test-guest'; readonly guest: string }

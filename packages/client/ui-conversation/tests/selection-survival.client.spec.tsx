@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 /** Exercises Conversation persistence through the real SlotRegistry store axis. */
 import { beforeEach, describe, expect, it, onTestFinished } from 'vitest'
-import { SlotTestRuntime } from '@deepseek-ai/dsh-client-test-runtime'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
+import { SlotTestRuntime } from '@metaworkflow/client-test-runtime'
+import type { SessionId } from '@metaworkflow/session/types'
+import type { PropsRenderSlots } from '@metaworkflow/client-ui-slots'
 import { createConversationStore } from '../src/client/stores.ts'
 
 const sid = (value: string): SessionId => value as SessionId
@@ -84,13 +84,13 @@ describe('Conversation state survives on its store seat', () => {
     const doomed = storeFor(b, 'conversation.session', reference)
     doomed.actions.setDraft('to be buried')
     doomed.actions.setView('chat')
-    expect(localStorage.getItem('dsh.conversation.s1')).not.toBeNull()
+    expect(localStorage.getItem('mwf.conversation.s1')).not.toBeNull()
 
     reference.release()
     await b.runtime.flush()
     await b.runtime.sessions.remove('s1')
 
-    expect(localStorage.getItem('dsh.conversation.s1')).not.toBeNull()
+    expect(localStorage.getItem('mwf.conversation.s1')).not.toBeNull()
     await b.runtime.sessions.add({ id: 's1' })
     using replacement = b.runtime.sessions.retain(sid('s1'))
     await replacement.ready

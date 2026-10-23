@@ -4,9 +4,9 @@
  */
 import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, it, onTestFinished } from 'vitest'
-import type { UserTextRule, UserTextTransformContext } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import { UserTextRegistry } from '@deepseek-ai/dsh-client-ui-conversation/src/client/conversation/user-text-registry.ts'
-import { collapseWhitespaceRule, trimWhitespaceRule } from '@deepseek-ai/dsh-client-ui-conversation/src/client/user-text/whitespace-rules.ts'
+import type { UserTextRule, UserTextTransformContext } from '@metaworkflow/client-ui-conversation/client'
+import { UserTextRegistry } from '@metaworkflow/client-ui-conversation/src/client/conversation/user-text-registry.ts'
+import { collapseWhitespaceRule, trimWhitespaceRule } from '@metaworkflow/client-ui-conversation/src/client/user-text/whitespace-rules.ts'
 import { createSecretRule } from '../src/client/secret-rule.ts'
 import { regexSecretRule } from './regex-oracle.client.ts'
 

@@ -1,14 +1,14 @@
 ---
-description: "Browse Session persistence-type changes across every captured DSH alpha/RC tag and validate the historical snapshots offline."
+description: "Browse Session persistence-type changes across every captured MWF alpha/RC tag and validate the historical snapshots offline."
 ---
 
-# Persistence changes across DSH prereleases
+# Persistence changes across MWF prereleases
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-This archive provides an approximate historical view of 26 DSH alpha/RC tags and their 25 adjacent transitions. Each release includes a short explanation, source tag, before/after digests, and complete snapshots of changed types for reading and format validation. It does not establish historical runtime compatibility or replace [current-source acknowledgements](../README.md).
+This archive provides an approximate historical view of 26 MWF alpha/RC tags and their 25 adjacent transitions. Each release includes a short explanation, source tag, before/after digests, and complete snapshots of changed types for reading and format validation. It does not establish historical runtime compatibility or replace [current-source acknowledgements](../README.md).
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@ This archive provides an approximate historical view of 26 DSH alpha/RC tags and
 <a id="releases"></a>
 ## Archived releases
 
-The [manifest](manifest.json) records every DSH alpha/RC tag captured on 2026-09-12: 16 have release records, and the earliest 10 are tag-only. Entries follow semantic-version order; absent tags are not invented. The first entry establishes the historical starting point, so its change count includes every root.
+The [manifest](manifest.json) records every MWF alpha/RC tag captured on 2026-09-12: 16 have release records, and the earliest 10 are tag-only. Entries follow semantic-version order; absent tags are not invented. The first entry establishes the historical starting point, so its change count includes every root.
 
 <!-- persistence-release-index:start -->
 

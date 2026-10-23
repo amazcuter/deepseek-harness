@@ -1,7 +1,7 @@
 /** Coordinates onboarding navigation, transitions and the shared native recharge page. */
-import type { ProductEventMap } from '@deepseek-ai/dsh-client-product-analytics/client'
+import type { ProductEventMap } from '@metaworkflow/client-product-analytics/client'
 import { useEffect, useRef, useState } from 'react'
-import { Button } from '@deepseek-ai/dsh-client-ui-primitives'
+import { Button } from '@metaworkflow/client-ui-primitives'
 import { hasOnboardingCredit } from './onboarding-balance.ts'
 import { OnboardingSurface } from './OnboardingSurface.tsx'
 import type { DesktopOnboardingProps } from './onboarding-contract.ts'

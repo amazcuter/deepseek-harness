@@ -2,7 +2,7 @@
  * Worker Thread entry for workspace-mode Typert generation. It generates every
  * explicit contributor of the requested workspace, posts exactly one
  * {@link WorkspaceWorkerResponse}, and exits.
- * @module @deepseek-ai/dsh-typert-generator/worker
+ * @module @metaworkflow/typert-generator/worker
  */
 
 import { parentPort, workerData } from 'node:worker_threads'

@@ -9,21 +9,21 @@
  */
 import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { parseFileAddress, sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
-import { SidebarRightTabRegistry } from '@deepseek-ai/dsh-client-ui-sidebar-right/src/client/tab-registry.ts'
+import { parseFileAddress, sessionFileAddress } from '@metaworkflow/util-workspace-path'
+import { SidebarRightTabRegistry } from '@metaworkflow/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { TEXTPREVIEW_ID, TEXTPREVIEW_KIND, basenameOf, textDefinition } from '../src/client/definition.ts'
 
 describe('basenameOf', () => {
   it('decodes the last segment, so an escaped name reads as itself', () => {
-    expect(basenameOf('dsh-resource://file/session/s-1/work/notes/a%20b%23c.md')).toBe('a b#c.md')
+    expect(basenameOf('mwf-resource://file/session/s-1/work/notes/a%20b%23c.md')).toBe('a b#c.md')
   })
 
   it('falls back to the whole address when there is no last segment', () => {
-    expect(basenameOf('dsh-resource://file/session/s-1/')).toBe('dsh-resource://file/session/s-1/')
+    expect(basenameOf('mwf-resource://file/session/s-1/')).toBe('mwf-resource://file/session/s-1/')
   })
 
   it('keeps a malformed percent escape as it is rather than refusing the address', () => {
-    expect(basenameOf('dsh-resource://file/session/s-1/work/%E0%A4%A')).toBe('%E0%A4%A')
+    expect(basenameOf('mwf-resource://file/session/s-1/work/%E0%A4%A')).toBe('%E0%A4%A')
   })
 })
 
@@ -32,15 +32,15 @@ describe('textDefinition', () => {
     const definition = textDefinition()
     expect(definition.id).toBe(TEXTPREVIEW_ID)
     expect(definition.kind).toBe(TEXTPREVIEW_KIND)
-    expect(definition.patterns).toEqual(['dsh-resource://file/[\\s\\S]+'])
+    expect(definition.patterns).toEqual(['mwf-resource://file/[\\s\\S]+'])
     expect(definition.priority).toBe('fallback')
-    expect(definition.title('dsh-resource://file/session/s-1/work/README.md')).toBe('README.md')
+    expect(definition.title('mwf-resource://file/session/s-1/work/README.md')).toBe('README.md')
     // Reads require an addressed Session, even when the file path is absolute.
-    expect(definition.canOpen?.('dsh-resource://file/session/s-1/work/README.md')).toBe(true)
+    expect(definition.canOpen?.('mwf-resource://file/session/s-1/work/README.md')).toBe(true)
     expect(definition.canOpen?.(sessionFileAddress('s-1', '/home/me/README.md'))).toBe(true)
-    expect(definition.canOpen?.('dsh-resource://file/absolute/home/me/README.md')).toBe(false)
-    expect(definition.canOpen?.('dsh-resource://file/shared/team/README.md')).toBe(false)
-    expect(definition.canOpen?.('dsh-resource://file/session')).toBe(false)
+    expect(definition.canOpen?.('mwf-resource://file/absolute/home/me/README.md')).toBe(false)
+    expect(definition.canOpen?.('mwf-resource://file/shared/team/README.md')).toBe(false)
+    expect(definition.canOpen?.('mwf-resource://file/session')).toBe(false)
   })
 })
 
@@ -54,10 +54,10 @@ describe('text type in the registry', () => {
   it('claims files of any extension, depth, and dot-prefix with relative or absolute Session paths', () => {
     const tabs = registry()
     for (const address of [
-      'dsh-resource://file/session/s-1/a.md',
-      'dsh-resource://file/session/s-1/deep/er/path/x.py',
-      'dsh-resource://file/session/s-1/w/.env',
-      'dsh-resource://file/session/s-1/w/Makefile',
+      'mwf-resource://file/session/s-1/a.md',
+      'mwf-resource://file/session/s-1/deep/er/path/x.py',
+      'mwf-resource://file/session/s-1/w/.env',
+      'mwf-resource://file/session/s-1/w/Makefile',
       sessionFileAddress('s-1', '/home/me/notes.md'),
       sessionFileAddress('s-1', 'C:/w/x.ts'),
       sessionFileAddress('s-1', '//host/share/x.ts'),
@@ -91,19 +91,19 @@ describe('text type in the registry', () => {
     ['../a%20b%23c%3F.txt?ignored=1#section', '../a b#c?.txt'],
   ])('claims an authored address while decoding its path once: %s', (encoded, path) => {
     const tabs = registry()
-    const address = `dsh-resource://file/session/s%2F1/${encoded}`
+    const address = `mwf-resource://file/session/s%2F1/${encoded}`
     expect(tabs.claim(address).contentId).toBe(address)
     expect(parseFileAddress(address)).toEqual({ scope: 'session', sessionId: 's/1', path })
   })
 
   it.each([
-    'dsh-resource://file/session',
-    'dsh-resource://file/session//../a.md',
-    'dsh-resource://file/session/s-1',
-    'dsh-resource://file/session/%/../a.md',
-    'dsh-resource://file/session/s-1/../%ZZ.md',
-    'DSH-RESOURCE://file/session/s-1/../a.md',
-    'dsh-resource://File/session/s-1/../a.md',
+    'mwf-resource://file/session',
+    'mwf-resource://file/session//../a.md',
+    'mwf-resource://file/session/s-1',
+    'mwf-resource://file/session/%/../a.md',
+    'mwf-resource://file/session/s-1/../%ZZ.md',
+    'MWF-RESOURCE://file/session/s-1/../a.md',
+    'mwf-resource://File/session/s-1/../a.md',
   ])('keeps the Session parser veto after matching a file prefix: %s', (address) => {
     const tabs = registry()
     expect(tabs.candidates(address)).toEqual([])
@@ -112,9 +112,9 @@ describe('text type in the registry', () => {
   })
 
   it.each([
-    'dsh-resource://file/shared/team/notes.md',
-    'dsh-resource://file/absolute/home/me/notes.md',
-    'dsh-resource://file/absolute/C:/w/notes.md',
+    'mwf-resource://file/shared/team/notes.md',
+    'mwf-resource://file/absolute/home/me/notes.md',
+    'mwf-resource://file/absolute/C:/w/notes.md',
   ])('refuses a file address without a Session at claim time, named or ranked: %s', (shared) => {
     const tabs = registry()
     expect(tabs.candidates(shared)).toEqual([])
@@ -125,10 +125,10 @@ describe('text type in the registry', () => {
   it('yields an address to a narrower type at the extension band, and keeps the rest', () => {
     const tabs = registry()
     tabs.register({ id: 'test/image', kind: 'image', patterns: ['*.png'], priority: 'extension', title: () => 'image' })
-    expect(tabs.claim('dsh-resource://file/session/s-1/w/logo.png').kind).toBe('image')
-    expect(tabs.claim('dsh-resource://file/session/s-1/w/logo.md').kind).toBe(TEXTPREVIEW_KIND)
+    expect(tabs.claim('mwf-resource://file/session/s-1/w/logo.png').kind).toBe('image')
+    expect(tabs.claim('mwf-resource://file/session/s-1/w/logo.md').kind).toBe(TEXTPREVIEW_KIND)
     // Still listed for the picture: a caller naming the kind may open it as text.
-    expect(tabs.candidates('dsh-resource://file/session/s-1/w/logo.png').map(type => type.kind)).toEqual(['image', TEXTPREVIEW_KIND])
+    expect(tabs.candidates('mwf-resource://file/session/s-1/w/logo.png').map(type => type.kind)).toEqual(['image', TEXTPREVIEW_KIND])
   })
 
   it.each(['builtin', 'extension'] as const)('yields parent paths to the %s band and honors its veto', (priority) => {
@@ -149,10 +149,10 @@ describe('text type in the registry', () => {
   it('ranks the file declaration by its literal length within the fallback band', () => {
     const tabs = registry()
     tabs.register({
-      id: 'test/shorter', kind: 'shorter', patterns: ['dsh-resource://file/**/*.*'], priority: 'fallback', title: () => 'Shorter',
+      id: 'test/shorter', kind: 'shorter', patterns: ['mwf-resource://file/**/*.*'], priority: 'fallback', title: () => 'Shorter',
     })
     const releaseLonger = tabs.register({
-      id: 'test/longer', kind: 'longer', patterns: ['dsh-resource://file/session/**/*.md'], priority: 'fallback', title: () => 'Longer',
+      id: 'test/longer', kind: 'longer', patterns: ['mwf-resource://file/session/**/*.md'], priority: 'fallback', title: () => 'Longer',
     })
     tabs.register({ ...textDefinition(), id: 'test/tied', kind: 'tied' })
     const address = sessionFileAddress('s-1', 'AGENTS.md')

@@ -13,7 +13,7 @@ afterEach(async () => {
 
 describe('captureFile', () => {
   it('stores text once by content, reads no more than the cap, and classifies absent, oversized, binary, and non-regular paths', async () => {
-    const root = await scratchDir('dsh-capture-', cleanups)
+    const root = await scratchDir('mwf-capture-', cleanups)
     const store = join(root, 'captures')
     await writeFile(join(root, 'a.txt'), 'one\ntwo\n')
     await writeFile(join(root, 'same.txt'), 'one\ntwo\n')

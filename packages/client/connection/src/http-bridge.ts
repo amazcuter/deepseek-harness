@@ -4,7 +4,7 @@
  */
 
 import type { IncomingMessage } from 'node:http'
-import type { PeerScope } from '@deepseek-ai/dsh-typert-protocol'
+import type { PeerScope } from '@metaworkflow/typert-protocol'
 import { Readable } from 'node:stream'
 import type { ConnectionFetchHandler } from './rpc.ts'
 
@@ -51,7 +51,7 @@ export async function bridge(
     if (!res.writableEnded) abort.abort()
   })
   /* v8 ignore next 2 -- node:http always sets url/method on server requests. */
-  const url = new URL(req.url ?? '/', 'http://dsh.internal')
+  const url = new URL(req.url ?? '/', 'http://mwf.internal')
   const method = req.method ?? 'GET'
   const headers = Object.fromEntries(
     Object.entries(req.headers).filter(([, value]) => typeof value === 'string') as [string, string][],

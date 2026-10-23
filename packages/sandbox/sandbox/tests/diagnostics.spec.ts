@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { classifyRunnerFailure, isRunnerSpawnFailure, matchesSignature } from '../src/diagnostics.ts'
 
-const spillDir = mkdtempSync(join(tmpdir(), 'dsh-sandbox-diagnostics-'))
+const spillDir = mkdtempSync(join(tmpdir(), 'mwf-sandbox-diagnostics-'))
 afterAll(() => { rmSync(spillDir, { recursive: true, force: true }) })
 const RUNNER_FORMS = [['absolute', process.execPath], ['bare', 'node'], ['relative', './runner']] as const
 

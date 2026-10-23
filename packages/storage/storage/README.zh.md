@@ -3,13 +3,13 @@ description: "存储枢纽（ctx.storage）：面向选择、挂载或排查具�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-storage
+# @metaworkflow/storage
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `dsh-storage` 持久保存类型化应用数据，而不将其加入会话历史。将它与受支持的存储介质和领域配置一同挂载后，调用方即可通过公共 `ctx.storageDomain` API 访问记录。工作区记录、会话伴随数据或其他必须在重启后保留且不应成为会话事件的应用状态适合使用它。它仅供宿主代码使用，对模型没有可见影响；无需此类数据的组合可以省略它。
+使用 `mwf-storage` 持久保存类型化应用数据，而不将其加入会话历史。将它与受支持的存储介质和领域配置一同挂载后，调用方即可通过公共 `ctx.storageDomain` API 访问记录。工作区记录、会话伴随数据或其他必须在重启后保留且不应成为会话事件的应用状态适合使用它。它仅供宿主代码使用，对模型没有可见影响；无需此类数据的组合可以省略它。
 
 ## 目录
 
@@ -34,16 +34,16 @@ kind: "package-reference"
 ### 最小组合
 
 ```yaml
-- name: '@deepseek-ai/dsh-storage'
-- name: '@deepseek-ai/dsh-storage-json'
+- name: '@metaworkflow/storage'
+- name: '@metaworkflow/storage-json'
   config:
-    root: /var/lib/dsh/data
-- name: '@deepseek-ai/dsh-storage-domain'
+    root: /var/lib/mwf/data
+- name: '@metaworkflow/storage-domain'
   config:
     backend: json
 ```
 
-这些行加载后，`json` 后端注册自身、`domain` 数据形式挂载；诸如 `dsh-workspace` 之类的消费方随后在已路由后端上打开自己的领域，并通过 `ctx.storageDomain` 读写记录。多个后端可以并排保持挂载；哪个后端服务哪个领域由领域数据形式的配置决定，绝非枢纽的全局选择。
+这些行加载后，`json` 后端注册自身、`domain` 数据形式挂载；诸如 `mwf-workspace` 之类的消费方随后在已路由后端上打开自己的领域，并通过 `ctx.storageDomain` 读写记录。多个后端可以并排保持挂载；哪个后端服务哪个领域由领域数据形式的配置决定，绝非枢纽的全局选择。
 
 ### 你能得到什么
 
@@ -54,7 +54,7 @@ kind: "package-reference"
 ### 失败与恢复
 
 - `backend-not-found`——领域数据形式路由到未挂载的后端；请添加后端包。数据形式会等待所有已配置后端注册，因此行序不会造成失败。
-- `form-not-mounted`——消费方在 `dsh-storage-domain` 加载前读取 `ctx.storage.domain`；请把领域行放在消费方之前。
+- `form-not-mounted`——消费方在 `mwf-storage-domain` 加载前读取 `ctx.storage.domain`；请把领域行放在消费方之前。
 - `duplicate-backend`／`duplicate-mount`——同一名称或形式注册了两次；这是组合错误，会明确报错。
 
 -----

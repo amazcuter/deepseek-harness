@@ -10,7 +10,7 @@ The Web listener accepted `127.0.0.1` or `0.0.0.0`. A wildcard bind exposed ever
 
 ## Decision
 
-`webserver.config.host` accepts one concrete IPv4 or IPv6 address literal, loopback by default; the unspecified address in every spelling (`0.0.0.0`, `::`, `::ffff:0.0.0.0`, and their expansions) is rejected when the config loads, and the shipped `dsh web` command refuses the same spellings for `--host` before any consumer activates. An IPv6 `%zone` is kept for `listen`; classification through the exported `isWildcardHost` and `isLoopbackHost` reads the address alone.
+`webserver.config.host` accepts one concrete IPv4 or IPv6 address literal, loopback by default; the unspecified address in every spelling (`0.0.0.0`, `::`, `::ffff:0.0.0.0`, and their expansions) is rejected when the config loads, and the shipped `mwf web` command refuses the same spellings for `--host` before any consumer activates. An IPv6 `%zone` is kept for `listen`; classification through the exported `isWildcardHost` and `isLoopbackHost` reads the address alone.
 
 The browser Host/Origin fence accepts the listener's own bind IP literal as `Host` on any port, independently of `trustedHosts` and ignoring the zone. A browser dialing that literal presents it as `Host`, the literal is no rebinding target, and the Origin and cross-site checks still apply. DNS names resolving to the address, other interfaces, and proxy authorities still require `--trusted-host`. Connection reads the invocation authorities directly from the `webStartup` provider; the `webRuntime` service and LAN sampling no longer exist.
 

@@ -8,7 +8,7 @@ import { RepositoryCleaner } from './clean.ts'
 const roots: string[] = []
 
 function fixture(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-clean-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-clean-'))
   roots.push(root)
   return root
 }
@@ -38,7 +38,7 @@ describe('RepositoryCleaner', () => {
     write(join(root, 'products/shell/lib/types/index.js'))
     write(join(root, 'products/shell/lib/index.js'))
     write(join(root, '.typecheck/legacy.tsbuildinfo'))
-    write(join(root, '.dsh-build/client-build-environment.json'))
+    write(join(root, '.mwf-build/client-build-environment.json'))
     write(join(root, 'apps/desktop/renderer/assets/welcome-brand.svg'))
     write(join(root, 'apps/desktop/renderer/assets/welcome-loading.svg'))
     write(join(root, 'apps/desktop/renderer/welcome.css'))
@@ -50,7 +50,7 @@ describe('RepositoryCleaner', () => {
     expect(existsSync(join(root, 'products/shell/lib'))).toBe(false)
     expect(existsSync(join(root, 'products/shell/src/index.ts'))).toBe(true)
     expect(existsSync(join(root, '.typecheck'))).toBe(false)
-    expect(existsSync(join(root, '.dsh-build'))).toBe(false)
+    expect(existsSync(join(root, '.mwf-build'))).toBe(false)
     expect(existsSync(join(root, 'apps/desktop/renderer/assets/welcome-brand.svg'))).toBe(true)
     expect(existsSync(join(root, 'apps/desktop/renderer/assets/welcome-loading.svg'))).toBe(true)
     expect(existsSync(join(root, 'apps/desktop/renderer/welcome.css'))).toBe(true)

@@ -13,7 +13,7 @@
  * survivors are ranked by priority band, then by matched-pattern length, then by
  * registration order. Addresses are `scheme://` URIs; the one local change to
  * VS Code's glob rule is that a pattern containing `:` matches the whole address
- * (`dsh-resource://file/**`, `sidebar://guide`) rather than the URI's path.
+ * (`mwf-resource://file/**`, `sidebar://guide`) rather than the URI's path.
  *
  * A kind may carry one `builtin` and one `extension` registration at once: the
  * extension is the one in force — claims, `get`, the guide page, and the body
@@ -24,11 +24,11 @@
  * Thunked copy (`title`, `guide[].title`, `guide[].description`) is read again
  * on every use, so a language change needs no re-registration.
  */
-import type { ShortcutCommandId } from '@deepseek-ai/dsh-client-shortcuts/client'
+import type { ShortcutCommandId } from '@metaworkflow/client-shortcuts/client'
 import type { ComponentType } from 'react'
 import type { Context } from '@deepseek-ai/cordis'
-import type { IconProps } from '@deepseek-ai/dsh-client-ui-primitives'
-import { notifySubscribers } from '@deepseek-ai/dsh-client-store'
+import type { IconProps } from '@metaworkflow/client-ui-primitives'
+import { notifySubscribers } from '@metaworkflow/client-store'
 // The POSIX build: the browser bundle must not reach for node's `path`, and
 // addresses are `/`-separated regardless of the host platform.
 import picomatch from 'picomatch/posix'
@@ -111,8 +111,8 @@ export interface SidebarRightTabDefinition {
    * opened by kind and recognizes no address.
    *
    * A pattern containing `:` is matched against the whole address
-   * (`dsh-resource://file/**`); one without is matched against the URI's path at
-   * any depth (`*.md` matches `dsh-resource://file/session/s1/home/me/notes.md`),
+   * (`mwf-resource://file/**`); one without is matched against the URI's path at
+   * any depth (`*.md` matches `mwf-resource://file/session/s1/home/me/notes.md`),
    * and an address that is not a URI matches no such pattern. Matching ignores
    * case and does not hide dotfiles.
    */
@@ -194,7 +194,7 @@ interface Ranked {
 
 /**
  * The address's URI path: what a pattern with no scheme separator matches
- * against. `dsh-resource://file/session/s1/home/me/b.md` gives `/session/s1/home/me/b.md`;
+ * against. `mwf-resource://file/session/s1/home/me/b.md` gives `/session/s1/home/me/b.md`;
  * `sidebar://guide` gives `''`; an address that is not a URI gives nothing.
  */
 function pathOf(address: string): string | undefined {

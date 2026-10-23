@@ -2,7 +2,7 @@
 import { isAbsolute, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Context } from '@deepseek-ai/cordis'
-import { CuaConfig, installCua } from '@deepseek-ai/dsh-cua'
+import { CuaConfig, installCua } from '@metaworkflow/cua'
 import { nativeHostArchitecture, prepareNativeExecutable } from './native-build.ts'
 import { createSharedNativeChannel } from './shared-native.ts'
 import { GUIDANCE } from './guidance.ts'
@@ -27,7 +27,7 @@ const description = 'Inspect macOS permissions, select an application and window
  */
 export async function apply(ctx: Context, config: Config): Promise<void> {
   if (config.helperPath !== undefined) {
-    if (!isAbsolute(config.helperPath)) throw new Error('dsh-cua helperPath must be absolute')
+    if (!isAbsolute(config.helperPath)) throw new Error('mwf-cua helperPath must be absolute')
     installCua(ctx, config, { helperPath: config.helperPath, createChannel: createSharedNativeChannel, guidance: GUIDANCE, description })
     return
   }
@@ -42,7 +42,7 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
     controller.abort()
     // The Loader receives preparation failures through apply; disposal only awaits quiescence.
     await prepared.catch(() => {})
-  }, 'dsh-cua.native-preparation')
+  }, 'mwf-cua.native-preparation')
   const helperPath = await prepared
   controller.signal.throwIfAborted()
   installCua(ctx, config, { helperPath, createChannel: createSharedNativeChannel, guidance: GUIDANCE, description })

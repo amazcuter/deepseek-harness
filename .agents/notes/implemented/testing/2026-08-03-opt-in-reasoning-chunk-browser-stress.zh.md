@@ -18,7 +18,7 @@ Session Controller 把每个 Client-only live chunk 追加到 event source，Con
 
 实时 Think 行对累计文本的横向跟尾属于纯视觉对齐，不需要在每次 React 提交中同步读取布局。组件内调度器将连续请求合并为每三帧一次，从最新 DOM 读取 `scrollWidth` 和 `clientWidth` 并将 `scrollLeft` 直接更新到最新位置；固定的视觉节奏让摘要变化可读，又不会积压浏览器平滑滚动动画。该节流只作用于 Think 的横向摘要，不延迟 Chat 正文滚动、历史 prepend 锚定或用户触发的 `scrollIntoView`。
 
-`pnpm run test:web:stress` 保留为无密钥、需显式启用的浏览器性能证据。测试持有的模型 adapter 通过真实 Host、Gateway、WebSocket、Session 归并和实时 Think 行发出 100,000 个 `reasoning-delta` chunk。每批 128 个 chunk 会等待一次浏览器 timer 轮次后再发下一批，因此 50 毫秒心跳与预先调度的 DOM 事件按 250 毫秒预算测量一个有界接收／渲染区间，而不是累积的 socket backlog。结尾标记证明所有 chunk 都已到达 UI。`DSH_WEB_STRESS_HEADFUL=1` 允许开发者在可见浏览器中使用 Performance 面板分析同一场景。该压力车道是手动性能诊断与修复验收的证据，不是默认 CI 门禁，也不替代确定性的调度单元测试。
+`pnpm run test:web:stress` 保留为无密钥、需显式启用的浏览器性能证据。测试持有的模型 adapter 通过真实 Host、Gateway、WebSocket、Session 归并和实时 Think 行发出 100,000 个 `reasoning-delta` chunk。每批 128 个 chunk 会等待一次浏览器 timer 轮次后再发下一批，因此 50 毫秒心跳与预先调度的 DOM 事件按 250 毫秒预算测量一个有界接收／渲染区间，而不是累积的 socket backlog。结尾标记证明所有 chunk 都已到达 UI。`MWF_WEB_STRESS_HEADFUL=1` 允许开发者在可见浏览器中使用 Performance 面板分析同一场景。该压力车道是手动性能诊断与修复验收的证据，不是默认 CI 门禁，也不替代确定性的调度单元测试。
 
 聚焦测试固定 `Notifier` 的逐帧合并、结构事件抢占、失效回调和无 rAF 回退，并在 `Session` 层证明一帧只发布一次最新累计文本且定稿不会被旧帧回调重复通知。按需启用的浏览器用例持有 adapter 节奏、精确事件数和结尾标记交付，不把 100,000 分片工作负载带入默认测试套件。
 

@@ -9,7 +9,7 @@ import { findRepositoryReferences, scanRepositoryReferences, uniquePrefixMatch }
 const organizationUrl = `https://${['github.com', ['deepseek', 'harness'].join('-')].join('/')}`
 
 function repository(test: TestContext) {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-repository-references-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-repository-references-'))
   test.onTestFinished(() => {
     rmSync(root, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 })
   })

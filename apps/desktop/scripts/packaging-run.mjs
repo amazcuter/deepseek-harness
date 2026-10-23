@@ -5,7 +5,7 @@ import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realp
 import { join, resolve } from 'node:path'
 import { StringDecoder } from 'node:string_decoder'
 
-const FATAL_NOTIFICATION = 'DSH_DESKTOP_PACKAGING_FATAL'
+const FATAL_NOTIFICATION = 'MWF_DESKTOP_PACKAGING_FATAL'
 
 /**
  * Append one credential-free event before its corresponding operation starts.
@@ -118,7 +118,7 @@ export function createPackagingRun(root, metadata, settings = {}) {
     process.once('SIGTERM', interrupted)
     try {
       recordPackagingEvent(directory, { type: 'stage-start', stage, stageId })
-      child = spawn(executable, [...args], { cwd: options.cwd, env: { ...options.env, DSH_DESKTOP_PACKAGING_RUN_DIR: directory },
+      child = spawn(executable, [...args], { cwd: options.cwd, env: { ...options.env, MWF_DESKTOP_PACKAGING_RUN_DIR: directory },
         windowsHide: true, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] })
       closed = new Promise(resolveClose => {
         child.once('error', () => { launchError = true })

@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { FontFamilies, ThemePreference, ThemeSnapshot } from '@deepseek-ai/dsh-client-ui-theme/client'
-import { fontFamilyVariable } from '@deepseek-ai/dsh-client-ui-theme/src/theme-settings.ts'
-import { DARK_ATTRIBUTE, THEME_SOURCE_ATTRIBUTE, ThemePresenter } from '@deepseek-ai/dsh-client-ui-layout/src/client/theme-presenter.ts'
+import type { FontFamilies, ThemePreference, ThemeSnapshot } from '@metaworkflow/client-ui-theme/client'
+import { fontFamilyVariable } from '@metaworkflow/client-ui-theme/src/theme-settings.ts'
+import { DARK_ATTRIBUTE, THEME_SOURCE_ATTRIBUTE, ThemePresenter } from '@metaworkflow/client-ui-layout/src/client/theme-presenter.ts'
 
 const LIGHT_THEME_COLOR = 'rgb(255, 255, 255)'
 const DARK_THEME_COLOR = 'rgb(21, 21, 23)'
@@ -83,11 +83,11 @@ describe('ThemePresenter', () => {
   it('publishes the content font size and follows changes', () => {
     const presenter = new ThemePresenter()
     presenter.apply(snapshot('light'))
-    expect(document.body.style.getPropertyValue('--dsh-content-font-size')).toBe('14px')
-    expect(document.body.style.getPropertyValue('--dsh-code-font-size')).toBe('11px')
-    expect(document.body.style.getPropertyValue('--dsh-terminal-font-size')).toBe('13px')
+    expect(document.body.style.getPropertyValue('--mwf-content-font-size')).toBe('14px')
+    expect(document.body.style.getPropertyValue('--mwf-code-font-size')).toBe('11px')
+    expect(document.body.style.getPropertyValue('--mwf-terminal-font-size')).toBe('13px')
     presenter.apply(snapshot('light', {}, 17))
-    expect(document.body.style.getPropertyValue('--dsh-content-font-size')).toBe('17px')
+    expect(document.body.style.getPropertyValue('--mwf-content-font-size')).toBe('17px')
   })
 
   it('publishes non-empty font lists and removes a list once it returns to the built-in stack', () => {
@@ -98,15 +98,15 @@ describe('ThemePresenter', () => {
       expect(document.body.style.getPropertyValue(fontFamilyVariable(kind))).toBe(list)
     }
     presenter.apply(snapshot('light', {}, 14, 'light', { text: '"Inter"', code: '"Iosevka"', terminal: '' }))
-    expect(document.body.style.getPropertyValue('--dsh-font-family-text')).toBe('"Inter"')
-    expect(document.body.style.getPropertyValue('--dsh-font-family-code')).toBe('"Iosevka"')
-    expect(document.body.style.getPropertyValue('--dsh-font-family-terminal')).toBe('')
+    expect(document.body.style.getPropertyValue('--mwf-font-family-text')).toBe('"Inter"')
+    expect(document.body.style.getPropertyValue('--mwf-font-family-code')).toBe('"Iosevka"')
+    expect(document.body.style.getPropertyValue('--mwf-font-family-terminal')).toBe('')
     presenter.apply(snapshot('light', {}, 14, 'light', { text: '', code: '"Iosevka"', terminal: '"MesloLGS NF"' }))
-    expect(document.body.style.getPropertyValue('--dsh-font-family-text')).toBe('')
-    expect(document.body.style.getPropertyValue('--dsh-font-family-terminal')).toBe('"MesloLGS NF"')
+    expect(document.body.style.getPropertyValue('--mwf-font-family-text')).toBe('')
+    expect(document.body.style.getPropertyValue('--mwf-font-family-terminal')).toBe('"MesloLGS NF"')
     presenter.dispose()
-    expect(document.body.style.getPropertyValue('--dsh-font-family-code')).toBe('')
-    expect(document.body.style.getPropertyValue('--dsh-font-family-terminal')).toBe('')
+    expect(document.body.style.getPropertyValue('--mwf-font-family-code')).toBe('')
+    expect(document.body.style.getPropertyValue('--mwf-font-family-terminal')).toBe('')
   })
 
   it('publishes the theme source: system stays system, fixed preferences publish the resolved scheme', () => {
@@ -128,8 +128,8 @@ describe('ThemePresenter', () => {
     expect(document.documentElement.style.colorScheme).toBe('')
     expect(document.body.hasAttribute(DARK_ATTRIBUTE)).toBe(false)
     expect(document.body.style.getPropertyValue('--dsw-alias-bg')).toBe('')
-    expect(document.body.style.getPropertyValue('--dsh-content-font-size')).toBe('')
-    expect(document.body.style.getPropertyValue('--dsh-code-font-size')).toBe('')
+    expect(document.body.style.getPropertyValue('--mwf-content-font-size')).toBe('')
+    expect(document.body.style.getPropertyValue('--mwf-code-font-size')).toBe('')
     expect(document.body.style.getPropertyValue('--foreign')).toBe('kept')
     expect(meta?.isConnected).toBe(false)
   })

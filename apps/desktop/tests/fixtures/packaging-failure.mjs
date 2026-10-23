@@ -8,7 +8,7 @@ const child = spawn(process.execPath, ['-e', "process.send('ready');setInterval(
   stdio: ['ignore', 'ignore', 'ignore', 'ipc'], windowsHide: true,
 })
 child.once('message', () => {
-  writeFileSync(join(process.env.DSH_DESKTOP_PACKAGING_RUN_DIR, 'descendant.json'), JSON.stringify({ pid: child.pid }))
-  failPackagingRun(process.env.DSH_DESKTOP_PACKAGING_RUN_DIR, 'simulated-signing-failure')
+  writeFileSync(join(process.env.MWF_DESKTOP_PACKAGING_RUN_DIR, 'descendant.json'), JSON.stringify({ pid: child.pid }))
+  failPackagingRun(process.env.MWF_DESKTOP_PACKAGING_RUN_DIR, 'simulated-signing-failure')
 })
 setInterval(() => {}, 1000)

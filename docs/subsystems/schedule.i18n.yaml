@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/schedule.md
 /host-wide-schedule:
-  en: 71c4686e65a7c7f9
-  zh: dfba124c28db2f63
+  en: 123746876e130093
+  zh: a937e9fff8671263
 /host-wide-schedule/durable-records:
-  en: 41cd197b5c74bfa3
-  zh: 18ed11259036d726
+  en: 81a3781ba877927d
+  zh: fe21de39d577a4a2
 /host-wide-schedule/absolute-time-input:
-  en: a07f1a7153b0074f
-  zh: f3c584db1073e49d
+  en: 3f7385b5d0e78450
+  zh: 76b02a02a3ba8685
 /host-wide-schedule/daily-wall-clock-input:
   en: 2d249edc3dfccb8a
   zh: 33fecda132b03b84
@@ -21,14 +21,14 @@
   en: 1ba9ae84f05d8919
   zh: 5b4abfdcddbbcae0
 /host-wide-schedule/historical-session-changes:
-  en: d3bdcf22dd771a7d
-  zh: 11af3e617a7ef3fd
+  en: 1d16017b82d34b19
+  zh: 7cf4c66308acf212
 /host-wide-schedule/active-views-and-management:
-  en: 93798ad69f74ddd5
-  zh: 634126ad8accc356
+  en: 97d13e3e2c864047
+  zh: 259ccf6bfd2bd5e2
 /host-wide-schedule/web-catalog:
-  en: b5e5ac8125e65f33
-  zh: 9ee064d833a4f838
+  en: cc68f55af90d6bf5
+  zh: 82f2a1a3adf89fff
 /host-wide-schedule/timing-edits:
   en: ce5d2095a3ad2e82
   zh: 167b3715f8eaffc1

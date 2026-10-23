@@ -10,9 +10,9 @@ import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
-const dshBin = join(repoRoot, 'apps/cli/lib/bin.js')
+const mwfBin = join(repoRoot, 'apps/cli/lib/bin.js')
 const frontendIndex = join(repoRoot, 'apps/web/dist/index.html')
-const builtArtifactsExist = existsSync(dshBin) && existsSync(frontendIndex)
+const builtArtifactsExist = existsSync(mwfBin) && existsSync(frontendIndex)
 
 interface Fixture {
   root: string
@@ -23,7 +23,7 @@ interface Fixture {
 }
 
 function createFixture(): Fixture {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-web-best-effort-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-web-best-effort-'))
   const home = join(root, 'home')
   const events = join(root, 'events.log')
   const stop = join(root, 'stop')
@@ -101,7 +101,7 @@ async function waitForStartup(
   let settled = false
   const finish = (): void => {
     if (settled || url === undefined) return
-    if (!stderrText.includes('dsh: warning: 6 entries did not activate')) return
+    if (!stderrText.includes('mwf: warning: 6 entries did not activate')) return
     if (!stderrText.includes('web async apply failure')) return
     if (!stderrText.includes('webProbeMissingService')) return
     settled = true
@@ -110,7 +110,7 @@ async function waitForStartup(
   }
   stdout.on('data', (chunk: string) => {
     stdoutText += chunk
-    url ??= /dsh web: (http:\/\/[^\s]+)/u.exec(stdoutText)?.[1]
+    url ??= /mwf web: (http:\/\/[^\s]+)/u.exec(stdoutText)?.[1]
     finish()
   })
   stderr.on('data', (chunk: string) => {
@@ -131,11 +131,11 @@ async function waitForStartup(
   return ready.promise
 }
 
-describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () => {
+describe.skipIf(!builtArtifactsExist)('mwf Web profile best-effort startup', () => {
   it('serves the full Web app while unrelated entries fail to start', async () => {
     const fixture = createFixture()
     const child = execa(process.execPath, [
-      dshBin,
+      mwfBin,
       '--profile', 'web',
       '--patch', fixture.patch,
       '--no-open',
@@ -145,9 +145,9 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
       env: {
         ...process.env,
         DEEPSEEK_API_KEY: 'keyless-web-best-effort-no-call',
-        DSH_AGENTS_HOME: join(fixture.root, '.agents'),
-        DSH_HOME: fixture.home,
-        DSH_TELEMETRY_DISABLED: '1',
+        MWF_AGENTS_HOME: join(fixture.root, '.agents'),
+        MWF_HOME: fixture.home,
+        MWF_TELEMETRY_DISABLED: '1',
         NODE_NO_WARNINGS: '1',
       },
       input: '',
@@ -166,10 +166,10 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
       const page = await fetch(new URL('/', startup.url), { headers: { cookie } })
       const html = await page.text()
       expect(html).toContain('<div id="root"></div>')
-      expect(html).toContain('__DSH_BOOT__')
+      expect(html).toContain('__MWF_BOOT__')
       expect(readFileSync(fixture.events, 'utf8')).toBe('good apply\n')
       expect(startup.stderr).toContain('web-probe-import-failure')
-      expect(startup.stderr).toContain('@deepseek-ai/dsh-tool-todo')
+      expect(startup.stderr).toContain('@metaworkflow/tool-todo')
       expect(startup.stderr).toContain('web sync apply failure')
       expect(startup.stderr).toContain('web async apply failure')
       expect(startup.stderr).toContain('pending (waiting for service: webProbeMissingService)')
@@ -214,7 +214,7 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
     writeFileSync(fixture.patch, `${readFileSync(fixture.patch, 'utf8')}- id: ${id}\n  ${patch}\n`)
     try {
       const result = await execa(process.execPath, [
-        dshBin,
+        mwfBin,
         '--profile', 'web',
         '--patch', fixture.patch,
         '--no-open',
@@ -224,9 +224,9 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
         env: {
           ...process.env,
           DEEPSEEK_API_KEY: 'keyless-web-required-no-call',
-          DSH_AGENTS_HOME: join(fixture.root, '.agents'),
-          DSH_HOME: fixture.home,
-          DSH_TELEMETRY_DISABLED: '1',
+          MWF_AGENTS_HOME: join(fixture.root, '.agents'),
+          MWF_HOME: fixture.home,
+          MWF_TELEMETRY_DISABLED: '1',
           NODE_NO_WARNINGS: '1',
         },
         input: '',
@@ -237,7 +237,7 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
       expect(result.timedOut).toBe(false)
       expect(result.signal).toBeUndefined()
       expect(result.exitCode).toBe(1)
-      expect(result.stdout).not.toContain('dsh web: http://')
+      expect(result.stdout).not.toContain('mwf web: http://')
       expect(result.stderr).toContain('startup failed:')
       expect(result.stderr).toContain(`${id} (required)`)
       expect(result.stderr).toContain(diagnostic)
@@ -248,7 +248,7 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
   })
 
   it.each([false, true])('fails the full Web profile when its required HTTP server cannot bind (logs blocked: %s)', async (logsBlocked) => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-web-required-bind-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-web-required-bind-'))
     const home = join(root, 'home')
     mkdirSync(home)
     if (logsBlocked) writeFileSync(join(home, 'logs'), 'blocked')
@@ -268,7 +268,7 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
 
     try {
       const result = await execa(process.execPath, [
-        dshBin,
+        mwfBin,
         '--profile', 'web',
         '--no-open',
         '--port', String(address.port),
@@ -277,9 +277,9 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
         env: {
           ...process.env,
           DEEPSEEK_API_KEY: 'keyless-web-required-bind-no-call',
-          DSH_AGENTS_HOME: join(root, '.agents'),
-          DSH_HOME: home,
-          DSH_TELEMETRY_DISABLED: '1',
+          MWF_AGENTS_HOME: join(root, '.agents'),
+          MWF_HOME: home,
+          MWF_TELEMETRY_DISABLED: '1',
           NODE_NO_WARNINGS: '1',
         },
         input: '',
@@ -290,20 +290,20 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
       expect(result.timedOut).toBe(false)
       expect(result.signal).toBeUndefined()
       expect(result.exitCode).toBe(1)
-      expect(result.stdout).not.toContain('dsh web: http://')
+      expect(result.stdout).not.toContain('mwf web: http://')
       expect(result.stderr).toContain('startup failed:')
-      expect(result.stderr).toContain('dsh: startup failed: 2 required plugins did not activate')
+      expect(result.stderr).toContain('mwf: startup failed: 2 required plugins did not activate')
       expect(result.stderr).toContain('Failed plugins (1):')
-      expect(result.stderr).toContain('  webserver (required)\n    Package: @deepseek-ai/dsh-host-webserver')
+      expect(result.stderr).toContain('  webserver (required)\n    Package: @metaworkflow/host-webserver')
       expect(result.stderr).toContain('Plugins waiting for services (')
       expect(result.stderr).toMatch(/web-runtime \(required\) +webServer/u)
       expect(result.stderr).toContain('at Server.setupListenHandle')
-      const summary = result.stderr.split(/\n\n(?:Full diagnostics:|dsh: warning:)/u)[0]!
+      const summary = result.stderr.split(/\n\n(?:Full diagnostics:|mwf: warning:)/u)[0]!
       expect(summary.match(/EADDRINUSE/gu)).toHaveLength(1)
-      expect(summary).not.toMatch(/dsh: warning:|\[cause\]|at boot \(|at runCli \(|Node\.js v/u)
+      expect(summary).not.toMatch(/mwf: warning:|\[cause\]|at boot \(|at runCli \(|Node\.js v/u)
       let report: string
       if (logsBlocked) {
-        expect(result.stderr).toContain('dsh: warning: could not write startup diagnostics:')
+        expect(result.stderr).toContain('mwf: warning: could not write startup diagnostics:')
         expect(result.stderr).not.toMatch(/Full diagnostics: [^\r\n]/u)
         report = result.stderr.split('Full diagnostics:\n')[1]!
         expect(readFileSync(join(home, 'logs'), 'utf8')).toBe('blocked')
@@ -315,11 +315,11 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
       }
       expect(report).toContain("profile: 'web'")
       expect(report).toContain('nodeVersion:')
-      expect(report).toContain('dshVersion:')
+      expect(report).toContain('mwfVersion:')
       expect(report).toContain('configurationPath:')
       expect(report).toContain("code: 'EADDRINUSE'")
       expect(report).toContain(`port: ${String(address.port)}`)
-      expect(report).toContain("module: '@deepseek-ai/dsh-web-app'")
+      expect(report).toContain("module: '@metaworkflow/web-app'")
       expect(report).toContain('at auditStartupEntries')
     } finally {
       await new Promise<void>((resolve, reject) => {
@@ -348,7 +348,7 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
     ].join('\n'))
     try {
       const result = await execa(process.execPath, [
-        dshBin,
+        mwfBin,
         '--profile', 'web',
         '--patch', fixture.patch,
         '--no-open',
@@ -358,9 +358,9 @@ describe.skipIf(!builtArtifactsExist)('dsh Web profile best-effort startup', () 
         env: {
           ...process.env,
           DEEPSEEK_API_KEY: 'keyless-web-detached-no-call',
-          DSH_AGENTS_HOME: join(fixture.root, '.agents'),
-          DSH_HOME: fixture.home,
-          DSH_TELEMETRY_DISABLED: '1',
+          MWF_AGENTS_HOME: join(fixture.root, '.agents'),
+          MWF_HOME: fixture.home,
+          MWF_TELEMETRY_DISABLED: '1',
           NODE_NO_WARNINGS: '1',
         },
         input: '',

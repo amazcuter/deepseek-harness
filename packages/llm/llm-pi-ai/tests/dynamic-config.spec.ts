@@ -4,12 +4,12 @@ import { Context } from '@deepseek-ai/cordis'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import LlmRuntime, { LlmAdapter } from '@deepseek-ai/dsh-llm'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import { LocalCredentialProvider } from '@deepseek-ai/dsh-credentials-local'
+import LlmRuntime, { LlmAdapter } from '@metaworkflow/llm'
+import { credentialRef } from '@metaworkflow/credentials'
+import { LocalCredentialProvider } from '@metaworkflow/credentials-local'
 import { liveConfig } from '../../../settings/settings/tests/live-config.ts'
-import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
-import AuthorizationService from '@deepseek-ai/dsh-authorization'
+import * as LlmPiAi from '@metaworkflow/llm-pi-ai'
+import AuthorizationService from '@metaworkflow/authorization'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
@@ -33,7 +33,7 @@ afterEach(async () => {
 })
 
 async function home(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'dsh-pi-dynamic-'))
+  const dir = await mkdtemp(join(tmpdir(), 'mwf-pi-dynamic-'))
   cleanups.push(() => rm(dir, { recursive: true, force: true }))
   return dir
 }

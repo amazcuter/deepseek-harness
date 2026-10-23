@@ -3,7 +3,7 @@ description: "Single file-extension to syntax-highlighting language table shared
 kind: "package-library"
 ---
 
-# dsh-util-code-language
+# mwf-util-code-language
 
 English | [中文](README.zh.md)
 

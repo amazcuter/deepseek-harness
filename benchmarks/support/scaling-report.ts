@@ -23,7 +23,7 @@ import { join } from 'node:path'
 import { MACHINE_PROFILES, matchMachineProfile } from './machine-profiles.ts'
 
 /** Directory owning `results.jsonl` and `report.html`; ignored by Git. */
-export const REPORT_DIRECTORY = join(import.meta.dirname, '..', '.dsh-report')
+export const REPORT_DIRECTORY = join(import.meta.dirname, '..', '.mwf-report')
 const RESULTS_PATH = join(REPORT_DIRECTORY, 'results.jsonl')
 const REPORT_PATH = join(REPORT_DIRECTORY, 'report.html')
 

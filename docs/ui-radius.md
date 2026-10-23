@@ -1,10 +1,10 @@
-# DSH unified corner-radius standard
+# MWF unified corner-radius standard
 
 English | [中文](ui-radius.zh.md)
 
 ## Summary
 
-Choose consistent corner radii by component role and size, and align nested regions, hover fills, backgrounds, and strokes. This standard covers buttons, cells, cards, menus, dialogs, and avatars in DSH Web and Desktop.
+Choose consistent corner radii by component role and size, and align nested regions, hover fills, backgrounds, and strokes. This standard covers buttons, cells, cards, menus, dialogs, and avatars in MWF Web and Desktop.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ Choose consistent corner radii by component role and size, and align nested regi
 <a id="scope"></a>
 ## Scope and authority
 
-This reference defines the DSH Web and Desktop radius scale and its component rules. A local visual adjustment stays scoped to the named component or family and does not automatically change the global scale.
+This reference defines the MWF Web and Desktop radius scale and its component rules. A local visual adjustment stays scoped to the named component or family and does not automatically change the global scale.
 
 The [Web UI style reference](web-styling.md) defines general styling ownership. Shared values live in [`base.css`](../packages/client/ui-theme/src/styles/base.css), and curve behavior lives in [`corner-shape.css`](../packages/client/ui-theme/src/styles/corner-shape.css). Update the theme implementation and both language versions of this standard together when changing a rule.
 

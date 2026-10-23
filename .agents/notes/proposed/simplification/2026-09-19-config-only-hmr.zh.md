@@ -1,4 +1,4 @@
-# Agent Note: 将 DSH HMR 限定为实时 profile 配置更新
+# Agent Note: 将 MWF HMR 限定为实时 profile 配置更新
 
 Status: proposed
 
@@ -6,7 +6,7 @@ Status: proposed
 
 ## 问题
 
-[DSH HMR](../../../../packages/boot/hmr/src/index.ts) 同时拥有串行 profile 配置刷新和运行中的 JavaScript 模块替换。模块替换增加了 Node loader 内部接口、依赖遍历、缓存备份、新旧插件 fiber、回滚、模块监听与导入错误格式化。[基础组合](../../../../packages/bundle/base/cordis.patch.yml) 使用 `root: []`；其他随产品发布的 profile 禁用或省略 HMR（热模块替换）。默认产品需要配置刷新，而源码替换服务于自定义 profile 的显式启用。
+[MWF HMR](../../../../packages/boot/hmr/src/index.ts) 同时拥有串行 profile 配置刷新和运行中的 JavaScript 模块替换。模块替换增加了 Node loader 内部接口、依赖遍历、缓存备份、新旧插件 fiber、回滚、模块监听与导入错误格式化。[基础组合](../../../../packages/bundle/base/cordis.patch.yml) 使用 `root: []`；其他随产品发布的 profile 禁用或省略 HMR（热模块替换）。默认产品需要配置刷新，而源码替换服务于自定义 profile 的显式启用。
 
 该选项是真实受支持的行为：[profile 测试](../../../../apps/cli/tests/profile-hmr.spec.ts)、模块测试和[构建后 CLI 测试](../../../../apps/cli/tests/built-bin.e2e.ts) 都覆盖它，生成的检查 API 也展示其方法和事件。本提案以开发连续性换取更小的维护子系统，并不将代码判定为不可达。
 
@@ -20,7 +20,7 @@ Status: proposed
 
 ## 考虑过的替代方案
 
-**保留可选源码替换。** 插件作者可以在不重启活动 Session 的情况下编辑代码，失败替换会恢复旧插件。这项能力有价值；本提案有意放弃它，以移除 DSH 对 loader 版本的耦合及替换状态所有权。
+**保留可选源码替换。** 插件作者可以在不重启活动 Session 的情况下编辑代码，失败替换会恢复旧插件。这项能力有价值；本提案有意放弃它，以移除 MWF 对 loader 版本的耦合及替换状态所有权。
 
 **仅删除回滚或将替换委托到别处。** 部分删除可能让缓存模块和活动 fiber 属于不同代。包装另一个 HMR 实现仍保留公共行为及协调负担。这两种方式都不能实现此处提出的完整删除。
 

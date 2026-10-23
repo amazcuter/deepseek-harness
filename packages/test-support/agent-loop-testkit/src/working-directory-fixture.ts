@@ -1,7 +1,7 @@
 /** Directory collaborator for consumer-only tests with structural Agent stubs. */
 import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { Session } from '@deepseek-ai/dsh-session'
+import type { Agent } from '@metaworkflow/agent'
+import type { Session } from '@metaworkflow/session'
 
 /**
  * Supply fixed directory values without filesystem checks or durable changes.

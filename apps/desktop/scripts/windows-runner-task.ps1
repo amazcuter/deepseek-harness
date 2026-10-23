@@ -20,10 +20,10 @@ for ($ancestor = [IO.DirectoryInfo]::new($RunnerRoot); $null -ne $ancestor; $anc
 }
 $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
 $digest = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($RunnerRoot.ToUpperInvariant())))
-$taskName = 'DSH-Packaging-' + $digest.Substring(0,16)
-$serviceDir = Join-Path $RunnerRoot 'dsh-task'
+$taskName = 'MWF-Packaging-' + $digest.Substring(0,16)
+$serviceDir = Join-Path $RunnerRoot 'mwf-task'
 $task = Get-ScheduledTask -TaskPath '\' | Where-Object TaskName -eq $taskName
-if ($task -and $task.Description -ne "DSH packaging runner: $RunnerRoot; owner: $sid") { throw 'Task ownership differs; inspect it in Task Scheduler.' }
+if ($task -and $task.Description -ne "MWF packaging runner: $RunnerRoot; owner: $sid") { throw 'Task ownership differs; inspect it in Task Scheduler.' }
 
 if ($Action -eq 'install') {
     if ($task) { throw 'Task already installed; stop and uninstall before reinstalling.' }
@@ -50,7 +50,7 @@ if ($Action -eq 'install') {
     )
     $settings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -ExecutionTimeLimit ([TimeSpan]::Zero) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
     $settings.Enabled = $false
-    $null = Register-ScheduledTask -TaskName $taskName -TaskPath '\' -Action $execution -Principal $principal -Trigger $trigger -Settings $settings -Description "DSH packaging runner: $RunnerRoot; owner: $sid"
+    $null = Register-ScheduledTask -TaskName $taskName -TaskPath '\' -Action $execution -Principal $principal -Trigger $trigger -Settings $settings -Description "MWF packaging runner: $RunnerRoot; owner: $sid"
     Write-Output "Installed disabled task $taskName. Run start while logged in; reboot requires desktop login. Logs: $serviceDir"
     exit 0
 }

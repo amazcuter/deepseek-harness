@@ -3,7 +3,7 @@ description: "Reload plugin code and profile configuration through one coordinat
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-hmr
+# @metaworkflow/hmr
 
 English | [中文](README.zh.md)
 
@@ -33,7 +33,7 @@ The base bundle enables HMR with `root: []` when the launcher supplies `profileC
     root: ["."]
 ```
 
-Existing configurations replace the module name `@deepseek-ai/cordis-plugin-hmr` with `@deepseek-ai/dsh-hmr`. The `hmr` service key, `baseDir`, `config`, `getLinked()`, `getOuterStack()`, `hmr/change` and `hmr/reload` remain available. The vendored package remains available; DSH profiles use this package.
+Existing configurations replace the module name `@deepseek-ai/cordis-plugin-hmr` with `@metaworkflow/hmr`. The `hmr` service key, `baseDir`, `config`, `getLinked()`, `getOuterStack()`, `hmr/change` and `hmr/reload` remain available. The vendored package remains available; MWF profiles use this package.
 
 ### Configuration
 
@@ -56,7 +56,7 @@ Profile recompositions run by HMR's profile watches and by Plugin Manager also r
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-`watchConfig()` registers an awaited configuration handler and watches only its target path and required parent directories; sibling files, including temporary writer locks, are excluded before native watcher creation. `runExclusive()` serializes configuration changes and Loader updates with automatic reloads and rejects nested transactions. Package installation and removal run outside this queue. HMR does not acquire the package writer lock; manifest notifications reload only when the ordered `dsh.profile.bundles` list changes. Profile and home patch changes also trigger recomposition. File events received during a configuration transaction are processed afterward. Include refreshes and profile reconciliation reach plugins through ordinary Loader entry updates; Loader commits volatile-only changes in place.
+`watchConfig()` registers an awaited configuration handler and watches only its target path and required parent directories; sibling files, including temporary writer locks, are excluded before native watcher creation. `runExclusive()` serializes configuration changes and Loader updates with automatic reloads and rejects nested transactions. Package installation and removal run outside this queue. HMR does not acquire the package writer lock; manifest notifications reload only when the ordered `mwf.profile.bundles` list changes. Profile and home patch changes also trigger recomposition. File events received during a configuration transaction are processed afterward. Include refreshes and profile reconciliation reach plugins through ordinary Loader entry updates; Loader commits volatile-only changes in place.
 
 App-boot owns profile parsing and patch precedence. HMR reads the launcher’s data-only `profileContext`, registers the profile manifest and both user patch watches during initialization, and waits for application readiness before processing changes. Its disposal closes the watchers and cancels reloads waiting for startup. Configuration watchers start outside the active transaction context so later notifications can enter the queue.
 
@@ -108,10 +108,10 @@ Reloading a contributing plugin can change later request prefixes; HMR does not 
 - Module replacement requires Node loader internals. Framework dependency changes call the host-provided `loader.exit()` hook; HMR itself does not restart the process.
 - A change confined to `package.json` is not detected. Watcher notifications for manifests below `node_modules` are still ignored. The browser Client module graph retains its separate browser-side loading mechanism.
 - Replacement follows static imports. A dynamic `import()` of a stale module evaluates the new file on its next call while its importer keeps running; existing Workers and the TSX loader thread keep their module caches.
-- Every symbolic link below the profile's `node_modules` widens the comparison scope. Linking a package that the process entry point, located through the real path of a bin link, imports statically, such as `dsh-app-boot`, Cordis or the Loader from a dsh checkout, brings host modules into scope; their changes stay pending, and Plugin Manager reports `restart-required` for later operations until the process restarts. Linked dsh packages that Loader entries import are replaced like other plugins.
+- Every symbolic link below the profile's `node_modules` widens the comparison scope. Linking a package that the process entry point, located through the real path of a bin link, imports statically, such as `mwf-app-boot`, Cordis or the Loader from a mwf checkout, brings host modules into scope; their changes stay pending, and Plugin Manager reports `restart-required` for later operations until the process restarts. Linked mwf packages that Loader entries import are replaced like other plugins.
 - The comparison records belong to one HMR instance. A recomposition that restarts the `hmr` entry itself records the current files again, so changes pending at that point are no longer reported or retried.
 - A replacement that fails to import or start stays inactive until its files or dependencies are corrected; the previous version is not restored.
-- Compatibility checks run only where DSH composes rows: startup, profile recomposition and preset mounting; the Loader checks nothing when it imports a module. A replaced profile row passes the recomposition's preflight, but a row outside the profile composition, such as a preset row or an entry added through `ctx.loader.create()`, restarts with replaced code without a check. Plugin Manager refuses incompatible versions, so this affects packages changed outside it, such as a manual `pnpm add` in the profile directory or a rebuilt `link:` package.
+- Compatibility checks run only where MWF composes rows: startup, profile recomposition and preset mounting; the Loader checks nothing when it imports a module. A replaced profile row passes the recomposition's preflight, but a row outside the profile composition, such as a preset row or an entry added through `ctx.loader.create()`, restarts with replaced code without a check. Plugin Manager refuses incompatible versions, so this affects packages changed outside it, such as a manual `pnpm add` in the profile directory or a rebuilt `link:` package.
 - The [packed worker loader](../../experimental/webworker-runtime/src/module-system/module-loader.ts) exposes neither Node’s `loadCache` nor `require.cache`; configuration recomposition remains available, but code replacement requires a restart. Native Node retains these caches even with asynchronous module hooks. The [packed worker browser test](../../../apps/web/tests/preview-boot.e2e.ts) exercises this deployment.
 - A newly loaded file is first recorded after recomposition settles and counts as changed when its modification time follows the comparison. The comparison time is the modification time of a marker file HMR writes in the temporary directory, so on one machine both come from the clock local file writes are stamped with; an edit within the timestamp granularity of the profile's filesystem after the comparison counts as earlier and can be missed, and network filesystems stamp writes with the server's clock.
 - A file replaced by a hard link to an older store file keeps an older modification time; when its module was first loaded after the last recording, the change is not detected.

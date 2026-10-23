@@ -10,7 +10,7 @@ Status: implemented
 
 ## Decision
 
-`packages/bundle/web-app/presets/standard.patch.yml`、`ptc.patch.yml` 与 `cordis.patch.yml` 各自在其 Agent 上下文行中声明 `time-context`；`minimal.patch.yml` 不声明。`packages/bundle/web-app/cordis.patch.yml` 不含 `time-context` 行；它插入 `schedule` 与 `ui-schedule`。`packages/bundle/web-app/package.json` 继续声明 `@deepseek-ai/dsh-time-context`，这是 `verify-cordis-config` 对 `presets/cordis.patch.yml` 贡献的裸包名的要求。
+`packages/bundle/web-app/presets/standard.patch.yml`、`ptc.patch.yml` 与 `cordis.patch.yml` 各自在其 Agent 上下文行中声明 `time-context`；`minimal.patch.yml` 不声明。`packages/bundle/web-app/cordis.patch.yml` 不含 `time-context` 行；它插入 `schedule` 与 `ui-schedule`。`packages/bundle/web-app/package.json` 继续声明 `@metaworkflow/time-context`，这是 `verify-cordis-config` 对 `presets/cordis.patch.yml` 贡献的裸包名的要求。
 
 这里确立的边界是：携带时间的注入归属于消费它的 preset。由 preset 决定其 Agent 是否收到时钟读数，因此该读数与消费它的提醒工具同行；`schedule` 宿主服务行与 `ui-schedule` 客户端行是与 preset 无关的界面，因此由 [Web bundle](../../../../packages/bundle/web-app/README.zh.md)为整个部署插入它们。该组合负责 `web` profile 挂载哪些宿主行与客户端界面；本记录负责该读数的 preset 归属。
 
@@ -34,4 +34,4 @@ Status: implemented
 
 ## Testing
 
-`apps/web/tests/schedule-after.e2e.ts` 固化随发行版交付的组合：`schedule` 与 `ui-schedule` 两行，`time-context`（`@deepseek-ai/dsh-time-context`）与 `tool-schedule`（`@deepseek-ai/dsh-tool-schedule`）在 `standard`、`ptc` 与 `cordis` preset 中各声明一次且未禁用，也不在 `minimal` 中，且不含 `time-context` 行。其每步读数 overlay 通过重述 `preset-standard` 声明的插件实现，而不是按 id patch 该行。`apps/cli/tests/profiles/web/tests/web-default-isolation.expected.e2e.ts` 断言随发行版交付的组合含 `schedule` 与 `ui-schedule` 条目，且不含 `time-context` 条目。
+`apps/web/tests/schedule-after.e2e.ts` 固化随发行版交付的组合：`schedule` 与 `ui-schedule` 两行，`time-context`（`@metaworkflow/time-context`）与 `tool-schedule`（`@metaworkflow/tool-schedule`）在 `standard`、`ptc` 与 `cordis` preset 中各声明一次且未禁用，也不在 `minimal` 中，且不含 `time-context` 行。其每步读数 overlay 通过重述 `preset-standard` 声明的插件实现，而不是按 id patch 该行。`apps/cli/tests/profiles/web/tests/web-default-isolation.expected.e2e.ts` 断言随发行版交付的组合含 `schedule` 与 `ui-schedule` 条目，且不含 `time-context` 条目。

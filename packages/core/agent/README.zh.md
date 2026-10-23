@@ -3,13 +3,13 @@ description: "面向插件、UI 与编排器的 Agent 句柄、实时注册表�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-agent
+# @metaworkflow/agent
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `dsh-agent` 创建或恢复实时 agent（智能体）、发送后续或 steering（中途引导）输入、注入面向模型的上下文、取消工作，并等待 agent 进入空闲状态。插件、UI、钩子与编排器还可以观察或拦截 agent 活动，并仅为一个 agent 应用能力而不影响其他 agent。当代码需要通过公开 `Agent` API 控制或扩展实时 agent 时，请选择本包。请将它与 `dsh-agent-loop` 等 agent 驱动器配合使用；本包本身不会创建模型请求。发起方归因仅存在于进程内，跨 worker、进程、持久队列与重启时必须显式传递。
+使用 `mwf-agent` 创建或恢复实时 agent（智能体）、发送后续或 steering（中途引导）输入、注入面向模型的上下文、取消工作，并等待 agent 进入空闲状态。插件、UI、钩子与编排器还可以观察或拦截 agent 活动，并仅为一个 agent 应用能力而不影响其他 agent。当代码需要通过公开 `Agent` API 控制或扩展实时 agent 时，请选择本包。请将它与 `mwf-agent-loop` 等 agent 驱动器配合使用；本包本身不会创建模型请求。发起方归因仅存在于进程内，跨 worker、进程、持久队列与重启时必须显式传递。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在存在实时 agent 的任何地方挂载 `dsh-agent`：它提供 `ctx.agents` 以及插件、UI、钩子和编排器所面向编程的 `Agent` 句柄。在没有驱动器注册工厂之前，该服务保持惰性——随附驱动器是 `dsh-agent-loop`，因此最小的可用组合需要同时加载两者。
+在存在实时 agent 的任何地方挂载 `mwf-agent`：它提供 `ctx.agents` 以及插件、UI、钩子和编排器所面向编程的 `Agent` 句柄。在没有驱动器注册工厂之前，该服务保持惰性——随附驱动器是 `mwf-agent-loop`，因此最小的可用组合需要同时加载两者。
 
 ### 创建或恢复 agent
 
@@ -78,7 +78,7 @@ await handle.agent.whenIdle()
 
 ### 设计理念
 
-该包建立在一项职责分离之上：公开的 `Agent` 接口与注册表位于本包，构造与驱动则位于循环包，并通过已注册工厂提供。消费方因此依赖 `dsh-agent` 而不依赖 `dsh-agent-loop`，从而保持驱动器可替换。第二个理念是发起方作用域：一条 `AsyncLocalStorage` 链把确切的实时 `Agent` 携带经过它启动的异步驱动器工作，使驱动器之下的辅助函数无需逐调用转发 agent 即可归因自己的工作。
+该包建立在一项职责分离之上：公开的 `Agent` 接口与注册表位于本包，构造与驱动则位于循环包，并通过已注册工厂提供。消费方因此依赖 `mwf-agent` 而不依赖 `mwf-agent-loop`，从而保持驱动器可替换。第二个理念是发起方作用域：一条 `AsyncLocalStorage` 链把确切的实时 `Agent` 携带经过它启动的异步驱动器工作，使驱动器之下的辅助函数无需逐调用转发 agent 即可归因自己的工作。
 
 ### 步骤准入
 
@@ -86,7 +86,7 @@ await handle.agent.whenIdle()
 
 ### 持久 inbox
 
-`Agent.inbox` 只暴露结构型 `Inbox` 接口，投影词汇仍位于本包。dsh-agent-loop 持有包内部的 `ReactLoopInbox` 与标准 `inbox` 投影；构造具体 inbox 时会确保投影注册表为持久 `agent/inbox/spliced` fold 持有一份注册。注册表继续作为实时 `{ 'next-turn', 'next-step' }` 状态的唯一所有者。重建过程会拒绝不安全或越界的 splice 坐标，以及跨两份待处理列表重复的 `MessageId`，并报告出错事件的 seq。
+`Agent.inbox` 只暴露结构型 `Inbox` 接口，投影词汇仍位于本包。mwf-agent-loop 持有包内部的 `ReactLoopInbox` 与标准 `inbox` 投影；构造具体 inbox 时会确保投影注册表为持久 `agent/inbox/spliced` fold 持有一份注册。注册表继续作为实时 `{ 'next-turn', 'next-step' }` 状态的唯一所有者。重建过程会拒绝不安全或越界的 splice 坐标，以及跨两份待处理列表重复的 `MessageId`，并报告出错事件的 seq。
 
 `Inbox` 暴露待处理的 `nextTurn` 与 `nextStep` 消息，并通过 `append`、`prepend`、`replace`、`remove`、`clear` 与 `splice` 变更它们。普通删除和 `clear()` 都是持久取消。在步骤边界，循环的内部实现会通过纯删除 splice 领取待处理输入。实时通知刻意采用逐消息的最小载荷：`agent/inbox/inserted { message }`、`agent/inbox/claimed { message, turn }` 与 `agent/inbox/discarded { message }`。
 
@@ -106,7 +106,7 @@ await handle.agent.whenIdle()
 
 `AgentRegistry` 为每个实时 agent 保留一个条目，含其载体与创建者关系。使用已构造的 agent 前，等待 `register()` 以 `startup` 来源完成串行创建监听器；异步工厂使用拆分的 `enter()`/`announce()` 对，使 setup 与初始化始终受回滚保护。创建期间请求的 detach 会等待所有已调用的异步监听器结算，且每次 detach 都绑定到确切条目，因此陈旧 disposer 无法移除之后出现的同 id 替代项。Teardown 停止并排空循环、撤销作用域、detach agent，再 detach 会话；私有清理完成后该 id 即可复用。
 
-注册表还为它发布的每个 Agent 回答 Workspace 注册表的归档准入（[接缝](../../workspace/workspace/README.zh.md)）：`workspace/session-activity` 在会话的 Agent 运行时报告 `turn` 族（等待审批或回答的回合也算），`workspace/session-stop` 以用户自己的停止方式取消该回合——`agent.cancel({ kind: 'user' })`，但不带停止按钮的 `keepInbox`，因此排队输入被丢弃并记录一次收件箱拼接，而不会在之后唤醒已归档会话。任何一步都不等待收敛；没有活 Agent 的会话没有可运行的回合。`turn` 键从 [`src/types.ts`](src/types.ts) 合并进 `SessionActivityKindMap`，渲染各族的 Client 为此导入 `@deepseek-ai/dsh-agent/types`。
+注册表还为它发布的每个 Agent 回答 Workspace 注册表的归档准入（[接缝](../../workspace/workspace/README.zh.md)）：`workspace/session-activity` 在会话的 Agent 运行时报告 `turn` 族（等待审批或回答的回合也算），`workspace/session-stop` 以用户自己的停止方式取消该回合——`agent.cancel({ kind: 'user' })`，但不带停止按钮的 `keepInbox`，因此排队输入被丢弃并记录一次收件箱拼接，而不会在之后唤醒已归档会话。任何一步都不等待收敛；没有活 Agent 的会话没有可运行的回合。`turn` 键从 [`src/types.ts`](src/types.ts) 合并进 `SessionActivityKindMap`，渲染各族的 Client 为此导入 `@metaworkflow/agent/types`。
 
 ### 发起方作用域
 

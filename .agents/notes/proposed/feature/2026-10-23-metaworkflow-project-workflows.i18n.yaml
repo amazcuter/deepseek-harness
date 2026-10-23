@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-10-23-metaworkflow-project-workflows.md
 /agent-note-metaworkflow-project-workflows:
-  en: 5973eda00493da23
-  zh: debcb488237c7ede
+  en: ec8cb12c1768de9f
+  zh: 5c586f5c1813378d
 /agent-note-metaworkflow-project-workflows/problem:
-  en: aef60a76db45083e
-  zh: 5a8c7f700f695814
+  en: 49fa8df5b59b3266
+  zh: ed502dd13db76b22
 /agent-note-metaworkflow-project-workflows/proposal:
   en: 986dd8097aac4d3d
   zh: ca258a5d37ffa6a0
 /agent-note-metaworkflow-project-workflows/proposal/confirmed-product-scope:
-  en: 26f083ac7d027282
-  zh: 3a5e7d3b751a74ab
+  en: 2064cbb120df5678
+  zh: cc59491f7d25910d
 /agent-note-metaworkflow-project-workflows/proposal/web-pages-and-navigation:
-  en: c3be7a1cc7184cd1
-  zh: 1d1d14463ae07d0e
+  en: bfa742731fb7b4be
+  zh: 7289a48cd40d364b
 /agent-note-metaworkflow-project-workflows/proposal/one-coordinator-per-project:
   en: 847e0d03b27350b0
   zh: c3a65db00d9368b9
@@ -24,32 +24,32 @@
   en: dad030aa62f6a792
   zh: 9bac44202ed93ac7
 /agent-note-metaworkflow-project-workflows/proposal/node-input-and-completion:
-  en: a14f6dfcd4a3a2fb
-  zh: f17e80cb9a37b89c
+  en: 12e852fca32a6731
+  zh: 73eb5b8629c7977c
 /agent-note-metaworkflow-project-workflows/proposal/edges-loops-and-parallel-joins:
   en: 56d2efa9138f159d
   zh: 99c081e4fdc6d6b7
 /agent-note-metaworkflow-project-workflows/proposal/files-persistence-and-recovery:
-  en: e003156d5b4b3bab
-  zh: d31128763268d3b1
+  en: 97945ee5ba88d68c
+  zh: e61bf95e062fad49
 /agent-note-metaworkflow-project-workflows/proposal/apply-edits-to-an-active-run:
   en: 061cdf185c0780e4
   zh: 30ba56da3ac17e35
 /agent-note-metaworkflow-project-workflows/proposal/canvas-and-authoring:
-  en: c49d359ca35f1990
-  zh: a06c785b252a3fba
+  en: 6499c273bde58fcf
+  zh: 4d43980a025e9664
 /agent-note-metaworkflow-project-workflows/proposal/verified-constraints-and-design-decisions:
-  en: 14ba75dc025fbdea
-  zh: 2a064a6f4a71050e
+  en: fa128c10eea60db0
+  zh: 7284f7fdb99a375d
 /agent-note-metaworkflow-project-workflows/proposal/integration-and-implementation-sequence:
-  en: 7ba846006986ffda
-  zh: d19665e4740d0319
+  en: 0b71635905e47ca7
+  zh: bcdef6cd2f6906ce
 /agent-note-metaworkflow-project-workflows/alternatives-considered:
   en: ac03504dee87698d
   zh: 78ee4c56b2690bdd
 /agent-note-metaworkflow-project-workflows/acceptance-criteria:
-  en: 7363ff6d3124fc38
-  zh: 61db4451c448e369
+  en: a69bab3143f99196
+  zh: 9f7e29d373665669
 /agent-note-metaworkflow-project-workflows/risks:
-  en: 6a8829bf7ed9d51d
-  zh: c54c4bfd809dde59
+  en: 17a4a76082665056
+  zh: 496c0d060cfa969c

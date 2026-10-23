@@ -53,7 +53,7 @@ describe('web e2e: Models settings page configures a dormant provider', () => {
     page = await browser.newPage({ viewport: { width: 1680, height: 1000 }, locale: ZH_BROWSER_LOCALE })
     await page.addInitScript(() => {
       const events = { received: 0, handled: 0 }
-      Reflect.set(window, '__DSH_MODELS_ADAPTER_EVENTS__', events)
+      Reflect.set(window, '__MWF_MODELS_ADAPTER_EVENTS__', events)
       const NativeWebSocket = window.WebSocket
       window.WebSocket = class extends NativeWebSocket {
         constructor(url: string | URL, protocols?: string | string[]) {
@@ -430,13 +430,13 @@ describe('web e2e: Models settings page configures a dormant provider', () => {
       await firstStarted.promise
       const obsolete = [...reads]
       const receivedBefore = await page.evaluate(() => {
-        const events: unknown = Reflect.get(window, '__DSH_MODELS_ADAPTER_EVENTS__')
+        const events: unknown = Reflect.get(window, '__MWF_MODELS_ADAPTER_EVENTS__')
         if (typeof events !== 'object' || events === null || !('received' in events) || typeof events.received !== 'number') throw new Error('Missing adapter event observer')
         return events.received
       })
       nextStarted = Promise.withResolvers<undefined>()
       const successorHandled = page.waitForFunction((received) => {
-        const events: unknown = Reflect.get(window, '__DSH_MODELS_ADAPTER_EVENTS__')
+        const events: unknown = Reflect.get(window, '__MWF_MODELS_ADAPTER_EVENTS__')
         return typeof events === 'object' && events !== null && 'handled' in events && typeof events.handled === 'number' && events.handled > received
       }, receivedBefore)
       scaffold.ctx.emit('llm/adapters-updated')

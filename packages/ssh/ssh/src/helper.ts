@@ -4,14 +4,14 @@ import { readFileSync } from 'node:fs'
 import { mkdtemp, rm } from 'node:fs/promises'
 import type { Readable, Writable } from 'node:stream'
 import { Context } from '@deepseek-ai/cordis'
-import { FsError, type FsTarget, type FsWriteIntent, type FsVersion } from '@deepseek-ai/dsh-fs'
-import { SandboxedFileSystem } from '@deepseek-ai/dsh-fs-sandbox'
-import type {} from '@deepseek-ai/dsh-subprocess'
-import { LocalSubprocessRuntime } from '@deepseek-ai/dsh-subprocess-local'
-import { LocalSandboxProvider } from '@deepseek-ai/dsh-sandbox-local'
-import { SandboxPolicyService } from '@deepseek-ai/dsh-sandbox-policy'
-import { SessionProjectionRegistry } from '@deepseek-ai/dsh-session-projection'
-import type { SandboxExecutionPolicy, SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
+import { FsError, type FsTarget, type FsWriteIntent, type FsVersion } from '@metaworkflow/fs'
+import { SandboxedFileSystem } from '@metaworkflow/fs-sandbox'
+import type {} from '@metaworkflow/subprocess'
+import { LocalSubprocessRuntime } from '@metaworkflow/subprocess-local'
+import { LocalSandboxProvider } from '@metaworkflow/sandbox-local'
+import { SandboxPolicyService } from '@metaworkflow/sandbox-policy'
+import { SessionProjectionRegistry } from '@metaworkflow/session-projection'
+import type { SandboxExecutionPolicy, SandboxPolicy } from '@metaworkflow/sandbox'
 import { z } from 'zod'
 import { SshRpcPeer, RemoteOperationError, SSH_MAX_PROCESS_HANDLES, SSH_MAX_TEXT_STREAMS, SSH_PROTOCOL_VERSION } from './protocol.ts'
 import { RemoteProcesses } from './helper-processes.ts'
@@ -57,7 +57,7 @@ export async function runSshHelper(transport: HelperTransport): Promise<void> {
   transport.signal.throwIfAborted()
   const runtime = await services()
   const { ctx } = runtime
-  const root = await mkdtemp('/tmp/dsh-ssh-')
+  const root = await mkdtemp('/tmp/mwf-ssh-')
   const processes = new RemoteProcesses(ctx, root, SSH_MAX_PROCESS_HANDLES, 30_000)
   const lifetime = new AbortController()
   const iterators = new Map<SshTextStreamId, { iterator: AsyncIterator<string>; controller: AbortController }>()

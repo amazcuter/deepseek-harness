@@ -3,7 +3,7 @@ description: "Configure Desktop product analytics, identity fields, and event ti
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-product-analytics
+# @metaworkflow/client-product-analytics
 
 English | [中文](README.zh.md)
 
@@ -23,7 +23,7 @@ Desktop reports selected interactions through the existing OTel product exporter
 
 Desktop mounts Analytics and its required Telemetry exporter. The `product-analytics` settings namespace owns the live `enabled` field, which defaults to `true`; configure it through the existing Cordis Config / settings mechanism. There is no user-facing control. Ordinary Web mounts neither service. Disabled collection starts no environment queries, reads no analytics identity and accepts no new events; the exporter remains mounted and may finish exporting records already queued. Session-feedback telemetry has its own policy.
 
-The renderer and Electron subscribe to the Host policy through the existing authenticated stream, including reconnection. Electron also reads the initial policy before native launch reporting. Welcome obtains the current policy over IPC. The Host checks its current volatile configuration again at event intake and after environment and identity lookup. `DSH_PRODUCT_ANALYTICS_OTLP_URL` overrides the export destination for isolated collectors. The [exporter](../../host/product-telemetry-otel/README.md) owns batching, retry, and shutdown delivery.
+The renderer and Electron subscribe to the Host policy through the existing authenticated stream, including reconnection. Electron also reads the initial policy before native launch reporting. Welcome obtains the current policy over IPC. The Host checks its current volatile configuration again at event intake and after environment and identity lookup. `MWF_PRODUCT_ANALYTICS_OTLP_URL` overrides the export destination for isolated collectors. The [exporter](../../host/product-telemetry-otel/README.md) owns batching, retry, and shutdown delivery.
 
 Every product event carries available `device_id`, `user_id`, and `app_version` plus the static fields below. Identity reuses the existing login record without creating an identifier and is read for each event through `deepseekAccount.getDeviceIdentity()`. Static environment collection is independent of identity lookup. No separate environment event is emitted; API keys, account tokens, prompts, responses, hostnames, and machine UUIDs are excluded.
 
@@ -43,7 +43,7 @@ Every product event carries available `device_id`, `user_id`, and `app_version` 
 
 The first enabled intake collects one environment snapshot; concurrent and later intakes reuse its successful fields and failures until the plugin remounts or the Host restarts. Intake waits for sampling while callers submit asynchronously; startup does not await collection. Identity changes remain visible on subsequent events. Each metadata command has a configurable `environmentQueryTimeoutMillis` deadline (5,000 ms) and `environmentQueryMaxOutputBytes` bound per output stream (16,384 bytes). Disposal cancels commands and waits for child closure; disabled or disposed intake never emits late results. Missing revision never becomes `.0`, and missing numeric fields never become zero. Only Windows and macOS have full-version, native-architecture, and physical-core queries; other platforms mark those fields `unsupported`.
 
-Electron forwards its build-inlined `DSH_CLIENT_VERSION` to the Host; analytics and the exporter reuse this client version. The exporter requires it. The [Desktop composition](../../bundle/web-app/README.md) owns batching and timeout settings, including cancellation at the shutdown deadline.
+Electron forwards its build-inlined `MWF_CLIENT_VERSION` to the Host; analytics and the exporter reuse this client version. The exporter requires it. The [Desktop composition](../../bundle/web-app/README.md) owns batching and timeout settings, including cancellation at the shutdown deadline.
 
 The [event types](src/events.ts) own names and allowed fields. Authentication events cover the native welcome page only; workspace login after API-key entry is excluded. Views count visible page entry, including reshown native welcome windows; transient onboarding loading does not repeat the same page impression, and closing an onboarding popup reports `button_name=close`. Funded Continue uses `continue`. Message submission retains its original occurrence timestamp and captures `msg_type=default|queue|steer`, model, explicit effort, and `run_mode` before asynchronous command adjudication; only the ordinary message path reports before reference serialization, so handled and claimed commands are excluded. Later serialization, attachment, or send failures do not retract this attempt; queue execution does not count again. Attachment-only submissions follow the same rule. Plan takes precedence over an active goal. Capture and reporting failures cannot interrupt submission. Message submissions and model or effort switches omit `session_id` while the Session is blank. Model and plugin switches report only accepted changes. Fork events carry the created child ID and the source IDs, before the optional child-title update; failed creation emits nothing.
 

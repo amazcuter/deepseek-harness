@@ -25,7 +25,7 @@
   overflow-y: auto;
   /* Sides = composer clearance + 16px: on narrow viewports the transcript
      stays exactly 32px narrower than the input card (the shared width rule). */
-  padding: 16px calc(var(--dsh-composer-side-clearance) + 16px);
+  padding: 16px calc(var(--mwf-composer-side-clearance) + 16px);
   /* Inline-size query container: wide markdown tables size their breakout
      against this box's content width (100cqw in AssistantMarkdown's
      md-table-wide rule) — the CSS stand-in for deepsuite chat's JS-measured
@@ -51,11 +51,11 @@
   min-height: auto;
 }
 
-/* Message column: shared chat width (ConversationRoot --dsh-chat-content-width),
+/* Message column: shared chat width (ConversationRoot --mwf-chat-content-width),
    centered on the same axis as the input box (which caps at chat + 16px); the
    scroller itself stays full-bleed. */
 .column {
-  max-width: var(--dsh-chat-content-width);
+  max-width: var(--mwf-chat-content-width);
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -69,18 +69,18 @@
   ~ :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty))),
 .column:has(> .older) > :global([data-slot="conversation.chat.flow"])
   > :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty))) {
-  margin-top: var(--dsh-chat-flow-gap, 6px);
+  margin-top: var(--mwf-chat-flow-gap, 6px);
 }
 
 /* Process rows sit 6px apart; an Assistant response is separated from its
    neighbours by 12px. */
 .flowItem[data-chat-group-part="response"] {
-  --dsh-chat-flow-gap: 12px;
+  --mwf-chat-flow-gap: 12px;
 }
 
 :is(.column, :global([data-slot="conversation.chat.flow"])) > [data-chat-group-part="response"]:not([hidden]):not(:empty)
   + :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty))):not(.running) {
-  --dsh-chat-flow-gap: 12px;
+  --mwf-chat-flow-gap: 12px;
 }
 
 /* Settled-flow identity boundary. It is neutral until it becomes the natural
@@ -117,7 +117,7 @@
 .flowItem[data-chat-flow-kind="turn-process"],
 .flowItem[data-turn-process-answer],
 :is(.column, :global([data-slot="conversation.chat.flow"])) > [data-chat-flow-kind="turn-process"] + :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty))):not(.running) {
-  --dsh-chat-flow-gap: 16px;
+  --mwf-chat-flow-gap: 16px;
 }
 
 /* Empty Seats, including retained empty slot anchors, preserve Turn lookup
@@ -135,19 +135,19 @@
 
 .hint {
   color: var(--dsw-alias-label-tertiary);
-  font-size: var(--dsh-content-font-size-secondary, 13px);
-  line-height: calc(18px + var(--dsh-content-font-delta-secondary, 0px));
+  font-size: var(--mwf-content-font-size-secondary, 13px);
+  line-height: calc(18px + var(--mwf-content-font-delta-secondary, 0px));
 }
 
 .running {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  --dsh-chat-flow-gap: 12px;
+  --mwf-chat-flow-gap: 12px;
   --dsw-alias-label-shimmer: var(--dsw-alias-label-deep-diving-shimmer);
   color: var(--dsw-alias-label-deep-diving);
-  font-size: calc(var(--dsh-content-font-size, 14px) - 2px);
-  line-height: calc(22px + var(--dsh-content-font-delta, 0px));
+  font-size: calc(var(--mwf-content-font-size, 14px) - 2px);
+  line-height: calc(22px + var(--mwf-content-font-delta, 0px));
 }
 
 /* The last visible row before the status must contain output, not an input.
@@ -184,8 +184,8 @@
   position: relative;
   display: inline-flex;
   flex: none;
-  width: calc(14px + var(--dsh-content-font-delta, 0px));
-  height: calc(14px + var(--dsh-content-font-delta, 0px));
+  width: calc(14px + var(--mwf-content-font-delta, 0px));
+  height: calc(14px + var(--mwf-content-font-delta, 0px));
   /* The fixed footprint contains the animation's layout and paint. */
   contain: strict;
   overflow: hidden;
@@ -220,8 +220,8 @@
 
 .openError {
   color: var(--dsw-alias-state-error-primary);
-  font-size: var(--dsh-content-font-size-secondary, 13px);
-  line-height: calc(18px + var(--dsh-content-font-delta-secondary, 0px));
+  font-size: var(--mwf-content-font-size-secondary, 13px);
+  line-height: calc(18px + var(--mwf-content-font-delta-secondary, 0px));
 }
 
 .older {
@@ -260,8 +260,8 @@
   display: flex;
   justify-content: flex-end;
   padding-right: max(
-    calc(var(--dsh-composer-side-clearance) + 16px),
-    calc((100% - var(--dsh-chat-content-width)) / 2)
+    calc(var(--mwf-composer-side-clearance) + 16px),
+    calc((100% - var(--mwf-chat-content-width)) / 2)
   );
   pointer-events: none;
 }
@@ -269,10 +269,10 @@
 :global([data-conversation-scroll]) .toBottomSlot {
   position: sticky;
   /* Clears the sticky composer stack (docks + input card + stats): the live
-     height rides --dsh-composer-height (ConversationRoot's seat observer) so
+     height rides --mwf-composer-height (ConversationRoot's seat observer) so
      the control follows a growing textarea; the fallback covers the first
      paint before the observer fires. */
-  bottom: calc(var(--dsh-composer-height, 152px) + 16px);
+  bottom: calc(var(--mwf-composer-height, 152px) + 16px);
 }
 
 .toBottom {

@@ -1,8 +1,8 @@
 /** File navigation feedback belongs to the individual inline reference that requested it. */
 import { useState } from 'react'
-import type { UserTextNodeProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { InjectFace, PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
-import { Button, Modal, ReferenceChip } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { UserTextNodeProps } from '@metaworkflow/client-ui-conversation/client'
+import type { InjectFace, PropsLocale } from '@metaworkflow/client-ui-slots'
+import { Button, Modal, ReferenceChip } from '@metaworkflow/client-ui-primitives'
 import type { NS } from './locales.ts'
 import type {} from './user-text-rules.ts'
 

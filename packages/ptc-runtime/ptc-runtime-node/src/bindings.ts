@@ -1,7 +1,7 @@
 /** Validate and capture the binding names available to one program. */
-import { DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@deepseek-ai/dsh-ptc-runtime'
-import type { PtcBindingFunction, PtcBindingNamespace, PtcJsonValue, PtcRunRequest } from '@deepseek-ai/dsh-ptc-runtime'
-import { snapshotJsonValue } from '@deepseek-ai/dsh-util-values'
+import { DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@metaworkflow/ptc-runtime'
+import type { PtcBindingFunction, PtcBindingNamespace, PtcJsonValue, PtcRunRequest } from '@metaworkflow/ptc-runtime'
+import { snapshotJsonValue } from '@metaworkflow/util-values'
 import { encodePtcJsonWire } from './json-wire.ts'
 import type { ReplyMessage } from './protocol.ts'
 const IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/
@@ -14,7 +14,7 @@ export function validateBindings(request: PtcRunRequest): Map<string, PtcBinding
   const bindings = new Map<string, PtcBindingNamespace>()
   for (const namespace of request.bindings) {
     if (!IDENTIFIER.test(namespace.global) || PORTABLE_RESERVED_WORDS.has(namespace.global)) {
-      throw new Error(`dsh-ptc-runtime-node: binding global ${JSON.stringify(namespace.global)} is not a usable identifier`)
+      throw new Error(`mwf-ptc-runtime-node: binding global ${JSON.stringify(namespace.global)} is not a usable identifier`)
     }
     // RESERVED_BINDING_GLOBALS is the seam's shared backend-owned set:
     // `console` is THIS backend's log-capture slot; the dunder entries exist
@@ -23,10 +23,10 @@ export function validateBindings(request: PtcRunRequest): Map<string, PtcBinding
     // portable across backends. The seam declaration is the single home for
     // why each entry is reserved.
     if (RESERVED_BINDING_GLOBALS.has(namespace.global)) {
-      throw new Error(`dsh-ptc-runtime-node: reserved binding global ${JSON.stringify(namespace.global)}`)
+      throw new Error(`mwf-ptc-runtime-node: reserved binding global ${JSON.stringify(namespace.global)}`)
     }
     if (bindings.has(namespace.global)) {
-      throw new Error(`dsh-ptc-runtime-node: duplicate binding global ${JSON.stringify(namespace.global)}`)
+      throw new Error(`mwf-ptc-runtime-node: duplicate binding global ${JSON.stringify(namespace.global)}`)
     }
     bindings.set(namespace.global, namespace)
   }
@@ -36,17 +36,17 @@ export function validateBindings(request: PtcRunRequest): Map<string, PtcBinding
     const descriptor = namespace.errorClass
     if (!descriptor) continue
     if (!IDENTIFIER.test(descriptor.name) || PORTABLE_RESERVED_WORDS.has(descriptor.name)) {
-      throw new Error(`dsh-ptc-runtime-node: binding error class ${JSON.stringify(descriptor.name)} is not a usable identifier`)
+      throw new Error(`mwf-ptc-runtime-node: binding error class ${JSON.stringify(descriptor.name)} is not a usable identifier`)
     }
     if (RESERVED_BINDING_GLOBALS.has(descriptor.name)) {
-      throw new Error(`dsh-ptc-runtime-node: reserved binding global ${JSON.stringify(descriptor.name)}`)
+      throw new Error(`mwf-ptc-runtime-node: reserved binding global ${JSON.stringify(descriptor.name)}`)
     }
     if (bindings.has(descriptor.name) || errorClassNames.has(descriptor.name)) {
-      throw new Error(`dsh-ptc-runtime-node: duplicate injected global ${JSON.stringify(descriptor.name)}`)
+      throw new Error(`mwf-ptc-runtime-node: duplicate injected global ${JSON.stringify(descriptor.name)}`)
     }
     const member = descriptor.memberNameProperty
     if (member.length === 0 || RESERVED_ERROR_MEMBERS.has(member) || DUNDER_MEMBER.test(member)) {
-      throw new Error(`dsh-ptc-runtime-node: binding error member property ${JSON.stringify(descriptor.memberNameProperty)} is not usable`)
+      throw new Error(`mwf-ptc-runtime-node: binding error member property ${JSON.stringify(descriptor.memberNameProperty)} is not usable`)
     }
     errorClassNames.add(descriptor.name)
   }

@@ -3,7 +3,7 @@ description: "面向部署方与维护者的 SQLite FTS5 会话历史全文搜�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-query-sqlite
+# @metaworkflow/session-query-sqlite
 
 [English](README.md) | 中文
 
@@ -29,13 +29,13 @@ kind: "package-reference"
 
 ### 何时选择
 
-当你想对既往会话进行带排序与分页的全文召回时选择它。它与 `dsh-session-query` 和会话服务一起使用；持久化后端可选但建议挂载，这样重启后持久化历史仍可搜索。不要把 `path` 指向 session-persistence 数据库——本包拥有独立的派生索引。
+当你想对既往会话进行带排序与分页的全文召回时选择它。它与 `mwf-session-query` 和会话服务一起使用；持久化后端可选但建议挂载，这样重启后持久化历史仍可搜索。不要把 `path` 指向 session-persistence 数据库——本包拥有独立的派生索引。
 
 ### 最小配置
 
 ```yaml
-- name: '@deepseek-ai/dsh-session'
-- name: '@deepseek-ai/dsh-session-query-sqlite'
+- name: '@metaworkflow/session'
+- name: '@metaworkflow/session-query-sqlite'
   config:
     path: /absolute/path/to/session-search.db
 ```
@@ -52,7 +52,7 @@ kind: "package-reference"
 | `persistedReadConcurrency` | `4` | 继承批量读取的并发持久化日志读取数 |
 | `preparedSessionCacheSize` | `5` | 继承的 `observeSession` 读取器为复用保留的冷 prepared-Session 观察数 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-session-query-sqlite)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#metaworkflowsession-query-sqlite)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 搜索行为
 
@@ -117,8 +117,8 @@ kind: "package-reference"
 当包级约定不够用时阅读以下页面。它们从共享查询服务逐步进入类型级约定与设计证据。
 
 - [会话查询子系统参考](../../../docs/subsystems/session-query.zh.md)——本后端实现的完整类型级约定。
-- [dsh-session-query](../session-query/README.zh.md)——服务定义：本后端继承的精确读取、过滤与追踪。
-- [dsh-tool-session-query](../../experimental/tool-session-query/README.zh.md)——调用这些搜索方法的面向模型消费方。
+- [mwf-session-query](../session-query/README.zh.md)——服务定义：本后端继承的精确读取、过滤与追踪。
+- [mwf-tool-session-query](../../experimental/tool-session-query/README.zh.md)——调用这些搜索方法的面向模型消费方。
 - [SQLite FTS5 会话搜索](../../../.agents/notes/archived/feature/2026-07-10-sqlite-session-query-provider.md)——搜索语义、对账与 tokenizer 决策。
 - [JSONL 会话持久化](../../session/session-persistence-jsonl/README.zh.md)——本可丢弃索引观察的权威 Session store；其 root 必须与本包的数据库路径分开。
 

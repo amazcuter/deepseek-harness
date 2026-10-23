@@ -2,8 +2,8 @@
 import { createServer } from 'node:http'
 import type { IncomingMessage, Server, ServerResponse } from 'node:http'
 import { afterEach, describe, expect, it } from 'vitest'
-import { APP_IDENTITY } from '@deepseek-ai/dsh-llm'
-import { deadline } from '@deepseek-ai/dsh-timeout'
+import { APP_IDENTITY } from '@metaworkflow/llm'
+import { deadline } from '@metaworkflow/timeout'
 import { LISTING_TIMEOUT, parseModelListing, requestModelListing } from '../src/listing.ts'
 import type { ListedCapabilities } from '../src/listing.ts'
 
@@ -115,11 +115,11 @@ describe('requestModelListing', () => {
       headers = request.headers
       response.end(JSON.stringify(LISTING))
     })
-    const listing = await requestModelListing(url, { 'x-dsh-auth-token': 'fixture-token' }, AbortSignal.timeout(5_000))
+    const listing = await requestModelListing(url, { 'x-mwf-auth-token': 'fixture-token' }, AbortSignal.timeout(5_000))
     expect(listing.entries.map(entry => entry.id)).toEqual(['deepseek-flash', 'deepseek-v4-pro'])
     expect(headers).toMatchObject({
       'accept': 'application/json',
-      'x-dsh-auth-token': 'fixture-token',
+      'x-mwf-auth-token': 'fixture-token',
       'user-agent': expect.stringContaining(`${APP_IDENTITY.product}/${APP_IDENTITY.version}`) as string,
     })
   })

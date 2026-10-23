@@ -5,14 +5,14 @@ import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import { expect, it } from 'vitest'
-import { runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
-import { parseSessionLog } from '@deepseek-ai/dsh-llm-replay'
+import { runLoaderSmoke } from '@metaworkflow/loader-smoke'
+import { parseSessionLog } from '@metaworkflow/llm-replay'
 import { officeModelPatches } from './fixtures/real-office.ts'
 import { renderCliFixture } from './fixtures/render-cli.ts'
 
 const repo = fileURLToPath(new URL('../../../../', import.meta.url))
 const assetRoot = fileURLToPath(new URL('../assets/', import.meta.url))
-const runtime = process.env.DSH_PRIMARY_RUNTIME
+const runtime = process.env.MWF_PRIMARY_RUNTIME
 const python = runtime && join(runtime, 'dependencies/python', process.platform === 'win32' ? 'python.exe' : 'bin/python3')
 
 const formats = [
@@ -59,7 +59,7 @@ function within(parent: string, path: string): boolean {
 }
 
 it.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime).each(cases)('$format $kind $intent visual intent', async ({ format, kind, task, seed, verify, intent, suffix }) => {
-  const controlRoot = await mkdtemp(join(tmpdir(), 'dsh-office-control-test-'))
+  const controlRoot = await mkdtemp(join(tmpdir(), 'mwf-office-control-test-'))
   try {
     const previewRoot = join(controlRoot, 'tmp')
     await mkdir(previewRoot)
@@ -68,24 +68,24 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime).each(cases)('$format $kind 
     // The model can remove its entire preview directory during cleanup.
     const callLogPath = join(controlRoot, 'cli-calls.jsonl')
     await runLoaderSmoke({
-      label: `Office ${format} ${kind} ${intent} visual intent`, tempDirPrefix: `dsh-office-${format}-${kind}-${intent}-`,
+      label: `Office ${format} ${kind} ${intent} visual intent`, tempDirPrefix: `mwf-office-${format}-${kind}-${intent}-`,
       binScript: join(repo, 'apps/cli/src/bin.ts'), sourceImport: 'tsx/esm', tsconfigPath: join(repo, 'tsconfig.base.json'),
       configPath, processTimeoutMs: 110_000,
       binArgs: ['--profile', 'headless', '--patch', configPath,
         `In input.${format}, ${task}; save result.${format}. ${suffix} Respond briefly in English.`],
       // The CLI fixture and its log live outside the workspace; bwrap's private /tmp hides both.
-      env: { DSH_PRIMARY_RUNTIME: runtime, DSH_PERMISSION_MODE: 'danger-full-access',
-        DSH_HOME: join(controlRoot, 'home'), DSH_AGENTS_HOME: join(controlRoot, 'agents'),
-        DSH_TELEMETRY_DISABLED: '1', DSH_TOOLS_MODE: 'native',
+      env: { MWF_PRIMARY_RUNTIME: runtime, MWF_PERMISSION_MODE: 'danger-full-access',
+        MWF_HOME: join(controlRoot, 'home'), MWF_AGENTS_HOME: join(controlRoot, 'agents'),
+        MWF_TELEMETRY_DISABLED: '1', MWF_TOOLS_MODE: 'native',
         TMPDIR: previewRoot, TMP: previewRoot, TEMP: previewRoot,
-        HTTP_PROXY: process.env.DSH_OFFICE_TEST_PROXY, HTTPS_PROXY: process.env.DSH_OFFICE_TEST_PROXY },
+        HTTP_PROXY: process.env.MWF_OFFICE_TEST_PROXY, HTTPS_PROXY: process.env.MWF_OFFICE_TEST_PROXY },
       async prepare(cwd) {
         await execa(python!, ['-c', seed], { cwd })
         const fixture = await renderCliFixture(controlRoot, python!, intent === 'blank', callLogPath)
-        const testAssetRoot = process.env.DSH_OFFICE_TEST_ASSET_ROOT ?? assetRoot
+        const testAssetRoot = process.env.MWF_OFFICE_TEST_ASSET_ROOT ?? assetRoot
         await writeFile(configPath, JSON.stringify([
-          { insert: [{ id: 'skill-office', name: '@deepseek-ai/dsh-skill-office', config: { assetRoot: testAssetRoot, node: process.execPath, cli: fixture.cli } }] },
-          { insert: [{ id: 'workspace-dependencies', name: '@deepseek-ai/dsh-tool-workspace-dependencies', config: { source: runtime! } }] },
+          { insert: [{ id: 'skill-office', name: '@metaworkflow/skill-office', config: { assetRoot: testAssetRoot, node: process.execPath, cli: fixture.cli } }] },
+          { insert: [{ id: 'workspace-dependencies', name: '@metaworkflow/tool-workspace-dependencies', config: { source: runtime! } }] },
           ...officeModelPatches(),
           { id: 'session-persistence-jsonl', config: { root: sessionRoot, compression: 'none' } },
         ]))
@@ -95,7 +95,7 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime).each(cases)('$format $kind 
         const log = logs.find(path => path.endsWith('session.v4.jsonl'))
         expect(log, `No recorded session for ${format} ${intent} in ${sessionRoot}`).toBeDefined()
         const bytes = await readFile(join(sessionRoot, log!))
-        const traceDir = process.env.DSH_OFFICE_TRACE_DIR
+        const traceDir = process.env.MWF_OFFICE_TRACE_DIR
         if (traceDir !== undefined) {
           await mkdir(traceDir, { recursive: true })
           await writeFile(join(traceDir, `${format}-${kind}-${intent}.jsonl`), bytes)

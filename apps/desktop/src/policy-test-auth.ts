@@ -14,7 +14,7 @@ export type DesktopPolicyLoginResult = 'returned' | 'cancelled' | 'failed'
 
 /** Owns the login window and its nonpersistent Session; no product window shares its cookies or privileges. */
 export class DesktopPolicyTestAuth {
-  private readonly browserSession = session.fromPartition(`dsh-policy-auth-${randomUUID()}`, { cache: false })
+  private readonly browserSession = session.fromPartition(`mwf-policy-auth-${randomUUID()}`, { cache: false })
   private window: BrowserWindow | undefined
   private pending: Promise<DesktopPolicyLoginResult> | undefined
   private disposed = false

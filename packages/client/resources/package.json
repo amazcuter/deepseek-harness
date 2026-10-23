@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-resources",
+  "name": "@metaworkflow/client-resources",
   "description": "Unified client resource model: protocol-registered providers turn URL addresses into live values, consumed through the useResource global standard hook",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -26,10 +26,10 @@
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json"
   },
-  "dsh": {
+  "mwf": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-client-ui-renderer"
+        "@metaworkflow/client-ui-renderer"
       ],
       "platform": "web"
     }
@@ -44,11 +44,11 @@
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-client-store": "workspace:*",
-    "@deepseek-ai/dsh-client-test-runtime": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-renderer": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-slots": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@metaworkflow/client-store": "workspace:*",
+    "@metaworkflow/client-test-runtime": "workspace:*",
+    "@metaworkflow/client-ui-renderer": "workspace:*",
+    "@metaworkflow/client-ui-slots": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*"
   },
   "files": [
     "locale/*.json",

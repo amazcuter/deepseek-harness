@@ -3,15 +3,15 @@ import { once } from 'node:events'
 import { mkdtemp, readdir, rm } from 'node:fs/promises'
 import { createConnection, type Socket } from 'node:net'
 import { Context } from '@deepseek-ai/cordis'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
+import LocalFileSystem from '@metaworkflow/fs-local'
+import LocalSubprocessRuntime from '@metaworkflow/subprocess-local'
 import { describe, expect, it, vi } from 'vitest'
 import { RemoteProcesses } from '../src/helper-processes.ts'
 import { authenticateStream } from '../src/stream-security.ts'
 
 describe.skipIf(process.platform === 'win32')('SSH failed process settlement', () => {
   it('reuses a one-process capacity after ENOENT and preserves late done errors', async () => {
-    const root = await mkdtemp('/tmp/dsh-ssh-failed-')
+    const root = await mkdtemp('/tmp/mwf-ssh-failed-')
     const ctx = new Context()
     const filesystem = await ctx.plugin(LocalFileSystem, { cwd: root })
     const subprocess = await ctx.plugin(LocalSubprocessRuntime)

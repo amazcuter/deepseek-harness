@@ -20,7 +20,7 @@ Status: implemented
 
 字符串等价于不含引用结构的输入；不会据模糊的 `@` 查询擅自选中某个文件。公开的 `SessionInput.setDraft` 与 `InputActions.setDraft` 仅接受文本。内部结构化恢复直接复用编辑器已有的引用恢复能力，无需查询文件目录或读取文件内容。恢复普通文字、文件胶囊、目录胶囊和 Session 胶囊都经过已注册的编辑器变换和投影流程。
 
-现有 `dsh.conversation.<sessionId>` key 保留，`draft` 可读取旧字符串，也可读取新的结构化值；新写入保存结构化值。仍由原 Conversation store 写整个记录，不增加第二个同 key 写入者。引用变化即使没有改变显示文字，也必须进入持久化快照。
+现有 `mwf.conversation.<sessionId>` key 保留，`draft` 可读取旧字符串，也可读取新的结构化值；新写入保存结构化值。仍由原 Conversation store 写整个记录，不增加第二个同 key 写入者。引用变化即使没有改变显示文字，也必须进入持久化快照。
 
 ### Class 与方法
 

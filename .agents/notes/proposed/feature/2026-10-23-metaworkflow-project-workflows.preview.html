@@ -218,7 +218,7 @@
     }
     $('node-input').textContent = JSON.stringify(p.selected === 'gate' ? { reviews: [{ passed: true }, { passed: false, issues: ['人物动机需要补充'] }] } : { task: node.label, source: '上游节点结果', files: ['draft.md'] }, null, 2);
     $('node-output').textContent = stages[p.selected] < p.stage ? JSON.stringify(p.selected === 'gate' ? { passed: true } : { result: '示例任务完成', files: ['result.md'] }, null, 2) : '尚未提交完成结果';
-    $('node-log').textContent = '这里查看本节点的 DSH 会话、工具调用及执行记录。';
+    $('node-log').textContent = '这里查看本节点的 MWF 会话、工具调用及执行记录。';
   }
   function renderMessages() {
     $('messages').replaceChildren();

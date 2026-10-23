@@ -13,7 +13,7 @@ description: "DeepSeek 账号路由不再接受 models 目录；模型由账号�
 
 ## 迁移
 
-1. 打开 `$DSH_HOME/profiles/<profile>/cordis.patch.yml`，找到 `id: llm-deepseek-account` 的条目。
+1. 打开 `$MWF_HOME/profiles/<profile>/cordis.patch.yml`，找到 `id: llm-deepseek-account` 的条目。
 2. 删除其中的 `models` 字段。对改过字段的模型，只把改过的字段移到 `modelOverrides.<模型 id>` 下：
 
    ```yaml

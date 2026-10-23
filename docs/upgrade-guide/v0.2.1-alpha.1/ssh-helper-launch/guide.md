@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-Custom SSH compositions must update their `cordis.yml` and installed helper together. `dsh-ssh` replaces top-level `node`, `bootstrapPath` and `bootstrapHash` with `launch`, and requires SSH protocol 2. `dsh-ptc-runtime-node` replaces `nodeExecutable` and `bootstrapPath` with `launch`. The connection's `nodeExecutable` and `bootstrapPath` getters are replaced by `ptcLaunch`.
+Custom SSH compositions must update their `cordis.yml` and installed helper together. `mwf-ssh` replaces top-level `node`, `bootstrapPath` and `bootstrapHash` with `launch`, and requires SSH protocol 2. `mwf-ptc-runtime-node` replaces `nodeExecutable` and `bootstrapPath` with `launch`. The connection's `nodeExecutable` and `bootstrapPath` getters are replaced by `ptcLaunch`.
 
 ## Migration
 

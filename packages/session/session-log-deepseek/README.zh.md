@@ -3,13 +3,13 @@ description: "面向启用官方 DeepSeek 请求元数据的部署，增量上�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-log-deepseek
+# @metaworkflow/session-log-deepseek
 
 [English](README.md) | 中文
 
 ## 概述
 
-用于 DeepSeek 官方 LLM（大语言模型）API 请求的增量规范会话日志上传。该函数插件注入 `ctx.sessions` 与 `ctx.deepseekLlmApiExtensions`，并拥有 `dsh_session_log` 请求字段以及用于派生接受水位的持久 `session-log-deepseek/delivery-accepted` 事件。仅当官方 API 不得接收会话日志后缀时才禁用它。
+用于 DeepSeek 官方 LLM（大语言模型）API 请求的增量规范会话日志上传。该函数插件注入 `ctx.sessions` 与 `ctx.deepseekLlmApiExtensions`，并拥有 `mwf_session_log` 请求字段以及用于派生接受水位的持久 `session-log-deepseek/delivery-accepted` 事件。仅当官方 API 不得接收会话日志后缀时才禁用它。
 
 ## 目录
 
@@ -27,8 +27,8 @@ kind: "package-reference"
 
 | 配置键 | 默认值 | 含义 |
 |---|---:|---|
-| `enabled` | `true` | 发送 `dsh_session_log` 贡献。修改从下一次请求生效；设为 `false` 可停止会话日志上传。 |
-| `maxBytes` | 8 MiB | 单次请求携带的 `dsh_session_log` 字段序列化后的最大 UTF-8 字节数。 |
+| `enabled` | `true` | 发送 `mwf_session_log` 贡献。修改从下一次请求生效；设为 `false` 可停止会话日志上传。 |
+| `maxBytes` | 8 MiB | 单次请求携带的 `mwf_session_log` 字段序列化后的最大 UTF-8 字节数。 |
 
 随附 profile 会挂载该插件，因此默认配置会注册请求字段并追加接受水位；`enabled: false` 会停止贡献。Web 开关可通过当前 profile 覆盖组合包默认值；home patch 和命令行 overlay 保持更高优先级，会拒绝与其冲突的表单写入。
 
@@ -39,7 +39,7 @@ Web **设置 → 通用 → 在使用官方模型 API 时上传 Session Log** �
 
 对于携带存活 `sessionId` 的请求，插件会折叠该确切会话格式代的最大已接受水位，对 `Session.events` 取快照，并发送水位之后能放进 `maxBytes` 的最长连续事件段。进程内 fold 会让每条事件只被扫描一次并增量消费后续追加；重启与 HMR（热模块替换）会从持久日志重建它。版本 1 字段包含 `sessionFormatVersion`、原始会话 header（仅 seeded Session 携带 `seedLength`）、数值型 `afterSeq` 与 `throughSeq`，以及每个已转换为原始数值 envelope 字段的完整规范事件。只有记录的会话 id 与格式代均匹配请求来源时水位才生效，因此 fork 会话会忽略从父会话继承的水位。表层事件必须携带 `surfaceOp`，替换范围使用数值型 `startSeq` 与 `endSeq`；仅 system、user 与 tool 事件可以携带 `sourceEventSeqs`。assistant 的提供方元数据保留在内嵌流中，只出现在日志中的事件不携带这两个元数据字段。
 
-`maxBytes` 按 UTF-8 字节限制完整的序列化字段，包括 header 与数值型 envelope 字段。超过上限的积压会分多次已接受的请求补传，每次都从上一次的 `throughSeq` 之后继续。第一条待发事件本身就超过上限时，请求会省略 `dsh_session_log`，插件对每个阻塞事件只记录一次告警，水位停在该事件之前，直到 `maxBytes` 能容纳它。运行时根本无法序列化的超大事件也按同样方式处理，且任何 `maxBytes` 都无法容纳它。
+`maxBytes` 按 UTF-8 字节限制完整的序列化字段，包括 header 与数值型 envelope 字段。超过上限的积压会分多次已接受的请求补传，每次都从上一次的 `throughSeq` 之后继续。第一条待发事件本身就超过上限时，请求会省略 `mwf_session_log`，插件对每个阻塞事件只记录一次告警，水位停在该事件之前，直到 `maxBytes` 能容纳它。运行时根本无法序列化的超大事件也按同样方式处理，且任何 `maxBytes` 都无法容纳它。
 
 <a id="acceptance-and-retry"></a>
 ## 接受与重试
@@ -48,7 +48,7 @@ DeepSeek 适配器会在 HTTP 2xx 后、消费 SSE（Server-Sent Events）正文
 
 服务端接受后、持久化水位前发生崩溃，可能让恢复后的进程重放已经接受的范围。这是至少一次交付的失败方向：不确定性会制造重复，绝不会跳过序列。普通会话检查点策略会在下一个语义检查点持久化水位；本插件不执行独立 I/O。
 
-缺少存活会话的直接请求会省略 `dsh_session_log`。普通 agent（智能体）、压缩（compaction）与会话标题调用都会携带存活会话 id。
+缺少存活会话的直接请求会省略 `mwf_session_log`。普通 agent（智能体）、压缩（compaction）与会话标题调用都会携带存活会话 id。
 
 <a id="model-experience"></a>
 ## 模型体验
@@ -57,7 +57,7 @@ DeepSeek 适配器会在 HTTP 2xx 后、消费 SSE（Server-Sent Events）正文
 
 #### 模型看到的内容
 
-无。`dsh_session_log` 是 DeepSeek 请求中模型输入字段的同级字段，不会插入 `messages`、系统提示词或工具 schema。
+无。`mwf_session_log` 是 DeepSeek 请求中模型输入字段的同级字段，不会插入 `messages`、系统提示词或工具 schema。
 
 #### Token 影响
 

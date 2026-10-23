@@ -83,7 +83,7 @@ describe('OpenInAppController launching', () => {
     const controller = new OpenInAppController(async () => jsonResponse({ apps: [] }))
     controller.choose('cursor')
     expect(controller.choice.getSnapshot()).toBe('cursor')
-    expect(values.get('dsh.open-in-app.choice')).toBe('"cursor"')
+    expect(values.get('mwf.open-in-app.choice')).toBe('"cursor"')
     const reloaded = new OpenInAppController(async () => jsonResponse({ apps: [] }))
     expect(reloaded.choice.getSnapshot()).toBe('cursor')
   })

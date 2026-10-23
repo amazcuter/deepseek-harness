@@ -3,7 +3,7 @@ description: "Web band above the prompt for Claude Code mods: draws each session
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-client-ui-claude-code-mods
+# @metaworkflow/experimental-client-ui-claude-code-mods
 
 English | [中文](README.zh.md)
 

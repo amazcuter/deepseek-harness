@@ -18,14 +18,14 @@ function proxy(environment, name, protocols) {
  * @returns {{packConcurrency: number, downloadProxy?: string, notarizationProxy?: string}} Resolved settings; empty proxy fields preserve inherited networking.
  */
 export function resolveMacOSPackageSettings(environment) {
-  const concurrency = environment.DSH_DESKTOP_MACOS_PACK_CONCURRENCY ?? '4'
+  const concurrency = environment.MWF_DESKTOP_MACOS_PACK_CONCURRENCY ?? '4'
   if (!/^[1-9]\d*$/u.test(concurrency) || !Number.isSafeInteger(Number(concurrency))) {
-    throw new Error('desktop package: DSH_DESKTOP_MACOS_PACK_CONCURRENCY must be a positive integer')
+    throw new Error('desktop package: MWF_DESKTOP_MACOS_PACK_CONCURRENCY must be a positive integer')
   }
   return {
     packConcurrency: Number(concurrency),
-    downloadProxy: proxy(environment, 'DSH_DESKTOP_MACOS_DOWNLOAD_PROXY', ['http:', 'https:']),
-    notarizationProxy: proxy(environment, 'DSH_DESKTOP_MACOS_NOTARIZATION_PROXY', ['http:']),
+    downloadProxy: proxy(environment, 'MWF_DESKTOP_MACOS_DOWNLOAD_PROXY', ['http:', 'https:']),
+    notarizationProxy: proxy(environment, 'MWF_DESKTOP_MACOS_NOTARIZATION_PROXY', ['http:']),
   }
 }
 

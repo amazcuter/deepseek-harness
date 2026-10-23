@@ -6,8 +6,8 @@ import { sanitizeInstallInput } from './sanitize-install-input.ts'
  * after each action and after every `plugin-manager/changed` event, so a
  * change made on another surface shows here without a manual refresh.
  */
-import type {} from '@deepseek-ai/dsh-client-product-analytics/client'
-import { randomUUID } from '@deepseek-ai/dsh-util-crypto'
+import type {} from '@metaworkflow/client-product-analytics/client'
+import { randomUUID } from '@metaworkflow/util-crypto'
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import type {
   BundleInfo,
@@ -26,12 +26,12 @@ import type {
   ReadOnlyReason,
   Registry,
   RestartReason,
-} from '@deepseek-ai/dsh-api-remotes/client'
-import { normalizeRegistry, NPMMIRROR_REGISTRY, OFFICIAL_NPM_REGISTRY, REGISTRY_URL } from '@deepseek-ai/dsh-plugin-manager/registry'
-import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { HostObservable } from '@deepseek-ai/dsh-client-ui-slots'
-import type { LocalizedText, PluginLocalizedMeta } from '@deepseek-ai/dsh-package-manifest'
-import type { SettingsDescribeFace, ConfigForms } from '@deepseek-ai/dsh-client-ui-settings/client'
+} from '@metaworkflow/api-remotes/client'
+import { normalizeRegistry, NPMMIRROR_REGISTRY, OFFICIAL_NPM_REGISTRY, REGISTRY_URL } from '@metaworkflow/plugin-manager/registry'
+import { createSnapshotStore, type SnapshotStore } from '@metaworkflow/client-store'
+import type { HostObservable } from '@metaworkflow/client-ui-slots'
+import type { LocalizedText, PluginLocalizedMeta } from '@metaworkflow/package-manifest'
+import type { SettingsDescribeFace, ConfigForms } from '@metaworkflow/client-ui-settings/client'
 import type { ConfigLedger } from './config-ledger.ts'
 import type { PluginTabInstall } from './slot-contract.ts'
 import type { PluginTab } from './tab-ledger.ts'
@@ -566,7 +566,7 @@ export class PluginManagerController {
   private transientRegistry = false
   /** The registry last used from this browser, kept across dialogs and page loads; null until one was used. */
   private readonly registryMemory: SnapshotStore<RegistryChoice | null> = createSnapshotStore<RegistryChoice | null>(null, {
-    persist: { name: 'dsh.plugin-manager.install-registry' },
+    persist: { name: 'mwf.plugin-manager.install-registry' },
   })
 
   /**

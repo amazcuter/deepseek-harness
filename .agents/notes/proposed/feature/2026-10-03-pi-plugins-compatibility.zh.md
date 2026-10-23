@@ -13,17 +13,17 @@ Pi 1.0.0 有两套相互独立、用于运行定制代码的机制。扩展是�
 - **API 未发布且不稳定。** 插件栈只在 `PI_EXPERIMENTAL=1` 下运行。`@earendil-works/pi-coding-agent` 的 `./experimental/plugin` 导出只有 `source` 条件，npm tarball 不包含它的构建产物。Chord 的规划文档称它“is not a stable public API contract yet”（[PLANNING.md](https://github.com/earendil-works/pi/blob/v1.0.0/packages/chord/PLANNING.md)）；Session worker 所基于的 pi-durable 称其“API changes without notice between releases”（[README](https://github.com/earendil-works/pi/blob/v1.0.0/packages/durable/README.md)）。[services README](https://github.com/earendil-works/pi/blob/v1.0.0/packages/coding-agent/src/experimental/services/README.md) 把 `AgentController.navigate()`、`nextRun()` 与 `resume()` 列为已移除。
 - **插件能做的事比扩展少。** Session worker 自行构建工具、钩子与提示词注册表，不把它暴露为服务，因此 facet 无法注册模型工具、拦截工具调用或修改提示词。Pi 只附带一个示例插件。
 
-如果不留记录就搁置这项工作，会丢失调研得到的两项结果：Pi 插件服务到 DSH 服务的映射，它决定每一级支持的成本；以及 DSH 运行时与 Chord 的差异，这些差异与 Pi 无关，对 DSH 自身同样重要。
+如果不留记录就搁置这项工作，会丢失调研得到的两项结果：Pi 插件服务到 MWF 服务的映射，它决定每一级支持的成本；以及 MWF 运行时与 Chord 的差异，这些差异与 Pi 无关，对 MWF 自身同样重要。
 
 ## 提案
 
-把 Pi 插件兼容划分为六个级别。每一级说明插件作者能得到什么、哪项上游变化使它值得构建，以及需要哪些 DSH 工作。在更高级别的触发条件出现之前，DSH 停留在 0 级。每一级包含其下各级，唯一例外是 4 级取代 2 级在 Host 侧的 presentation 实现。
+把 Pi 插件兼容划分为六个级别。每一级说明插件作者能得到什么、哪项上游变化使它值得构建，以及需要哪些 MWF 工作。在更高级别的触发条件出现之前，MWF 停留在 0 级。每一级包含其下各级，唯一例外是 4 级取代 2 级在 Host 侧的 presentation 实现。
 
-| 级别 | 支持内容 | 上游触发条件 | DSH 工作 |
+| 级别 | 支持内容 | 上游触发条件 | MWF 工作 |
 |---|---|---|---|
 | 0 | 无。本 Agent Note 是唯一产物。 | — | Pi 发版时重新核对上游状态。 |
-| 1 | `session` facet 运行在每个 DSH Session 各自的 Chord host 中。`AgentController`、`Models` 与 `SessionPlugins` 由 DSH 服务提供。 | Pi 在 npm 包中发布插件 API，或取消 `PI_EXPERIMENTAL` 要求。 | 一个实验性 Host 包。不改核心。 |
-| 2 | `tui` facet 运行在 Host 上。它们的斜杠命令成为 DSH 命令，`select` 成为用户提问，`showStatus` 成为状态行。Pi 的示例插件原样运行。 | 同 1 级。 | 适配器，以及 Pi 扩展桥接的 Web 状态显示。 |
+| 1 | `session` facet 运行在每个 MWF Session 各自的 Chord host 中。`AgentController`、`Models` 与 `SessionPlugins` 由 MWF 服务提供。 | Pi 在 npm 包中发布插件 API，或取消 `PI_EXPERIMENTAL` 要求。 | 一个实验性 Host 包。不改核心。 |
+| 2 | `tui` facet 运行在 Host 上。它们的斜杠命令成为 MWF 命令，`select` 成为用户提问，`showStatus` 成为状态行。Pi 的示例插件原样运行。 | 同 1 级。 | 适配器，以及 Pi 扩展桥接的 Web 状态显示。 |
 | 3 | 提供 `Transcript`，并把 Session 的插件选择随 Session 保存。 | 出现消费 `Transcript` 的插件，或 pi-durable 宣布 `ConversationView` 稳定。 | 从 Session 日志到 `ConversationView` 的投影，以及按 Session 保存的选择记录。 |
 | 4 | `tui` facet 运行在浏览器中，经通用 Chord 桥访问 Session 服务。 | Chord 承诺支持浏览器，且 Pi 定义了不依赖终端的 presentation facet。 | 一个通用 JSON Remote 端点、一个浏览器 facet loader，以及 Client 命令的参数文本。 |
 | 5 | 对等：每个 Session 一个 worker，插件可注册模型工具与钩子。 | Pi 把工具与钩子注册表暴露给 facet。 | 按 Session 的进程隔离，以及 Pi 扩展桥接已有的工具与钩子映射。 |
@@ -58,14 +58,14 @@ loader 自行解析两个外部依赖。`@earendil-works/chord` 解析为该包�
 
 该包在 `agent/created` 中为每个 Agent 创建一个 Chord host，并随 Agent 的上下文一同释放。内置 facet 提供 Pi 的 Session 服务：
 
-| Pi 成员 | DSH 机制 | 差异 |
+| Pi 成员 | MWF 机制 | 差异 |
 |---|---|---|
 | `AgentController.prompt` | `agent.followup()` | 以 `busy` 拒绝的行为由 `agent.status` 推导。 |
 | `steer`、`followUp` | `agent.steer()`、`agent.followup()` | 无。 |
 | `cancelQueued` | `agent.inbox.remove()` | 区分 `already_consumed` 与 `not_found` 需要读取 Session 日志。 |
 | `abort` | `agent.cancel()` | 无。 |
-| `compact` | `ctx.compaction.compactNow()` | 拒绝非空的 `customInstructions`；DSH 压缩不接受指令。 |
-| `waitForPrompt` | 对 Session 事件做 fold，从入队消息到它的 `turn/end` | DSH 不关联提示词与其回答；由该 fold 完成关联。 |
+| `compact` | `ctx.compaction.compactNow()` | 拒绝非空的 `customInstructions`；MWF 压缩不接受指令。 |
+| `waitForPrompt` | 对 Session 事件做 fold，从入队消息到它的 `turn/end` | MWF 不关联提示词与其回答；由该 fold 完成关联。 |
 | `Models` | `session-controller` 的模型目录与模型选择 | 以推理强度标识符代替 Pi 的 thinking level。 |
 | `SessionPlugins.reload` | 重新构建、调用 `FacetHost.reload()`，再释放退役的 generation | 无。 |
 
@@ -73,37 +73,37 @@ loader 自行解析两个外部依赖。`@earendil-works/chord` 解析为该包�
 
 ## 2 级：Host 上的 presentation facet
 
-Pi 的 `tui` facet 不使用任何终端 API。它们消费 `SlashCommands`、`PresentationUI` 与 Session 服务，因此可以运行在 DSH Host 上每个 Agent 的第二个 Chord host 中，并在进程内绑定到 Session host。
+Pi 的 `tui` facet 不使用任何终端 API。它们消费 `SlashCommands`、`PresentationUI` 与 Session 服务，因此可以运行在 MWF Host 上每个 Agent 的第二个 Chord host 中，并在进程内绑定到 Session host。
 
-注册的斜杠命令成为 Agent 作用域的 `ctx.commands` 注册，其 handler 把原始输入作为 `args` 传入。在 Host 上运行的命令会记录为 `command/run` 与 `command/done`；Pi 不记录 presentation 命令。`getArgumentCompletions` 在 DSH 中没有对应物，不会被调用。`PresentationUI.select` 映射到 `ctx.userQuestions.ask()`，需要已连接的 Web Client；`showStatus` 映射到 Pi 扩展桥接为 Web Client 增加的状态显示。
+注册的斜杠命令成为 Agent 作用域的 `ctx.commands` 注册，其 handler 把原始输入作为 `args` 传入。在 Host 上运行的命令会记录为 `command/run` 与 `command/done`；Pi 不记录 presentation 命令。`getArgumentCompletions` 在 MWF 中没有对应物，不会被调用。`PresentationUI.select` 映射到 `ctx.userQuestions.ask()`，需要已连接的 Web Client；`showStatus` 映射到 Pi 扩展桥接为 Web Client 增加的状态显示。
 
 ## 3 级：transcript 与保存的选择
 
-`Transcript` 需要从 DSH Session 事件到 pi-durable `ConversationView` 的投影：按 pi-durable 条目类型组织的条目，加上它的 live、inbox、agent 与 usage 文档。DSH 记录了 Pi 没有对应条目的事件，在这些地方投影是有损的；它还把 DSH 绑定到一个被 pi-durable 声明为不稳定的类型上。
+`Transcript` 需要从 MWF Session 事件到 pi-durable `ConversationView` 的投影：按 pi-durable 条目类型组织的条目，加上它的 live、inbox、agent 与 usage 文档。MWF 记录了 Pi 没有对应条目的事件，在这些地方投影是有损的；它还把 MWF 绑定到一个被 pi-durable 声明为不稳定的类型上。
 
 Session 的插件选择保存为带 `plugin:` 前缀的 ignorable Session 记录，即 Pi 扩展桥接保存扩展状态所用的机制；与 Pi 一样，存活 Agent 的选择固定不变。
 
 ## 4 级：浏览器中的 presentation facet
 
-在页面中运行 `tui` facet 与 Pi 对 presentation 代码的放置一致。它需要三项新增。浏览器 loader 负责求值 CommonJS 制品，因为 Chord 的制品 loader 使用文件系统与 `node:vm`。一个通用 Remote 端点以 JSON 在页面与 Host 之间承载 Chord 的服务调用、快照与更新，因为 DSH 在构建时生成 Remote 方法，Client 不在运行时发现 Host 服务。Client 命令需要接受参数文本，目前 `ui-commands` 的 action 收不到它。
+在页面中运行 `tui` facet 与 Pi 对 presentation 代码的放置一致。它需要三项新增。浏览器 loader 负责求值 CommonJS 制品，因为 Chord 的制品 loader 使用文件系统与 `node:vm`。一个通用 Remote 端点以 JSON 在页面与 Host 之间承载 Chord 的服务调用、快照与更新，因为 MWF 在构建时生成 Remote 方法，Client 不在运行时发现 Host 服务。Client 命令需要接受参数文本，目前 `ui-commands` 的 action 收不到它。
 
 ## 5 级：对等
 
-Pi 把每个 Session 隔离在一个 worker 进程中，并计划通过其注册表向插件提供工具与钩子。要达到这一点，DSH Session 需要运行在自己的进程或 worker 线程中，并让 Chord 的服务协议跨越进程边界；在 Pi 暴露注册表之后，还需要 Pi 扩展桥接已经定义的工具、钩子与提示词映射。
+Pi 把每个 Session 隔离在一个 worker 进程中，并计划通过其注册表向插件提供工具与钩子。要达到这一点，MWF Session 需要运行在自己的进程或 worker 线程中，并让 Chord 的服务协议跨越进程边界；在 Pi 暴露注册表之后，还需要 Pi 扩展桥接已经定义的工具、钩子与提示词映射。
 
 ## 插件模型暴露出的运行时差异
 
-| 属性 | Chord 与 Pi | DSH | 受影响的级别 |
+| 属性 | Chord 与 Pi | MWF | 受影响的级别 |
 |---|---|---|---|
-| 提供方替换 | 消费方持有句柄，每次访问时解析当前提供方；重载在句柄背后替换实现。 | 所注入服务发生变化的 fiber 会被卸载并重新运行。 | 1：Chord host 对 facet 之间的服务保持 Chord 的行为；映射进 Chord 的 DSH 服务仍会重启其适配器。 |
+| 提供方替换 | 消费方持有句柄，每次访问时解析当前提供方；重载在句柄背后替换实现。 | 所注入服务发生变化的 fiber 会被卸载并重新运行。 | 1：Chord host 对 facet 之间的服务保持 Chord 的行为；映射进 Chord 的 MWF 服务仍会重启其适配器。 |
 | 故障隔离 | 每个 Session 一个 worker 进程。 | 所有 Session 共享 Host 进程，未捕获的异常或未处理的 rejection 会释放整个应用（[app-boot](../../../../packages/boot/app-boot/README.zh.md)）。 | 1–4 在 Host 中运行插件代码；5 消除这一差异。 |
 | Remote 声明 | host 根据运行时拿到的对象发布服务的远程成员。 | Remote 方法在构建时生成，Client 不在运行时发现 Host 服务（[remotes](../../../../packages/api/remotes/README.zh.md)）。 | 4 |
 | 共享状态 | 可复制的 JSON 状态，带操作批次、hydration 与缺口恢复，本地与远程通过同一 API 读取。 | 每个领域定义自己的快照与增量类型，或发布完整的投影值。 | 3、4 |
 | 运行时加载 | 每个 facet 一个 bundle，经完整性校验后在模块缓存之外加载。 | 包提前构建；已构建的安装不转译 TypeScript。 | 1 把 Chord 的打包器加为插件包的依赖。 |
 
-## 值得为 DSH 评估的 Chord 机制
+## 值得为 MWF 评估的 Chord 机制
 
-有四项 Chord 机制针对的是 DSH 自身存在、与 Pi 无关的限制。每一项都需要单独的提案；本 Agent Note 只做记录。
+有四项 Chord 机制针对的是 MWF 自身存在、与 Pi 无关的限制。每一项都需要单独的提案；本 Agent Note 只做记录。
 
 - **稳定的服务句柄。** 提供方被替换时消费方保留句柄，因此插件重载不会重启其依赖方并丢失它们的状态。
 - **先声明后激活。** setup 同步声明全部依赖，host 在任何 facet 激活之前拒绝缺失的提供方、重复的提供方或循环依赖。Cordis 随服务出现逐步解析依赖，因此缺少提供方的 fiber 会一直挂起，直到启动后的审计报告它。
@@ -114,7 +114,7 @@ Pi 把每个 Session 隔离在一个 worker 进程中，并计划通过其注册
 
 **现在就把 1、2 级做成原型。** 该 API 未发布，只有一个示例插件，其 services README 已把三个 `AgentController` 方法列为已移除。原型需要跟随 Pi 的每次发版维护，却没有用户。上文的服务映射保留了设计结论，而不必付出这项成本。
 
-**不留记录，等 Pi 稳定后再决定。** 服务映射与运行时对比来自对 Chord 以及 Pi 实验性 server、worker 与 client 的完整阅读。这些运行时差异同样适用于与 Pi 无关的 DSH 工作。
+**不留记录，等 Pi 稳定后再决定。** 服务映射与运行时对比来自对 Chord 以及 Pi 实验性 server、worker 与 client 的完整阅读。这些运行时差异同样适用于与 Pi 无关的 MWF 工作。
 
 **不用 Chord，直接在 Cordis 上实现 Pi 的插件服务。** facet 直接调用 Chord 的 API：`env.use`、`env.provide` 与 `replicatedState`。不用 Chord 而提供这套 API，意味着重新实现依赖图校验、稳定句柄、keyed 服务与可复制状态。Chord 采用 MIT 许可，只有一个运行时依赖，而且插件正是针对它编译的。
 

@@ -9,14 +9,14 @@
  */
 import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
-import { createScope, scopeOf } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { LocaleSnapshot } from '@deepseek-ai/dsh-client-locale/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { InputTriggerController, InputTriggerService } from '@deepseek-ai/dsh-client-ui-input-trigger/client'
+import { createScope, scopeOf } from '@metaworkflow/api-session-controller/client'
+import type { LocaleSnapshot } from '@metaworkflow/client-locale/client'
+import type { SessionId } from '@metaworkflow/session/types'
+import { InputTriggerController, InputTriggerService } from '@metaworkflow/client-ui-input-trigger/client'
 import type {
   BeginCommandRequest, ClientSessionContext, CommandClaim, InsertReferenceRequest, PickOutcome,
   ReferenceInsert, InputTriggerCandidate, InputTriggerPick, InputTriggerSource, SourceRoster, TriggerChar,
-} from '@deepseek-ai/dsh-client-ui-input-trigger/client'
+} from '@metaworkflow/client-ui-input-trigger/client'
 
 const sid = (k: string): SessionId => k as SessionId
 

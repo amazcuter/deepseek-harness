@@ -1,5 +1,5 @@
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
+import { createUserMessage } from '@metaworkflow/llm'
+import type { ContextFormed } from '@metaworkflow/llm'
 import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import {
@@ -7,14 +7,14 @@ import {
   CompactionEngine,
   compactCheckpointSource,
   isCompactCheckpointSource,
-} from '@deepseek-ai/dsh-compaction'
-import type { CompactionResult, CompactionTrigger } from '@deepseek-ai/dsh-compaction'
-import { Session, SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionSeq } from '@deepseek-ai/dsh-session'
-import type { CompactionAgentContext } from '@deepseek-ai/dsh-compaction'
-import type { ManualCompactAgentContext } from '@deepseek-ai/dsh-compaction'
+} from '@metaworkflow/compaction'
+import type { CompactionResult, CompactionTrigger } from '@metaworkflow/compaction'
+import { Session, SessionId } from '@metaworkflow/session'
+import type { SessionSeq } from '@metaworkflow/session'
+import type { CompactionAgentContext } from '@metaworkflow/compaction'
+import type { ManualCompactAgentContext } from '@metaworkflow/compaction'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'other': { kind: 'other' } & ContextFormed
   }

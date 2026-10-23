@@ -8,7 +8,7 @@ import type { TerminalIoReport } from './terminal-io.worker.ts'
 
 const MIB = 1024 * 1024
 const ATTEMPTS = 5
-const WORKER = join(import.meta.dirname, '..', '.dsh-build', 'terminal-io', 'terminal-io.worker.js')
+const WORKER = join(import.meta.dirname, '..', '.mwf-build', 'terminal-io', 'terminal-io.worker.js')
 /** M5 Pro / Node 26.5 reference expectations, before shared CI scaling and headroom. */
 const EXPECTED_MS = { steadyIngest: 20, steadyComplete: 50, fullComplete: 120 }
 const MAX_CAPACITY_RATIO = 4

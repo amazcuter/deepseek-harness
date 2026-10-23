@@ -2,10 +2,10 @@
 /** Bottom Inspector lifetime and shortcuts through the production slot renderer. */
 import { afterEach, expect, it } from 'vitest'
 import { act } from '@testing-library/react'
-import { SlotTestRuntime } from '@deepseek-ai/dsh-client-test-runtime'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import ShortcutsService from '@deepseek-ai/dsh-client-shortcuts/client'
-import type { ShortcutCommandId } from '@deepseek-ai/dsh-client-shortcuts/client'
+import { SlotTestRuntime } from '@metaworkflow/client-test-runtime'
+import { LocaleRuntime } from '@metaworkflow/client-locale/client'
+import ShortcutsService from '@metaworkflow/client-shortcuts/client'
+import type { ShortcutCommandId } from '@metaworkflow/client-shortcuts/client'
 import { registerInspectorPage } from '../src/client/bottom/page.tsx'
 import { inspectorId } from '../src/shared/identity.ts'
 
@@ -53,7 +53,7 @@ it('opens on Mod+Shift+Period without a Session or Sidebar and retains the ifram
   const frame = body.view.getByTitle('NodeJS Inspector')
   expect(frame.getAttribute('src')).toBe('inspector/devtools/devtools_app.html?disableLocaleInfoBar=true&clientSourceId=client-page')
   expect(frame.getAttribute('referrerpolicy')).toBe('no-referrer')
-  expect(frame.getAttribute('name')).toBe('dsh-nodejs-inspector')
+  expect(frame.getAttribute('name')).toBe('mwf-nodejs-inspector')
   const close = body.view.getByRole('button', { name: 'Collapse' })
   expect(close.textContent).toBe('')
   expect(close.querySelector('svg')).not.toBeNull()

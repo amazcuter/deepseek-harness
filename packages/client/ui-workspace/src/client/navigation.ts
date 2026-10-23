@@ -1,7 +1,7 @@
 /** Workspace archive and directory UI capability. */
 
 import { Service, type Context } from '@deepseek-ai/cordis'
-import type { ClientRemote, DirectoryListing, RemoteFailure } from '@deepseek-ai/dsh-api-remotes/client'
+import type { ClientRemote, DirectoryListing, RemoteFailure } from '@metaworkflow/api-remotes/client'
 import type {
   ISessions,
   SessionCreateError,
@@ -9,17 +9,17 @@ import type {
   SessionReference,
   SessionTarget,
   SessionListState,
-} from '@deepseek-ai/dsh-api-session-controller/client'
+} from '@metaworkflow/api-session-controller/client'
 // Type-only: pulls the `agentPreset` Session projection value into this program.
-import type {} from '@deepseek-ai/dsh-agent-preset-registry/types'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SubagentAddress } from '@deepseek-ai/dsh-subagent/client'
+import type {} from '@metaworkflow/agent-preset-registry/types'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import type { SubagentAddress } from '@metaworkflow/subagent/client'
 import type {
   IWorkspaces, WorkspaceId, WorkspaceSnapshot, WorkspaceView,
-} from '@deepseek-ai/dsh-api-workspace-controller/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
-import type { DraftInitializationOptions } from '@deepseek-ai/dsh-client-ui-conversation/client'
+} from '@metaworkflow/api-workspace-controller/client'
+import type { SessionId } from '@metaworkflow/session/types'
+import type {} from '@metaworkflow/client-ui-layout/client'
+import type { DraftInitializationOptions } from '@metaworkflow/client-ui-conversation/client'
 import type { RowToast } from './contract/slots.ts'
 import { pinOrderAccounts, pinOrderSource } from './pin-order.ts'
 import type { WorkspaceViewStoreActions } from './stores.ts'
@@ -157,7 +157,7 @@ class UiWorkspaceService extends Service implements UiWorkspace {
   }>()
   private readonly lifetime = new AbortController()
   private readonly selection = createSnapshotStore<MainSelection>(
-    {}, { persist: { name: 'dsh.sessions.current' } },
+    {}, { persist: { name: 'mwf.sessions.current' } },
   )
   private mainReference: SessionReference | undefined
 

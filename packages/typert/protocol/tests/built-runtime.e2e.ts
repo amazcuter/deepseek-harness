@@ -14,7 +14,7 @@ it('recognizes source and built Cordis Contexts in an active built RemoteAccess 
   const script = `
     import { Context as SourceContext } from '@deepseek-ai/cordis/src/index.ts'
     import { Context as BuiltContext } from '@deepseek-ai/cordis'
-    import RemoteAccess from '@deepseek-ai/dsh-api-remote-access'
+    import RemoteAccess from '@metaworkflow/api-remote-access'
 
     const observations = []
     for (const [copy, Context] of [['source', SourceContext], ['built', BuiltContext]]) {

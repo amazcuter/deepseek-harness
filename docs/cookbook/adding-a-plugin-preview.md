@@ -30,7 +30,7 @@ import examplePreview from './assets/example-preview.svg'
 import examplePreviewZh from './assets/example-preview.zh.svg'
 
 // One entry in the existing Map<string, Readonly<Record<'en' | 'zh', string>>>.
-['@deepseek-ai/dsh-example-bundle', { en: examplePreview, zh: examplePreviewZh }]
+['@metaworkflow/example-bundle', { en: examplePreview, zh: examplePreviewZh }]
 ```
 
 Keep the map's required `en` and `zh` type. Do not add package metadata, a Host read method, exported preview resources, or a third-party declaration path. Use the [badge skill](../../packages/client/ui-plugin-manager/src/client/assets/badge-skill-preview.svg) and [voice input](../../packages/client/ui-plugin-manager/src/client/assets/voice-input-preview.svg) illustrations as examples. The voice transcript is explanatory sample content, not a recording result.

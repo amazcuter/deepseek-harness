@@ -3,7 +3,7 @@ description: "Run Python model code in fresh CPython processes under the shared 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-ptc-runtime-python
+# @metaworkflow/experimental-ptc-runtime-python
 
 English | [中文](README.zh.md)
 
@@ -25,7 +25,7 @@ Run model-generated Python in a fresh CPython 3.10+ process on macOS or Linux un
 <a id="use-this-package"></a>
 ## Use this package
 
-Choose this published experimental package only in an explicit composition. Register `PythonPtcRuntime` beside `dsh-tools`; `run(resolve(request))` executes each program in a fresh CPython 3.10+ subprocess, resolving with `result.value` on success and `result.error` on failure (the orthogonal `PtcRunFailure.kind` taxonomy classifies parse failures, thrown exceptions, invalid completions, output overflows, budget expiry, aborts, unavailable confinement, and substrate death). It rejects only for caller misuse, such as malformed bindings, unresolved execution options, or a call after disposal. Configuration is rejected at load: a non-Unix platform; an explicit `pythonBin` that is not an executable regular file or a bare name that does not resolve on `PATH`; a non-CPython, pre-3.10, or probe-failing interpreter; a non-positive or non-integer budget; a `maxLogBytes` below the truncation-marker floor (64); a timer value `setTimeout` would clamp; a budget larger than the effective fd-3 frame cap (lowered when the host heap cannot safely parse a near-cap frame); or an `addressSpaceMb`/output-budget pair whose worst-case peak would breach `RLIMIT_AS`.
+Choose this published experimental package only in an explicit composition. Register `PythonPtcRuntime` beside `mwf-tools`; `run(resolve(request))` executes each program in a fresh CPython 3.10+ subprocess, resolving with `result.value` on success and `result.error` on failure (the orthogonal `PtcRunFailure.kind` taxonomy classifies parse failures, thrown exceptions, invalid completions, output overflows, budget expiry, aborts, unavailable confinement, and substrate death). It rejects only for caller misuse, such as malformed bindings, unresolved execution options, or a call after disposal. Configuration is rejected at load: a non-Unix platform; an explicit `pythonBin` that is not an executable regular file or a bare name that does not resolve on `PATH`; a non-CPython, pre-3.10, or probe-failing interpreter; a non-positive or non-integer budget; a `maxLogBytes` below the truncation-marker floor (64); a timer value `setTimeout` would clamp; a budget larger than the effective fd-3 frame cap (lowered when the host heap cannot safely parse a near-cap frame); or an `addressSpaceMb`/output-budget pair whose worst-case peak would breach `RLIMIT_AS`.
 
 The composition must supply `sandbox` and `sandboxPolicy` for this local execution host. `resolve(request)` accepts an explicit `sandboxPolicy` or resolves the shared deployment policy, and defaults `cwd` to that policy's workspace root. PTC mode supplies the calling Session's policy and directory. The configured `maxWallMs` remains the execution deadline; explicit `timeoutMs` overrides are unsupported.
 
@@ -112,7 +112,7 @@ Read these when the runtime contract is not enough. They move from the seam defi
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through PTC mode in `dsh-tools` when explicitly composed: the consumer appends this provider's async-function, output and fresh-process instructions to `run_code` and renders its completion value or failure as the tool result.
+Indirectly, through PTC mode in `mwf-tools` when explicitly composed: the consumer appends this provider's async-function, output and fresh-process instructions to `run_code` and renders its completion value or failure as the tool result.
 
 #### KV Cache effect
 
@@ -135,7 +135,7 @@ These limits define what the package does and does not cover; they are current p
 - **CPython 3.10 or newer is required** — the configured executable is resolved and version-probed at load; unsupported interpreters fail before `ctx.ptcRuntime` is registered.
 - **Execution is local and Unix-only** — the interpreter, working directory, and sandbox runner must belong to the host running this plugin. The provider uses POSIX resource limits and process-group signals; it does not support Windows or remote execution providers.
 - **Sandbox enforcement inherits backend limits** — a successful program can report partial enforcement, and file confinement does not establish multi-tenant isolation or complete descendant cleanup.
-- **Diagnostic prefixes omit the package's experimental qualifier** — the marker `[dsh-ptc-runtime-python] log capture truncated at <N> bytes` identifies this provider independently of its npm package name. The protocol mirror verifies identical marker bytes in TypeScript and Python.
+- **Diagnostic prefixes omit the package's experimental qualifier** — the marker `[mwf-ptc-runtime-python] log capture truncated at <N> bytes` identifies this provider independently of its npm package name. The protocol mirror verifies identical marker bytes in TypeScript and Python.
 - **`run()` is one-shot** — `logs` become available only after `PtcRunResult` resolves; there is no streaming-log or progress interface for output produced by a running program.
 - **No state persists across runs** — every request executes in a fresh subprocess; a persistent REPL-style kernel stays deferred until a backend brings its own logging scheme.
 - **An fd-3 frame whose raw length exceeds the effective frame parse cap settles the run as a worker-exit** — the cap is 64 MiB, or lower when the host's configured heap cannot safely parse a near-cap frame (`hostFrameParseCeiling`); `maxLogBytes`/`maxValueBytes` are load-bounded to the same cap so an honest child's frames always fit; a model-constructed binding ARGUMENT above the cap (a value with no seam-level budget) trips it too — an accepted residual of the OOM guard.

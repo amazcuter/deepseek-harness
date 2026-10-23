@@ -13,7 +13,7 @@
     providers:
       moonshotai:
         apiKeyEnv: MOONSHOT_API_KEY
-        baseURL: !!js process.env.DSH_SNAPSHOT_BASE_URL
+        baseURL: !!js process.env.MWF_SNAPSHOT_BASE_URL
         streamIdleTimeoutMs: 1000
 
 - id: agent-loop

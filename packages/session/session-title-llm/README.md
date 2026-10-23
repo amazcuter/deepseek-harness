@@ -3,7 +3,7 @@ description: "Shared model-execution policy for session-title providers: route, 
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-session-title-llm
+# @metaworkflow/session-title-llm
 
 English | [中文](README.zh.md)
 

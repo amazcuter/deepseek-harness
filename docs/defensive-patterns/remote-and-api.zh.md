@@ -16,7 +16,7 @@
 subagent 能力拥有自己的 service，它的每个远程方法都是该 service 的具体方法：
 
 ```ts ignore-check
-import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
+import { Remote, TypertRemoteService } from '@metaworkflow/typert-protocol'
 
 interface SubagentList { ids: string[] }
 interface PromptRequest { text: string }
@@ -57,7 +57,7 @@ class ApiProxy {
 生成的映射是面向 Client 类型的唯一来源，标注落在具体方法上，载荷保持 JSON：
 
 ```ts ignore-check
-import { Remote, TypertRemoteService, type TypertClientRemote } from '@deepseek-ai/dsh-typert-protocol'
+import { Remote, TypertRemoteService, type TypertClientRemote } from '@metaworkflow/typert-protocol'
 
 // Client-facing types come from the generated map, never from a second hand-written set.
 type SessionRemote = TypertClientRemote['session']

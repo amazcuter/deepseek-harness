@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-terminal-bundle",
+  "name": "@metaworkflow/experimental-terminal-bundle",
   "description": "Keep shell processes alive across tool calls.",
   "version": "0.2.1-rc.2",
   "icon": "./icon.svg",
@@ -32,15 +32,15 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
-  "dsh": {
+  "mwf": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-tool-terminal": "workspace:*",
-    "@deepseek-ai/dsh-terminal": "workspace:*",
-    "@deepseek-ai/dsh-terminal-bash": "workspace:*"
+    "@metaworkflow/tool-terminal": "workspace:*",
+    "@metaworkflow/terminal": "workspace:*",
+    "@metaworkflow/terminal-bash": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~"

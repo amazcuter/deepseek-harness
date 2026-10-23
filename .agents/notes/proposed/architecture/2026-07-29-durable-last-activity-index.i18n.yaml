@@ -3,11 +3,11 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/architecture/2026-07-29-durable-last-activity-index.md
 /agent-note-record-last-activity-in-the-session-index:
-  en: f64dc6aee10c755f
-  zh: a28d8450c78b0c01
+  en: 93e6f30f70432a19
+  zh: 9fadde1633700461
 /agent-note-record-last-activity-in-the-session-index/problem:
-  en: 485ea0012ab3d9ed
-  zh: cc02544a320a22bb
+  en: 2426d9c031dd9c7c
+  zh: 6d8f9d8d424d3f73
 /agent-note-record-last-activity-in-the-session-index/proposal:
   en: 2260380e10b59eb6
   zh: dcf5a7f2d6003021
@@ -21,5 +21,5 @@
   en: 9aaf88097b46e9b6
   zh: d16e5bbbe221b139
 /agent-note-record-last-activity-in-the-session-index/related:
-  en: 6baa1ed65ac7dd16
-  zh: 2cb7b878fb233220
+  en: 905d719616deb452
+  zh: 574fcb46c365501e

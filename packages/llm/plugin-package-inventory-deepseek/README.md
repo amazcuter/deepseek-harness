@@ -3,13 +3,13 @@ description: "Active Loader package inventory metadata for deployments sending o
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-plugin-package-inventory-deepseek
+# @metaworkflow/plugin-package-inventory-deepseek
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Best-effort active Loader-backed plugin package inventory for official DeepSeek LLM API requests. This function plugin injects the Loader, live Agent registry, and `ctx.deepseekLlmApiExtensions`, then owns the `dsh_plugin_packages` field. Enable it when the official API needs the active package list for request diagnostics.
+Best-effort active Loader-backed plugin package inventory for official DeepSeek LLM API requests. This function plugin injects the Loader, live Agent registry, and `ctx.deepseekLlmApiExtensions`, then owns the `mwf_plugin_packages` field. Enable it when the official API needs the active package list for request diagnostics.
 
 ## Table of Contents
 
@@ -26,7 +26,7 @@ Best-effort active Loader-backed plugin package inventory for official DeepSeek 
 
 | Key | Default | Meaning |
 |---|---:|---|
-| `enabled` | `true` | Register the `dsh_plugin_packages` contribution. Set it to `false` to omit package metadata. |
+| `enabled` | `true` | Register the `mwf_plugin_packages` contribution. Set it to `false` to omit package metadata. |
 
 Shipped profiles use the default, so every official DeepSeek request carries the package inventory when preparation succeeds.
 
@@ -39,7 +39,7 @@ At activation, the plugin samples the optional `ctx.pluginPackages` service. Shi
 
 Each ordinary entry uses its owning Loader tree base. A standing preset's root entries use the harness base, matching the preset Loader's deliberate bare-package override; nested includes retain their own bases. Relative and absolute modules walk to their nearest manifest; manifests without a non-blank string `name` are omitted. A missing or invalid `version` produces a name-only entry, regardless of `private`. A nested directory with its own manifest does not inherit its parent's identity. Package resolution, manifest reading, and JSON parsing failures omit only that entry and log one warning per module; inventory metadata does not block model requests. Entries are deduplicated by name and optional version and sorted with a locale-independent comparison; name-only entries sort before same-name versioned entries, and different versions remain separate.
 
-The version-1 `dsh_plugin_packages` field contains `{ name, version }` or `{ name }` entries; `version` is included only when it is a non-blank string. Disabled, pending, failed, disposed, unloading, structural `cordis:` rows, ordinary dependencies, loose files without an owning package identity, programmatically mounted child fibers, and in-memory dynamic plugins are excluded.
+The version-1 `mwf_plugin_packages` field contains `{ name, version }` or `{ name }` entries; `version` is included only when it is a non-blank string. Disabled, pending, failed, disposed, unloading, structural `cordis:` rows, ordinary dependencies, loose files without an owning package identity, programmatically mounted child fibers, and in-memory dynamic plugins are excluded.
 
 <a id="model-experience"></a>
 ## Model Experience
@@ -48,7 +48,7 @@ The version-1 `dsh_plugin_packages` field contains `{ name, version }` or `{ nam
 
 #### What the model sees
 
-Nothing. `dsh_plugin_packages` is provider metadata outside the model's messages, system prompt, and tool schemas.
+Nothing. `mwf_plugin_packages` is provider metadata outside the model's messages, system prompt, and tool schemas.
 
 #### Token effect
 

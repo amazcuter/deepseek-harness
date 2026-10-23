@@ -10,7 +10,7 @@ Preset directories duplicate Cordis configuration ownership. Separate discovery,
 
 ## Decision
 
-`dsh-agent-preset-registry` owns selection and runtime revisions; `dsh-agent-preset` declares an identity, display metadata and child plugin list in ordinary Cordis YAML. Definitions activate eagerly. Activation failures remain in the roster and reject new bindings without preventing the application from starting.
+`mwf-agent-preset-registry` owns selection and runtime revisions; `mwf-agent-preset` declares an identity, display metadata and child plugin list in ordinary Cordis YAML. Definitions activate eagerly. Activation failures remain in the roster and reject new bindings without preventing the application from starting.
 
 The registry owns each revision's scope and Loader tree. Agents link their own scopes to the selected revision, and children inherit their parent's exact revision. Updates retire the former revision; Agents and temporary cold readers retain references until disposal. The final release disposes a retired tree. Host registries and the Agent loop remain shared; preset service providers and consumers require an isolated realm.
 

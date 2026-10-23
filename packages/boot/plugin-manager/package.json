@@ -1,6 +1,6 @@
 {
-  "name": "@deepseek-ai/dsh-plugin-manager",
-  "description": "Current-profile plugin and bundle management shared by dsh CLI, Web and agent tools",
+  "name": "@metaworkflow/plugin-manager",
+  "description": "Current-profile plugin and bundle management shared by mwf CLI, Web and agent tools",
   "version": "0.2.1-rc.2",
   "publishConfig": {
     "access": "public"
@@ -60,53 +60,53 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-atomic-write": "workspace:*",
+    "@metaworkflow/app-boot": "workspace:*",
+    "@metaworkflow/atomic-write": "workspace:*",
     "@deepseek-ai/schemastery": "workspace:~",
     "execa": "^10.0.1",
     "yaml": "^2.9.0",
     "zod": "4.4.3",
-    "@deepseek-ai/dsh-util-values": "workspace:*"
+    "@metaworkflow/util-values": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-host-plugin-inventory": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-hmr": "workspace:*",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-user-approval": "workspace:*"
+    "@metaworkflow/host-plugin-inventory": "workspace:*",
+    "@metaworkflow/subprocess": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/hmr": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/sandbox-policy": "workspace:*",
+    "@metaworkflow/sandbox": "workspace:*",
+    "@metaworkflow/user-approval": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/dsh-hmr": {
+    "@metaworkflow/hmr": {
       "optional": true
     },
-    "@deepseek-ai/dsh-user-approval": {
+    "@metaworkflow/user-approval": {
       "optional": true
     }
   },
   "devDependencies": {
     "chokidar": "^4.0.3",
-    "@deepseek-ai/dsh-package-manifest": "workspace:*",
+    "@metaworkflow/package-manifest": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-host-plugin-inventory": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-hmr": "workspace:*",
+    "@metaworkflow/host-plugin-inventory": "workspace:*",
+    "@metaworkflow/subprocess": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/hmr": "workspace:*",
     "@deepseek-ai/cordis-plugin-timer": "workspace:~",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-user-approval": "workspace:*"
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/sandbox-policy": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-projection": "workspace:*",
+    "@metaworkflow/sandbox": "workspace:*",
+    "@metaworkflow/user-approval": "workspace:*"
   }
 }

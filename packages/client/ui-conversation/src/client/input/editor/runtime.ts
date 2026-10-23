@@ -1,5 +1,5 @@
 /** The Composer model's private Lexical editor, projections, and node operations. */
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
+import type { ObservableSnapshot } from '@metaworkflow/client-store'
 import type { LexicalEditor, NodeKey } from 'lexical'
 import {
   $addUpdateTag, $createParagraphNode, $createTextNode, $getRoot, $getSelection, $isRangeSelection,
@@ -59,7 +59,7 @@ export class DraftEditorRuntime {
   /** @param deps - model callbacks used by editor listeners and transforms. */
   constructor(private readonly deps: DraftEditorRuntimeDeps) {
     this.editor = createEditor({
-      namespace: 'dsh-composer',
+      namespace: 'mwf-composer',
       nodes: [ReferenceChipNode, CommandChipNode, TextRefNode],
       onError: (error) => { throw error },
     })

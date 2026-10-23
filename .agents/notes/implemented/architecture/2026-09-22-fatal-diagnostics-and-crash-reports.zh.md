@@ -8,7 +8,7 @@ Status: implemented
 
 Desktop 应用的两起用户侧故障都是靠致命恢复对话框的截图定位的。该对话框只显示错误的最后八行，并且当时声称完整诊断已写入 Electron 控制台，而打包安装的应用从不暴露那个控制台。
 
-Windows 上，`dsh-subprocess-local` 的 `OutputCollector.spillAll` 在子进程 stdout 的 `'data'` 监听器内打开 spill 文件。带 `'wx'` 的 `openSync` 抛出 `ENOENT`，对该标志而言这意味着每进程私有 spill 目录已不存在（它只创建一次、从不重建；是什么删除了它没有被观测到），由于没有任何进程级 handler，Desktop Host 以 Node 默认的未捕获异常输出退出。`path:` 属性恰好落在可见的八行里；此外关于该故障的信息一无所获。
+Windows 上，`mwf-subprocess-local` 的 `OutputCollector.spillAll` 在子进程 stdout 的 `'data'` 监听器内打开 spill 文件。带 `'wx'` 的 `openSync` 抛出 `ENOENT`，对该标志而言这意味着每进程私有 spill 目录已不存在（它只创建一次、从不重建；是什么删除了它没有被观测到），由于没有任何进程级 handler，Desktop Host 以 Node 默认的未捕获异常输出退出。`path:` 属性恰好落在可见的八行里；此外关于该故障的信息一无所获。
 
 macOS 上，启动审计把一组 Web 客户端行列为 `import failed (see console for the import error)`，而真正的 import 错误只留在渲染进程 console 中。可见的八个名字与依赖同一个 application batch 的行完全吻合，因此该 batch 脚本的一次加载失败可以解释截图；失败是传输错误、过期 URL 的 404 还是响应截断，无法判定。batch 只请求一次，因此任何瞬态失败都是最终结果。
 
@@ -18,7 +18,7 @@ macOS 上，启动审计把一组 Web 客户端行列为 `import failed (see con
 
 四条决定一并交付。
 
-**未捕获异常是致命的并会被报告；失败的操作绝不恢复。** `dsh-app-boot` 的 `installFailLoud` 为 `'uncaughtException'` 注册与 `'unhandledRejection'` 相同的 handler：向 stderr 写一条带标签的 `util.inspect` 诊断，在既有超时内等待界面的 release 钩子，以 1 退出。控制流不会回到失败的操作，事件循环只运行到 release 结束或超时，因为只有抛出点知道哪些状态仍然完整；在更新过程中抛出的 `'data'` 监听器已经丢掉了一块数据并只设置了一半自己的字段，恢复运行会把可见的崩溃变成静默错误的输出。用 `util.inspect` 替代 `err.stack`，因为 `node:fs` 错误的 `code`、`syscall`、`path` 以及 `cause` 链都是堆栈行省略的可枚举属性。rejection 的标签 `fatal load failure` 保持不变，因为 Web profile 的 expected-output e2e 测试匹配它；异常使用 `fatal uncaught exception`。
+**未捕获异常是致命的并会被报告；失败的操作绝不恢复。** `mwf-app-boot` 的 `installFailLoud` 为 `'uncaughtException'` 注册与 `'unhandledRejection'` 相同的 handler：向 stderr 写一条带标签的 `util.inspect` 诊断，在既有超时内等待界面的 release 钩子，以 1 退出。控制流不会回到失败的操作，事件循环只运行到 release 结束或超时，因为只有抛出点知道哪些状态仍然完整；在更新过程中抛出的 `'data'` 监听器已经丢掉了一块数据并只设置了一半自己的字段，恢复运行会把可见的崩溃变成静默错误的输出。用 `util.inspect` 替代 `err.stack`，因为 `node:fs` 错误的 `code`、`syscall`、`path` 以及 `cause` 链都是堆栈行省略的可枚举属性。rejection 的标签 `fatal load failure` 保持不变，因为 Web profile 的 expected-output e2e 测试匹配它；异常使用 `fatal uncaught exception`。
 
 **spill 文件在每一步都是尽力而为。** `spillPath` 本来就是可选的，最终关闭失败时已经会撤回它。`spillAll` 现在包住打开或追加过程中的每一种文件系统失败：丢弃该 spill，通过所有者的 logger 报告一次（`SpillOptions.onFailure`，由运行时和 SSH helper 接到 `ctx.logger.error`），并让内存尾部继续收集。被删除的目录不会重建：该设计的安全性依赖于由本进程一次性创建的随机名称，重建一个已知名称就放弃了这一点。在 `ENOENT` 时新建随机目录是待办工作。
 
@@ -36,10 +36,10 @@ Desktop 本地日志设计（Worker 独占写入的滚动 JSONL 日志、封闭�
 
 ## Testing
 
-- `dsh-app-boot`：未捕获异常产生带可枚举属性与 cause 链的带标签诊断，与 rejection 共享退出闩锁和 release 超时，两个 handler 都能卸载。
-- `dsh-subprocess-local`：打开时 `ENOENT`（目录被删）、打开时 `ENOTDIR`、文件已存在后追加时 `ENOSPC`，三者都保持尾部逐字节一致、撤回 spill 文件、报告一次且不抛出。
-- `dsh-client-modules`：传输失败重试一次并共享重试；持续失败按缺失行回退且不重复请求 batch；零注册或部分注册的 batch 不重新执行；单资源 URL 保持可重试；最终错误列出每次尝试；传输、factory 与依赖失败都被记录，成功和失效会清除记录。
-- `dsh-client-web`：提供模块系统时启动审计写出记录的 import 错误。
+- `mwf-app-boot`：未捕获异常产生带可枚举属性与 cause 链的带标签诊断，与 rejection 共享退出闩锁和 release 超时，两个 handler 都能卸载。
+- `mwf-subprocess-local`：打开时 `ENOENT`（目录被删）、打开时 `ENOTDIR`、文件已存在后追加时 `ENOSPC`，三者都保持尾部逐字节一致、撤回 spill 文件、报告一次且不抛出。
+- `mwf-client-modules`：传输失败重试一次并共享重试；持续失败按缺失行回退且不重复请求 batch；零注册或部分注册的 batch 不重新执行；单资源 URL 保持可重试；最终错误列出每次尝试；传输、factory 与依赖失败都被记录，成功和失效会清除记录。
+- `mwf-client-web`：提供模块系统时启动审计写出记录的 import 错误。
 - Desktop：`crash-report` 单测覆盖渲染、仅所有者可读的写入、写入失败、不触碰其他文件的清理以及 console 尾部；`fatal-recovery` 测试在两种语言下钉住带与不带报告路径的对话框文本、一秒上限以及每次致命失败只写一次；启动夹具断言运行阶段 Host 退出的报告输入，包括捕获的渲染进程 console。
 
 ## Consequences

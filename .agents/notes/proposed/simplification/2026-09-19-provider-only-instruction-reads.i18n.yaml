@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/simplification/2026-09-19-provider-only-instruction-reads.md
 /agent-note-read-instruction-files-only-through-a-filesystem-provider:
-  en: 522a0143262cd96a
-  zh: 667e48df6cd37c61
+  en: b1bf568df077be48
+  zh: 2e699d9508b9c018
 /agent-note-read-instruction-files-only-through-a-filesystem-provider/problem:
   en: 5426489eed9b447e
   zh: 97132891bfff4b41
 /agent-note-read-instruction-files-only-through-a-filesystem-provider/proposal:
-  en: 0096f75858b4c565
-  zh: 7c2c6a18fb111c08
+  en: f74a98713bf9a8bd
+  zh: 01f44546ededede2
 /agent-note-read-instruction-files-only-through-a-filesystem-provider/alternatives-considered:
   en: c942573554ef1d63
   zh: 7af89ae9434f7521

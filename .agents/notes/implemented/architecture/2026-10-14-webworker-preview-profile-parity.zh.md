@@ -6,7 +6,7 @@ Status: implemented
 
 ## 问题
 
-浏览器 Preview（[webworker-runtime](../../../../packages/experimental/webworker-runtime/README.zh.md)、[webworker-packer](../../../../packages/experimental/webworker-packer/README.zh.md)）的启动配置可以在打包时生成：packer 用临时 home 运行 `dsh --profile web --dump-config`，把输出写进镜像的 `config/cordis.yml`；Worker 再把整份配置当作 profile 自己的补丁（一条 `insert`）插回去。在这样的镜像上实测，会带来三个后果：
+浏览器 Preview（[webworker-runtime](../../../../packages/experimental/webworker-runtime/README.zh.md)、[webworker-packer](../../../../packages/experimental/webworker-packer/README.zh.md)）的启动配置可以在打包时生成：packer 用临时 home 运行 `mwf --profile web --dump-config`，把输出写进镜像的 `config/cordis.yml`；Worker 再把整份配置当作 profile 自己的补丁（一条 `insert`）插回去。在这样的镜像上实测，会带来三个后果：
 
 | 现象 | 原因 |
 |---|---|
@@ -24,7 +24,7 @@ Status: implemented
 
 - **packer**
   - 收包清单 = `PROFILE_TEMPLATES[profile].bundles` + `OPTIONAL_BUNDLES` + 这些 bundle 补丁文件里的行；bundle 包本身也打进镜像（补丁、locale、icon 走 publish view）。两张表从 app-boot 读，与插件页同一来源。
-  - 镜像里放一份只含清单的 `node_modules/@deepseek-ai/dsh/package.json`（原样复制 `apps/cli/package.json`），作为安装锚点，镜像 manifest 在 `installation` 里记录它。
+  - 镜像里放一份只含清单的 `node_modules/@metaworkflow/cli/package.json`（原样复制 `apps/cli/package.json`），作为安装锚点，镜像 manifest 在 `installation` 里记录它。
   - 镜像不带组合好的配置，也没有 `config/cordis.yml`；镜像 manifest 记录 Worker 要启动的 `profile`。
   - 镜像带一份 home patch `home/cordis.patch.yml`：对运行时 `PLATFORM_ENTRY_CONFIG` 列出的每一行（`session-persistence-jsonl`），写入模板各 bundle 层合成出的配置，并在其上设置所需字段（`compression: none`）。补丁会整体替换一行的配置，所以保留合成出的字段；打包时读取的 bundle 文件就是镜像里的那些。
 - **Worker**
@@ -55,13 +55,13 @@ Worker 的结构化 stub 抛出带 `ERR_FEATURE_UNAVAILABLE_ON_PLATFORM` 的错�
 - **归档**：每个 chunk 一个确定性 tar.gz，按压缩后归档的 SHA-256 命名为 `lazy/<sha256>.tar.gz`。基础 manifest 的 `lazy` 列表把每个 archive 记录为 `{ archive, files: [{ path, size }] }`，不记录文件 mode。不设大小阈值。
 - **登记**：Worker 用 `MemoryVfs.deferArchive` 登记列出的每个文件，同时创建其父目录，并赋予 VFS 默认文件 mode；列出懒加载 archive 的镜像必须从 URL 拉取，archive 名相对这个 URL 解析。`exists`、`stat`、`readdir` 依据登记同步作答。
 - **拉取**：Worker 的 `node:fs` 和 `node:fs/promises` 中读取已登记文件的异步接口会等待其 archive：`fs.promises.readFile`、`fs.promises.open`（因此每个 FileHandle 都在到达后才打开）、`fs.promises.cp` 和 `fs.createReadStream`。其中第一个调用拉取 archive、解压，校验其中恰好是登记的路径和登记的大小，再物化文件；并发读取方共用一次拉取。archive 名里的摘要不做校验。拉取失败只让等待它的读取失败；文件保持登记，下一次异步读取再次拉取。
-- **到达之前**：同步读取，以及同步和 promise 形式的写入、追加、截断、chmod、重命名和硬链接，都以 `ERR_DSH_VFS_DEFERRED` 拒绝，并给出 archive 名；会移动已登记文件的目录重命名在目标改变之前就被拒绝，目标保持原样。unlink 和递归删除会撤销登记，对该路径 seed 会替换登记；之后到达的 archive 不改动这些路径。
+- **到达之前**：同步读取，以及同步和 promise 形式的写入、追加、截断、chmod、重命名和硬链接，都以 `ERR_MWF_VFS_DEFERRED` 拒绝，并给出 archive 名；会移动已登记文件的目录重命名在目标改变之前就被拒绝，目标保持原样。unlink 和递归删除会撤销登记，对该路径 seed 会替换登记；之后到达的 archive 不改动这些路径。
 - **client-modules**：`chunkResponse` 在 `lazyBody` 里用 `fs.promises.readFile` 读取 chunk；`lazyBody` 让并发请求共用一次读取，被拒绝的读取一旦落定就丢弃，下一次请求重新读取。在 Node 下，异步读取与同步读取得到相同字节。
 
 ### 文件监听与 Client 插件下发
 
 - Worker 的 `fs.watch` 和 `fs.watchFile` 监听器在创建 watcher 时的异步上下文里运行，与 Node 从 watch 句柄派发事件一致，而不是在写入方的上下文里运行。因此 HMR 的配置 watcher 在写入方的 HMR 事务之外运行，事务内的配置写入不会让随后的重载因嵌套事务而失败。
-- `@deepseek-ai/dsh-client-hmr` 的浏览器部分在 shell 提供 `__DSH_TRANSPORT__.fetch` 时（Worker preview 隧道）经它读取 `/plugins/events`，否则经 `EventSource` 读取。因此在 Preview 里启用 bundle 后，其 Client 插件无需刷新页面即可挂载。
+- `@metaworkflow/client-hmr` 的浏览器部分在 shell 提供 `__MWF_TRANSPORT__.fetch` 时（Worker preview 隧道）经它读取 `/plugins/events`，否则经 `EventSource` 读取。因此在 Preview 里启用 bundle 后，其 Client 插件无需刷新页面即可挂载。
 
 ## 考虑过的替代方案
 
@@ -81,7 +81,7 @@ Worker 的结构化 stub 抛出带 `ERR_FEATURE_UNAVAILABLE_ON_PLATFORM` 的错�
 
 ## 后果
 
-Preview 启动的组合与正式 Web 相同。不开 bundle 时，Worker 组合与正式 Web 只差 jsonl 的平台覆盖；开任一 bundle 都没有被跳过的补丁。插件页和“设置 → 内置插件”列出全部 `OPTIONAL_BUNDLES`，每个都显示标题和图标，没有元信息错误。11 个 optional bundle 逐个开启再关闭，两次都返回 `applied`；开启后它改动的每个启用行都是 active，关闭后插件列表恢复原样。启用 session-titles 会禁用 `@deepseek-ai/dsh-session-title-first-prompt-llm`（行 `session-title-llm`）并启用 `@deepseek-ai/dsh-session-title-all-prompts-llm`，与正式 Web 一致；启用 inspector-profile 后 Session Inspector 运行，NodeJS Inspector 降级启动。降级以 `ERR_FEATURE_UNAVAILABLE_ON_PLATFORM` 为前提，所以正常 `dsh web` 运行完整的 Inspector。
+Preview 启动的组合与正式 Web 相同。不开 bundle 时，Worker 组合与正式 Web 只差 jsonl 的平台覆盖；开任一 bundle 都没有被跳过的补丁。插件页和“设置 → 内置插件”列出全部 `OPTIONAL_BUNDLES`，每个都显示标题和图标，没有元信息错误。11 个 optional bundle 逐个开启再关闭，两次都返回 `applied`；开启后它改动的每个启用行都是 active，关闭后插件列表恢复原样。启用 session-titles 会禁用 `@metaworkflow/session-title-first-prompt-llm`（行 `session-title-llm`）并启用 `@metaworkflow/session-title-all-prompts-llm`，与正式 Web 一致；启用 inspector-profile 后 Session Inspector 运行，NodeJS Inspector 降级启动。降级以 `ERR_FEATURE_UNAVAILABLE_ON_PLATFORM` 为前提，所以正常 `mwf web` 运行完整的 Inspector。
 
 体积（MiB，实测）：基础镜像 9.20（打包期组合且 chunk 随启动下载时为 12.79，−28%），含 11 个 optional bundle；另有 5 个 lazy tar 共 4.45（pdf 2.88、excel 1.39、terminal 0.13、frontmatter 0.05、inspector 底部面板 0.00）。基础镜像不含懒加载 chunk，页面请求 chunk 时才拉取对应 archive。
 
@@ -99,7 +99,7 @@ Preview 启动的组合与正式 Web 相同。不开 bundle 时，Worker 组合�
 
 - [profile-image.spec.ts](../../../../packages/experimental/webworker-packer/tests/profile-image.spec.ts) 锁定收包清单（模板 bundle、全部 optional bundle、它们补丁行指向的包），以及记录 profile 和 installation、只带安装清单的镜像。
 - [lazy-chunks.spec.ts](../../../../packages/experimental/webworker-packer/tests/lazy-chunks.spec.ts) 锁定每个 `require.async` chunk 一个 archive、多次打包得到相同的 archive 名和字节、拒绝未发布的 chunk、`./client` 导出目标留在基础镜像。
-- [lazy-archive.spec.ts](../../../../packages/experimental/webworker-runtime/tests/storage/lazy-archive.spec.ts) 锁定登记后的作答、`ERR_DSH_VFS_DEFERRED` 拒绝、重命名目标保持不变、删除与 seed、共用一次拉取、拉取失败后重试，以及会等待的 `node:fs` 接口。
+- [lazy-archive.spec.ts](../../../../packages/experimental/webworker-runtime/tests/storage/lazy-archive.spec.ts) 锁定登记后的作答、`ERR_MWF_VFS_DEFERRED` 拒绝、重命名目标保持不变、删除与 seed、共用一次拉取、拉取失败后重试，以及会等待的 `node:fs` 接口。
 - [require-builtin.spec.ts](../../../../packages/experimental/webworker-runtime/tests/node/require-builtin.spec.ts) 锁定提供的 internal 模块、其他 id 以平台错误码拒绝、cascaded loader、HMR 替换的成员和报告的 Node 版本；[fs-watch-context.spec.ts](../../../../packages/experimental/webworker-runtime/tests/node/fs-watch-context.spec.ts) 锁定监听器在 watcher 创建时的上下文里运行。
 - [bootstrap-route.host.spec.ts](../../../../packages/experimental/inspector/tests/bootstrap-route.host.spec.ts) 锁定 Inspector 降级；[transport.client.spec.ts](../../../../packages/client/hmr/tests/transport.client.spec.ts) 锁定经页面 transport 读取事件流；[node-half.client.spec.ts](../../../../packages/client/modules/tests/node-half.client.spec.ts) 锁定 chunk 读取重试。
 - [preview-boot.e2e.ts](../../../../apps/web/tests/preview-boot.e2e.ts) 启动打包好的 Worker 部署，经隧道请求一个懒加载 chunk，逐个开关全部 optional bundle，检查 session-titles 和 inspector-profile 的行，并在不刷新页面的情况下挂载已启用 bundle 的 Client 插件。镜像体积是实测值，没有测试锁定。

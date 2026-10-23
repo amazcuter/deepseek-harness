@@ -23,8 +23,8 @@ describe('manual Windows CI version', () => {
 
 
 it('resolves the selected version policy independently of the update channel', () => {
-  expect(windowsCiVersion({ ...inputs, PACKAGE_VERSION_MODE: 'default', DSH_PACKAGING_PRESET: 'production' }, '1.2.3', now)).toBe('1.2.3')
-  expect(windowsCiVersion({ ...inputs, PACKAGE_VERSION_MODE: 'default', DSH_PACKAGING_PRESET: 'test' }, '1.2.3', now)).toBe('1.2.3-test.20261009.42.2')
+  expect(windowsCiVersion({ ...inputs, PACKAGE_VERSION_MODE: 'default', MWF_PACKAGING_PRESET: 'production' }, '1.2.3', now)).toBe('1.2.3')
+  expect(windowsCiVersion({ ...inputs, PACKAGE_VERSION_MODE: 'default', MWF_PACKAGING_PRESET: 'test' }, '1.2.3', now)).toBe('1.2.3-test.20261009.42.2')
   expect(windowsCiVersion({ PACKAGE_VERSION_MODE: 'product' }, '1.2.3-alpha.1', now)).toBe('1.2.3-alpha.1')
   expect(() => windowsCiVersion({ PACKAGE_VERSION_MODE: 'manual', PACKAGE_BUILD_VERSION: 'auto' }, '1.2.3', now)).toThrow(/explicit version/u)
   expect(() => windowsCiVersion({ PACKAGE_VERSION_MODE: 'invalid' }, '1.2.3', now)).toThrow(/version mode/u)

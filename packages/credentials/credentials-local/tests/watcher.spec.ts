@@ -3,7 +3,7 @@ import { Context } from '@deepseek-ai/cordis'
 import { chmod, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
+import { credentialRef } from '@metaworkflow/credentials'
 import { LocalCredentialProvider } from '../src/index.ts'
 
 const fsHarness = vi.hoisted(() => ({
@@ -61,7 +61,7 @@ async function fakeInstances(): Promise<FakeChokidar['__instances']> {
   return chokidar.__instances
 }
 
-const KEY = credentialRef('DSH_CRED_PIPE')
+const KEY = credentialRef('MWF_CRED_PIPE')
 
 const cleanups: Array<() => Promise<void>> = []
 
@@ -72,7 +72,7 @@ afterEach(async () => {
 })
 
 async function tempDir(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'dsh-credentials-watch-'))
+  const dir = await mkdtemp(join(tmpdir(), 'mwf-credentials-watch-'))
   cleanups.push(() => rm(dir, { recursive: true, force: true }))
   return dir
 }
@@ -104,7 +104,7 @@ describe('watcher pipeline', () => {
     instance!.watcher.emit('error', new Error('watch backend failure'))
     expect(await ctx.credentials.resolve(KEY)).toBeUndefined()
 
-    await writeCredentials(path, 'version: 1\nrefs:\n  DSH_CRED_PIPE: arrived\n')
+    await writeCredentials(path, 'version: 1\nrefs:\n  MWF_CRED_PIPE: arrived\n')
     instance!.watcher.emit('all', 'change', path)
     await vi.waitFor(async () => {
       expect(await ctx.credentials.resolve(KEY)).toEqual({ value: 'arrived', source: 'file' })
@@ -114,7 +114,7 @@ describe('watcher pipeline', () => {
   it('keeps the last good snapshot when the file turns unreadable at runtime', async () => {
     const dir = await tempDir()
     const path = join(dir, '.credentials.yaml')
-    await writeCredentials(path, 'version: 1\nrefs:\n  DSH_CRED_PIPE: good\n')
+    await writeCredentials(path, 'version: 1\nrefs:\n  MWF_CRED_PIPE: good\n')
     const ctx = await boot({ path, debounceMs: 5 })
 
     await chmod(path, 0o000)
@@ -129,7 +129,7 @@ describe('watcher pipeline', () => {
   it('keeps the last good snapshot when the read fails after its permission check', async () => {
     const dir = await tempDir()
     const path = join(dir, '.credentials.yaml')
-    await writeCredentials(path, 'version: 1\nrefs:\n  DSH_CRED_PIPE: good\n')
+    await writeCredentials(path, 'version: 1\nrefs:\n  MWF_CRED_PIPE: good\n')
     const ctx = await boot({ path, debounceMs: 5 })
     fsHarness.nextReadError = Object.assign(new Error('version: 1\nrefs:\n  EACCES: injected read failure\n'), { code: 'EACCES' })
 
@@ -156,7 +156,7 @@ describe('watcher pipeline', () => {
     await fiber.dispose()
 
     expect(() => instance!.watcher.emit('error', Object.assign(
-      new Error("EPERM: operation not permitted, stat 'C:\\Temp\\dsh\\.credentials.yaml'"),
+      new Error("EPERM: operation not permitted, stat 'C:\\Temp\\mwf\\.credentials.yaml'"),
       { code: 'EPERM', syscall: 'stat' },
     ))).not.toThrow()
   })
@@ -164,7 +164,7 @@ describe('watcher pipeline', () => {
   it('quiesces the refresh pipeline before dispose completes', async () => {
     const dir = await tempDir()
     const path = join(dir, '.credentials.yaml')
-    await writeCredentials(path, 'version: 1\nrefs:\n  DSH_CRED_PIPE: initial\n')
+    await writeCredentials(path, 'version: 1\nrefs:\n  MWF_CRED_PIPE: initial\n')
     const ctx = new Context()
     const fiber = ctx.plugin(LocalCredentialProvider, { path, debounceMs: 5 })
     await fiber
@@ -174,7 +174,7 @@ describe('watcher pipeline', () => {
       if (disposed) postDisposeCommits += 1
     })
 
-    await writeCredentials(path, 'version: 1\nrefs:\n  DSH_CRED_PIPE: changed\n')
+    await writeCredentials(path, 'version: 1\nrefs:\n  MWF_CRED_PIPE: changed\n')
     const [instance] = await fakeInstances()
     // Two queued refreshes: dispose interrupts one mid-flight and the other
     // before it starts, so both closed guards must hold.
@@ -191,7 +191,7 @@ describe('watcher pipeline', () => {
   it('empties the snapshot when the document is deleted and emits the removals', async () => {
     const dir = await tempDir()
     const path = join(dir, '.credentials.yaml')
-    await writeCredentials(path, 'version: 1\nrefs:\n  DSH_CRED_PIPE: doomed\n')
+    await writeCredentials(path, 'version: 1\nrefs:\n  MWF_CRED_PIPE: doomed\n')
     const ctx = await boot({ path, debounceMs: 5 })
     const seen: string[] = []
     ctx.on('credentials/reference-updated', (ref) => {
@@ -210,7 +210,7 @@ describe('watcher pipeline', () => {
   it('keeps the last good snapshot when an external edit makes the document invalid', async () => {
     const dir = await tempDir()
     const path = join(dir, '.credentials.yaml')
-    await writeCredentials(path, 'version: 1\nrefs:\n  DSH_CRED_PIPE: a\n')
+    await writeCredentials(path, 'version: 1\nrefs:\n  MWF_CRED_PIPE: a\n')
     const ctx = await boot({ path, debounceMs: 5 })
     const seen: string[] = []
     ctx.on('credentials/reference-updated', (ref) => {
@@ -221,7 +221,7 @@ describe('watcher pipeline', () => {
     // this document holds nothing but credentials. A live reload must warn
     // and keep serving the last good snapshot rather than take the process
     // down or silently drop the entry it could not validate.
-    await writeCredentials(path, 'version: 1\nrefs:\n  BAD-KEY: 2\n  DSH_CRED_PIPE: b\n')
+    await writeCredentials(path, 'version: 1\nrefs:\n  BAD-KEY: 2\n  MWF_CRED_PIPE: b\n')
     const [instance] = await fakeInstances()
     instance!.watcher.emit('all', 'change', path)
     await new Promise(resolve => setTimeout(resolve, 50))
@@ -229,7 +229,7 @@ describe('watcher pipeline', () => {
     expect(seen).toEqual([])
 
     // Repairing the document resumes publishing.
-    await writeCredentials(path, 'version: 1\nrefs:\n  DSH_CRED_PIPE: b\n')
+    await writeCredentials(path, 'version: 1\nrefs:\n  MWF_CRED_PIPE: b\n')
     instance!.watcher.emit('all', 'change', path)
     await vi.waitFor(async () => {
       expect(await ctx.credentials.resolve(KEY)).toEqual({ value: 'b', source: 'file' })
@@ -240,7 +240,7 @@ describe('watcher pipeline', () => {
   it('warns about an unknown top-level key a live reload brings in, once per change', async () => {
     const dir = await tempDir()
     const path = join(dir, '.credentials.yaml')
-    await writeCredentials(path, 'version: 1\nrefs:\n  DSH_CRED_PIPE: a\n')
+    await writeCredentials(path, 'version: 1\nrefs:\n  MWF_CRED_PIPE: a\n')
     const ctx = new Context()
     const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
     const fiber = ctx.plugin(LocalCredentialProvider, { path, debounceMs: 5 })
@@ -250,7 +250,7 @@ describe('watcher pipeline', () => {
     await fiber
     expect(warn).not.toHaveBeenCalled()
 
-    await writeCredentials(path, 'version: 1\nFOREIGN: x\nrefs:\n  DSH_CRED_PIPE: b\n')
+    await writeCredentials(path, 'version: 1\nFOREIGN: x\nrefs:\n  MWF_CRED_PIPE: b\n')
     const [instance] = await fakeInstances()
     instance!.watcher.emit('all', 'change', path)
     await vi.waitFor(async () => {

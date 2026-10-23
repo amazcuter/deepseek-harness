@@ -1,10 +1,10 @@
 /** Paid selection, independent native requests, audit-before-I/O and cancellation. */
 import { Context, FiberState } from '@deepseek-ai/cordis'
-import { ReasoningEffortId, createUserMessage, createAssistantMessage, type PreparedLlmCall } from '@deepseek-ai/dsh-llm'
-import { Config as AccountConfig } from '@deepseek-ai/dsh-llm-deepseek-account'
-import { Config as OfficialConfig } from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import { pluginRecordOf, SessionId } from '@deepseek-ai/dsh-session'
-import { TimeoutReason } from '@deepseek-ai/dsh-timeout'
+import { ReasoningEffortId, createUserMessage, createAssistantMessage, type PreparedLlmCall } from '@metaworkflow/llm'
+import { Config as AccountConfig } from '@metaworkflow/llm-deepseek-account'
+import { Config as OfficialConfig } from '@metaworkflow/llm-deepseek-api-key'
+import { pluginRecordOf, SessionId } from '@metaworkflow/session'
+import { TimeoutReason } from '@metaworkflow/timeout'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import Translator from '../src/index.ts'
 import { paidFixture, replyEvents, sse } from './paid-fixture.ts'
@@ -87,13 +87,13 @@ describe('native Flash translation', () => {
       const history = session.deriveMessages()
       for await (const _chunk of b.ctx.llm.stream({ provider: 'deepseek-official', model: 'deepseek-flash',
         reasoningEffort: ReasoningEffortId('off'), messages: history, sessionId: session.id })) { /* Native main request control. */ }
-      expect(b.requests[0]!.body).toHaveProperty('dsh_session_log')
+      expect(b.requests[0]!.body).toHaveProperty('mwf_session_log')
       expect(b.requests[0]!.sessionHeader).toBe(true)
       const accepted = session.snapshotEvents().filter(event => event.type === 'session-log-deepseek/delivery-accepted')
       expect(accepted).toHaveLength(1)
       expect(await b.translate(provider)).toBe('翻译结果')
       const request = b.requests[1]!
-      expect(request.body).not.toHaveProperty('dsh_session_log')
+      expect(request.body).not.toHaveProperty('mwf_session_log')
       expect(request.sessionHeader).toBe(false)
       expect(request.body.messages).toEqual([{ role: 'user', content: [{ type: 'text', text: 'Original paragraph' }] }])
       expect(JSON.stringify(request.body)).not.toContain('Private main input and tool context')
@@ -115,7 +115,7 @@ describe('native Flash translation', () => {
   })
 
   it('excludes pi-ai ownership, non-native settings paths, unregistered routes and inactive native rows', async () => {
-    const b = await paidFixture(cleanups, { officialName: '@deepseek-ai/dsh-llm-pi-ai' })
+    const b = await paidFixture(cleanups, { officialName: '@metaworkflow/llm-pi-ai' })
     expect(await b.ctx.translator.availableProviders()).toEqual(['bing', 'google', 'deepseek-account'])
     await expect(b.translate('deepseek-official')).rejects.toMatchObject({ code: 'TRANSLATION_UNAVAILABLE' })
     expect(b.requests).toEqual([])

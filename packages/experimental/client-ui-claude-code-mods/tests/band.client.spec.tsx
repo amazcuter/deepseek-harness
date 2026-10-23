@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 /** The band draws a serialized mod tree and sends a button press to the Host with the generation it saw. */
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { bindSnapshotSelector, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SurfaceSnapshot } from '@deepseek-ai/dsh-experimental-claude-code-mods/types'
+import { bindSnapshotSelector, makeTranslate } from '@metaworkflow/client-test-runtime'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import type { SurfaceSnapshot } from '@metaworkflow/experimental-claude-code-mods/types'
 import { afterEach, expect, it, vi } from 'vitest'
 import { Band, type BandProps } from '../src/client/Band.tsx'
 import { zh } from '../src/client/locales.ts'

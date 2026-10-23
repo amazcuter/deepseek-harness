@@ -9,7 +9,7 @@ description: "自定义 TerminalBlock 消费者必须为横向溢出的命令行
 
 ## 变更
 
-`@deepseek-ai/dsh-client-ui-primitives` 的 `TerminalBlockLabels` 要求提供 `commandLine(line: number): string` 格式化函数。此前，调用者不提供命令行的无障碍名称。现在，每条横向溢出的命令行使用这个名称标识可通过键盘聚焦的分组；能够完整显示的行（包括折行后的行）不会增加 Tab 停靠点。这会影响渲染 `TerminalBlock` 的自定义 UI 插件。
+`@metaworkflow/client-ui-primitives` 的 `TerminalBlockLabels` 要求提供 `commandLine(line: number): string` 格式化函数。此前，调用者不提供命令行的无障碍名称。现在，每条横向溢出的命令行使用这个名称标识可通过键盘聚焦的分组；能够完整显示的行（包括折行后的行）不会增加 Tab 停靠点。这会影响渲染 `TerminalBlock` 的自定义 UI 插件。
 
 ## 迁移
 

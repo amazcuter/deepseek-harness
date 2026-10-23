@@ -2,7 +2,7 @@
  * `node-addon-require-builtin` for the Worker. Without `--expose-internals`, the vendored Loader, app-boot, and HMR
  * read Node internal modules through this package's `requireBuiltin(id)`; the Worker answers the ids those callers
  * read with members that follow Node v24.18.0 and refuses every other id with Node's platform code.
- * @module @deepseek-ai/dsh-experimental-webworker-runtime/src/node/external_packages/node-addon-require-builtin
+ * @module @metaworkflow/experimental-webworker-runtime/src/node/external_packages/node-addon-require-builtin
  */
 import { notAvailableError } from '../notImplementedFail.ts'
 import { requireActiveModuleLoader } from '../../module-system/module-loader.ts'

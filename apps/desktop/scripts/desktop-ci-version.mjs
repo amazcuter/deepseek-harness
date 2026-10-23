@@ -10,7 +10,7 @@ import { desktopBuildVersionPrefix, validateDesktopBuildVersion } from './deskto
  */
 export function desktopCiVersion(environment, productVersion, now = new Date()) {
   const mode = environment.PACKAGE_VERSION_MODE
-  const selected = mode === 'default' ? (environment.DSH_PACKAGING_PRESET === 'production' ? 'product' : 'auto') : mode
+  const selected = mode === 'default' ? (environment.MWF_PACKAGING_PRESET === 'production' ? 'product' : 'auto') : mode
   if (selected !== undefined && !['product', 'auto', 'manual'].includes(selected)) throw new Error('Invalid version mode')
   const requested = selected === 'product' ? productVersion : selected === 'auto' ? 'auto' : environment.PACKAGE_BUILD_VERSION?.trim()
   if (selected === 'manual' && (!requested || requested === 'auto')) throw new Error('Manual version mode requires an explicit version')
@@ -24,7 +24,7 @@ export function desktopCiVersion(environment, productVersion, now = new Date()) 
     }
     candidate = `${desktopBuildVersionPrefix(productVersion)}${date}.${environment.GITHUB_RUN_NUMBER}.${environment.GITHUB_RUN_ATTEMPT}`
   }
-  if (environment.DSH_DESKTOP_UPDATE_CHANNEL === 'latest' && candidate.includes('-')) throw new Error('Latest channel requires a stable version; select product or manual stable version')
+  if (environment.MWF_DESKTOP_UPDATE_CHANNEL === 'latest' && candidate.includes('-')) throw new Error('Latest channel requires a stable version; select product or manual stable version')
   try {
     const resolved = validateDesktopBuildVersion(candidate, productVersion)
     return resolved

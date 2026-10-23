@@ -33,7 +33,7 @@ describe('concrete terminology policy', () => {
   })
 
   it.skipIf(process.platform === 'win32')('reads the target of a dangling tracked symlink', () => {
-    const repoRoot = mkdtempSync(join(tmpdir(), 'dsh-concrete-terms-'))
+    const repoRoot = mkdtempSync(join(tmpdir(), 'mwf-concrete-terms-'))
     try {
       symlinkSync(`../${blockedTerm}-target`, join(repoRoot, 'tracked-link'))
       expect(findConcreteTermViolations(

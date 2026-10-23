@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { ChatConversationViewNode } from '../src/client/contract/chat-nodes.ts'
-import type { ConversationTimelineSnapshot, TurnLocation } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { ConversationTimelineSnapshot, TurnLocation } from '@metaworkflow/client-ui-conversation/client'
 import { ChatSnapshotBuilder } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
 
 function turn(index: number): TurnLocation {

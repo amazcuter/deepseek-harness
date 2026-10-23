@@ -4,12 +4,12 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
-import * as StrReplaceEditor from '@deepseek-ai/dsh-tool-str-replace-editor'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@metaworkflow/agent-loop-testkit'
+import { createUserMessage } from '@metaworkflow/llm'
+import { SessionId } from '@metaworkflow/session'
+import LocalSubprocessRuntime from '@metaworkflow/subprocess-local'
+import * as ToolFs from '@metaworkflow/tool-fs'
+import * as StrReplaceEditor from '@metaworkflow/tool-str-replace-editor'
 import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import * as WorkspaceChanges from '../src/index.ts'
 
@@ -20,7 +20,7 @@ afterEach(async () => {
 })
 
 it.each(['write', 'edit', 'str_replace_editor'] as const)('captures the resolved %s target before mutation, without a repository', async (name) => {
-  const origin = await realpath(await mkdtemp(join(tmpdir(), 'dsh-workspace-directory-')))
+  const origin = await realpath(await mkdtemp(join(tmpdir(), 'mwf-workspace-directory-')))
   cleanups.push(() => rm(origin, { recursive: true, force: true }))
   const current = join(origin, 'current')
   await mkdir(current)

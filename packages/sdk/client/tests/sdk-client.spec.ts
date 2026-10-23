@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os'
 import { isAbsolute, join, relative, resolve as resolvePath } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ReasoningEffortId } from '@deepseek-ai/dsh-llm'
+import { ReasoningEffortId } from '@metaworkflow/llm'
 import {
   DeepSeekHarness,
   HarnessClient,
@@ -317,7 +317,7 @@ describe('DeepSeekHarness', () => {
   it('resolves a relative launch cwd to an absolute workspace before the handshake', async () => {
     // vitest workers forbid chdir, so derive a RELATIVE path from the real
     // process cwd to a temp worker dir; resolution is lexical either way.
-    const dir = await mkdtemp(join(process.cwd(), '.dsh-sdk-client-relcwd-'))
+    const dir = await mkdtemp(join(process.cwd(), '.mwf-sdk-client-relcwd-'))
     cleanups.push(() => rm(dir, { recursive: true, force: true }))
     const recordFile = join(dir, 'init.jsonl')
     const inner = join(dir, 'worker')
@@ -427,7 +427,7 @@ describe('DeepSeekHarness', () => {
     await expect(captured.run('after')).rejects.toThrow(TransportClosedError)
   })
 
-  it('constructs the public dsh-backed client lazily', async () => {
+  it('constructs the public mwf-backed client lazily', async () => {
     const harness = new DeepSeekHarness()
     expect(harness.client).toBeInstanceOf(HarnessClient)
     await harness.close()
@@ -439,7 +439,7 @@ describe('HarnessClient', () => {
     const client = processClient(fakeLaunch(
       { FAKE_HANG_INIT: '1' },
       {
-        description: 'dsh profile "profile-without-sdk-server"',
+        description: 'mwf profile "profile-without-sdk-server"',
         initializeTimeoutMs: 50,
         disposeEofGraceMs: 100,
         // Wide SIGKILL confirmation: the hang-init child may still be
@@ -450,7 +450,7 @@ describe('HarnessClient', () => {
     ))
     cleanups.push(() => client.close())
     await expect(client.initialize({ cwd: process.cwd(), provider: 'p', model: 'm' }))
-      .rejects.toThrow(/initialize timed out after 50ms waiting for dsh profile "profile-without-sdk-server"/)
+      .rejects.toThrow(/initialize timed out after 50ms waiting for mwf profile "profile-without-sdk-server"/)
     await client.close()
   })
 
@@ -521,15 +521,15 @@ describe('HarnessClient', () => {
     expect(String(failure)).toContain('no trailing newline')
   })
 
-  it('fails when the configured dsh CLI module does not exist', async () => {
-    const client = new HarnessClient({ dshBin: join(tmpdir(), 'dsh-no-such-runtime-bin') })
+  it('fails when the configured mwf CLI module does not exist', async () => {
+    const client = new HarnessClient({ mwfBin: join(tmpdir(), 'mwf-no-such-runtime-bin') })
     cleanups.push(() => client.close())
     await expect(client.request('initialize', {}, 1_000)).rejects.toThrow(TransportClosedError)
   })
 
   it('reports a generic process spawn failure to internal transports', async () => {
     const client = processClient(fakeLaunch({}, {
-      command: join(tmpdir(), 'dsh-no-such-process-command'),
+      command: join(tmpdir(), 'mwf-no-such-process-command'),
       args: [],
     }))
     cleanups.push(() => client.close())

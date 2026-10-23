@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-command-compact",
+  "name": "@metaworkflow/command-compact",
   "description": "Human-facing slash command for explicit session compaction",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -29,18 +29,18 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-commands": "workspace:*",
-    "@deepseek-ai/dsh-compaction": "workspace:*",
+    "@metaworkflow/commands": "workspace:*",
+    "@metaworkflow/compaction": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
     "@deepseek-ai/cordis-plugin-include": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-commands": "workspace:*",
-    "@deepseek-ai/dsh-compaction": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/commands": "workspace:*",
+    "@metaworkflow/compaction": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   }
 }

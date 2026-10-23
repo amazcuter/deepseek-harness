@@ -4,9 +4,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import Storage from '@deepseek-ai/dsh-storage'
-import { DomainFacility } from '@deepseek-ai/dsh-storage-domain'
-import { JsonStorageBackend } from '@deepseek-ai/dsh-storage-json'
+import Storage from '@metaworkflow/storage'
+import { DomainFacility } from '@metaworkflow/storage-domain'
+import { JsonStorageBackend } from '@metaworkflow/storage-json'
 import { scheduleDomain } from '../src/storage.ts'
 import { ScheduleId, createAtScheduleRecord } from '../src/domain.ts'
 
@@ -27,7 +27,7 @@ async function open(root: string) {
 }
 
 it('refuses an array-shaped tables map instead of opening an empty task catalog', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-schedule-malformed-')); roots.push(root)
+  const root = await mkdtemp(join(tmpdir(), 'mwf-schedule-malformed-')); roots.push(root)
   const path = join(root, 'schedule.json')
   const task = {
     sessionId: 'session-1',

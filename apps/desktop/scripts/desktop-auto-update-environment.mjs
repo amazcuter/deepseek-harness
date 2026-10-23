@@ -3,7 +3,7 @@
 import { valid } from 'semver'
 
 /** Environment variable that selects the Desktop update deployment. */
-export const DESKTOP_AUTO_UPDATE_ENV = 'DSH_DESKTOP_AUTO_UPDATE_ENV'
+export const DESKTOP_AUTO_UPDATE_ENV = 'MWF_DESKTOP_AUTO_UPDATE_ENV'
 
 /**
  * Resolve the channel embedded in the installer; omitted local settings retain nightly.
@@ -11,7 +11,7 @@ export const DESKTOP_AUTO_UPDATE_ENV = 'DSH_DESKTOP_AUTO_UPDATE_ENV'
  * @returns {'nightly' | 'latest'} Validated channel.
  */
 export function resolveDesktopUpdateChannel(env) {
-  const channel = env.DSH_DESKTOP_UPDATE_CHANNEL || 'nightly'
+  const channel = env.MWF_DESKTOP_UPDATE_CHANNEL || 'nightly'
   if (channel !== 'nightly' && channel !== 'latest') throw new Error('desktop auto-update: invalid update channel')
   return channel
 }
@@ -89,7 +89,7 @@ export function desktopUpdateMetadataFilename(version, platform, channel = 'nigh
   if (platform !== 'darwin' && platform !== 'win32') {
     throw new Error(`desktop auto-update: unsupported metadata platform ${platform}`)
   }
-  resolveDesktopUpdateChannel({ DSH_DESKTOP_UPDATE_CHANNEL: channel })
+  resolveDesktopUpdateChannel({ MWF_DESKTOP_UPDATE_CHANNEL: channel })
   return `${channel}${platform === 'darwin' ? '-mac' : ''}.yml`
 }
 
@@ -151,7 +151,7 @@ export function resolveDesktopAutoUpdateConfig(env, platform, arch) {
     if (originEnvName === undefined) throw new Error('desktop auto-update: selected deployment has no origin')
     origin = httpsOrigin(requiredEnvironmentValue(env, originEnvName), originEnvName)
   }
-  let releasePrefix = 'dsh-desk'
+  let releasePrefix = 'mwf-desk'
   if (environment === 'test') {
     const releaseId = requiredEnvironmentValue(env, 'DOWNLOAD_TEST_RELEASE_ID')
     if (!/^[a-f0-9]{32}$/u.test(releaseId)) {

@@ -3,11 +3,11 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/process/2026-06-20-discover-package-inventory.md
 /agent-note-discover-package-inventories-instead-of-maintaining-static-lists:
-  en: 3e6f3d4389b83ace
-  zh: dc84644418444fe6
+  en: 8567e9cad020dce0
+  zh: df7e89fad461573c
 /agent-note-discover-package-inventories-instead-of-maintaining-static-lists/problem:
-  en: 3331c27d7f05a293
-  zh: d3f87bd458a65f1d
+  en: 72ebfeb48eea1f21
+  zh: ebef2bf8b5eb0976
 /agent-note-discover-package-inventories-instead-of-maintaining-static-lists/proposal:
   en: ce955aa355c15117
   zh: 4d6f464bd5336981

@@ -10,6 +10,6 @@ import { packagingStep } from './packaging-step.mjs'
  */
 export async function notarizeMacOS(options) {
   const secrets = Object.entries(options).filter(([name]) => /password|key|appleId/iu.test(name)).map(([, value]) => String(value))
-  await packagingStep(process.env.DSH_DESKTOP_PACKAGING_RUN_DIR, 'notarize-and-staple',
+  await packagingStep(process.env.MWF_DESKTOP_PACKAGING_RUN_DIR, 'notarize-and-staple',
     () => notarize({ ...options, notarytoolPath: fileURLToPath(new URL('./logged-notarytool.mjs', import.meta.url)) }), secrets)
 }

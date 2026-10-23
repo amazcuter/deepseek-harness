@@ -5,9 +5,9 @@
  */
 
 import type { Context } from '@deepseek-ai/cordis'
-import { Deque } from '@deepseek-ai/dsh-deque'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import type { FsObservation, FsTarget } from '@deepseek-ai/dsh-fs'
+import { Deque } from '@metaworkflow/deque'
+import { RemoteError } from '@metaworkflow/typert-protocol'
+import type { FsObservation, FsTarget } from '@metaworkflow/fs'
 import type { WorkspaceFileWatchFrame } from './types.ts'
 
 /** One target invalidation, optionally carrying its instrumented observation. */

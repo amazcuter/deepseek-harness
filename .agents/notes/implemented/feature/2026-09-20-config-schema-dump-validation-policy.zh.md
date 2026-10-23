@@ -6,7 +6,7 @@ Status: implemented
 
 ## Problem
 
-`dsh --profile <name> --dump-config-schema` 在不挂载插件的情况下，把原生 Schemastery Config 声明投影为 JSON Schema。原生验证会修改输入、求值 `!!js` 表达式并执行 transform 回调；静态文档无法完整重现这些行为。评审中有三项选择存在争议，若不记录会被反复重提：投影部分近似时 `complete` 和退出码的含义、收集器检查哪些行，以及投影如何处理无法建模的原生行为。
+`mwf --profile <name> --dump-config-schema` 在不挂载插件的情况下，把原生 Schemastery Config 声明投影为 JSON Schema。原生验证会修改输入、求值 `!!js` 表达式并执行 transform 回调；静态文档无法完整重现这些行为。评审中有三项选择存在争议，若不记录会被反复重提：投影部分近似时 `complete` 和退出码的含义、收集器检查哪些行，以及投影如何处理无法建模的原生行为。
 
 ## Decision
 

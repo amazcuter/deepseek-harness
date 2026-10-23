@@ -36,14 +36,14 @@ export async function preflightWindowsSigning(options: SigningPreflightOptions):
   const { environment, runDirectory } = options
   const record = (event: object): void => { recordPackagingEvent(runDirectory, event) }
   const signer = createWindowsTokenSigner({
-    certificateFile: environment.DSH_DESKTOP_WINDOWS_CER_FILE,
-    signTool: environment.DSH_DESKTOP_WINDOWS_SIGNTOOL,
-    keyContainer: environment.DSH_DESKTOP_WINDOWS_KEY_CONTAINER,
-    tokenPin: environment.DSH_DESKTOP_WINDOWS_TOKEN_PIN,
+    certificateFile: environment.MWF_DESKTOP_WINDOWS_CER_FILE,
+    signTool: environment.MWF_DESKTOP_WINDOWS_SIGNTOOL,
+    keyContainer: environment.MWF_DESKTOP_WINDOWS_KEY_CONTAINER,
+    tokenPin: environment.MWF_DESKTOP_WINDOWS_TOKEN_PIN,
     runDirectory,
     stateDirectory: options.stateDirectory,
   })
-  const state = options.stateDirectory ?? join(homedir(), '.dsh-desktop-signing')
+  const state = options.stateDirectory ?? join(homedir(), '.mwf-desktop-signing')
   const lock = join(state, 'attempt.json')
   const compiler = join(environment.SystemRoot ?? 'C:\\Windows', 'Microsoft.NET/Framework64/v4.0.30319/csc.exe')
   await access(join(runDirectory, 'run.json'))
@@ -56,7 +56,7 @@ export async function preflightWindowsSigning(options: SigningPreflightOptions):
     throw new Error(`Windows signing preflight refused: inspect retained failure or interlock at ${path}; no automatic recovery`)
   }
   if (!(await lstat(compiler)).isFile()) throw new Error('Windows signing preflight requires the local .NET Framework C# compiler')
-  const certificate = await readFile(environment.DSH_DESKTOP_WINDOWS_CER_FILE!)
+  const certificate = await readFile(environment.MWF_DESKTOP_WINDOWS_CER_FILE!)
   const leaf = new X509Certificate(certificate)
   if (Date.now() < Date.parse(leaf.validFrom) || Date.now() > Date.parse(leaf.validTo)) {
     throw new Error('Windows signing preflight requires a currently valid public certificate')
@@ -69,7 +69,7 @@ export async function preflightWindowsSigning(options: SigningPreflightOptions):
   await writeFile(source, PROBE_SOURCE, { flag: 'wx', flush: true })
   record({ type: 'signing-preflight-static', compiler,
     compilerSha256: createHash('sha256').update(await readFile(compiler)).digest('hex'),
-    signToolSha256: createHash('sha256').update(await readFile(environment.DSH_DESKTOP_WINDOWS_SIGNTOOL!)).digest('hex'),
+    signToolSha256: createHash('sha256').update(await readFile(environment.MWF_DESKTOP_WINDOWS_SIGNTOOL!)).digest('hex'),
     certificateSha256: createHash('sha256').update(certificate).digest('hex') })
   await (options.compile ?? compileProbe)(compiler, source, output, environment)
   const inspect = options.inspect ?? inspectWindowsRuntimeSignature
@@ -86,7 +86,7 @@ export async function preflightWindowsSigning(options: SigningPreflightOptions):
 
 async function main(): Promise<void> {
   if (process.platform !== 'win32') throw new Error('Windows signing preflight requires Windows')
-  const runDirectory = process.env.DSH_DESKTOP_PACKAGING_RUN_DIR
+  const runDirectory = process.env.MWF_DESKTOP_PACKAGING_RUN_DIR
   if (!runDirectory) throw new Error('Windows signing preflight requires a supervised packaging run')
   try { await preflightWindowsSigning({ runDirectory, environment: process.env }) }
   catch (error) {

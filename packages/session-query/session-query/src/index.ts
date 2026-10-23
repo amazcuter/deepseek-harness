@@ -1,10 +1,10 @@
 /**
  * Service Definition for combined session-history reads, traces, filters, and full-text search.
  *
- * @module @deepseek-ai/dsh-session-query
+ * @module @metaworkflow/session-query
  */
 
-import { currentSessionMessageProjections } from '@deepseek-ai/dsh-session-format-catalog/message-projections'
+import { currentSessionMessageProjections } from '@metaworkflow/session-format-catalog/message-projections'
 import { Context, Service } from '@deepseek-ai/cordis'
 import {
   Session,
@@ -12,9 +12,9 @@ import {
   snapshotSessionEvent,
   type SessionId,
   type SessionSeq as SessionSeqType,
-} from '@deepseek-ai/dsh-session'
-import { foldSessionTitle } from '@deepseek-ai/dsh-session-title'
-import type { SessionTitleSnapshot } from '@deepseek-ai/dsh-session-title'
+} from '@metaworkflow/session'
+import { foldSessionTitle } from '@metaworkflow/session-title'
+import type { SessionTitleSnapshot } from '@metaworkflow/session-title'
 import type {
   SessionEventResultFilter,
   SessionEventSearchPage,

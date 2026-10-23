@@ -116,7 +116,7 @@ async function inventoryRuntimeForVerification(root: string): Promise<DesktopRun
 /**
  * Seal the final runtime tree after materialization and native signing.
  * @param root - Runtime output directory.
- * @param release - Matching shell, dsh, Host, and executable versions.
+ * @param release - Matching shell, mwf, Host, and executable versions.
  * @param sharedNames - Release-owned packages supplied to plugins.
  * @param target - Platform and architecture selected by runtime preparation.
  * @returns Descriptor written beside the production packages.
@@ -169,7 +169,7 @@ export function readDesktopRuntime(root: string): DesktopRuntimeDescriptor {
     throw new Error('desktop runtime: duplicate shared package')
   }
   const files = value.files as DesktopRuntimeFile[]
-  for (const name of ['@deepseek-ai/dsh', DESKTOP_HOST_PACKAGE]) {
+  for (const name of ['@metaworkflow/cli', DESKTOP_HOST_PACKAGE]) {
     if (sharedPackages.find(entry => entry.name === name)?.version !== release.version) {
       throw new Error(`desktop runtime: missing or mismatched ${name}`)
     }

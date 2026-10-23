@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-hmr",
+  "name": "@metaworkflow/hmr",
   "description": "Coordinated module and profile configuration hot reload",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -34,8 +34,8 @@
     "@deepseek-ai/cordis": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
     "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-cmdline": "workspace:*"
+    "@metaworkflow/app-boot": "workspace:*",
+    "@metaworkflow/cmdline": "workspace:*"
   },
   "dependencies": {
     "@babel/code-frame": "^7.29.0",
@@ -52,8 +52,8 @@
     "@deepseek-ai/cordis": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
     "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-cmdline": "workspace:*",
-    "@deepseek-ai/dsh-atomic-write": "workspace:*"
+    "@metaworkflow/app-boot": "workspace:*",
+    "@metaworkflow/cmdline": "workspace:*",
+    "@metaworkflow/atomic-write": "workspace:*"
   }
 }

@@ -18,31 +18,31 @@
  *
  * See packages/plan/plan-mode/README.md.
  *
- * @module @deepseek-ai/dsh-plan-mode
+ * @module @metaworkflow/plan-mode
  */
 
 import { Context, Service } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@metaworkflow/brand'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
-import type { Agent, PreStepDecision } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import type { Session, UserMessage } from '@deepseek-ai/dsh-session'
-import { defineTool } from '@deepseek-ai/dsh-tools'
-import { UserQuestionError, type AskUserQuestionAnswer } from '@deepseek-ai/dsh-user-questions'
-import type { CommandDefinitionId, CommandId } from '@deepseek-ai/dsh-commands'
-import type {} from '@deepseek-ai/dsh-session-projection'
-import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
+import type { Agent, PreStepDecision } from '@metaworkflow/agent'
+import { createUserMessage } from '@metaworkflow/llm'
+import type { ContextFormed } from '@metaworkflow/llm'
+import type { Session, UserMessage } from '@metaworkflow/session'
+import { defineTool } from '@metaworkflow/tools'
+import { UserQuestionError, type AskUserQuestionAnswer } from '@metaworkflow/user-questions'
+import type { CommandDefinitionId, CommandId } from '@metaworkflow/commands'
+import type {} from '@metaworkflow/session-projection'
+import type { ProjectionDefinition } from '@metaworkflow/session-projection'
 import type { PlanProjection, PlanUnitState } from './types.ts'
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'plan-mode': { kind: 'plan-mode' } & ContextFormed
   }
 }
 export type * from './types.ts'
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@metaworkflow/session/types' {
   interface SessionEventMap {
     /**
      * Whether plan mode is in force from this point on: log-only, non-surface,
@@ -204,14 +204,14 @@ export class PlanModeController extends Service {
       try {
         this.onBoundary(agent.session)
       } catch (error) {
-        ctx.logger.warn('dsh-plan-mode: failed to append selected plan mode at step start: %o', error)
+        ctx.logger.warn('mwf-plan-mode: failed to append selected plan mode at step start: %o', error)
         return decision
       }
       return !pending.narrate || narration === undefined
         ? decision
         : { ...decision, messages: [...decision.messages, narration] }
     })
-    ctx.effect(() => () => { disposed = true }, 'dsh-plan-mode: close service lifetime')
+    ctx.effect(() => () => { disposed = true }, 'mwf-plan-mode: close service lifetime')
 
     ctx.systemPrompt.section({
       name: 'plan:policy',
@@ -228,7 +228,7 @@ export class PlanModeController extends Service {
     // The command child activates only when a command registry is composed.
     ctx.inject(['commands'], (commandCtx) => {
       commandCtx.commands.register({
-        definitionId: brandString<CommandDefinitionId>('@deepseek-ai/dsh-plan-mode'),
+        definitionId: brandString<CommandDefinitionId>('@metaworkflow/plan-mode'),
         name: 'plan',
         description: 'Enter or leave plan mode',
         input: { hint: '[off|message]', attachments: true },

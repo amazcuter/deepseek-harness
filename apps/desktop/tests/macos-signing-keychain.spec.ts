@@ -3,7 +3,7 @@ import { dirname } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { withMacOSSigningKeychain } from '../scripts/macos-signing-keychain.mjs'
 
-const environment = { CSC_LINK: '/signing.p12', CSC_KEY_PASSWORD: 'export-secret', DSH_DESKTOP_MACOS_SIGNING_IDENTITY: 'Example (TEAMID1234)' }
+const environment = { CSC_LINK: '/signing.p12', CSC_KEY_PASSWORD: 'export-secret', MWF_DESKTOP_MACOS_SIGNING_IDENTITY: 'Example (TEAMID1234)' }
 const USER_KEYCHAINS = ['/Users/example/Library/Keychains/login.keychain-db', '/Library/Keychains/System.keychain']
 const keychainListOutput = `${USER_KEYCHAINS.map(path => `    "${path}"`).join('\n')}\n`
 const runKeychainList = () => keychainListOutput

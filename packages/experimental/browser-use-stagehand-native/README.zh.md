@@ -3,7 +3,7 @@ description: "通过 Stagehand 原生浏览器操作与显式配置的模型推�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-browser-use-stagehand-native
+# @metaworkflow/experimental-browser-use-stagehand-native
 
 [English](README.md) | 中文
 
@@ -30,8 +30,8 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@deepseek-ai/dsh-browser-use'
-- name: '@deepseek-ai/dsh-experimental-browser-use-stagehand-native'
+- name: '@metaworkflow/browser-use'
+- name: '@metaworkflow/experimental-browser-use-stagehand-native'
   config:
     mode: launch
     headless: true
@@ -71,11 +71,11 @@ kind: "package-reference"
 pnpm exec vitest run packages/experimental/browser-use-stagehand-native/tests
 ```
 
-显式启用的已安装浏览器测试使用受控本地页面和构建后的连接 Worker。请将 `DSH_BROWSER_EXECUTABLE` 设为已安装的 Chromium 可执行程序。只有同时提供 `DSH_STAGEHAND_MODEL` 和 `DSH_STAGEHAND_MODEL_API_KEY` 时，才会测试原生推理。
+显式启用的已安装浏览器测试使用受控本地页面和构建后的连接 Worker。请将 `MWF_BROWSER_EXECUTABLE` 设为已安装的 Chromium 可执行程序。只有同时提供 `MWF_STAGEHAND_MODEL` 和 `MWF_STAGEHAND_MODEL_API_KEY` 时，才会测试原生推理。
 
 ```sh
 pnpm run build
-env -u NODE_USE_ENV_PROXY DSH_STAGEHAND_E2E=1 pnpm exec vitest run --config vitest.e2e.config.ts packages/experimental/browser-use-stagehand-native/tests/native.e2e.ts
+env -u NODE_USE_ENV_PROXY MWF_STAGEHAND_E2E=1 pnpm exec vitest run --config vitest.e2e.config.ts packages/experimental/browser-use-stagehand-native/tests/native.e2e.ts
 ```
 
 -----
@@ -88,9 +88,9 @@ env -u NODE_USE_ENV_PROXY DSH_STAGEHAND_E2E=1 pnpm exec vitest run --config vite
 
 [SessionResources](../browser-use-runtime/README.zh.md) 为每个确切的活动 Agent 管理延迟获取、串行执行和资源释放。Provider 保留浏览器使用注册，直到清理完成。[原生 Provider](src/index.ts) 通过现有 MCP 结果适配器注册工具，由该适配器把截图保存为持久附件。
 
-宿主在等待 CDP 就绪前即拥有启动的 Chromium 进程及其临时配置目录。Chromium 接收标准清理后的子进程环境，保留路径、区域设置和代理配置，排除凭据形式的变量及 DSH 身份信息。两种模式都在独立 Worker 中连接 SDK。Worker 除显式的源码 TypeScript 配置路径外不接收宿主环境，因此其 CDP 连接不继承宿主代理设置。SDK 关闭会等待活动操作。清理在配置的 SDK 宽限时间后终止连接 Worker；启动模式还会终止并等待自有 Chromium 进程退出，再移除配置目录。外部连接的浏览器保持运行。清理失败遵循下方的[所有权限制](#known-limitations-and-deferred-work)。
+宿主在等待 CDP 就绪前即拥有启动的 Chromium 进程及其临时配置目录。Chromium 接收标准清理后的子进程环境，保留路径、区域设置和代理配置，排除凭据形式的变量及 MWF 身份信息。两种模式都在独立 Worker 中连接 SDK。Worker 除显式的源码 TypeScript 配置路径外不接收宿主环境，因此其 CDP 连接不继承宿主代理设置。SDK 关闭会等待活动操作。清理在配置的 SDK 宽限时间后终止连接 Worker；启动模式还会终止并等待自有 Chromium 进程退出，再移除配置目录。外部连接的浏览器保持运行。清理失败遵循下方的[所有权限制](#known-limitations-and-deferred-work)。
 
-[原生运行时](src/native.ts)将显式模型配置传入 Stagehand 的公开初始化 API。适配器将 Zod 固定为 Stagehand 要求的版本，因为提取操作会向 SDK 传递 Zod schema。Stagehand 在其浏览器扩展中负责模型请求、响应验证与 token 计量。DSH 通过现有 Session 日志记录浏览器工具输入和返回数据，包括 SDK 结果元数据。底层推理请求/响应捕获及其与 DSH Session 用量计量的集成均属暂缓工作。
+[原生运行时](src/native.ts)将显式模型配置传入 Stagehand 的公开初始化 API。适配器将 Zod 固定为 Stagehand 要求的版本，因为提取操作会向 SDK 传递 Zod schema。Stagehand 在其浏览器扩展中负责模型请求、响应验证与 token 计量。MWF 通过现有 Session 日志记录浏览器工具输入和返回数据，包括 SDK 结果元数据。底层推理请求/响应捕获及其与 MWF Session 用量计量的集成均属暂缓工作。
 
 </details>
 
@@ -134,11 +134,11 @@ stagehand_act, stagehand_observe, and stagehand_extract use the separately confi
 
 #### 模型看到什么
 
-[`stagehand_` 工具目录](../../../docs/tool-catalog.zh.md#deepseek-aidsh-experimental-browser-use-stagehand-native)定义导航、标签页管理、截图、操作、观察和提取。结果包含当前页面事实或验证后的结构化数据。支持的截图以持久图像附件呈现。错误保持可见，让模型在重试前检查状态。
+[`stagehand_` 工具目录](../../../docs/tool-catalog.zh.md#metaworkflowexperimental-browser-use-stagehand-native)定义导航、标签页管理、截图、操作、观察和提取。结果包含当前页面事实或验证后的结构化数据。支持的截图以持久图像附件呈现。错误保持可见，让模型在重试前检查状态。
 
 #### Token 影响
 
-工具 schema 和结果增加主对话上下文。Stagehand 原生模型请求消耗额外 token，不计入 DSH Session 用量。
+工具 schema 和结果增加主对话上下文。Stagehand 原生模型请求消耗额外 token，不计入 MWF Session 用量。
 
 #### KV Cache 影响
 
@@ -154,9 +154,9 @@ stagehand_act, stagehand_observe, and stagehand_extract use the separately confi
 - **活动浏览器状态**——Session 回放恢复记录的对话数据，不恢复浏览器进程、Cookie 或标签页句柄。
 - **原生模型**——模型名称仅限固定版本 SDK 目录中的 OpenAI、Anthropic、Google、Groq 和 Cerebras。DeepSeek 端点、`baseURL` 覆盖、自主 agent 和单次调用的模型选择均不受支持。
 - **取消**——原生推理不接受 abort signal。SDK 关闭会等待活动工作；清理成功后，下次工具调用可重新连接并保留浏览器。取消不撤销浏览器输入，也不保证原生模型请求停止。
-- **现有浏览器访问**——用户也可修改已连接的浏览器；占用机制只协调 DSH Session。
+- **现有浏览器访问**——用户也可修改已连接的浏览器；占用机制只协调 MWF Session。
 - **清理失败**——SDK 工作未能结束时，保留附加浏览器的占用，因为原生扩展中的工作可能继续。启动浏览器的最终清理可在 Chromium 和 Worker 都终止后释放占用，即使 SDK 工作未正常结束。Worker、自有进程或配置目录清理失败时保留占用；选择其他 Provider 前应重启宿主。
-- **DSH 模型集成**——暂缓 Session 模型路由、DSH 凭据复用、底层推理请求/响应捕获，以及与 DSH Session 用量计量的集成。返回的工具数据和 SDK 元数据仍可回放。
+- **MWF 模型集成**——暂缓 Session 模型路由、MWF 凭据复用、底层推理请求/响应捕获，以及与 MWF Session 用量计量的集成。返回的工具数据和 SDK 元数据仍可回放。
 
 <a id="dev-note"></a>
 ### 开发备注

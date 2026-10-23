@@ -1,12 +1,12 @@
 /**
  * Resolution options for filesystem calls in the Session's current directory.
  * Non-agent calls leave directory defaults to the filesystem provider.
- * @module @deepseek-ai/dsh-tool-fs/session-cwd
+ * @module @metaworkflow/tool-fs/session-cwd
  */
 
 import type { Context } from '@deepseek-ai/cordis'
-import type { ToolExecution } from '@deepseek-ai/dsh-tools'
-import type {} from '@deepseek-ai/dsh-working-directory'
+import type { ToolExecution } from '@metaworkflow/tools'
+import type {} from '@metaworkflow/working-directory'
 
 /**
  * Resolve the current directory and cancellation for a filesystem call.

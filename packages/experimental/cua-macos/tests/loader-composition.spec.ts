@@ -7,20 +7,20 @@ import { expect, it, onTestFinished } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import ComputerUseRegistry from '@deepseek-ai/dsh-computer-use'
-import LocalAttachmentStore from '@deepseek-ai/dsh-attachment-local'
-import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import SubprocessLocal from '@deepseek-ai/dsh-subprocess-local'
+import AgentRegistry from '@metaworkflow/agent'
+import AgentLoop from '@metaworkflow/agent-loop'
+import ComputerUseRegistry from '@metaworkflow/computer-use'
+import LocalAttachmentStore from '@metaworkflow/attachment-local'
+import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@metaworkflow/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@metaworkflow/llm'
+import SessionStore, { SessionId } from '@metaworkflow/session'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import ToolRuntime from '@metaworkflow/tools'
+import SubprocessLocal from '@metaworkflow/subprocess-local'
 import { z } from 'zod'
 import * as NativeProvider from '../src/index.ts'
-import { createCuaApi } from '@deepseek-ai/dsh-cua/api'
+import { createCuaApi } from '@metaworkflow/cua/api'
 import { installNativeFixture, startFixtureHost } from './native-fixture.ts'
 
 const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWNgZGIGAAAOAAeCcsnOAAAAAElFTkSuQmCC'
@@ -63,7 +63,7 @@ const AuditEvent = z.object({
 
 // The fixture uses a POSIX executable shebang; stream/protocol unit tests run on every host.
 it.skipIf(process.platform === 'win32')('shares one application between retained Agent objects while isolating native handles and releasing each connection', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-native-composition-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-native-composition-'))
   const context = new Context()
   const fixture: { close?: () => Promise<void> } = {}
   onTestFinished(async () => {
@@ -84,7 +84,7 @@ it.skipIf(process.platform === 'win32')('shares one application between retained
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, Object.keys(modules).flatMap(name => [
     `- name: 'cordis:${name}'`,
-    ...name === 'attachments' ? ['  config:', `    dshHome: ${JSON.stringify(root)}`] : [],
+    ...name === 'attachments' ? ['  config:', `    mwfHome: ${JSON.stringify(root)}`] : [],
     ...name === 'cua' ? ['  config:', `    helperPath: ${JSON.stringify(helperPath)}`, '    allowedApps: [{"id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "name": "Fixture", "executablePath": "/fixture/app"}]'] : [],
   ]).join('\n') + '\n')
   context.baseUrl = pathToFileURL(root).href + '/'
@@ -134,7 +134,7 @@ it.skipIf(process.platform === 'win32')('shares one application between retained
   })
   expect(direct.isError).toBe(false)
   expect(direct.value).toMatchObject({ mimeType: 'image/png', data: png })
-  expect(context.computerUse.providerName).toBe('dsh-cua')
+  expect(context.computerUse.providerName).toBe('mwf-cua')
   for (const [callId, activationRequested, beforePid, beforeWindowId] of [
     ['activate-first', true, 42, 99], ['activate-repeat', false, 9, 7],
   ] as const) {

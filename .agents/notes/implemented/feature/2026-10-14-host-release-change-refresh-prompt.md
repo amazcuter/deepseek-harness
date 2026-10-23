@@ -6,7 +6,7 @@ English | [中文](2026-10-14-host-release-change-refresh-prompt.zh.md)
 
 ## Problem
 
-After `dsh web` is upgraded, or after a developer restarts `pnpm run dev:web` at another commit, an open browser page reconnects to the new Host automatically while its static shell stays at the old release. When the protocol is no longer compatible, the page keeps failing to reconnect or shows errors, and the user is not told that a reload is required.
+After `mwf web` is upgraded, or after a developer restarts `pnpm run dev:web` at another commit, an open browser page reconnects to the new Host automatically while its static shell stays at the old release. When the protocol is no longer compatible, the page keeps failing to reconnect or shows errors, and the user is not told that a reload is required.
 
 Technical causes:
 
@@ -43,7 +43,7 @@ The page remembers only the last dismissed Host release, in page memory; nothing
 
 - Fields: `{ version, commit? }`; two releases are the same only when both fields are equal. Every complete build, released builds included, records the repository commit, so pages compare both fields; a release changes both together.
 - `version` is client-modules' own package.json version. All packages release under one version, so it equals the CLI version.
-- `commit` is fixed at build time. The shared client build preset [tsdown.client.ts](../../../../packages/client/tsdown.client.ts) injects the same public `process.env.DSH_CLIENT_*` values into the Node half of every client package that it injects into the browser half ([`clientBuildValueDefines`](../../../../scripts/client-build-environment.ts) replaces the named variables and leaves `process.env` itself in place). The client-modules Host code reads `process.env.DSH_CLIENT_COMMIT_HASH`, which is a constant in the built artifact.
+- `commit` is fixed at build time. The shared client build preset [tsdown.client.ts](../../../../packages/client/tsdown.client.ts) injects the same public `process.env.MWF_CLIENT_*` values into the Node half of every client package that it injects into the browser half ([`clientBuildValueDefines`](../../../../scripts/client-build-environment.ts) replaces the named variables and leaves `process.env` itself in place). The client-modules Host code reads `process.env.MWF_CLIENT_COMMIT_HASH`, which is a constant in the built artifact.
 - A Host started from TypeScript source has no build step: `pnpm run dev:web` places the build values in the Host process environment, so the Host reads the same commit; a source launch without dev-web publishes the version alone.
 - Field values are wire data that the dialog renders verbatim, without localization.
 
@@ -60,7 +60,7 @@ BootManifest { ...; release?: WebBootRelease }
 ```
 
 - [ClientModuleRegistry](../../../../packages/client/modules/src/index.ts) computes the release once at construction and `compose()` writes it into every graph; `release` stays outside `graph.rev`. There is no new config field and the composition is unchanged.
-- `__DSH_BOOT__` and every SSE `graph` frame carry the field, so one graph frame carries both the Host release and its complete module graph; the client-hmr Host half is unchanged. A rebuilt frame comes from the same Host process as the graph frame before it on that SSE connection, so it inherits that frame's release.
+- `__MWF_BOOT__` and every SSE `graph` frame carry the field, so one graph frame carries both the Host release and its complete module graph; the client-hmr Host half is unchanged. A rebuilt frame comes from the same Host process as the graph frame before it on that SSE connection, so it inherits that frame's release.
 - `parseBootManifest` accepts an absent `release`, rejects a non-string `version` or `commit`, and drops members outside the identity, so equality compares only those two fields. `readRelease` reads only the `release` member of a received graph, so a page compares releases before it validates anything else; a release it cannot read counts as absent. Older pages that do not know the field ignore it.
 
 ### Page side
@@ -119,7 +119,7 @@ Order of operations:
 - **Call `location.reload()` automatically**: it can discard unsaved input, and the user should see and confirm the reload.
 - **Carry the identity in the API ready frame (`ConnectionHostInfo`)**: when the protocol is incompatible, the ready frame itself may fail to parse, so detection would never run; pausing hot replacement would still belong to `ClientEntries`.
 - **Let web-app compose the identity (CLI version + web-app version + commit) and pass it to modules through the `webApp` service and the composition**: it changes web-app's service interface, tests, docs, and the generated API catalog, and makes modules wait for web-runtime activation; the two versions release together, so reading them separately adds nothing.
-- **Add a client-modules `commit` config field set from `!!js process.env.DSH_CLIENT_COMMIT_HASH` in the composition**: it reads the environment at run time, and released `dsh web` launches do not set the variable; the commit must be fixed at build time.
+- **Add a client-modules `commit` config field set from `!!js process.env.MWF_CLIENT_COMMIT_HASH` in the composition**: it reads the environment at run time, and released `mwf web` launches do not set the variable; the commit must be fixed at build time.
 - **Read the CLI version by depending on app-boot from client-modules**: it adds a dependency edge, a dependency-policy classification, a tsconfig reference, and a lockfile change, while the package's own version is the same number.
 - **Keep the decision logic inside `ClientEntries`**: reconciliation and release comparison are independent concerns; the separate gate keeps `ClientEntries` to a few added lines.
 - **Let Not now apply the other release's plugin updates**: the page would run plugins of one release on the shell and static libraries of another, its state could no longer be named by one release, and returning to the boot release would need a second prompt whose two choices end in the same state.

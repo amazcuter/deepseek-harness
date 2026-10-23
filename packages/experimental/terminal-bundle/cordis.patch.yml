@@ -6,14 +6,14 @@
         terminals: true
       config:
         - id: optional-terminal-registry
-          name: '@deepseek-ai/dsh-terminal'
+          name: '@metaworkflow/terminal'
         - id: optional-terminal-bash
-          name: '@deepseek-ai/dsh-terminal-bash'
+          name: '@metaworkflow/terminal-bash'
           disabled: !!js process.platform === 'win32'
         - id: optional-terminal-pwsh
-          name: '@deepseek-ai/dsh-terminal-bash'
+          name: '@metaworkflow/terminal-bash'
           disabled: !!js process.platform !== 'win32'
           config:
             shellDialect: pwsh
         - id: optional-tool-terminal
-          name: '@deepseek-ai/dsh-tool-terminal'
+          name: '@metaworkflow/tool-terminal'

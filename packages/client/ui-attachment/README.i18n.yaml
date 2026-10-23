@@ -5,42 +5,42 @@
 /:
   en: 414cbe20f39f7a82
   zh: f56ebf03129a29b8
-/deepseek-ai-dsh-client-ui-attachment:
-  en: 61096ced1318bcee
-  zh: 0682d3d7453659fd
-/deepseek-ai-dsh-client-ui-attachment/summary:
+/metaworkflow-client-ui-attachment:
+  en: 05a6fca1d8730749
+  zh: 12d716f25544f0fe
+/metaworkflow-client-ui-attachment/summary:
   en: f36aa7a85597dd66
   zh: f7e87849791fe89a
-/deepseek-ai-dsh-client-ui-attachment/table-of-contents:
+/metaworkflow-client-ui-attachment/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-client-ui-attachment/use-this-package:
-  en: 15cdd9d52dcc71b8
-  zh: 53933fbbf5d39100
-/deepseek-ai-dsh-client-ui-attachment/use-this-package/draft-attachments:
+/metaworkflow-client-ui-attachment/use-this-package:
+  en: b2b91cebdb742d04
+  zh: eb1e535402def903
+/metaworkflow-client-ui-attachment/use-this-package/draft-attachments:
   en: a77c8ec48e219aec
   zh: 756d4fe881403006
-/deepseek-ai-dsh-client-ui-attachment/use-this-package/message-images-and-the-lightbox:
+/metaworkflow-client-ui-attachment/use-this-package/message-images-and-the-lightbox:
   en: 8b3d7729152d8060
   zh: 815f932ccc9653f5
-/deepseek-ai-dsh-client-ui-attachment/use-this-package/drop-overlay:
+/metaworkflow-client-ui-attachment/use-this-package/drop-overlay:
   en: 836a62c8f73366ac
   zh: 35da7836eaf68a67
-/deepseek-ai-dsh-client-ui-attachment/understand-the-implementation:
+/metaworkflow-client-ui-attachment/understand-the-implementation:
   en: 07204b7d538b7434
   zh: 705cc6b0c9387cce
-/deepseek-ai-dsh-client-ui-attachment/further-exploration:
-  en: 733ac3e4df52d6e9
-  zh: 98a6a8cac7d66645
-/deepseek-ai-dsh-client-ui-attachment/model-experience:
+/metaworkflow-client-ui-attachment/further-exploration:
+  en: 89c9db4478c23c3c
+  zh: 2938c31176ddcb44
+/metaworkflow-client-ui-attachment/model-experience:
   en: 25566605d7b38667
   zh: 927d3ea272893296
-/deepseek-ai-dsh-client-ui-attachment/model-experience/kv-cache-effect:
+/metaworkflow-client-ui-attachment/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/deepseek-ai-dsh-client-ui-attachment/known-limitations-and-deferred-work:
+/metaworkflow-client-ui-attachment/known-limitations-and-deferred-work:
   en: 9a16cb4f174464cf
   zh: 3de4b8288a74c594
-/deepseek-ai-dsh-client-ui-attachment/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-client-ui-attachment/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

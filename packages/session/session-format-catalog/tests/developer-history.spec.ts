@@ -1,14 +1,14 @@
 /** Initial and incremental tool definitions survive current-format restoration and forks. */
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createDeveloperMessage } from '@deepseek-ai/dsh-llm'
-import type { ToolAdditionBlock, ToolSchema } from '@deepseek-ai/dsh-llm'
-import { Session, SessionId, SessionLogOffset } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
-import { buildForkSeed } from '@deepseek-ai/dsh-session/fork'
-import { createSessionFormatCatalog } from '@deepseek-ai/dsh-session-format'
-import { restoreReleasedV4Artifact } from '@deepseek-ai/dsh-session-format-v3-to-v4'
+import { createDeveloperMessage } from '@metaworkflow/llm'
+import type { ToolAdditionBlock, ToolSchema } from '@metaworkflow/llm'
+import { Session, SessionId, SessionLogOffset } from '@metaworkflow/session'
+import type { SessionEvent, SessionHeader } from '@metaworkflow/session'
+import { buildForkSeed } from '@metaworkflow/session/fork'
+import { createSessionFormatCatalog } from '@metaworkflow/session-format'
+import { restoreReleasedV4Artifact } from '@metaworkflow/session-format-v3-to-v4'
 import { sessionFormatCatalogOptions } from '../src/generated.ts'
-import type { SessionFormatEvent } from '@deepseek-ai/dsh-session-format'
+import type { SessionFormatEvent } from '@metaworkflow/session-format'
 import { sessionFormatCatalog } from '../src/index.ts'
 
 function restore(session: Session): Session {

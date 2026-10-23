@@ -41,8 +41,8 @@ export async function verifySshTransport(argv: string[]): Promise<void> {
   if (values.archive === undefined) throw new Error('Use --archive=<Linux helper archive>')
   const archive = resolve(values.archive)
   assert.equal(await fileDigest(archive), (await readFile(`${archive}.sha256`, 'utf8')).split(/\s/)[0], 'Archive checksum')
-  const temporary = await mkdtemp(join(tmpdir(), 'dsh-helper-ssh-'))
-  const image = `dsh-helper-test:${randomUUID()}`
+  const temporary = await mkdtemp(join(tmpdir(), 'mwf-helper-ssh-'))
+  const image = `mwf-helper-test:${randomUUID()}`
   let imageBuilt = false
   let container: string | undefined
   try {
@@ -55,7 +55,7 @@ export async function verifySshTransport(argv: string[]): Promise<void> {
     const identity = join(temporary, 'identity')
     await run('ssh-keygen', ['-q', '-t', 'ed25519', '-N', '', '-f', identity])
     container = await docker('run', '--detach', '--platform', platform, '--publish', '127.0.0.1::22',
-      '--mount', `type=bind,src=${installed},dst=/opt/dsh-helper,readonly`,
+      '--mount', `type=bind,src=${installed},dst=/opt/mwf-helper,readonly`,
       '--mount', `type=bind,src=${identity}.pub,dst=/fixture-key.pub,readonly`, image)
     await sshdReady(container)
     const published = await docker('port', container, '22/tcp')
@@ -65,24 +65,24 @@ export async function verifySshTransport(argv: string[]): Promise<void> {
     const knownHosts = join(temporary, 'known_hosts')
     await writeFile(knownHosts, `[127.0.0.1]:${port} ${publicKey}\n`, { mode: 0o600 })
     const sshConfig = join(temporary, 'ssh_config')
-    await writeFile(sshConfig, `Host artifact\n  HostName 127.0.0.1\n  Port ${port}\n  User dsh\n  IdentityFile "${identity}"\n  IdentitiesOnly yes\n  UserKnownHostsFile "${knownHosts}"\n  GlobalKnownHostsFile /dev/null\n`, { mode: 0o600 })
+    await writeFile(sshConfig, `Host artifact\n  HostName 127.0.0.1\n  Port ${port}\n  User mwf\n  IdentityFile "${identity}"\n  IdentitiesOnly yes\n  UserKnownHostsFile "${knownHosts}"\n  GlobalKnownHostsFile /dev/null\n`, { mode: 0o600 })
     const bin = join(temporary, 'bin')
     await mkdir(bin)
     const quote = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`
     await writeFile(join(bin, 'ssh'), `#!/bin/sh\nexec /usr/bin/ssh -F ${quote(sshConfig)} "$@"\n`)
     await chmod(join(bin, 'ssh'), 0o755)
-    const workspace = '/home/dsh/workspace'
+    const workspace = '/home/mwf/workspace'
     const config = join(temporary, 'cordis.yml')
-    await writeFile(config, artifactComposition({ id: 'ssh', name: '@deepseek-ai/dsh-ssh', config: {
-      host: 'artifact', launch: { kind: 'executable' }, helper: '/opt/dsh-helper/dsh-ssh-helper',
-      helperHash: await fileDigest(join(installed, 'dsh-ssh-helper')), workspace,
+    await writeFile(config, artifactComposition({ id: 'ssh', name: '@metaworkflow/ssh', config: {
+      host: 'artifact', launch: { kind: 'executable' }, helper: '/opt/mwf-helper/mwf-ssh-helper',
+      helperHash: await fileDigest(join(installed, 'mwf-ssh-helper')), workspace,
     } }, workspace))
     const home = join(temporary, 'client-home')
     await mkdir(home)
     const report = join(temporary, 'report.json')
     await runArtifactDriver(config, report, 'portable', {
-      HOME: home, PATH: `${bin}:${process.env.PATH ?? '/usr/bin:/bin'}`, DSH_HOME: join(home, 'dsh'),
-      TSX_TSCONFIG_PATH: join(root, 'tsconfig.base.json'), DSH_TELEMETRY_DISABLED: '1', DSH_VERIFY_NO_NODE: '1',
+      HOME: home, PATH: `${bin}:${process.env.PATH ?? '/usr/bin:/bin'}`, MWF_HOME: join(home, 'mwf'),
+      TSX_TSCONFIG_PATH: join(root, 'tsconfig.base.json'), MWF_TELEMETRY_DISABLED: '1', MWF_VERIFY_NO_NODE: '1',
     })
     const evidence = { manifest, runtime: runtimeReportSchema.parse(JSON.parse(await readFile(report, 'utf8'))), glibc: await docker('exec', container, 'getconf', 'GNU_LIBC_VERSION') }
     assert.equal(evidence.glibc, 'glibc 2.28')

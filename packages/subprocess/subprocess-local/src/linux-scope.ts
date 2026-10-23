@@ -10,7 +10,7 @@ import type {
   SubprocessOutcome,
   SubprocessSpawnSpec,
   SubprocessTerminalSpawnSpec,
-} from '@deepseek-ai/dsh-subprocess'
+} from '@metaworkflow/subprocess'
 import { loadLinuxExecve } from './linux-execve.ts'
 import type { BoundProcessOwner, ManagedProcessLaunch } from './managed-owner.ts'
 import {
@@ -125,7 +125,7 @@ export function probeLinuxBootstrap(internals: LinuxScopeInternals = {}): boolea
  */
 export function probeLinuxScope(internals: LinuxScopeInternals = {}): LiteralArgvOptions | undefined {
   const attempt = (literalArgv: LiteralArgvOptions): { created: boolean; stderr: string } => {
-    const unitBase = unitStem('dsh-subprocess-probe')
+    const unitBase = unitStem('mwf-subprocess-probe')
     const result = (internals.spawnSync ?? spawnSync)(internals.systemdRun ?? 'systemd-run', [
       '--user',
       '--scope',
@@ -641,7 +641,7 @@ export function prepareLinuxTerminalScope(
   const invocation = internals.runnerInvocation ?? spawnRunnerInvocation()
   const files = createLinuxLaunchFiles({ cwd: spec.cwd, env: targetEnv })
   const startup = new LinuxScopeStartup(files, 'terminal')
-  const unitBase = unitStem('dsh-terminal')
+  const unitBase = unitStem('mwf-terminal')
   return {
     command: internals.systemdRun ?? 'systemd-run',
     args: scopeArgs(unitBase, literalArgv, invocation, spec.argv),
@@ -681,7 +681,7 @@ export function launchLinuxScope(
     ...spec.stdio.control === undefined ? {} : { control: spec.stdio.control },
   })
   const startup = new LinuxScopeStartup(files, 'subprocess')
-  const unitBase = unitStem('dsh-subprocess')
+  const unitBase = unitStem('mwf-subprocess')
   let child: ReturnType<typeof spawn>
   try {
     child = (internals.spawn ?? spawn)(internals.systemdRun ?? 'systemd-run', scopeArgs(

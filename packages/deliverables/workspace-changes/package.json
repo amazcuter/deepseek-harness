@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-workspace-changes",
+  "name": "@metaworkflow/workspace-changes",
   "description": "Per-turn workspace file changes recorded from git working-tree snapshots and whole-file captures, with per-file comparisons, for the DeepSeek Harness",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -39,28 +39,28 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-fs": "workspace:*"
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/subprocess": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/fs": "workspace:*"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
     "@deepseek-ai/cordis-plugin-include": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*",
-    "@deepseek-ai/dsh-subprocess-local": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-fs": "workspace:*",
-    "@deepseek-ai/dsh-fs-local": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop": "workspace:*",
-    "@deepseek-ai/dsh-working-directory": "workspace:*",
-    "@deepseek-ai/dsh-tool-fs": "workspace:*",
-    "@deepseek-ai/dsh-tool-str-replace-editor": "workspace:*"
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/subprocess": "workspace:*",
+    "@metaworkflow/subprocess-local": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/fs": "workspace:*",
+    "@metaworkflow/fs-local": "workspace:*",
+    "@metaworkflow/agent-loop-testkit": "workspace:*",
+    "@metaworkflow/agent-loop": "workspace:*",
+    "@metaworkflow/working-directory": "workspace:*",
+    "@metaworkflow/tool-fs": "workspace:*",
+    "@metaworkflow/tool-str-replace-editor": "workspace:*"
   }
 }

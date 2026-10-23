@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-session",
+  "name": "@metaworkflow/session",
   "description": "Event-sourced session store for the DeepSeek Harness",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -42,18 +42,18 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-scope": "workspace:*",
+    "@metaworkflow/scope": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-typert-registry": "workspace:*",
+    "@metaworkflow/scope": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/typert-registry": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*"
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
   }
 }

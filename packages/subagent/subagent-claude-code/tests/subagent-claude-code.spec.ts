@@ -25,17 +25,17 @@ import {
   type Mock,
   vi,
 } from 'vitest'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { ContentBlock } from '@deepseek-ai/dsh-llm'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import type { Agent } from '@metaworkflow/agent'
+import type { ContentBlock } from '@metaworkflow/llm'
+import SubagentRuntime from '@metaworkflow/subagent'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
 import type {
   SubprocessHandle,
   SubprocessOutcome,
   SubprocessSpawnSpec,
-} from '@deepseek-ai/dsh-subprocess'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+} from '@metaworkflow/subprocess'
+import LocalSubprocessRuntime from '@metaworkflow/subprocess-local'
+import { MAX_TIMER_DELAY_MS } from '@metaworkflow/timeout'
 import * as claudeCode from '../src/index.ts'
 import {
   claudeSpawnSpec,
@@ -348,9 +348,9 @@ describe('task admission and package contracts', () => {
     const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')) as {
       dependencies?: Record<string, string>
       files?: string[]
-      dsh?: { bundle?: { patch?: string } }
+      mwf?: { bundle?: { patch?: string } }
     }
-    expect(manifest.dsh?.bundle?.patch).toBe('./cordis.patch.yml')
+    expect(manifest.mwf?.bundle?.patch).toBe('./cordis.patch.yml')
     expect(manifest.files).toContain('cordis.patch.yml')
     expect(manifest.dependencies).toHaveProperty(
       '@anthropic-ai/claude-agent-sdk',
@@ -361,7 +361,7 @@ describe('task admission and package contracts', () => {
       '^1.31.0',
     )
     expect(manifest.dependencies).toHaveProperty('zod', '4.4.3')
-    expect(manifest.dependencies).not.toHaveProperty('@deepseek-ai/dsh-subagent-codex')
+    expect(manifest.dependencies).not.toHaveProperty('@metaworkflow/subagent-codex')
 
     const sdkRoot = dirname(fileURLToPath(
       import.meta.resolve('@anthropic-ai/claude-agent-sdk'),
@@ -392,14 +392,14 @@ describe('task admission and package contracts', () => {
       )
     }
 
-    const parsed = yaml.load(readFileSync(resolve(root, manifest.dsh!.bundle!.patch!), 'utf8'))
+    const parsed = yaml.load(readFileSync(resolve(root, manifest.mwf!.bundle!.patch!), 'utf8'))
     expect(parsed).toEqual([{ insert: [
-      { id: 'subagent-claude-code', name: '@deepseek-ai/dsh-subagent-claude-code' },
-      { id: 'tool-subagent-claude-code', name: '@deepseek-ai/dsh-tool-subagent', config: {
+      { id: 'subagent-claude-code', name: '@metaworkflow/subagent-claude-code' },
+      { id: 'tool-subagent-claude-code', name: '@metaworkflow/tool-subagent', config: {
         provider: 'claude-code', toolName: 'subagent_claude_code', maxDepth: 'provider-managed',
       } },
     ] }])
-    expect(manifest.dependencies).toHaveProperty('@deepseek-ai/dsh-tool-subagent', 'workspace:*')
+    expect(manifest.dependencies).toHaveProperty('@metaworkflow/tool-subagent', 'workspace:*')
   })
 
   it('preserves text sequences and rejects empty, blank, and non-text tasks', () => {
@@ -480,7 +480,7 @@ describe('task admission and package contracts', () => {
     const spawnSpecs: SubprocessSpawnSpec[] = []
     vi.spyOn(ctx.subprocess, 'spawn').mockImplementation((spec) => {
       spawnSpecs.push(spec)
-      return spec.env?.DSH_CLAUDE_INSTANCE === 'safe'
+      return spec.env?.MWF_CLAUDE_INSTANCE === 'safe'
         ? safeChild.handle
         : bypassChild.handle
     })
@@ -508,14 +508,14 @@ describe('task admission and package contracts', () => {
     const safeFiber = await ctx.plugin(claudeCode, {
       providerName: 'claude-safe',
       model: 'claude-safe-model',
-      env: { DSH_CLAUDE_INSTANCE: 'safe' },
+      env: { MWF_CLAUDE_INSTANCE: 'safe' },
       permissionMode: 'dontAsk',
       disposeGraceMs: 11,
     })
     const bypassFiber = await ctx.plugin(claudeCode, {
       providerName: 'claude-bypass',
       model: 'claude-bypass-model',
-      env: { DSH_CLAUDE_INSTANCE: 'bypass' },
+      env: { MWF_CLAUDE_INSTANCE: 'bypass' },
       permissionMode: 'bypassPermissions',
       disposeGraceMs: 29,
     })
@@ -543,7 +543,7 @@ describe('task admission and package contracts', () => {
       stopReason: 'aborted',
     })
     expect(queryOptions.map(options => ({
-      instance: options.env?.DSH_CLAUDE_INSTANCE,
+      instance: options.env?.MWF_CLAUDE_INSTANCE,
       model: options.model,
       permissionMode: options.permissionMode,
     }))).toEqual([
@@ -551,7 +551,7 @@ describe('task admission and package contracts', () => {
       { instance: 'bypass', model: 'claude-bypass-model', permissionMode: 'bypassPermissions' },
     ])
     expect(spawnSpecs.map(spec => ({
-      instance: spec.env?.DSH_CLAUDE_INSTANCE,
+      instance: spec.env?.MWF_CLAUDE_INSTANCE,
       graceMs: spec.graceMs,
     }))).toEqual([
       { instance: 'safe', graceMs: 11 },
@@ -649,8 +649,8 @@ describe('task admission and package contracts', () => {
       model: 'claude-diagnostic-model',
       env: {
         ANTHROPIC_API_KEY: 'provider-fake-key',
-        CLAUDE_CONFIG_DIR: '/private/tmp/dsh-claude-code-unit-config',
-        HOME: '/private/tmp/dsh-claude-code-unit-home',
+        CLAUDE_CONFIG_DIR: '/private/tmp/mwf-claude-code-unit-config',
+        HOME: '/private/tmp/mwf-claude-code-unit-home',
       },
       permissionMode: 'auto',
       disposeGraceMs: 29,
@@ -835,7 +835,7 @@ describe('query options and result mapping', () => {
   it('builds the fixed unattended options over the scrubbed environment', async () => {
     vi.stubEnv('HOST_VISIBLE', 'visible')
     vi.stubEnv('HOST_SECRET_TOKEN', 'must-not-leak')
-    vi.stubEnv('DSH_INTERNAL', 'must-not-leak')
+    vi.stubEnv('MWF_INTERNAL', 'must-not-leak')
     const child = fakeChild()
     const spawn = vi.fn(() => child.handle)
     const captured: SubprocessHandle[] = []
@@ -877,7 +877,7 @@ describe('query options and result mapping', () => {
       ANTHROPIC_API_KEY: 'explicit-fake-key',
     })
     expect(options.env).not.toHaveProperty('HOST_SECRET_TOKEN')
-    expect(options.env).not.toHaveProperty('DSH_INTERNAL')
+    expect(options.env).not.toHaveProperty('MWF_INTERNAL')
     expect(options).not.toHaveProperty('settingSources')
 
     const callbackSignal = new AbortController().signal

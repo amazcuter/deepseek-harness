@@ -28,14 +28,14 @@ it.each(['allowOnlyOneInstallerInstance.nsh', 'installUtil.nsh'])('cleans staged
   const exits = source.match(/^\s*Quit\s*$/gm) ?? []
   expect(exits.length).toBeGreaterThan(0)
   const adapted = directoryInstallerExits(source)
-  expect(adapted.match(/Call dshCleanupDirectories/g)).toHaveLength(exits.length)
+  expect(adapted.match(/Call mwfCleanupDirectories/g)).toHaveLength(exits.length)
   expect(adapted).toContain('!ifndef BUILD_UNINSTALLER')
 })
 
 it('stages before stopping the application and promotes before registering the installation', () => {
   const result = directoryInstallSection(section)
-  expect(result.indexOf('!insertmacro dshStageApplication')).toBeLessThan(result.indexOf('!insertmacro CHECK_APP_RUNNING'))
-  expect(result.indexOf('Call dshPromoteDirectories')).toBeLessThan(result.indexOf('!insertmacro registryAddInstallInfo'))
+  expect(result.indexOf('!insertmacro mwfStageApplication')).toBeLessThan(result.indexOf('!insertmacro CHECK_APP_RUNNING'))
+  expect(result.indexOf('Call mwfPromoteDirectories')).toBeLessThan(result.indexOf('!insertmacro registryAddInstallInfo'))
   expect(result).toContain('!insertmacro addStartMenuLink $keepShortcuts')
   expect(result).toContain('!insertmacro addDesktopLink $keepShortcuts')
   expect(result).toContain('!insertmacro handleUninstallResult HKEY_CURRENT_USER')

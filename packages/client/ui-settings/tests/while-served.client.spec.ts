@@ -2,7 +2,7 @@
 
 import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
-import { TestRemote } from '@deepseek-ai/dsh-client-test-runtime'
+import { TestRemote } from '@metaworkflow/client-test-runtime'
 import { SettingsSchemaService } from '../src/client/schema.ts'
 import { ConfigForms } from '../src/client/config-form.ts'
 import { SettingsDescribeMirror } from '../src/client/settings-mirror.ts'

@@ -22,7 +22,7 @@ describe('packaging run records', () => {
   })
 
   it('retains redacted output and prevents a later stage after a failed child', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-package-record-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-package-record-'))
     try {
       const run = createPackagingRun(root, { target: 'fixture' })
       await expect(run.run('failure', process.execPath, ['-e', "process.stdout.write(process.env.TEST_SECRET_KEY);process.stderr.write('fixture failure');process.exitCode=1"], {
@@ -40,7 +40,7 @@ describe('packaging run records', () => {
   })
 
   it('kills the stage and its descendant on a fatal marker before either exits voluntarily', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-package-tree-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-package-tree-'))
     try {
       const run = createPackagingRun(root, {})
       await expect(run.run('fatal', process.execPath, [resolve(import.meta.dirname, 'fixtures/packaging-failure.mjs')], {
@@ -68,7 +68,7 @@ describe('packaging run records', () => {
   })
 
   it('fails closed when the output journal cannot be written', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-package-log-failure-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-package-log-failure-'))
     try {
       const run = createPackagingRun(root, {})
       await rm(join(run.directory, 'stdout.log'))
@@ -81,7 +81,7 @@ describe('packaging run records', () => {
   })
 
   it('records successful stages without creating a release completion record', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-package-success-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-package-success-'))
     try {
       const run = createPackagingRun(root, {})
       await run.run('version', process.execPath, ['--version'], { cwd: root, env: environment })
@@ -92,7 +92,7 @@ describe('packaging run records', () => {
   })
 
   it('records a stage deadline separately from child exit and refuses subsequent stages', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-package-deadline-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-package-deadline-'))
     try {
       const run = createPackagingRun(root, {})
       await expect(run.run('deadline', process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
@@ -109,7 +109,7 @@ describe('packaging run records', () => {
 })
 
 it('allows parallel Mac stages, attributes their output, and refuses finish until both settle', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-parallel-log-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-parallel-log-'))
   try {
     const run = createPackagingRun(root, { target: 'mac-fixture' }, { parallel: true, secrets: ['removed-p12-password'] })
     const script = "process.stdout.write(process.argv[1]+' removed-p12-password')"

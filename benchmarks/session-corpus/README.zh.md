@@ -4,7 +4,7 @@
 
 ## 概述
 
-在合成语料上测量 Web Host 的 Session 列表、内容搜索和 fork；语料中每个 Session 的长度都不短于一份实测本地 DSH 语料在同一分位上的长度。搜索和 fork 用例分别运行在独立的 1,000 个 Session 语料上；列表用例运行 3,000 个 Session，这是在标准托管 CI 上让此文件五分钟内完成的最大数量。内容搜索模拟通过 `openAt: first-search` 启用该功能的部署；已发布的 profile 默认禁用它。所有用例均不使用网络服务、录制的 Session 或浏览器。
+在合成语料上测量 Web Host 的 Session 列表、内容搜索和 fork；语料中每个 Session 的长度都不短于一份实测本地 MWF 语料在同一分位上的长度。搜索和 fork 用例分别运行在独立的 1,000 个 Session 语料上；列表用例运行 3,000 个 Session，这是在标准托管 CI 上让此文件五分钟内完成的最大数量。内容搜索模拟通过 `openAt: first-search` 启用该功能的部署；已发布的 profile 默认禁用它。所有用例均不使用网络服务、录制的 Session 或浏览器。
 
 ## 目录
 

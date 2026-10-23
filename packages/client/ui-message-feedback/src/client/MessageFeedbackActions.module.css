@@ -5,8 +5,8 @@
   /* Rides the Settings font-size axis like the host row's own actions
      (ui-chat MessageIconActions), so slot-injected buttons match their
      siblings at every size. */
-  width: calc(28px + var(--dsh-content-font-delta, 0px));
-  height: calc(28px + var(--dsh-content-font-delta, 0px));
+  width: calc(28px + var(--mwf-content-font-delta, 0px));
+  height: calc(28px + var(--mwf-content-font-delta, 0px));
   padding: 6px;
   border: none;
   border-radius: var(--dsw-radius-sm);
@@ -18,8 +18,8 @@
 /* The 15px glyphs follow the same px delta as the text they serve; the CSS
    edge overrides each svg's own width/height attributes. */
 .action svg {
-  width: calc(15px + var(--dsh-content-font-delta, 0px));
-  height: calc(15px + var(--dsh-content-font-delta, 0px));
+  width: calc(15px + var(--mwf-content-font-delta, 0px));
+  height: calc(15px + var(--mwf-content-font-delta, 0px));
 }
 
 .action:hover {

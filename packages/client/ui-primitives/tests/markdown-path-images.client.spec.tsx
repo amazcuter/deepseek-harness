@@ -75,13 +75,13 @@ describe('MarkdownText local-path images', () => {
   })
 
   it('accepts only the Desktop file route from a local image resolver', () => {
-    const src = 'dsh-app://app/api/file?path=%2Ftmp%2Fgraph.png'
+    const src = 'mwf-app://app/api/file?path=%2Ftmp%2Fgraph.png'
     const view = render(<MarkdownText text={LOCAL_IMAGE} streaming pathImages={{ resolve: () => src }} />)
     expect(view.container.querySelector('img')).toBeNull()
     view.rerender(<MarkdownText text={LOCAL_IMAGE} pathImages={{ resolve: () => src }} />)
     expect(view.getByRole('img').getAttribute('src')).toBe(src)
-    for (const result of ['dsh-app://shell/api/file?path=x', 'dsh-app://app/assets/image.png',
-      'dsh-app://app/api/file-other?path=x', 'dsh-app://app.example/api/file?path=x']) {
+    for (const result of ['mwf-app://shell/api/file?path=x', 'mwf-app://app/assets/image.png',
+      'mwf-app://app/api/file-other?path=x', 'mwf-app://app.example/api/file?path=x']) {
       view.rerender(<MarkdownText text={LOCAL_IMAGE} pathImages={{ resolve: () => result }} />)
       expect(view.container.querySelector('img')).toBeNull()
     }

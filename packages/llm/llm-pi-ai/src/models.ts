@@ -11,7 +11,7 @@ import type {
   ProviderAuth,
   ProviderStreams,
 } from '@earendil-works/pi-ai'
-import type { LlmResolvedModelInfo } from '@deepseek-ai/dsh-llm'
+import type { LlmResolvedModelInfo } from '@metaworkflow/llm'
 import { THINKING_LEVELS } from './catalog.ts'
 
 /** Input accepted by the static, single-protocol providers this package builds. */

@@ -1,4 +1,4 @@
-import type { SignInAttemptId } from '@deepseek-ai/dsh-deepseek-account/types'
+import type { SignInAttemptId } from '@metaworkflow/deepseek-account/types'
 /** Native welcome window and its presentation-only renderer. */
 
 import { join } from 'node:path'
@@ -38,7 +38,7 @@ export function welcomeWindowOptions(platform: NodeJS.Platform, locale: DesktopL
     } as const : {}),
     webPreferences: {
       preload: fileURLToPath(new URL('./preload-welcome.cjs', import.meta.url)),
-      additionalArguments: [`--dsh-welcome-locale=${locale.id}`],
+      additionalArguments: [`--mwf-welcome-locale=${locale.id}`],
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,

@@ -132,7 +132,7 @@ const sessions = ctx.get('sessions')   // one owner, lifetime tied to the servic
 ```
 
 ```ts ignore-check
-globalThis.__dshCache = new Map()   // shared across instances, reclaimed never
+globalThis.__mwfCache = new Map()   // shared across instances, reclaimed never
 ```
 
 反例让实例之间互相覆盖、回收时机不可控，并让状态在测试之间泄漏。

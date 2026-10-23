@@ -1,5 +1,5 @@
 /** Browser tab ownership for one UI-initiated authorization attempt. */
-import type { AccountView, SignInAttemptId } from '@deepseek-ai/dsh-deepseek-account/types'
+import type { AccountView, SignInAttemptId } from '@metaworkflow/deepseek-account/types'
 
 /** Keeps a preopened browser tab separate from Host authorization state. */
 export class BrowserLogin {

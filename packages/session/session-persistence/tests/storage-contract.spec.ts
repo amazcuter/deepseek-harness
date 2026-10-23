@@ -4,8 +4,8 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION, SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { SESSION_FORMAT_VERSION, SessionId } from '@metaworkflow/session'
+import type { SessionEvent } from '@metaworkflow/session'
 import {
   SessionAlreadyExistsError,
   SessionAlreadyOwnedError,

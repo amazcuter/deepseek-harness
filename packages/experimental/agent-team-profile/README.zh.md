@@ -3,13 +3,13 @@ description: "在一个实验性组合包中启用团队协作、工具与 Web �
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-agent-team-profile
+# @metaworkflow/experimental-agent-team-profile
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-experimental-agent-team-profile` 让 [Agent Teams](../agent-team/README.zh.md) 的团队协作、工具和 Web 界面通过一个组合包启用。开启后可委派 teammate，并在 Web 中查看成员、任务看板和成员会话。普通 subagent 委派及名称重叠的全局 child control 会被禁用；Workflow 仍可创建 fresh 子代理。本包随 dsh 安装提供，默认关闭，可在插件页开启或添加到已初始化的 profile。
+`mwf-experimental-agent-team-profile` 让 [Agent Teams](../agent-team/README.zh.md) 的团队协作、工具和 Web 界面通过一个组合包启用。开启后可委派 teammate，并在 Web 中查看成员、任务看板和成员会话。普通 subagent 委派及名称重叠的全局 child control 会被禁用；Workflow 仍可创建 fresh 子代理。本包随 mwf 安装提供，默认关闭，可在插件页开启或添加到已初始化的 profile。
 
 ## 目录
 
@@ -30,19 +30,19 @@ kind: "package-bundle"
 将本包添加到已初始化的 profile，然后运行一个要求 Lead 委派工作的任务：
 
 ```sh
-dsh plugin --profile headless add @deepseek-ai/dsh-experimental-agent-team-profile
-dsh --profile headless "Use Agent Teams to split this task between two teammates, wait, and summarize."
+mwf plugin --profile headless add @metaworkflow/experimental-agent-team-profile
+mwf --profile headless "Use Agent Teams to split this task between two teammates, wait, and summarize."
 ```
 
-profile 必须已经包含 `@deepseek-ai/dsh-base`，本层会使用其中的 Subagent 服务与提供方配置行。执行 `dsh plugin --profile <name> remove @deepseek-ai/dsh-experimental-agent-team-profile` 移除本包时，bundle 也会从 profile 的有序层列表中移除。
+profile 必须已经包含 `@metaworkflow/base`，本层会使用其中的 Subagent 服务与提供方配置行。执行 `mwf plugin --profile <name> remove @metaworkflow/experimental-agent-team-profile` 移除本包时，bundle 也会从 profile 的有序层列表中移除。
 
 在 Web 或 Desktop 的插件页开启「智能体团队」，即可同时启用工具与界面。CLI 的 Web profile 也可使用以下命令：
 
 ```sh
-dsh plugin --profile web add @deepseek-ai/dsh-experimental-agent-team-profile
+mwf plugin --profile web add @metaworkflow/experimental-agent-team-profile
 ```
 
-已有 profile 的 `package.json` 中，`dsh.profile.bundles` 应只保留 `@deepseek-ai/dsh-experimental-agent-team-profile`，删除独立的 `@deepseek-ai/dsh-experimental-agent-team-web-profile` 条目。用户 patch 中的 `ui-agent-team` 配置仍然有效。
+已有 profile 的 `package.json` 中，`mwf.profile.bundles` 应只保留 `@metaworkflow/experimental-agent-team-profile`，删除独立的 `@metaworkflow/experimental-agent-team-web-profile` 条目。用户 patch 中的 `ui-agent-team` 配置仍然有效。
 
 ### 获得的功能
 
@@ -58,11 +58,11 @@ dsh plugin --profile web add @deepseek-ai/dsh-experimental-agent-team-profile
 <details>
 <summary>实现细节——点击展开</summary>
 
-本包的运行时内容是 [`cordis.patch.yml`](cordis.patch.yml)。在 `dsh-base` 之后应用时，patch 会禁用 `tool-subagent-control`、`tool-subagent-list-agents`、`tool-subagent` 和 `tool-subagent-fork`，并以显式 provider 和限制插入 Team 服务、工具和 UI 行。UI 插件的 Host 入口不执行逻辑；只有 Web 客户端加载器会挂载其浏览器入口，因此 headless 无需启动 Web 服务。
+本包的运行时内容是 [`cordis.patch.yml`](cordis.patch.yml)。在 `mwf-base` 之后应用时，patch 会禁用 `tool-subagent-control`、`tool-subagent-list-agents`、`tool-subagent` 和 `tool-subagent-fork`，并以显式 provider 和限制插入 Team 服务、工具和 UI 行。UI 插件的 Host 入口不执行逻辑；只有 Web 客户端加载器会挂载其浏览器入口，因此 headless 无需启动 Web 服务。
 
 | 文件 | 职责 |
 |---|---|
-| [`cordis.patch.yml`](cordis.patch.yml) | 叠加在 `dsh-base` 之上的有序 patch |
+| [`cordis.patch.yml`](cordis.patch.yml) | 叠加在 `mwf-base` 之上的有序 patch |
 | [`src/index.ts`](src/index.ts) | 空模块入口；patch 是运行时内容 |
 
 </details>
@@ -87,11 +87,11 @@ dsh plugin --profile web add @deepseek-ai/dsh-experimental-agent-team-profile
 
 #### 模型会看到什么
 
-Team 策略与 schema 由 [`@deepseek-ai/dsh-experimental-tool-agent-team`](../tool-agent-team/README.zh.md) 所有。本 bundle 只改变 composition：Team-scoped `list_agents`、`send_message` 与 `interrupt_agent` 会替代已禁用的全局 continuable-child control。`spawn_teammate` 是直接委派工具。Workflow 的 `agent()` 调用创建 fresh 一次性子代理；其提示词必须包含任务所需的上下文。
+Team 策略与 schema 由 [`@metaworkflow/experimental-tool-agent-team`](../tool-agent-team/README.zh.md) 所有。本 bundle 只改变 composition：Team-scoped `list_agents`、`send_message` 与 `interrupt_agent` 会替代已禁用的全局 continuable-child control。`spawn_teammate` 是直接委派工具。Workflow 的 `agent()` 调用创建 fresh 一次性子代理；其提示词必须包含任务所需的上下文。
 
 #### Token 影响
 
-本 bundle 会加入 `@deepseek-ai/dsh-experimental-tool-agent-team` 描述的 Team 策略与工具 schema；它自身不增加提示词文本。
+本 bundle 会加入 `@metaworkflow/experimental-tool-agent-team` 描述的 Team 策略与工具 schema；它自身不增加提示词文本。
 
 #### KV Cache 影响
 
@@ -105,7 +105,7 @@ Team 策略与 schema 由 [`@deepseek-ai/dsh-experimental-tool-agent-team`](../t
 - **Workflow 子代理工具**——[Team 工具可见性限制](../tool-agent-team/README.zh.md#known-limitations-and-deferred-work)也适用于 workflow 子代理。
 - **共享 checkout**——所有 teammate 都观察同一个工作目录；本 bundle 不提供 worktree 隔离或文件系统锁。
 - **预设内的子代理控件**——Web 预设仍可在预设作用域挂载 continuable Subagent 控件；顶层组合包不会替换这些注册。
-- **需要 base profile**——本 patch 依赖 `dsh-base` 提供的配置行 id 与 Subagent 提供方；它不是独立 profile。
+- **需要 base profile**——本 patch 依赖 `mwf-base` 提供的配置行 id 与 Subagent 提供方；它不是独立 profile。
 
 <a id="dev-note"></a>
 ### 开发备注

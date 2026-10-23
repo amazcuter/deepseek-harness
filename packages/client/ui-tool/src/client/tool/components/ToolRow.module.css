@@ -3,7 +3,7 @@
    The Settings font-size preference rides the body-published axis: the shared
    DisclosureRow chrome scales the row height and leading glyph by the body px
    delta; the title and the summary texts here read the secondary tier
-   (--dsh-content-font-size-secondary: one step under the body — setting −1 at
+   (--mwf-content-font-size-secondary: one step under the body — setting −1 at
    ≤14, setting −2 above), matching think text. */
 
 .root {
@@ -38,8 +38,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--dsh-content-font-size-secondary, 13px);
-  line-height: calc(24px + var(--dsh-content-font-delta, 0px));
+  font-size: var(--mwf-content-font-size-secondary, 13px);
+  line-height: calc(24px + var(--mwf-content-font-delta, 0px));
 }
 
 /* Trailing summary fragment kept out of .summary's ellipsis, for a count whose
@@ -51,8 +51,8 @@
   flex: none;
   margin-left: 4px;
   white-space: nowrap;
-  font-size: var(--dsh-content-font-size-secondary, 13px);
-  line-height: calc(24px + var(--dsh-content-font-delta, 0px));
+  font-size: var(--mwf-content-font-size-secondary, 13px);
+  line-height: calc(24px + var(--mwf-content-font-delta, 0px));
 }
 
 /* Diff-row +/- totals: the code font, matching the diff body the numbers
@@ -64,7 +64,7 @@
 .diffStat {
   margin-left: 10px;
   font-family: var(--ds-font-family-code);
-  font-size: calc(var(--dsh-content-font-size-secondary, 13px) - 2px);
+  font-size: calc(var(--mwf-content-font-size-secondary, 13px) - 2px);
   transform: translateY(0.5px);
 }
 
@@ -93,8 +93,8 @@
   background: none;
   font: inherit;
   text-align: left;
-  font-size: var(--dsh-content-font-size-secondary, 13px);
-  line-height: calc(24px + var(--dsh-content-font-delta, 0px));
+  font-size: var(--mwf-content-font-size-secondary, 13px);
+  line-height: calc(24px + var(--mwf-content-font-delta, 0px));
   color: inherit;
   text-decoration: underline dotted;
   text-decoration-color: currentColor;

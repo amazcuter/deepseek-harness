@@ -13,7 +13,7 @@ const runSchema = z.object({ id: z.number().int().positive(), run_attempt: z.num
 const jobsSchema = z.object({ jobs: z.array(z.object({
   name: z.string(), runner_name: z.string().nullable(), conclusion: z.string().nullable(),
 })) })
-const routesSchema = z.record(z.string(), z.object({ label: z.string().regex(/^dsh-[a-z0-9-]+$/u), target: z.enum(['mac-arm64', 'win-x64']) }))
+const routesSchema = z.record(z.string(), z.object({ label: z.string().regex(/^mwf-[a-z0-9-]+$/u), target: z.enum(['mac-arm64', 'win-x64']) }))
 
 /**
  * Read GitHub evidence for one explicit attempt, or the latest attempt without falling back after failure.

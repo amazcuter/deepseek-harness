@@ -119,7 +119,7 @@ it.each([
   await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
   await page.getByRole('button', { name: copy.plugins, exact: true }).click()
   const panel = page.locator('[data-plugin-panel]')
-  const card = panel.locator('[data-plugin-package="@deepseek-ai/dsh-experimental-inspector-profile"]')
+  const card = panel.locator('[data-plugin-package="@metaworkflow/experimental-inspector-profile"]')
   await card.getByText(copy.description, { exact: true }).waitFor()
   const snapshot = [
     `- bundle: ${await card.getByText(copy.bundle, { exact: true }).innerText()}`,

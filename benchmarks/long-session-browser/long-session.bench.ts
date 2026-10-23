@@ -346,7 +346,7 @@ it('opens, pages, navigates and streams into a 240-turn browser history', async 
   const samples: { open: number; page: number; trajectory: number; first: number; streamTask: number; streamWall: number; input: number; inputOverlapped: boolean; heapMb: number; nodes: number }[] = []
   for (let sample = 0; sample < SAMPLES; sample++) {
     const failures: unknown[] = []
-    const root = await mkdtemp(join(tmpdir(), 'dsh-browser-benchmark-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-browser-benchmark-'))
     try {
       const replayOverride = join(root, 'reply.json')
       await writeFile(replayOverride, JSON.stringify([{ kind: 'chunks', chunks: syntheticReply() }]))

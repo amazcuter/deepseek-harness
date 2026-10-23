@@ -3,47 +3,47 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/bundle/metaworkflow-app/README.md
 /:
-  en: 2e85ae9ad3c693df
-  zh: 632260f8739c1229
-/deepseek-ai-dsh-metaworkflow-app:
-  en: d4d17c5b72bedb3b
-  zh: 3fb9ce3a102113a6
-/deepseek-ai-dsh-metaworkflow-app/summary:
-  en: 519d1b9a94637b4a
-  zh: 993fa6c03f040cc5
-/deepseek-ai-dsh-metaworkflow-app/table-of-contents:
+  en: 7d9c26a4cc619668
+  zh: 09153c18da8596de
+/metaworkflow-app:
+  en: 047cb6d13c56919d
+  zh: f59b487d5489a9a2
+/metaworkflow-app/summary:
+  en: ade85a1ac3733aef
+  zh: 7eab2c1c5abab0a4
+/metaworkflow-app/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-metaworkflow-app/use-this-package:
-  en: 22ad22b16156a338
-  zh: 8aaccde47f80918f
-/deepseek-ai-dsh-metaworkflow-app/understand-the-implementation:
-  en: fbcafcd6e29d4eda
-  zh: 535d9651748ae757
-/deepseek-ai-dsh-metaworkflow-app/understand-the-implementation/source-map:
-  en: f9fbb4cc3167b0dd
-  zh: 438844208e2c9588
-/deepseek-ai-dsh-metaworkflow-app/further-exploration:
-  en: cc7137a09f91fe9a
-  zh: 0a5b3a67d3f87567
-/deepseek-ai-dsh-metaworkflow-app/model-experience:
+/metaworkflow-app/use-this-package:
+  en: 2a6ecc69c932992e
+  zh: 292f58123c53c64a
+/metaworkflow-app/understand-the-implementation:
+  en: 02af08341730e29e
+  zh: a63ccd28539752f2
+/metaworkflow-app/understand-the-implementation/source-map:
+  en: 6ec68657dc8289cf
+  zh: 6911a95455f90ca5
+/metaworkflow-app/further-exploration:
+  en: 333c4104c4f7c6f2
+  zh: 7a8c5abc6d03e232
+/metaworkflow-app/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-metaworkflow-app/model-experience/web-runtime-variable:
+/metaworkflow-app/model-experience/web-runtime-variable:
   en: 623bf8a0bf05599d
   zh: 398ded2e7b20c1ea
-/deepseek-ai-dsh-metaworkflow-app/model-experience/web-runtime-variable/what-the-model-sees:
-  en: 46980c9298abe5fc
-  zh: 37da51fb9d8f56a7
-/deepseek-ai-dsh-metaworkflow-app/model-experience/web-runtime-variable/token-effect:
+/metaworkflow-app/model-experience/web-runtime-variable/what-the-model-sees:
+  en: e58a1081ce29c7a3
+  zh: fc5b39fb990b398e
+/metaworkflow-app/model-experience/web-runtime-variable/token-effect:
   en: 449fbfa3986f98f0
   zh: a7d66333594ab2dd
-/deepseek-ai-dsh-metaworkflow-app/model-experience/web-runtime-variable/kv-cache-effect:
+/metaworkflow-app/model-experience/web-runtime-variable/kv-cache-effect:
   en: 37542a8b81a744f5
   zh: c0048aaadecae296
-/deepseek-ai-dsh-metaworkflow-app/known-limitations-and-deferred-work:
-  en: 8e9959fdb00acd0d
-  zh: 10a31cd93e673d4c
-/deepseek-ai-dsh-metaworkflow-app/known-limitations-and-deferred-work/dev-note:
-  en: fa4e4e95872e2fcf
-  zh: 67ae9526a4555242
+/metaworkflow-app/known-limitations-and-deferred-work:
+  en: f089fd22e575bdd1
+  zh: 3025ffbb8c6202b5
+/metaworkflow-app/known-limitations-and-deferred-work/dev-note:
+  en: 76322bf66d2c20cb
+  zh: 92eaf04824b24cf0

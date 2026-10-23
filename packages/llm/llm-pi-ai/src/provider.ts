@@ -16,7 +16,7 @@
  * over as a stream option, which `Models` presents to `resolve()` as the
  * credential key.
  *
- * @module dsh-llm-pi-ai/provider
+ * @module mwf-llm-pi-ai/provider
  */
 
 import type { Api, ApiKeyAuth, Model, Provider, ProviderStreams } from '@earendil-works/pi-ai'

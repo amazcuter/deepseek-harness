@@ -45,7 +45,7 @@ typealias SystemCaptureOperation = @Sendable (CaptureTarget, CancellationLatch, 
     @escaping @Sendable () -> Bool, @escaping @Sendable (Result<CapturedPNG, NativeFailure>) -> Void) -> Void
 
 final class WindowCapture: @unchecked Sendable {
-    private static let encoder = DispatchQueue(label: "dsh.cua.png")
+    private static let encoder = DispatchQueue(label: "mwf.cua.png")
     private let start: SystemCaptureOperation
     private let lock = NSLock()
     private var active: UUID?

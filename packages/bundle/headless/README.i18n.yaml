@@ -3,65 +3,65 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/bundle/headless/README.md
 /:
-  en: 68ff17b596cbc6aa
-  zh: 8c6f3d309403ba81
-/deepseek-ai-dsh-headless:
-  en: 605b67ee9f21d085
-  zh: df2687a69f362493
-/deepseek-ai-dsh-headless/summary:
-  en: 2c31f2cf129ed020
-  zh: 2b34e3640b011475
-/deepseek-ai-dsh-headless/table-of-contents:
+  en: 8c665f072c2bf4c9
+  zh: cd8a3b8b16184f51
+/metaworkflow-headless:
+  en: e7428301a96a3887
+  zh: 30e3fdda117b15f3
+/metaworkflow-headless/summary:
+  en: b6bd829898db852f
+  zh: 34a3093b44f298f8
+/metaworkflow-headless/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-headless/use-this-package:
+/metaworkflow-headless/use-this-package:
   en: 4447012f4c84100d
   zh: faf579ae9f04c096
-/deepseek-ai-dsh-headless/use-this-package/running-a-one-shot-task:
-  en: 89a48af61a38afc3
-  zh: fe202a1bb2c11781
-/deepseek-ai-dsh-headless/use-this-package/credentials:
-  en: ca8217837ee9c698
-  zh: fa20daf27d4e09ef
-/deepseek-ai-dsh-headless/use-this-package/choosing-the-session-identity:
+/metaworkflow-headless/use-this-package/running-a-one-shot-task:
+  en: 3d8c61ffd0c37edc
+  zh: 4839321941b6c933
+/metaworkflow-headless/use-this-package/credentials:
+  en: 62394254402b189c
+  zh: c456565e8d766875
+/metaworkflow-headless/use-this-package/choosing-the-session-identity:
   en: dbaa2fac63910a4c
   zh: 4fd5c17815ca444b
-/deepseek-ai-dsh-headless/use-this-package/machine-readable-output:
-  en: 2804a96e88857b16
-  zh: fe20dc0fb9962785
-/deepseek-ai-dsh-headless/use-this-package/when-to-use-it:
-  en: 5262b93dcef0d489
-  zh: 1638965b2aabcd38
-/deepseek-ai-dsh-headless/use-this-package/help-and-task-errors:
-  en: ecd381558cf7b0e7
-  zh: a351efbf4a1a2ac5
-/deepseek-ai-dsh-headless/understand-the-implementation:
+/metaworkflow-headless/use-this-package/machine-readable-output:
+  en: cca8613295a218c8
+  zh: 122ba3f993e78bff
+/metaworkflow-headless/use-this-package/when-to-use-it:
+  en: 2765d1682886e943
+  zh: 82f0ae2feab98f96
+/metaworkflow-headless/use-this-package/help-and-task-errors:
+  en: f2d8839c0496381b
+  zh: b81c40090089951e
+/metaworkflow-headless/understand-the-implementation:
   en: be1b73a6d0ee3902
   zh: bdba099685d68b27
-/deepseek-ai-dsh-headless/understand-the-implementation/run-flow:
-  en: 3729fbdc598637da
-  zh: 254c6961b65b9e2b
-/deepseek-ai-dsh-headless/understand-the-implementation/patch-surface-over-base:
-  en: a22752c052878579
-  zh: 1e42c946d8673eeb
-/deepseek-ai-dsh-headless/understand-the-implementation/exit-mapping:
-  en: c2466d3d8a26177a
-  zh: b75743bfa2e7723a
-/deepseek-ai-dsh-headless/understand-the-implementation/source-map:
-  en: d82278600e0efdbd
-  zh: 0f546bdba164ef25
-/deepseek-ai-dsh-headless/further-exploration:
-  en: 65aebf0f8ab3047c
-  zh: 85616d3859073c4b
-/deepseek-ai-dsh-headless/model-experience:
+/metaworkflow-headless/understand-the-implementation/run-flow:
+  en: 5a453a6eee9b64f3
+  zh: d0918e376e0f62a2
+/metaworkflow-headless/understand-the-implementation/patch-surface-over-base:
+  en: 4d49615e148cc5fa
+  zh: 3a5e16505958b366
+/metaworkflow-headless/understand-the-implementation/exit-mapping:
+  en: 5b16d2f06962382d
+  zh: 4968f6fab8837041
+/metaworkflow-headless/understand-the-implementation/source-map:
+  en: 4420f96cfeee9ce3
+  zh: cbb061f2f951ad5e
+/metaworkflow-headless/further-exploration:
+  en: daf496fb4cd5647a
+  zh: f1cfbc5ad72abeac
+/metaworkflow-headless/model-experience:
   en: c5a0991833f64dd7
   zh: 46f9feb255778f11
-/deepseek-ai-dsh-headless/model-experience/kv-cache-effect:
+/metaworkflow-headless/model-experience/kv-cache-effect:
   en: 0b0f74b412c7c6d8
   zh: 6e8f918d0c4bf342
-/deepseek-ai-dsh-headless/known-limitations-and-deferred-work:
-  en: 3a6dc9666d852219
-  zh: b764f203815e179e
-/deepseek-ai-dsh-headless/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-headless/known-limitations-and-deferred-work:
+  en: f217c664a595b995
+  zh: ae12c06301d70292
+/metaworkflow-headless/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

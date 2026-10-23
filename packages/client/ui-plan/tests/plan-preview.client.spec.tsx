@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi, type Mock } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { ConversationNodeAssembler, type TurnLocation } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { SessionLiveEventEntry } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { ChatNode, ChatSnapshot } from '@deepseek-ai/dsh-client-ui-chat/client'
+import { ConversationNodeAssembler, type TurnLocation } from '@metaworkflow/client-ui-conversation/client'
+import type { SessionLiveEventEntry } from '@metaworkflow/api-session-controller/client'
+import type { ChatNode, ChatSnapshot } from '@metaworkflow/client-ui-chat/client'
 import { keyedObservableHook } from '../../ui-renderer/src/client/bindings.tsx'
 import { ChatSnapshotBuilder, chatViewDefinition } from '../../ui-chat/src/client/conversation-nodes/chat-snapshot-builder.ts'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { en as commonEn } from '@deepseek-ai/dsh-client-locale/src/locales/en.ts'
+import type { SessionId } from '@metaworkflow/session/types'
+import { makeTranslate } from '@metaworkflow/client-test-runtime'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import { en as commonEn } from '@metaworkflow/client-locale/src/locales/en.ts'
 import { en, zh } from '../src/client/locales.ts'
 import { PlanCards, PlanReviewOpen } from '../src/client/PlanCard.tsx'
 import { PlanPreview, PlanTitle } from '../src/client/PlanPreview.tsx'
@@ -67,8 +67,8 @@ describe('submitted plan identity', () => {
       const child = { session: { kind: 'subagent' as const, parentSessionId: target.session.sessionId, childSessionId: 'child / 中文' as SessionId, mode }, callId: plan.callId }
       expect(parsePlanAddress(planAddress(child))).toEqual(child)
     }
-    for (const address of ['file:///plan.md', 'dsh-resource://plan/s/c/extra', 'dsh-resource://plan/s/%XX', 'dsh-resource://plan/s/c?text=x',
-      'dsh-resource://plan//c', 'dsh-resource://plan/subagent/p/c/invalid/call', 'dsh-resource://plan/subagent/p/c/one-shot']) {
+    for (const address of ['file:///plan.md', 'mwf-resource://plan/s/c/extra', 'mwf-resource://plan/s/%XX', 'mwf-resource://plan/s/c?text=x',
+      'mwf-resource://plan//c', 'mwf-resource://plan/subagent/p/c/invalid/call', 'mwf-resource://plan/subagent/p/c/one-shot']) {
       expect(parsePlanAddress(address)).toBeUndefined()
     }
   })

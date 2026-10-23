@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write python/development.md
 /python-contributor-workflows:
-  en: e14647f4d39e03f6
-  zh: 354bd37e6aea1e86
+  en: 8e4b03bead10a8fd
+  zh: 25f1e79d7e26e552
 /python-contributor-workflows/build-runtime-artifacts:
   en: 8e99640e4936332d
   zh: 729d5de1e0ad2869
 /python-contributor-workflows/validate-the-sdk:
-  en: 37884fe76e167a0e
-  zh: 4b6e50768c4bb945
+  en: 525d3015541c23d0
+  zh: 8e512d579411ce39
 /python-contributor-workflows/run-against-node-source:
-  en: 4d30c74632781443
-  zh: 13191cb05f99dd31
+  en: 0567e8fed65cd9f5
+  zh: 34ea44977624c909
 /python-contributor-workflows/build-distributions:
   en: 4aa941562dba5482
   zh: 50543a92b3d0cf04

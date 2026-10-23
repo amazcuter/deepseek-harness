@@ -53,9 +53,9 @@ let verdict: {
 
 describe.skipIf(!packable)('sandbox-local: packed-tarball distribution (publish-path rehearsal)', () => {
   beforeAll(async () => {
-    const packDest = mkdtempSync(join(tmpdir(), 'dsh-pack-'))
-    consumerDir = mkdtempSync(join(tmpdir(), 'dsh-packed-consumer-'))
-    workDir = mkdtempSync(join(tmpdir(), 'dsh-packed-work-'))
+    const packDest = mkdtempSync(join(tmpdir(), 'mwf-pack-'))
+    consumerDir = mkdtempSync(join(tmpdir(), 'mwf-packed-consumer-'))
+    workDir = mkdtempSync(join(tmpdir(), 'mwf-packed-work-'))
 
     const nativePackDest = join(packDest, 'native')
     const nativePack = spawnSync('node', ['./scripts/pack-release.mjs', nativePackDest, '--current-platform-only'], {
@@ -73,7 +73,7 @@ describe.skipIf(!packable)('sandbox-local: packed-tarball distribution (publish-
     // Derive the current runtime closure so a newly introduced workspace
     // dependency cannot fall through to an unpublished registry version.
     const workspaceClosure = packedWorkspaceClosure(
-      '@deepseek-ai/dsh-sandbox-local',
+      '@metaworkflow/sandbox-local',
       readWorkspacePackages(repoRoot),
     ).filter(member => !member.name.startsWith(NATIVE_PACKAGE_PREFIX))
 
@@ -93,7 +93,7 @@ describe.skipIf(!packable)('sandbox-local: packed-tarball distribution (publish-
 
     // Peer ranges resolve to the tarballs, the framework peer included. Do not omit optional
     // dependencies because the launcher selects its OS/CPU package through one.
-    writeFileSync(join(consumerDir, 'package.json'), JSON.stringify({ name: 'dsh-packed-consumer', private: true, type: 'module' }))
+    writeFileSync(join(consumerDir, 'package.json'), JSON.stringify({ name: 'mwf-packed-consumer', private: true, type: 'module' }))
     const install = spawnSync('npm', ['install', '--no-audit', '--no-fund', ...tarballs], {
       cwd: consumerDir,
       encoding: 'utf8',
@@ -110,7 +110,7 @@ describe.skipIf(!packable)('sandbox-local: packed-tarball distribution (publish-
       import { existsSync } from 'node:fs'
       import { Context } from '@deepseek-ai/cordis'
       import { launcherPath } from '@deepseek-ai/node-addon-system/landlock-run'
-      import { LocalSandboxProvider } from '@deepseek-ai/dsh-sandbox-local'
+      import { LocalSandboxProvider } from '@metaworkflow/sandbox-local'
       const ctx = new Context()
       await ctx.plugin(LocalSandboxProvider, {})
       const sandbox = ctx.sandbox

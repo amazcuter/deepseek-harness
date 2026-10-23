@@ -32,7 +32,7 @@ Global style sheets belong in `ui-theme/src/styles/`. Component styles live besi
 <a id="corner-radii-and-settings-cards"></a>
 ## Corner radii and settings cards
 
-The [DSH unified corner-radius standard](ui-radius.md) defines the radius scale, component size mapping, circle and capsule exceptions, nested hover geometry, and settings-card fills and strokes.
+The [MWF unified corner-radius standard](ui-radius.md) defines the radius scale, component size mapping, circle and capsule exceptions, nested hover geometry, and settings-card fills and strokes.
 
 ## Changing the system
 

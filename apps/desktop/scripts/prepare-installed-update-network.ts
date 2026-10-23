@@ -45,7 +45,7 @@ export async function prepareInstalledUpdateNetwork(manifest: string, executable
   const path = join(directory, 'plan.json')
   await writeFile(path, `${JSON.stringify({ schemaVersion: 1, runId: run.id, executable: installed,
     sha512Hex: Buffer.from(signature.sha512, 'base64').toString('hex').toUpperCase(),
-    ruleName: `DSH-Update-Qualification-${run.id}`, manifest: resolve(manifest), receipt: resolve(receipt),
+    ruleName: `MWF-Update-Qualification-${run.id}`, manifest: resolve(manifest), receipt: resolve(receipt),
     receiptSha512: await installedUpdateFileHash(receipt), networkChanged: false }, null, 2)}\n`, { flag: 'wx', flush: true })
   return path
 }

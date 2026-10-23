@@ -1,14 +1,14 @@
 /**
  * Session-visible workspace instruction state and dynamic reconciliation.
  *
- * @module @deepseek-ai/dsh-agent-instructions/state
+ * @module @metaworkflow/agent-instructions/state
  */
 
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { Message } from '@deepseek-ai/dsh-llm'
-import type { Session, UserMessage } from '@deepseek-ai/dsh-session'
-import type { FileSystem, FsVersion } from '@deepseek-ai/dsh-fs'
+import type { Agent } from '@metaworkflow/agent'
+import { createUserMessage } from '@metaworkflow/llm'
+import type { Message } from '@metaworkflow/llm'
+import type { Session, UserMessage } from '@metaworkflow/session'
+import type { FileSystem, FsVersion } from '@metaworkflow/fs'
 import type { ResolvedConfig } from './config.ts'
 import { instructionContentSha1, trimmedInstructionDigest } from './digest.ts'
 import {
@@ -48,7 +48,7 @@ export interface AgentInstructionSource {
   changes: AgentInstructionChange[]
 }
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'agent-instructions': AgentInstructionSource
   }

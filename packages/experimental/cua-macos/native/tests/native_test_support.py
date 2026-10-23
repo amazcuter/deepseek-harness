@@ -10,7 +10,7 @@ import time
 from typing import Callable
 
 ROOT = Path(__file__).resolve().parents[1]
-BINARY = ROOT / ".build" / "release" / "dsh-cua-native"
+BINARY = ROOT / ".build" / "release" / "mwf-cua-native"
 
 
 def run_cleanup(*actions: Callable[[], None]) -> None:

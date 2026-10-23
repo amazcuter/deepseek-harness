@@ -17,12 +17,12 @@ function positiveIntFromEnv(name: string, fallback: number): number {
 }
 
 const snapshotMaxConcurrency = positiveIntFromEnv(
-  'DSH_SNAPSHOT_MAX_CONCURRENCY',
+  'MWF_SNAPSHOT_MAX_CONCURRENCY',
   Math.min(DEFAULT_SNAPSHOT_MAX_CONCURRENCY, availableParallelism()),
 )
 
-const snapshotMaxWorkers = process.env.DSH_SNAPSHOT_MAX_WORKERS
-  ? positiveIntFromEnv('DSH_SNAPSHOT_MAX_WORKERS', availableParallelism())
+const snapshotMaxWorkers = process.env.MWF_SNAPSHOT_MAX_WORKERS
+  ? positiveIntFromEnv('MWF_SNAPSHOT_MAX_WORKERS', availableParallelism())
   : undefined
 
 // Replay is the keyless default: boot real subprocess paths from recorded model responses and diff
@@ -30,7 +30,7 @@ const snapshotMaxWorkers = process.env.DSH_SNAPSHOT_MAX_WORKERS
 // `record` calls the real API and updates fixtures and expected outputs; `refresh` replays committed scripts
 // and updates current expected outputs. Replay/refresh never load `.env`; only record reads a key from the
 // environment or root `.env`.
-if (process.env.DSH_SNAPSHOT === 'record') {
+if (process.env.MWF_SNAPSHOT === 'record') {
   try {
     process.loadEnvFile(new URL('.env', import.meta.url).pathname)
   } catch (error) {
@@ -52,7 +52,7 @@ export default defineConfig({
       'scripts/session-snapshot-corpus.corpus.ts',
       // The assembled Web snapshot executes generated client bundles; source
       // mode remains the zero-build path, while lib mode requires a prior build.
-      ...(process.env.DSH_EXAMPLE_MODE === 'lib' ? ['apps/web/tests/**/*.snapshot.ts'] : []),
+      ...(process.env.MWF_EXAMPLE_MODE === 'lib' ? ['apps/web/tests/**/*.snapshot.ts'] : []),
       'snapshots/**/*.snapshot.ts',
     ],
     // Replay never writes committed outputs and every scenario owns its
@@ -65,7 +65,7 @@ export default defineConfig({
     // disk, so concurrent writers would corrupt expected outputs.
     testTimeout: 120_000,
     hookTimeout: 30_000,
-    fileParallelism: (process.env.DSH_SNAPSHOT || 'replay') === 'replay'
+    fileParallelism: (process.env.MWF_SNAPSHOT || 'replay') === 'replay'
       && (snapshotMaxWorkers ?? snapshotMaxConcurrency) > 1,
     maxConcurrency: snapshotMaxConcurrency,
     ...snapshotMaxWorkers === undefined ? {} : { maxWorkers: snapshotMaxWorkers },

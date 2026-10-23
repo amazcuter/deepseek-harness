@@ -1,10 +1,10 @@
 /**
  * React-free Client access state: the latest `remoteAccess/follow` snapshot
  * and identity-stable boolean sources per resource and action.
- * @module @deepseek-ai/dsh-api-remote-access/src/client/state
+ * @module @metaworkflow/api-remote-access/src/client/state
  */
 
-import type { HostObservable } from '@deepseek-ai/dsh-client-ui-slots'
+import type { HostObservable } from '@metaworkflow/client-ui-slots'
 import type { RemoteAccessFrame, RemoteAccessGrant, RemoteAccessResource } from '../types.ts'
 
 /** Actions allowed per resource identity, for one declared resource kind. */

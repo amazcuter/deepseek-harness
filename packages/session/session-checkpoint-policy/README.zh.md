@@ -3,7 +3,7 @@ description: "面向用户与维护者的语义会话持久性检查点说明，
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-checkpoint-policy
+# @metaworkflow/session-checkpoint-policy
 
 [English](README.md) | 中文
 
@@ -37,10 +37,10 @@ kind: "package-reference"
 
 ```yaml
 - id: session-persistence
-  name: '@deepseek-ai/dsh-session-persistence-jsonl'
+  name: '@metaworkflow/session-persistence-jsonl'
 
 - id: session-checkpoints
-  name: '@deepseek-ai/dsh-session-checkpoint-policy'
+  name: '@metaworkflow/session-checkpoint-policy'
 ```
 
 ### 什么会变得持久
@@ -94,7 +94,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-插件不添加提示词或工具 schema。工具检查点后、结果前的硬崩溃会留下持久的未匹配调用；会话恢复提供由 `dsh-session` 负责的模型可见 `TOOL_OUTCOME_UNKNOWN` 结果。该消息允许重试只读或幂等工作，并要求对可能有副作用的调用验证状态或请求用户确认。
+插件不添加提示词或工具 schema。工具检查点后、结果前的硬崩溃会留下持久的未匹配调用；会话恢复提供由 `mwf-session` 负责的模型可见 `TOOL_OUTCOME_UNKNOWN` 结果。该消息允许重试只读或幂等工作，并要求对可能有副作用的调用验证状态或请求用户确认。
 
 #### Token 影响
 

@@ -3,13 +3,13 @@
  * `pluginMarket` Remote and installs an entry through the page's install dialog.
  */
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type {} from '@metaworkflow/client-locale/client'
+import type {} from '@metaworkflow/client-ui-renderer/client'
 // Type-only: the ctx.remote Context merge, the forwarded events, and the `plugins.tab` slot declaration.
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
-import type {} from '@deepseek-ai/dsh-plugin-manager/types'
-import type {} from '@deepseek-ai/dsh-plugin-market/types'
-import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
+import type {} from '@metaworkflow/api-remotes/client'
+import type {} from '@metaworkflow/plugin-manager/types'
+import type {} from '@metaworkflow/plugin-market/types'
+import type {} from '@metaworkflow/client-ui-plugin-manager/client'
 import { DiscoverSection } from './DiscoverSection.tsx'
 import { en, zh, type PluginMarketLocaleKey } from './locales.ts'
 import { DiscoverController } from './market-store.ts'
@@ -17,7 +17,7 @@ import { DiscoverController } from './market-store.ts'
 export type { DiscoverFace, DiscoverState } from './market-store.ts'
 export type { PluginMarketLocaleKey } from './locales.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Discover tab copy. */
     'pluginMarket': PluginMarketLocaleKey

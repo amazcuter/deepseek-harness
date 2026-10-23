@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
 import { expect, it, onTestFinished } from 'vitest'
-import { runLoaderSmoke, LOADER_SMOKE_TEST_TIMEOUT_MS } from '@deepseek-ai/dsh-loader-smoke'
+import { runLoaderSmoke, LOADER_SMOKE_TEST_TIMEOUT_MS } from '@metaworkflow/loader-smoke'
 
 it('exports the explicitly submitted event through the headless Loader composition', async () => {
   let captures: unknown
@@ -18,7 +18,7 @@ it('exports the explicitly submitted event through the headless Loader compositi
     inspect: async (cwd) => { captures = JSON.parse(await readFile(resolve(cwd, 'captures.json'), 'utf8')) },
   })
   expect(captures).toMatchObject([{
-    channel: 'dsh_otel_report', compression: 'gzip',
+    channel: 'mwf_otel_report', compression: 'gzip',
     body: { resourceLogs: [{ scopeLogs: [{ logRecords: [{ eventName: 'telemetry.synthetic', body: { stringValue: 'Synthetic test' } }] }] }] },
   }])
   expect(JSON.stringify(captures).match(/"eventName"/g)).toHaveLength(1)
@@ -54,8 +54,8 @@ it.each(['headers', 'body', 'retry'] as const)('exits naturally while the collec
     tsconfigPath: resolve(import.meta.dirname, '../../../../tsconfig.base.json'),
     processTimeoutMs: 10_000,
     env: {
-      DSH_APP_VERSION: 'synthetic-release',
-      DSH_PRODUCT_TELEMETRY_TEST_ENDPOINT: `http://127.0.0.1:${address.port}/v1/logs`,
+      MWF_APP_VERSION: 'synthetic-release',
+      MWF_PRODUCT_TELEMETRY_TEST_ENDPOINT: `http://127.0.0.1:${address.port}/v1/logs`,
     },
   })
   expect(requests).toBe(1)

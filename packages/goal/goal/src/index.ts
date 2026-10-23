@@ -1,7 +1,7 @@
 /**
  * Same-session goal domain: event-sourced state, compare-and-set mutations,
  * and process-local continuation activation.
- * @module @deepseek-ai/dsh-goal
+ * @module @metaworkflow/goal
  */
 
 import { randomUUID } from 'node:crypto'
@@ -9,13 +9,13 @@ import { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
-import { agentEvents } from '@deepseek-ai/dsh-agent'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { SessionSeq } from '@deepseek-ai/dsh-session'
-import type { Session, SessionEvent, SessionLogOffset } from '@deepseek-ai/dsh-session'
-import { TypertRemoteService, Remote } from '@deepseek-ai/dsh-typert-protocol'
-import type {} from '@deepseek-ai/dsh-session-projection'
-import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
+import { agentEvents } from '@metaworkflow/agent'
+import type { Agent } from '@metaworkflow/agent'
+import { SessionSeq } from '@metaworkflow/session'
+import type { Session, SessionEvent, SessionLogOffset } from '@metaworkflow/session'
+import { TypertRemoteService, Remote } from '@metaworkflow/typert-protocol'
+import type {} from '@metaworkflow/session-projection'
+import type { ProjectionDefinition } from '@metaworkflow/session-projection'
 import {
   applyGoalEvent,
   goalChangeRef,

@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-`@deepseek-ai/dsh-subagent-claude-code` and `@deepseek-ai/dsh-subagent-codex` keep their package names, bundle selections, provider row IDs, configuration, and native authentication. A selected bundle now also registers its delegation tool as a Host global tool, visible to every preset including minimal; previously the bundle registered only its provider. Live Agents see the tool from their next request after the bundle is enabled, and lose it after the bundle is switched off.
+`@metaworkflow/subagent-claude-code` and `@metaworkflow/subagent-codex` keep their package names, bundle selections, provider row IDs, configuration, and native authentication. A selected bundle now also registers its delegation tool as a Host global tool, visible to every preset including minimal; previously the bundle registered only its provider. Live Agents see the tool from their next request after the bundle is enabled, and lose it after the bundle is switched off.
 
 The contributed Host rows are `tool-subagent-claude-code` and `tool-subagent-codex`. Later user layers can override their configuration or disabled state by row id. An override does not select an unselected bundle. A preset that registers its own tool with the same name shadows the global tool for its Agents.
 
@@ -17,7 +17,7 @@ Delegation follows the shared managed-activation API: the tool returns a child I
 
 ## Migration
 
-1. Preserve selected bundle names, provider configuration, and authentication. Existing provider-only packages need **Update** in Plugins → Official to receive the tool-contributing bundle; restart when requested. To adopt a new provider, enable its card. [Installation targets](../../../../packages/boot/plugin-manager/README.md#use-this-package) follow the published DSH version or source checkout; equal version strings do not make an older registry package equivalent to a development link. Off only deselects; Remove remains separate.
+1. Preserve selected bundle names, provider configuration, and authentication. Existing provider-only packages need **Update** in Plugins → Official to receive the tool-contributing bundle; restart when requested. To adopt a new provider, enable its card. [Installation targets](../../../../packages/boot/plugin-manager/README.md#use-this-package) follow the published MWF version or source checkout; equal version strings do not make an older registry package equivalent to a development link. Off only deselects; Remove remains separate.
 2. Configure the tool with an ordinary row patch. Configuration overrides still replace the complete configuration. For example, this keeps the Codex tool disabled while the provider stays registered:
 
    ```yaml

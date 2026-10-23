@@ -17,7 +17,7 @@ type PageTransportFetch = (input: string, init: RequestInit) => Promise<Response
 
 /** Page global carrying the shell transport; absent in the served web app. */
 interface PageTransportGlobal {
-  __DSH_TRANSPORT__?: { fetch?: PageTransportFetch }
+  __MWF_TRANSPORT__?: { fetch?: PageTransportFetch }
 }
 
 /**
@@ -72,7 +72,7 @@ export function apply(ctx: Context): void {
   }
 
   ctx.effect(() => {
-    const transport = (globalThis as PageTransportGlobal).__DSH_TRANSPORT__
+    const transport = (globalThis as PageTransportGlobal).__MWF_TRANSPORT__
     if (transport?.fetch !== undefined) {
       const controller = new AbortController()
       void readPageTransportEvents(transport.fetch, controller.signal, receive).catch((error: unknown) => {

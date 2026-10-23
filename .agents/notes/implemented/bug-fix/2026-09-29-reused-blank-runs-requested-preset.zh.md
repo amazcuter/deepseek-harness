@@ -6,7 +6,7 @@ Status: implemented
 
 ## Problem
 
-Web 的新建会话、工作区导航与启动恢复过去通过在 `session.create` 中指明空白会话来复用它。Host 过去按日志记录的 preset 恢复该会话，因此新对话继承了空白会话创建时或切换后的 preset。当该 preset 已不再声明时，例如定义被删除或改名，或是如今已无人读取的旧版 `$DSH_HOME/.agent-presets/<id>/` 目录，即使默认 preset 有效，该工作区中的每次新建会话以及该草稿的每次启动恢复都会以 `agent-preset/not-found` 失败（issue #2566）。在更早默认值下创建的空白会话则会静默保留那个旧默认值。客户端只对 `session/writer-held` 重试，因此过期的空白会话始终排在复用候选首位。
+Web 的新建会话、工作区导航与启动恢复过去通过在 `session.create` 中指明空白会话来复用它。Host 过去按日志记录的 preset 恢复该会话，因此新对话继承了空白会话创建时或切换后的 preset。当该 preset 已不再声明时，例如定义被删除或改名，或是如今已无人读取的旧版 `$MWF_HOME/.agent-presets/<id>/` 目录，即使默认 preset 有效，该工作区中的每次新建会话以及该草稿的每次启动恢复都会以 `agent-preset/not-found` 失败（issue #2566）。在更早默认值下创建的空白会话则会静默保留那个旧默认值。客户端只对 `session/writer-held` 重试，因此过期的空白会话始终排在复用候选首位。
 
 ## Decision
 

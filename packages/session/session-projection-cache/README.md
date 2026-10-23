@@ -3,7 +3,7 @@ description: "The persisted session-projection cache for deployments and maintai
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-projection-cache
+# @metaworkflow/session-projection-cache
 
 English | [中文](README.zh.md)
 
@@ -35,11 +35,11 @@ Choose it when a deployment restarts sessions and needs durable projection value
 
 Both throttle fields are required — flush cadence is a deployment choice with no universally correct value:
 
-The cache opens its domain through the storage stack, so base mounts `storage`, `storage-json` (root `dshHomePath('storages')`), and `storage-domain` (`backend: json`) before it:
+The cache opens its domain through the storage stack, so base mounts `storage`, `storage-json` (root `mwfHomePath('storages')`), and `storage-domain` (`backend: json`) before it:
 
 ```yaml
 - id: session-projection-cache
-  name: '@deepseek-ai/dsh-session-projection-cache'
+  name: '@metaworkflow/session-projection-cache'
   config:
     writeEveryEvents: 200
     writeIntervalMs: 5000
@@ -50,7 +50,7 @@ The cache opens its domain through the storage stack, so base mounts `storage`, 
 | `writeEveryEvents` | required | Committed events per session that force a durable checkpoint write between mandatory points |
 | `writeIntervalMs` | required | Longest time a dirty checkpoint may stay unwritten between mandatory points |
 
-The plugin injects `storageDomain`, `sessionProjections`, and `sessions`. The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-session-projection-cache) is the exhaustive source for every accepted field and its JSDoc.
+The plugin injects `storageDomain`, `sessionProjections`, and `sessions`. The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowsession-projection-cache) is the exhaustive source for every accepted field and its JSDoc.
 
 ### How checkpoints are written
 

@@ -3,7 +3,7 @@ description: "Configure experimental local computer use with an installed Cua Dr
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp
+# @metaworkflow/experimental-computer-use-cua-driver-mcp
 
 English | [中文](README.zh.md)
 
@@ -25,15 +25,15 @@ Let the model operate the local desktop through an already installed Cua Driver.
 <a id="use-this-package"></a>
 ## Use this package
 
-Choose this provider when Cua Driver is already installed and configured on the same machine as DSH. The [upstream installation and permissions guide](https://github.com/trycua/cua/blob/cua-driver-rs-v0.28.0/libs/cua-driver/README.md) owns platform setup.
+Choose this provider when Cua Driver is already installed and configured on the same machine as MWF. The [upstream installation and permissions guide](https://github.com/trycua/cua/blob/cua-driver-rs-v0.28.0/libs/cua-driver/README.md) owns platform setup.
 
 ### Minimal configuration
 
 Add these rows to a composition that already provides tools and system-prompt services. Screenshots also require an attachment store and a model route declaring image input.
 
 ```yaml
-- name: '@deepseek-ai/dsh-computer-use'
-- name: '@deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp'
+- name: '@metaworkflow/computer-use'
+- name: '@metaworkflow/experimental-computer-use-cua-driver-mcp'
   config:
     command: cua-driver
     args: [mcp]
@@ -46,13 +46,13 @@ Add these rows to a composition that already provides tools and system-prompt se
 | `toolCallTimeoutMs` | MCP client default | Per-call timeout override in milliseconds |
 | `reconnect` | MCP client policy | Optional reconnection overrides |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-experimental-computer-use-cua-driver-mcp) lists accepted fields. The [MCP client](../../mcp/mcp-client/README.md) owns timeout and reconnection defaults.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowexperimental-computer-use-cua-driver-mcp) lists accepted fields. The [MCP client](../../mcp/mcp-client/README.md) owns timeout and reconnection defaults.
 
 ### Activation and ownership
 
 The provider registers as `cua-driver-mcp` before connecting. A second computer-use provider fails activation, including another instance of this package. Failed initialization or initial tool discovery rejects this entry and releases its registration after cleanup. Later disconnects retain the registration while the MCP client reconnects or exhausts its attempt budget; unload the entry to release it.
 
-The model sees tools under the fixed `mcp__cua-driver-mcp__` namespace. Tool names, descriptions, input schemas, canonical results, and image admission follow the existing [MCP bridge](../../mcp/mcp-client/README.md). There is no additional DSH action catalog or provider-selection tool.
+The model sees tools under the fixed `mcp__cua-driver-mcp__` namespace. Tool names, descriptions, input schemas, canonical results, and image admission follow the existing [MCP bridge](../../mcp/mcp-client/README.md). There is no additional MWF action catalog or provider-selection tool.
 
 -----
 
@@ -66,11 +66,11 @@ The model sees tools under the fixed `mcp__cua-driver-mcp__` namespace. Tool nam
 
 ### Verify an installed driver
 
-From the repository root, opt into the live compatibility test with the absolute path of a Cua Driver executable. It discovers tools, calls `check_permissions` with `prompt: false`, and verifies teardown. On macOS, `--direct` runs the runtime in the MCP process using the launching host's permissions; omit `DSH_COMPUTER_USE_MCP_ARGS` to use the default `["mcp"]` arguments.
+From the repository root, opt into the live compatibility test with the absolute path of a Cua Driver executable. It discovers tools, calls `check_permissions` with `prompt: false`, and verifies teardown. On macOS, `--direct` runs the runtime in the MCP process using the launching host's permissions; omit `MWF_COMPUTER_USE_MCP_ARGS` to use the default `["mcp"]` arguments.
 
 ```sh
-DSH_COMPUTER_USE_MCP_EXECUTABLE=/absolute/path/to/cua-driver \
-DSH_COMPUTER_USE_MCP_ARGS='["mcp","--direct"]' \
+MWF_COMPUTER_USE_MCP_EXECUTABLE=/absolute/path/to/cua-driver \
+MWF_COMPUTER_USE_MCP_ARGS='["mcp","--direct"]' \
 pnpm run test:e2e packages/experimental/computer-use-cua-driver-mcp/tests/installed-driver.e2e.ts
 ```
 
@@ -112,7 +112,7 @@ This provider relies on the installed driver and the MCP bridge's supported capa
 
 - Desktop access requires upstream installation and platform permissions; plugin activation alone does not prove that every desktop action is permitted.
 - Sessions share one desktop. Run one computer-use workflow at a time or coordinate them externally; the registration does not serialize Session actions.
-- Driver upgrades can change the discovered catalog. The provider has no runtime driver switching, dedicated desktop permission UI, or DSH action abstraction.
+- Driver upgrades can change the discovered catalog. The provider has no runtime driver switching, dedicated desktop permission UI, or MWF action abstraction.
 - Startup deadlines and rich-result restrictions follow the [MCP client's limitations](../../mcp/mcp-client/README.md#known-limitations-and-deferred-work).
 
 <a id="dev-note"></a>

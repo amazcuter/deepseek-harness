@@ -72,7 +72,7 @@ function packFixture(options: {
     version: options.version,
     main: 'lib/index.js',
     ...options.dependencies === undefined ? {} : { dependencies: options.dependencies },
-    ...options.patch === undefined ? {} : { dsh: { bundle: { patch: options.patch } } },
+    ...options.patch === undefined ? {} : { mwf: { bundle: { patch: options.patch } } },
   }
   mkdirSync(join(staging, 'package', 'lib'), { recursive: true })
   writeFileSync(join(staging, 'package', 'package.json'), JSON.stringify(manifest))
@@ -132,7 +132,7 @@ describe('catalog and local closure', () => {
     expect(selection.workspaceNames).toEqual(expect.arrayContaining(selection.members.map(member => member.name)))
     // A vendor package keeps its own version line, so a run must not assume one shared version.
     expect(packages.get('@deepseek-ai/cordis')?.manifest.version)
-      .not.toBe(packages.get('@deepseek-ai/dsh-brand')?.manifest.version)
+      .not.toBe(packages.get('@metaworkflow/brand')?.manifest.version)
     // Nothing in this closure is built for another platform, on any host.
     expect(selection.foreignTargets).toEqual([])
   })
@@ -211,7 +211,7 @@ describe('catalog and local closure', () => {
 
 describe('packed archives', () => {
   it('describes exactly the bytes it will serve', () => {
-    const destination = temporaryDirectory('dsh-local-registry-archive-')
+    const destination = temporaryDirectory('mwf-local-registry-archive-')
     const { artifact } = fabricate({ destination, name: '@scope/pkg', version: '1.0.0', source: 'export default 1\n' })
     const bytes = readFileSync(artifact.archive)
     expect(artifact.bytes).toBe(bytes.byteLength)
@@ -223,11 +223,11 @@ describe('packed archives', () => {
   })
 
   it('rejects an archive that lacks the main it declares', () => {
-    const destination = temporaryDirectory('dsh-local-registry-payload-')
+    const destination = temporaryDirectory('mwf-local-registry-payload-')
     const staging = join(destination, 'staging')
     mkdirSync(join(staging, 'package'), { recursive: true })
     writeFileSync(join(staging, 'package', 'package.json'), JSON.stringify({
-      name: '@scope/pkg', version: '1.0.0', main: 'lib/index.js', dsh: { bundle: { patch: 'cordis.patch.yml' } },
+      name: '@scope/pkg', version: '1.0.0', main: 'lib/index.js', mwf: { bundle: { patch: 'cordis.patch.yml' } },
     }))
     capture('tar', ['-czf', join(destination, 'scope-pkg-1.0.0.tgz'), '-C', staging, 'package'])
     const member = workspacePackage('@scope/pkg', { version: '1.0.0' })
@@ -239,7 +239,7 @@ describe('packed archives', () => {
   })
 
   it('rejects a bundle whose patch is missing from its archive', () => {
-    const destination = temporaryDirectory('dsh-local-registry-patch-')
+    const destination = temporaryDirectory('mwf-local-registry-patch-')
     const { member, entry } = packFixture({
       destination, name: '@scope/bundle', version: '1.0.0', source: 'export default 1\n', patch: 'cordis.patch.yml',
     })
@@ -247,7 +247,7 @@ describe('packed archives', () => {
     const stripped = join(destination, 'stripped')
     mkdirSync(join(stripped, 'package'), { recursive: true })
     writeFileSync(join(stripped, 'package', 'package.json'), JSON.stringify({
-      name: '@scope/bundle', version: '1.0.0', main: 'lib/index.js', dsh: { bundle: { patch: 'cordis.patch.yml' } },
+      name: '@scope/bundle', version: '1.0.0', main: 'lib/index.js', mwf: { bundle: { patch: 'cordis.patch.yml' } },
     }))
     mkdirSync(join(stripped, 'package', 'lib'), { recursive: true })
     writeFileSync(join(stripped, 'package', 'lib', 'index.js'), 'export default 1\n')
@@ -257,7 +257,7 @@ describe('packed archives', () => {
   })
 
   it('reports a preparation stopped by a signal as a cancellation', async () => {
-    const destination = temporaryDirectory('dsh-local-registry-cancel-')
+    const destination = temporaryDirectory('mwf-local-registry-cancel-')
     const { member, entry } = packFixture({ destination, name: '@scope/pkg', version: '1.0.0', source: 'export default 1\n' })
     const controller = new AbortController()
     controller.abort()
@@ -267,7 +267,7 @@ describe('packed archives', () => {
   })
 
   it('rejects a missing archive and a package that is not a public release member', () => {
-    const destination = temporaryDirectory('dsh-local-registry-missing-')
+    const destination = temporaryDirectory('mwf-local-registry-missing-')
     const missing = workspacePackage('@scope/pkg', { version: '1.0.0' })
     const entry: ReleaseEntry = {
       family: releaseFamily('vendor'), member: { directory: destination, name: '@scope/pkg', version: '1.0.0', manifest: missing.manifest },
@@ -280,7 +280,7 @@ describe('packed archives', () => {
   })
 
   it('rejects a packed manifest that keeps a workspace protocol', () => {
-    const destination = temporaryDirectory('dsh-local-registry-protocol-')
+    const destination = temporaryDirectory('mwf-local-registry-protocol-')
     const { member, entry } = packFixture({
       destination, name: '@scope/pkg', version: '1.0.0', source: 'export default 1\n',
       dependencies: { '@scope/dependency': 'workspace:*' },
@@ -291,7 +291,7 @@ describe('packed archives', () => {
   })
 
   it('rejects a packed local dependency this run does not serve at the required version', () => {
-    const destination = temporaryDirectory('dsh-local-registry-version-')
+    const destination = temporaryDirectory('mwf-local-registry-version-')
     const consumer = packFixture({
       destination, name: '@scope/pkg', version: '1.0.0', source: 'export default 1\n',
       dependencies: { '@scope/dependency': '^2.0.0' },
@@ -305,7 +305,7 @@ describe('packed archives', () => {
 
 describe('registry HTTP', () => {
   it('answers scoped packuments, version documents, and dist tags for its own artifacts', async () => {
-    const destination = temporaryDirectory('dsh-local-registry-http-')
+    const destination = temporaryDirectory('mwf-local-registry-http-')
     const { artifact } = fabricate({ destination, name: '@scope/local', version: '1.2.3-alpha.1', source: 'export default 1\n' })
     const url = await servingRun({ destination, artifacts: [artifact], workspaceNames: ['@scope/local', '@scope/absent'] })
 
@@ -337,7 +337,7 @@ describe('registry HTTP', () => {
   })
 
   it('serves exactly the archived bytes, and no body for HEAD', async () => {
-    const destination = temporaryDirectory('dsh-local-registry-tarball-')
+    const destination = temporaryDirectory('mwf-local-registry-tarball-')
     const { artifact } = fabricate({ destination, name: '@scope/local', version: '1.0.0', source: 'export default 1\n' })
     const url = await servingRun({ destination, artifacts: [artifact], workspaceNames: ['@scope/local'] })
     const response = await fetch(`${url}tarballs/${artifact.file}`)
@@ -351,10 +351,10 @@ describe('registry HTTP', () => {
   })
 
   it('keeps a repository-owned miss local and redirects only external packages', async () => {
-    const destination = temporaryDirectory('dsh-local-registry-miss-')
+    const destination = temporaryDirectory('mwf-local-registry-miss-')
     const { artifact } = fabricate({ destination, name: '@scope/local', version: '1.0.0', source: 'export default 1\n' })
     const url = await servingRun({
-      destination, artifacts: [artifact], workspaceNames: ['@scope/local', '@deepseek-ai/dsh-private-thing'],
+      destination, artifacts: [artifact], workspaceNames: ['@scope/local', '@metaworkflow/private-thing'],
     })
     const owned = await fetch(`${url}@deepseek-ai%2fdsh-private-thing`)
     expect(owned.status).toBe(404)
@@ -369,7 +369,7 @@ describe('registry HTTP', () => {
   })
 
   it('keeps serving after a client abandons a tarball request', async () => {
-    const destination = temporaryDirectory('dsh-local-registry-disconnect-')
+    const destination = temporaryDirectory('mwf-local-registry-disconnect-')
     const { artifact } = fabricate({ destination, name: '@scope/local', version: '1.0.0', source: 'export default 1\n' })
     const url = await servingRun({ destination, artifacts: [artifact], workspaceNames: ['@scope/local'] })
     const { port, pathname } = new URL(url)
@@ -387,7 +387,7 @@ describe('registry HTTP', () => {
   })
 
   it('rejects out-of-namespace, malformed, and non-GET requests, then stops listening', async () => {
-    const destination = temporaryDirectory('dsh-local-registry-reject-')
+    const destination = temporaryDirectory('mwf-local-registry-reject-')
     const { artifact } = fabricate({ destination, name: '@scope/local', version: '1.0.0', source: 'export default 1\n' })
     const registry = await startBundleRegistry({ directory: destination, artifacts: [artifact], workspaceNames: ['@scope/local'] })
     onTestFinished(() => registry.close())
@@ -411,11 +411,11 @@ describe('registry HTTP', () => {
 
 describe('run record', () => {
   it('names the run, its membership, and the integrity of every served archive', async () => {
-    const destination = temporaryDirectory('dsh-local-registry-manifest-')
+    const destination = temporaryDirectory('mwf-local-registry-manifest-')
     const { artifact } = fabricate({ destination, name: '@scope/local', version: '1.0.0', source: 'export default 1\n' })
     const manifest = createRegistryManifest({
       buildId: 'run-1',
-      source: { commit: 'a'.repeat(40), dirty: true, dshVersion: '0.0.0-test' },
+      source: { commit: 'a'.repeat(40), dirty: true, mwfVersion: '0.0.0-test' },
       entries: ['@scope/local'],
       workspaceNames: ['@scope/local', '@scope/absent'],
       artifacts: [artifact],
@@ -423,7 +423,7 @@ describe('run record', () => {
     expect(manifest).toEqual({
       schemaVersion: 1,
       buildId: 'run-1',
-      source: { commit: 'a'.repeat(40), dirty: true, dshVersion: '0.0.0-test' },
+      source: { commit: 'a'.repeat(40), dirty: true, mwfVersion: '0.0.0-test' },
       entries: ['@scope/local'],
       workspaceNames: ['@scope/local', '@scope/absent'],
       packages: [{ name: '@scope/local', version: '1.0.0', file: artifact.file, bytes: artifact.bytes, integrity: artifact.integrity }],
@@ -475,13 +475,13 @@ function consumerDirectory(parent: string, name: string): string {
 
 /** The payload a consumer's installed fixture carries, or a marker when nothing is installed. */
 function installedPayload(consumer: string): string {
-  try { return readFileSync(join(consumer, 'node_modules', '@dsh-local', 'fixture', 'lib', 'index.js'), 'utf8').trim() }
+  try { return readFileSync(join(consumer, 'node_modules', '@mwf-local', 'fixture', 'lib', 'index.js'), 'utf8').trim() }
   catch { return '(absent)' }
 }
 
 describe('package cache freshness', () => {
   it('installs a rebuilt archive at the same version through a retained pnpm store', { timeout: 300_000 }, async () => {
-    const temporary = temporaryDirectory('dsh-local-registry-cache-')
+    const temporary = temporaryDirectory('mwf-local-registry-cache-')
     const store = join(temporary, 'store')
     const cache = join(temporary, 'cache')
     const userConfig = join(temporary, 'empty.npmrc')
@@ -492,15 +492,15 @@ describe('package cache freshness', () => {
     const install = async (run: string, source: string): Promise<{ payload: string; settings: string }> => {
       const destination = join(temporary, run, 'artifacts')
       mkdirSync(destination, { recursive: true })
-      const { artifact } = fabricate({ destination, name: '@dsh-local/fixture', version: '1.0.0', source })
+      const { artifact } = fabricate({ destination, name: '@mwf-local/fixture', version: '1.0.0', source })
       const registry = await startBundleRegistry({
-        directory: destination, artifacts: [artifact], workspaceNames: ['@dsh-local/fixture'],
+        directory: destination, artifacts: [artifact], workspaceNames: ['@mwf-local/fixture'],
       })
       onTestFinished(() => registry.close())
       const consumer = consumerDirectory(temporary, `consumer-${run}`)
       const result = await pnpmIn({
         consumer, environment, store, cache,
-        args: ['add', '@dsh-local/fixture@1.0.0', `--registry=${registry.url}`],
+        args: ['add', '@mwf-local/fixture@1.0.0', `--registry=${registry.url}`],
       })
       expect(result.timedOut, `${result.stdout}\n${result.stderr}`).toBe(false)
       expect(result.exitCode, `${result.stdout}\n${result.stderr}`).toBe(0)
@@ -513,7 +513,7 @@ describe('package cache freshness', () => {
     // pnpm 11's default minimumReleaseAge is 24 hours, and its non-strict mode records the exemption it granted
     // instead of faking an older publication time for a locally packed artifact.
     expect(first.settings).toContain('minimumReleaseAgeExclude')
-    expect(first.settings).toContain('@dsh-local/fixture@1.0.0')
+    expect(first.settings).toContain('@mwf-local/fixture@1.0.0')
 
     const second = await install('second', 'export default "second build"\n')
     expect(second.payload).toContain('second build')
@@ -522,7 +522,7 @@ describe('package cache freshness', () => {
 
 describe('same-version iteration', () => {
   it('needs the earlier run\'s stale resolution cleared before a new run at the same version installs', { timeout: 300_000 }, async () => {
-    const temporary = temporaryDirectory('dsh-local-registry-iteration-')
+    const temporary = temporaryDirectory('mwf-local-registry-iteration-')
     const store = join(temporary, 'store')
     const userConfig = join(temporary, 'empty.npmrc')
     writeFileSync(userConfig, '')
@@ -531,10 +531,10 @@ describe('same-version iteration', () => {
     const serve = async (tag: string, payload: string) => {
       const destination = join(temporary, tag)
       mkdirSync(destination, { recursive: true })
-      const { artifact } = fabricate({ destination, name: '@dsh-local/fixture', version: '1.0.0', source: `export default ${payload}\n` })
-      return startBundleRegistry({ directory: destination, artifacts: [artifact], workspaceNames: ['@dsh-local/fixture'] })
+      const { artifact } = fabricate({ destination, name: '@mwf-local/fixture', version: '1.0.0', source: `export default ${payload}\n` })
+      return startBundleRegistry({ directory: destination, artifacts: [artifact], workspaceNames: ['@mwf-local/fixture'] })
     }
-    const add = (url: string) => pnpmIn({ consumer, environment, store, args: ['add', '@dsh-local/fixture@1.0.0', `--registry=${url}`] })
+    const add = (url: string) => pnpmIn({ consumer, environment, store, args: ['add', '@mwf-local/fixture@1.0.0', `--registry=${url}`] })
 
     const first = await serve('run-a', '"A"')
     expect((await add(first.url)).exitCode).toBe(0)

@@ -29,7 +29,7 @@ function dictionary(language: string, contents: unknown, directory = join(dir, '
 }
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), 'dsh-plugin-meta-'))
+  root = mkdtempSync(join(tmpdir(), 'mwf-plugin-meta-'))
   dir = join(root, 'node_modules', 'localized')
   parentURL = pathToFileURL(join(root, 'entry.mjs')).href
   manifest({ '.': './index.js', './locale/*.json': './locale/*.json' }, { description: 'Not local display text.' })

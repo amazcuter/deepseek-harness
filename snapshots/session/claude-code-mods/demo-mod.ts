@@ -1,4 +1,4 @@
-import { defineMod } from '@deepseek-ai/dsh-experimental-claude-code-mods'
+import { defineMod } from '@metaworkflow/experimental-claude-code-mods'
 
 /**
  * Scenario mod: adds prompt context, reports current-directory operations,

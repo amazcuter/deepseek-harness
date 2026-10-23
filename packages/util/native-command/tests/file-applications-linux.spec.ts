@@ -8,7 +8,7 @@ import { nativeFileApplications, openNativeFileApplication } from '../src/file-a
 import type { NativeCommandRunner } from '../src/runner.ts'
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-file-apps-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-file-apps-'))
   onTestFinished(() => rm(root, { recursive: true, force: true }))
   await mkdir(join(root, 'applications', 'nested'), { recursive: true })
   await mkdir(join(root, 'pixmaps'))

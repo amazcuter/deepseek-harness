@@ -1,7 +1,7 @@
 /** Keyed Workspace notices and the shared Toast Factory's display data. */
 import type {
   FactoryComponentPropsOf, InjectFace, PropsLocale, PropsRenderFactories, PropsRuntime, PropsStore,
-} from '@deepseek-ai/dsh-client-ui-slots'
+} from '@metaworkflow/client-ui-slots'
 import type { RowToastState, WorkspaceViewStoreHandle } from './slots.ts'
 
 /** Business key of one existing Workspace notice. */
@@ -47,7 +47,7 @@ export interface WorkspaceToastOwnerProps {
   dismissToast: () => void
 }
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface SlotMap {
     /** Workspace notices selected by their existing business discriminator. */
     'workspace.toast': {

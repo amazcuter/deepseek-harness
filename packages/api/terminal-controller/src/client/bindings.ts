@@ -1,8 +1,8 @@
 /** Independent content-to-terminal records keep concurrent browser writes disjoint. */
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { SessionId } from '@metaworkflow/session/types'
 import type { WebTerminalId } from '../types.ts'
 
-const PREFIX = 'dsh.terminal.binding.v1.'
+const PREFIX = 'mwf.terminal.binding.v1.'
 
 /** Saved recovery targets keyed by Session and globally unique terminal content identity. */
 export class TerminalBindings {

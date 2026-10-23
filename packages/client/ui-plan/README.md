@@ -3,7 +3,7 @@ description: "Plan-mode status chip for the Web GUI: the composer control that s
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-plan
+# @metaworkflow/client-ui-plan
 
 English | [中文](README.zh.md)
 
@@ -25,7 +25,7 @@ Plan mode lets you review a plan before implementation. Enter with `/plan` and l
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this plugin alongside `ui-conversation` and `dsh-plan-mode`; the chip then occupies the composer's plan seat to the right of the access-mode control whenever plan mode is active. Enter plan mode through the `/plan` command path — choose Plan from the composer's `+` Command menu or type `/plan` — and turn it off with the chip.
+Mount this plugin alongside `ui-conversation` and `mwf-plan-mode`; the chip then occupies the composer's plan seat to the right of the access-mode control whenever plan mode is active. Enter plan mode through the `/plan` command path — choose Plan from the composer's `+` Command menu or type `/plan` — and turn it off with the chip.
 
 ### What the chip shows
 
@@ -66,9 +66,9 @@ Submitted-plan cards follow the [file-card family](../../../docs/ui-radius.md#ra
 
 Read these pages when the plan surface is not enough. They move from the chip to the plan-mode domain and the composer shell.
 
-- [dsh-plan-mode](../../plan/plan-mode/README.md) — owns plan mode, the `/plan` command, the projection, and the policy section.
+- [mwf-plan-mode](../../plan/plan-mode/README.md) — owns plan mode, the `/plan` command, the projection, and the policy section.
 - [ui-conversation](../ui-conversation/README.md) — declares the composer's `conversation.input.plan` seat and the placeholder locale keys.
-- [Tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-plan-mode) — the `exit_plan_mode` tool schema the model uses to leave plan mode.
+- [Tool catalog](../../../docs/tool-catalog.md#metaworkflowplan-mode) — the `exit_plan_mode` tool schema the model uses to leave plan mode.
 - [Client package map](../README.md) — adjacent browser UI packages.
 
 -----
@@ -76,7 +76,7 @@ Read these pages when the plan surface is not enough. They move from the chip to
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through the `/plan off` command line the chip dispatches: `dsh-plan-mode` owns the model-visible policy section, the exit-tool schema, and the logged state that line drives.
+Indirectly, through the `/plan off` command line the chip dispatches: `mwf-plan-mode` owns the model-visible policy section, the exit-tool schema, and the logged state that line drives.
 
 #### KV Cache effect
 

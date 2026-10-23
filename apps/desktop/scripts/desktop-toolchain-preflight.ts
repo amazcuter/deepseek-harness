@@ -25,7 +25,7 @@ export interface DesktopToolchainProbeFailure {
 async function probeTar(): Promise<string | undefined> {
   // GNU tar reads the colon in an absolute Windows path as a remote-host separator, which the
   // release scripts avoid by running beside the archive; this probe confirms the archive reader works there.
-  const directory = await mkdtemp(join(tmpdir(), 'dsh-tar-probe-'))
+  const directory = await mkdtemp(join(tmpdir(), 'mwf-tar-probe-'))
   try {
     const member = join(directory, 'probe.txt')
     await writeFile(member, 'probe\n')

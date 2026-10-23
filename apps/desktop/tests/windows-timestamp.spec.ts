@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path'
 import { completeWindowsSignature, type WindowsTimestampOptions } from '../scripts/windows-timestamp.mjs'
 
 async function fixture(t: TestContext) {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-timestamp-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-timestamp-'))
   t.onTestFinished(() => rm(root, { recursive: true, force: true }))
   const path = join(root, 'input.exe')
   const evidenceDirectory = join(root, 'evidence')

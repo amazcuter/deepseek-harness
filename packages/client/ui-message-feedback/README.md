@@ -3,7 +3,7 @@ description: "The Web feedback surface: the Like/Dislike pair in the finalized a
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-message-feedback
+# @metaworkflow/client-ui-message-feedback
 
 English | [中文](README.zh.md)
 
@@ -52,8 +52,8 @@ Per Session, one `MessageFeedbackController` backs every message control and one
 
 Read these pages when the feedback surface is not enough. They move from the browser strip to the Session-log backends and the conversation shell.
 
-- [dsh-message-feedback](../../feedback/message-feedback/README.md) — the Session-log backend that owns per-item compare-and-set and persistence.
-- [dsh-command-feedback](../../feedback/command-feedback/README.md) — the `/feedback` command, the `sessionFeedback` Remote, and the category taxonomy.
+- [mwf-message-feedback](../../feedback/message-feedback/README.md) — the Session-log backend that owns per-item compare-and-set and persistence.
+- [mwf-command-feedback](../../feedback/command-feedback/README.md) — the `/feedback` command, the `sessionFeedback` Remote, and the category taxonomy.
 - [ui-commands](../ui-commands/README.md) — the command decoration contract the `/feedback` row goes through.
 - [ui-conversation](../ui-conversation/README.md) — declares the assistant-actions strip and the composer overlay.
 - [Client package map](../README.md) — adjacent browser UI packages.

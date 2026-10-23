@@ -1,6 +1,6 @@
 /** Shared discovery preserves explicit retries, acknowledged changes and connection ownership. */
 import { expect, it, vi } from 'vitest'
-import { RemoteError, type RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import { RemoteError, type RemoteResult } from '@metaworkflow/typert-protocol'
 import { TerminalInventory } from '../src/client/inventory.ts'
 import type { WebTerminalId, WebTerminalInfo } from '../src/types.ts'
 

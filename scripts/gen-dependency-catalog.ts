@@ -1,4 +1,10 @@
-/** Generate the README npx dependency catalog from a recorded public npm resolution. */
+/**
+ * Generate the README npx dependency catalog from a recorded public npm resolution.
+ *
+ * The catalog describes the package that the recorded lockfile resolved, because only a
+ * published release can be resolved. A renamed package keeps its recorded predecessor
+ * name until `--refresh` captures the renamed publication.
+ */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { mkdtemp, rm } from 'node:fs/promises'
@@ -8,8 +14,8 @@ import { parseArgs } from 'node:util'
 import { runCommandWithTimeout } from './benchmark-npm-resolution.ts'
 
 const ROOT = resolve(import.meta.dirname, '..')
-const PACKAGE = '@deepseek-ai/dsh'
-const ENTRY = `node_modules/${PACKAGE}`
+/** Name a consumer installs; only `--refresh` asks npm for it. */
+const PUBLISHED_PACKAGE = '@metaworkflow/cli'
 const REGISTRY = 'https://registry.npmjs.org/'
 const LOCK = 'scripts/dependency-catalog/package-lock.json'
 const METADATA = 'scripts/dependency-catalog/resolution.json'
@@ -96,35 +102,44 @@ function parseEntry(value: unknown, location: string): PackageEntry {
 
 /**
  * Read npm's resolved production tree without substituting workspace or development dependencies.
- * @param input - Parsed npm lockfile v3 from a consumer with only dsh as its dependency.
- * @returns The CLI version and sorted package locations, excluding the synthetic consumer and CLI itself.
+ * @param input - Parsed npm lockfile v3 from a consumer with only the published package as its dependency.
+ * @returns The recorded package name, its published version, and sorted package locations,
+ * excluding the synthetic consumer and the package itself.
  */
-export function collectDependencies(input: unknown): { version: string; rows: DependencyRow[] } {
+export function collectDependencies(input: unknown): { package: string; version: string; rows: DependencyRow[] } {
   const lock = record(input, 'lockfile')
   if (lock['lockfileVersion'] !== 3) throw new Error('dependency-catalog: expected npm lockfileVersion 3')
   const packages = record(lock['packages'], 'packages')
   const consumer = record(packages[''], 'consumer')
   const requested = record(consumer['dependencies'], 'consumer dependencies')
-  if (Object.keys(requested).length !== 1 || requested[PACKAGE] !== 'latest') {
-    throw new Error(`dependency-catalog: consumer must request only ${PACKAGE}@latest`)
+  const names = Object.keys(requested)
+  // The catalog describes one published package, so the evidence must name exactly
+  // one dependency at `latest`; the name comes from the record, never from code.
+  if (names.length !== 1 || /[\r\n]/u.test(names[0] as string) || requested[names[0] as string] !== 'latest') {
+    throw new Error('dependency-catalog: consumer must request exactly one package at latest')
   }
+  const recordedPackage = names[0] as string
+  if (!/^(@[^/]+\/)?[^/]+$/u.test(recordedPackage)) {
+    throw new Error(`dependency-catalog: consumer requests an invalid package name ${JSON.stringify(recordedPackage)}`)
+  }
+  const packageEntry = `node_modules/${recordedPackage}`
   const entries = new Map(Object.entries(packages).filter(([location]) => location !== '')
     .map(([location, entry]) => [location, parseEntry(entry, location)]))
-  const cli = entries.get(ENTRY)
-  if (cli === undefined || cli.dev) throw new Error(`dependency-catalog: missing production ${PACKAGE}`)
+  const cli = entries.get(packageEntry)
+  if (cli === undefined || cli.dev) throw new Error(`dependency-catalog: missing production ${recordedPackage}`)
   const direct = new Set<string>()
-  for (const name of Object.keys({ ...cli.dependencies, ...cli.optionalDependencies })) {
-    const location = [`${ENTRY}/node_modules/${name}`, `node_modules/${name}`]
+  for (const dependency of Object.keys({ ...cli.dependencies, ...cli.optionalDependencies })) {
+    const location = [`${packageEntry}/node_modules/${dependency}`, `node_modules/${dependency}`]
       .find(candidate => entries.has(candidate))
     if (location === undefined) {
-      if (cli.optionalDependencies?.[name] !== undefined) continue
-      throw new Error(`dependency-catalog: missing direct dependency ${name}`)
+      if (cli.optionalDependencies?.[dependency] !== undefined) continue
+      throw new Error(`dependency-catalog: missing direct dependency ${dependency}`)
     }
     direct.add(location)
   }
   const rows: DependencyRow[] = []
   for (const [location, entry] of entries) {
-    if (location === ENTRY || entry.dev) continue
+    if (location === packageEntry || entry.dev) continue
     const name = location.split('node_modules/').at(-1)
     if (name === undefined || !/^(@[^/]+\/)?[^/]+$/.test(name)) {
       throw new Error(`dependency-catalog: invalid npm package location ${location}`)
@@ -144,7 +159,7 @@ export function collectDependencies(input: unknown): { version: string; rows: De
   if (rows.length === 0) throw new Error('dependency-catalog: empty dependency tree')
   rows.sort((a, b) => a.name.localeCompare(b.name, 'en')
     || a.version.localeCompare(b.version, 'en') || a.location.localeCompare(b.location, 'en'))
-  return { version: cli.version, rows }
+  return { package: recordedPackage, version: cli.version, rows }
 }
 
 function readMetadata(scanRoot: string): ResolutionMetadata {
@@ -193,11 +208,11 @@ export function deduplicateDependencies(rows: readonly DependencyRow[]): {
 }
 
 function renderCatalog(lock: unknown, metadata: ResolutionMetadata): string {
-  const { version, rows } = collectDependencies(lock)
+  const { package: recordedPackage, version, rows } = collectDependencies(lock)
   return `${JSON.stringify({
-    package: PACKAGE,
+    package: recordedPackage,
     version,
-    requested: `${PACKAGE}@latest`,
+    requested: `${recordedPackage}@latest`,
     resolution: metadata,
     dependencies: deduplicateDependencies(rows),
   }, null, 2)}\n`
@@ -257,10 +272,10 @@ async function runNpm(args: readonly string[], cwd: string, env: NodeJS.ProcessE
 }
 
 async function refreshResolution(): Promise<void> {
-  const temporary = await mkdtemp(join(tmpdir(), 'dsh-dependency-catalog-'))
+  const temporary = await mkdtemp(join(tmpdir(), 'mwf-dependency-catalog-'))
   try {
     writeFileSync(join(temporary, 'package.json'), `${JSON.stringify({
-      name: 'dsh-dependency-catalog', version: '0.0.0', private: true, dependencies: { [PACKAGE]: 'latest' },
+      name: 'mwf-dependency-catalog', version: '0.0.0', private: true, dependencies: { [PUBLISHED_PACKAGE]: 'latest' },
     }, null, 2)}\n`)
     const environment = createNpmResolutionEnvironment(temporary)
     const npm = await runNpm(['--version'], temporary, environment)

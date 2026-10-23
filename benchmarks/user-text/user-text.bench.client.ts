@@ -22,7 +22,7 @@ const UNMATCHED_RATIO_HEADROOM = 1.75
 const WORKER_TIMEOUT_MS = 180_000
 /** Larger than every workload's allocation, so the allocation interval runs without a scavenge. */
 const ALLOCATION_SEMI_SPACE_MB = 256
-const WORKER = join(import.meta.dirname, '..', '.dsh-build', 'user-text', 'user-text.worker.js')
+const WORKER = join(import.meta.dirname, '..', '.mwf-build', 'user-text', 'user-text.worker.js')
 
 /**
  * Documents without credentials: reference-machine milliseconds with the matcher, and the

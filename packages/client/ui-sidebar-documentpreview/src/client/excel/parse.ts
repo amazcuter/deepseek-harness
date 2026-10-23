@@ -20,7 +20,7 @@ export function parseExcel(
     const url = URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' }))
     let worker: Worker
     try {
-      worker = new Worker(url, { name: 'dsh-excel' })
+      worker = new Worker(url, { name: 'mwf-excel' })
     } catch (error) {
       URL.revokeObjectURL(url)
       reject(new Error('invalid', { cause: error }))

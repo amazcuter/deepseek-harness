@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import yaml from 'js-yaml'
 import { expect, it, onTestFinished } from 'vitest'
-import type { BundleInfo, ChangeResult } from '@deepseek-ai/dsh-plugin-manager'
-import { getDshRuntimeVersion } from '../../../../packages/boot/app-boot/src/plugin-compatibility.ts'
+import type { BundleInfo, ChangeResult } from '@metaworkflow/plugin-manager'
+import { getMwfRuntimeVersion } from '../../../../packages/boot/app-boot/src/plugin-compatibility.ts'
 import { generateOfficialBundleCatalog } from '../../../../scripts/gen-official-bundle-catalog.ts'
 import {
   REGISTRY_MANIFEST_FILE,
@@ -26,9 +26,9 @@ import {
 import { assertInstalledTree, createPackedInstallation } from './packed-installation.ts'
 
 const root = fileURLToPath(new URL('../../../..', import.meta.url))
-const packages = ['@deepseek-ai/dsh-subagent-claude-code', '@deepseek-ai/dsh-subagent-codex']
+const packages = ['@metaworkflow/subagent-claude-code', '@metaworkflow/subagent-codex']
 const built = existsSync(join(root, 'apps/cli/lib/bin.js'))
-  && packages.every(name => existsSync(join(root, 'packages/subagent', name.slice('@deepseek-ai/dsh-'.length), 'lib/index.js')))
+  && packages.every(name => existsSync(join(root, 'packages/subagent', name.slice('@metaworkflow/'.length), 'lib/index.js')))
 
 interface Observation {
   initial: BundleInfo[]
@@ -78,7 +78,7 @@ it.skipIf(!built)('installs the exported registry\'s local closure and switches 
 }, async () => {
   // The product under test is a real source-independent installation that ships neither provider, so both stay
   // available to the Official catalog and only the local registry can supply them.
-  const fixture = await createPackedInstallation('dsh-official-packed-', [])
+  const fixture = await createPackedInstallation('mwf-official-packed-', [])
   const { temporary, installation, home, profile, environment } = fixture
 
   // The registry packs and serves the catalog's own local dependency closure; no checkout link or file: override
@@ -96,7 +96,7 @@ it.skipIf(!built)('installs the exported registry\'s local closure and switches 
   for (const name of packages) expect(artifacts.find(artifact => artifact.name === name), name).toMatchObject({ version })
   await writeRegistryManifest(join(runDirectory, REGISTRY_MANIFEST_FILE), createRegistryManifest({
     buildId: 'packed-e2e',
-    source: sourceEvidence(root, getDshRuntimeVersion()),
+    source: sourceEvidence(root, getMwfRuntimeVersion()),
     entries,
     workspaceNames: selection.workspaceNames,
     artifacts,
@@ -107,7 +107,7 @@ it.skipIf(!built)('installs the exported registry\'s local closure and switches 
   onTestFinished(() => registry.close())
 
   await writeFile(join(profile, 'package.json'), JSON.stringify({ name: 'packed-official-profile', private: true, dependencies: {},
-    dsh: { profile: { bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'] } },
+    mwf: { profile: { bundles: ['@metaworkflow/base', '@metaworkflow/web-app'] } },
   }))
   // Only the settings a real profile gets. No override, ignore list, or scoped .npmrc may route a package around the
   // registry, so every dependency of the packed bundles is answered by this run or by its fixed upstream redirect.
@@ -123,15 +123,15 @@ it.skipIf(!built)('installs the exported registry\'s local closure and switches 
       registry: registry.url,
       profile,
       packages,
-      localDependency: '@deepseek-ai/dsh-brand',
+      localDependency: '@metaworkflow/brand',
       nativePackages: {
         // The Agent SDK publishes a musl variant of its Linux artifact, which is what pnpm installs there.
-        '@deepseek-ai/dsh-subagent-claude-code': `@anthropic-ai/claude-agent-sdk-${process.platform}-${process.arch}${hostPlatform().libc?.[0] === 'musl' ? '-musl' : ''}`,
-        '@deepseek-ai/dsh-subagent-codex': `@openai/codex-${process.platform}-${process.arch}`,
+        '@metaworkflow/subagent-claude-code': `@anthropic-ai/claude-agent-sdk-${process.platform}-${process.arch}${hostPlatform().libc?.[0] === 'musl' ? '-musl' : ''}`,
+        '@metaworkflow/subagent-codex': `@openai/codex-${process.platform}-${process.arch}`,
       },
     },
   }] }]))
-  const child = execa(process.execPath, [join(installation, 'node_modules/@deepseek-ai/dsh/lib/bin.js'),
+  const child = execa(process.execPath, [join(installation, 'node_modules/@metaworkflow/cli/lib/bin.js'),
     'web', '--patch', patch, '--no-open', '--port', '0'], {
     cwd: temporary, env: environment, extendEnv: false, reject: false, timeout: 240_000,
   })
@@ -158,7 +158,7 @@ it.skipIf(!built)('installs the exported registry\'s local closure and switches 
       expect(step.install, JSON.stringify(step.install)).toMatchObject({ application: 'applied', enabled: true, version })
       expect(step.savedVersion).toBe(version)
       expect(step.installed).toMatchObject({ official: true, availability: 'profile', enabled: true, installed: true, version })
-      const product = step.name.replace('@deepseek-ai/dsh-subagent-', '')
+      const product = step.name.replace('@metaworkflow/subagent-', '')
       expect(step.installed.rows.map(row => row.rowId)).toEqual([`subagent-${product}`, `tool-subagent-${product}`])
       expect(step.providerEnabled).toBe(true)
       expect(step.nativeArtifact).toBe(true)

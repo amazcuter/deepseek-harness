@@ -35,7 +35,7 @@ Client event source 原样传递持久 settlement。Chat 与 Trajectory 在 atte
 
 ### 已发布 v1 到 v2 迁移
 
-相邻迁移会校验完整的冻结 v1 产物，按 turn、step、terminal boundary 与精确 message chunk reference 对 chunk 分组，再为每个 attempt 替换一个 settlement。成功分组的 chunk 移入其 message。未被认领的分组会在最后一个被消费 chunk 的位置变成 `assistant/attempt`。无关的交错事件保持相对顺序，存活事件获得密集 v2 序号。该迁移边通过 `dsh-llm` 运行时的 `AssistantStreamAccumulator` 压缩嵌入 stream，而不持有冻结副本，因为该包拥有 v2 stream 编码。隔离的 publication verifier 通过 `expandAssistantStream()` 与 `BlockAssembler` 展开并重组写入后的 stream，并在发布前检查每个迁移后的 `assistant/message` 是否与其一致。日后若某个格式改变 stream 编码，必须把这些 helper 的冻结副本纳入本迁移边。
+相邻迁移会校验完整的冻结 v1 产物，按 turn、step、terminal boundary 与精确 message chunk reference 对 chunk 分组，再为每个 attempt 替换一个 settlement。成功分组的 chunk 移入其 message。未被认领的分组会在最后一个被消费 chunk 的位置变成 `assistant/attempt`。无关的交错事件保持相对顺序，存活事件获得密集 v2 序号。该迁移边通过 `mwf-llm` 运行时的 `AssistantStreamAccumulator` 压缩嵌入 stream，而不持有冻结副本，因为该包拥有 v2 stream 编码。隔离的 publication verifier 通过 `expandAssistantStream()` 与 `BlockAssembler` 展开并重组写入后的 stream，并在发布前检查每个迁移后的 `assistant/message` 是否与其一致。日后若某个格式改变 stream 编码，必须把这些 helper 的冻结副本纳入本迁移边。
 
 该迁移边会重映射有限的已声明引用清单：信封 source-event reference、surface replacement 端点、command source event、compaction range 与 shadowed list，以及 title message list。经过校验的 `session/title-llm-request` 模型可见文本会在源序号命名空间中保持逐字节不变，而它的 `messageSeqs` 字段会迁移到 v2 命名空间；因此目标校验不会根据重映射后的序号重建该文本。指向被消费 chunk 的引用会使迁移失败；它绝不会被重定向到含义不同的 settlement。该迁移边也会拒绝切开 attempt 的继承切点。
 
@@ -43,7 +43,7 @@ v2 物理 header 要求 `isSeeded`，且不存储数值切点。带 seed 的产�
 
 新建 subagent 子项的 constructor seed 与继承的父项前缀完全相同。`Session` 会追加 tagged cut marker，随后 subagent setup 再追加子项持有的 descriptor 与 delegated policy。原 descriptor-seed helper 会被删除，因此 descriptor 绝不会计入继承内容，cold resume 则重放已经持久化的子项 setup。曾把 untagged marker 放在 descriptor 后面的历史 snapshot fixture 会在源处修正；当前比较仍会暴露 marker 数量与序号引用。
 
-`dsh_session_log` request extension 的外层 schema 保持版本 1：它的 Session header 投影仍从逻辑 inherited cut 推导 `seedLength`，只有其中的 `sessionFormatVersion` 成员标识嵌入的逻辑 Session generation。projection unit 同样保持各自的 `stateVersion`；projection cache 把每个 checkpoint 绑定到 Session format generation，因此 generation 变化不需要提升 unit 版本。
+`mwf_session_log` request extension 的外层 schema 保持版本 1：它的 Session header 投影仍从逻辑 inherited cut 推导 `seedLength`，只有其中的 `sessionFormatVersion` 成员标识嵌入的逻辑 Session generation。projection unit 同样保持各自的 `stateVersion`；projection cache 把每个 checkpoint 绑定到 Session format generation，因此 generation 变化不需要提升 unit 版本。
 
 Generation 选择与发布遵循[已发布 Session 迁移决策](2026-08-31-released-session-format-migrations.zh.md)：源路径、字节与 inode 保持不变，只发布最终具名版本 successor；保留 predecessor 不提供 fallback 或 downgrade 支持。
 

@@ -20,8 +20,8 @@ function required(env: NodeJS.ProcessEnv, name: string): string {
  * @returns Absolute directory outside the disposable checkout.
  */
 export function desktopReleasesRoot(env: NodeJS.ProcessEnv): string {
-  const configured = required(env, 'DSH_PACKAGING_CONFIG_DIR')
-  const root = env.DSH_DESKTOP_RELEASES_DIR || join(dirname(configured), 'releases')
+  const configured = required(env, 'MWF_PACKAGING_CONFIG_DIR')
+  const root = env.MWF_DESKTOP_RELEASES_DIR || join(dirname(configured), 'releases')
   if (!isAbsolute(configured) || !isAbsolute(root)) throw new Error('desktop retention: machine directories must be absolute')
   return root
 }
@@ -37,7 +37,7 @@ export async function retainDesktopCi(env: NodeJS.ProcessEnv, appRoot = resolve(
   const windows = target === 'win-x64'
   const platform = windows ? 'win32' : 'darwin'
   const settings = loadDesktopPackageEnvironment(platform, env, appRoot, { unsigned: true })
-  const preset = settings.DSH_PACKAGING_PRESET
+  const preset = settings.MWF_PACKAGING_PRESET
   if (preset !== 'test' && preset !== 'production') throw new Error('desktop retention: a machine preset is required')
   if (windows && !['signed', 'unsigned'].includes(env.PACKAGE_SIGNING ?? '')) throw new Error('desktop retention: invalid signing selection')
   if (!windows && !['true', 'false'].includes(env.PACKAGE_SKIP_NOTARIZATION ?? '')) throw new Error('desktop retention: invalid notarization selection')

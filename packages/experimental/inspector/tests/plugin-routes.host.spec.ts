@@ -5,9 +5,9 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createConnection, createServer, type AddressInfo, type Socket } from 'node:net'
 import { Context } from '@deepseek-ai/cordis'
 import type { Message } from '@deepseek-ai/cordis'
-import type { WebRoute, WebServer, WebUpgradeRoute } from '@deepseek-ai/dsh-host-webserver'
-import { HostConnectionService } from '@deepseek-ai/dsh-client-connection'
-import type { BrowserAuth } from '@deepseek-ai/dsh-client-connection/src/browser-auth.ts'
+import type { WebRoute, WebServer, WebUpgradeRoute } from '@metaworkflow/host-webserver'
+import { HostConnectionService } from '@metaworkflow/client-connection'
+import type { BrowserAuth } from '@metaworkflow/client-connection/src/browser-auth.ts'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { apply, Config, inject, name } from '../src/index.ts'
 import { startInspector, type InspectorHandle } from '../src/host/bridge/controller.ts'
@@ -144,13 +144,13 @@ describe('experimental Inspector Host DevTools routes', () => {
     const selected = await socketPair()
     const reply = readUpgrade(selected.client)
     await upgrade.handler(upgradeRequest('/inspector/devtools/cdp?clientSourceId=client-fixture', {
-      'sec-websocket-protocol': ['dsh-fixture', 'dsh-other'],
+      'sec-websocket-protocol': ['mwf-fixture', 'mwf-other'],
       'sec-websocket-extensions': undefined,
       'user-agent': 'fixture',
-    }), selected.server, clientTextFrame(JSON.stringify({ id: 1, method: 'DSHInspector.getSources' })))
+    }), selected.server, clientTextFrame(JSON.stringify({ id: 1, method: 'MWFInspector.getSources' })))
     const answered = await reply
     expect(answered.status).toMatch(/^HTTP\/1\.1 101 /u)
-    expect(answered.headers.toLowerCase()).toContain('sec-websocket-protocol: dsh-fixture')
+    expect(answered.headers.toLowerCase()).toContain('sec-websocket-protocol: mwf-fixture')
     expect(answered.message.id).toBe(1)
     expect(answered.message.result).toHaveProperty('sources')
 
@@ -158,7 +158,7 @@ describe('experimental Inspector Host DevTools routes', () => {
     const later = readUpgrade(unselected.client)
     await upgrade.handler(upgradeRequest(undefined, {}), unselected.server, Buffer.alloc(0))
     await vi.waitFor(() => { expect(unselected.received().toString('latin1')).toMatch(/^HTTP\/1\.1 101 /u) })
-    unselected.client.write(clientTextFrame(JSON.stringify({ id: 1, method: 'DSHInspector.getSources' })))
+    unselected.client.write(clientTextFrame(JSON.stringify({ id: 1, method: 'MWFInspector.getSources' })))
     expect((await later).message).toMatchObject({ id: 1 })
 
     const reset = await socketPair()

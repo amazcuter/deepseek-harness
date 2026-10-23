@@ -3,13 +3,13 @@ description: "面向后端实现者与部署方的共享压缩约定：会话压
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-compaction
+# @metaworkflow/compaction
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-compaction` 让长时会话把较早历史压缩（compaction）成一条摘要消息、保持近期对话不变，并像摘要一直存在那样继续下去——配合 `dsh-compaction-basic` 之类的后端与可选的 `/compact` 命令即可实现。被遮蔽的内容仍保留在会话日志中，因此回放会话时能确定性地重现同一份压缩后的对话。当你实现压缩后端、构建触发压缩的组件，或需要识别压缩后的消息时，才需要本包——它本身不执行任何压缩。想开箱即用地获得该功能时，请选择随附后端。
+`mwf-compaction` 让长时会话把较早历史压缩（compaction）成一条摘要消息、保持近期对话不变，并像摘要一直存在那样继续下去——配合 `mwf-compaction-basic` 之类的后端与可选的 `/compact` 命令即可实现。被遮蔽的内容仍保留在会话日志中，因此回放会话时能确定性地重现同一份压缩后的对话。当你实现压缩后端、构建触发压缩的组件，或需要识别压缩后的消息时，才需要本包——它本身不执行任何压缩。想开箱即用地获得该功能时，请选择随附后端。
 
 ## 目录
 
@@ -29,7 +29,7 @@ kind: "package-reference"
 
 ### 何时选择
 
-当模型撰写的摘要符合需求时，选择 `dsh-compaction-basic`：会话增长时自动压缩，并可通过 `dsh-command-compact` 按需压缩。当你需要不同的摘要方式——固定模板或远程服务——或构建以编程方式触发压缩的组件时，选择本包。不要单独挂载它：没有后端就什么都不会压缩。
+当模型撰写的摘要符合需求时，选择 `mwf-compaction-basic`：会话增长时自动压缩，并可通过 `mwf-command-compact` 按需压缩。当你需要不同的摘要方式——固定模板或远程服务——或构建以编程方式触发压缩的组件时，选择本包。不要单独挂载它：没有后端就什么都不会压缩。
 
 ### 压缩后会发生什么
 
@@ -37,11 +37,11 @@ kind: "package-reference"
 
 ### 启用压缩
 
-挂载随附后端以注册压缩服务，并添加 `dsh-command-compact` 获得按需命令：
+挂载随附后端以注册压缩服务，并添加 `mwf-command-compact` 获得按需命令：
 
 ```yaml
-- name: '@deepseek-ai/dsh-compaction-basic'
-- name: '@deepseek-ai/dsh-command-compact'
+- name: '@metaworkflow/compaction-basic'
+- name: '@metaworkflow/command-compact'
 ```
 
 有了这两行配置，功能即已开启：会话增长时自动压缩，`/compact` 收到请求后立即压缩并报告替换了多少历史项。如果未挂载后端，什么都不会压缩，`/compact` 也会失败；随附后端的完整依赖链见其自身 README。
@@ -69,7 +69,7 @@ kind: "package-reference"
 该 seam 建立在一个拆分与三项承诺之上：
 
 - **抽象约定，具体后端。** 接口规定压缩做什么；提供方拥有策略、保留与摘要，因此各角色可独立演进、独立替换。
-- **会话与 LLM（大语言模型）词汇是约定的一部分。** 操作作用于 `Session`，摘要使用 `ContentBlock`，因此尽管有通用的 Cordis-only 指引，Service Definition 仍依赖 `dsh-session` 与 `dsh-llm`——这是一项有意的偏离，记录在[历史压缩能力 seam Agent Note](../../../.agents/notes/archived/feature/2026-06-18-compaction-capability-seam.md) 中。
+- **会话与 LLM（大语言模型）词汇是约定的一部分。** 操作作用于 `Session`，摘要使用 `ContentBlock`，因此尽管有通用的 Cordis-only 指引，Service Definition 仍依赖 `mwf-session` 与 `mwf-llm`——这是一项有意的偏离，记录在[历史压缩能力 seam Agent Note](../../../.agents/notes/archived/feature/2026-06-18-compaction-capability-seam.md) 中。
 - **日志记录的标记对就是锁。** `compaction/start` 在摘要让出控制权之前追加，`compaction/end` 释放；每次失败都恰好进行一次闭合尝试，闭合失败会留下未匹配 start 作为有意的 busy 信号。
 - **表层只变更一次。** 摘要承载在标记对内的一条 `user/message` 替换上；所有 `compaction/*` 事件仅写入日志。
 
@@ -81,7 +81,7 @@ kind: "package-reference"
 
 ### 手动失败分类
 
-同步的 `compaction/summary-error` waterfall 让后端为失败的摘要及明确选区请求持久输入恢复。监听器只有在记录实际进展后才返回 true，否则调用 `next()` 委派后续处理。后端在触发事件前检查取消和选区稳定性，重试前重新派生输入并计价。事件声明说明其载荷；图片策略由 `dsh-compaction-image-offload` 负责。
+同步的 `compaction/summary-error` waterfall 让后端为失败的摘要及明确选区请求持久输入恢复。监听器只有在记录实际进展后才返回 true，否则调用 `next()` 委派后续处理。后端在触发事件前检查取消和选区稳定性，重试前重新派生输入并计价。事件声明说明其载荷；图片策略由 `mwf-compaction-image-offload` 负责。
 
 预期手动失败会抛出 `ManualCompactionError`，携带来自小型封闭集合的稳定 `code`；只有 `compaction/start` 标记之后发生的失败才会被记录——以携带错误的 `compaction/end` 形式——而 `busy` 拒绝或 start 之前的取消不会留下记录。每个错误码的语义见[压缩子系统参考](../../../docs/subsystems/compaction.zh.md)。
 

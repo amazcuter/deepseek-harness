@@ -6,13 +6,13 @@ Status: implemented
 
 ## 问题
 
-`dsh web` 曾把两项随进程变化的值直接写进 system prompt：`harness:source` 段里的实现 checkout 路径（web-app 模块位置上溯四层），以及 `app:web-surface` 段里的 Web GUI URL（实际监听端口或 `publicUrl`）。下列操作都会改变它们，而用户感知不到 system prompt 变了：
+`mwf web` 曾把两项随进程变化的值直接写进 system prompt：`harness:source` 段里的实现 checkout 路径（web-app 模块位置上溯四层），以及 `app:web-surface` 段里的 Web GUI URL（实际监听端口或 `publicUrl`）。下列操作都会改变它们，而用户感知不到 system prompt 变了：
 
 | 操作 | 变化的值 |
 |---|---|
 | Desktop 每次启动（`--port 0` 取随机端口） | Web URL |
 | 换 `--port`、A/B 两个 checkout 交替运行 | Web URL、checkout 路径 |
-| npm 安装与 Desktop 安装共用同一个 `DSH_HOME` | checkout 路径 |
+| npm 安装与 Desktop 安装共用同一个 `MWF_HOME` | checkout 路径 |
 
 会话恢复时 loop 重新渲染 prompt。对不声明 `systemPromptUpdate: 'in-history'` 的路由（例如手写的 pi-ai `anthropic-messages` 路由），变化的 prompt 会改写 surface 头节点。Claude 的历史 thinking 块签名绑定包括 system prompt 在内的对话前缀，前缀一变上游返回 400（`Invalid signature … bound to a different conversation`），会话在环境恢复原样之前无法继续。声明 in-history 的路由不报错，但每次变化都追加一份完整 prompt。
 
@@ -24,12 +24,12 @@ Status: implemented
 
 | 包 | 职责 |
 |---|---|
-| `@deepseek-ai/dsh-harness-dev-context`（`packages/context/harness-dev-context`） | 两个 section、两个 context、旧格式投影；全部模块私有，只导出插件协议（`name`、`inject`、`apply`） |
-| `@deepseek-ai/dsh-host-webserver` | `WebServer.getOrigin()`（绑定地址的 URL 形式加协议与实际端口）与 `bindUrlHost(host)` |
-| `@deepseek-ai/dsh-web-app` | `web-runtime` 行提供 `webApp`，其 `getAdvertisedUrl()` 返回配置的 `publicUrl`，否则返回监听器 origin，与 `DSH_WEB_URL` 和启动 URL 同值；bundle patch 挂载 `harness-dev-context` 行 |
-| `@deepseek-ai/dsh-system-prompt` | `CONTEXT_ORDERS.HARNESS_SOURCE = 200`、`WEB_SURFACE = 210` |
+| `@metaworkflow/harness-dev-context`（`packages/context/harness-dev-context`） | 两个 section、两个 context、旧格式投影；全部模块私有，只导出插件协议（`name`、`inject`、`apply`） |
+| `@metaworkflow/host-webserver` | `WebServer.getOrigin()`（绑定地址的 URL 形式加协议与实际端口）与 `bindUrlHost(host)` |
+| `@metaworkflow/web-app` | `web-runtime` 行提供 `webApp`，其 `getAdvertisedUrl()` 返回配置的 `publicUrl`，否则返回监听器 origin，与 `MWF_WEB_URL` 和启动 URL 同值；bundle patch 挂载 `harness-dev-context` 行 |
+| `@metaworkflow/system-prompt` | `CONTEXT_ORDERS.HARNESS_SOURCE = 200`、`WEB_SURFACE = 210` |
 
-插件 `inject` 为 `systemPrompt`、`sessionProjections`、`webApp`，在代码里直接读取这些服务；patch 行不写任何配置表达式。checkout 路径取本包源码或构建入口上溯四层，与原 web-app 位置同深度，源码、npm 与 Desktop 安装下结果不变。URL 取 `webApp.getAdvertisedUrl()`，因此 profile 覆盖 `web-runtime` 行的 `publicUrl` 时模型也能看到。插件通过 `import type {} from '@deepseek-ai/dsh-web-app'` 取得 `webApp` 类型；该导入在运行时被擦除，因此 web-app bundle 对本包的依赖仍是唯一的运行时依赖。
+插件 `inject` 为 `systemPrompt`、`sessionProjections`、`webApp`，在代码里直接读取这些服务；patch 行不写任何配置表达式。checkout 路径取本包源码或构建入口上溯四层，与原 web-app 位置同深度，源码、npm 与 Desktop 安装下结果不变。URL 取 `webApp.getAdvertisedUrl()`，因此 profile 覆盖 `web-runtime` 行的 `publicUrl` 时模型也能看到。插件通过 `import type {} from '@metaworkflow/web-app'` 取得 `webApp` 类型；该导入在运行时被擦除，因此 web-app bundle 对本包的依赖仍是唯一的运行时依赖。
 
 ### 新会话
 
@@ -74,7 +74,7 @@ Status: implemented
 
 **留在 web-app 与 app-boot 中实现。** 面向开发的上下文与旧格式兼容逻辑会扩大两个核心包的公开 API；app-boot 的 `addHarnessSourceSection` 当时只有 web-app 一个调用方。
 
-**读取 `webStartup.publicUrl`。** 它只携带 `--public-url` 参数，profile 覆盖 `web-runtime` 行的 `publicUrl` 时只会影响 `DSH_WEB_URL`，到不了模型；生效值只存在于 web-app 内部，现在由它以 `webApp` 提供。
+**读取 `webStartup.publicUrl`。** 它只携带 `--public-url` 参数，profile 覆盖 `web-runtime` 行的 `publicUrl` 时只会影响 `MWF_WEB_URL`，到不了模型；生效值只存在于 web-app 内部，现在由它以 `webApp` 提供。
 
 **直接读取会话历史中的头节点文本。** 同步读取任意历史事件的 API 已弃用，新调用被禁止；投影是恢复后取得该状态的既定方式。
 
@@ -84,7 +84,7 @@ Status: implemented
 - 旧会话在整个生命周期内保留旧段落中的旧值；同一请求里更晚的 `Current …` 运行时上下文给出当前值。
 - 只保护这两段。其他提示文本在版本之间变化时，不支持 in-history 的路由仍会改写头节点。
 - 不含本修复的旧版本恢复新格式会话时会按旧模板改写头节点；A/B 两个 checkout 都需包含本修复后再交替运行。
-- app-boot 不再导出 `addHarnessSourceSection` 与 `HARNESS_SOURCE_SECTION`；web-app 的 `surfaceContext` 只控制 `DSH_WEB_URL`，关闭这两项上下文改为禁用 `harness-dev-context` 行。
+- app-boot 不再导出 `addHarnessSourceSection` 与 `HARNESS_SOURCE_SECTION`；web-app 的 `surfaceContext` 只控制 `MWF_WEB_URL`，关闭这两项上下文改为禁用 `harness-dev-context` 行。
 - Web e2e 录制会话里的运行时上下文多出两行；测试脚手架把 URL 与 checkout 路径规范化为占位符。
 
 ## 测试

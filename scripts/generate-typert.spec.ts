@@ -12,7 +12,7 @@ import { DEPENDENT_TYPERT_SOURCE, setPublishedFiles, writeCompiledDependency, wr
 const REMOTE_CLIENT_FILES = ['typert.remote-client.js', 'typert.remote-client.d.ts', 'typert.remote-client.d.ts.map']
 
 function workspace(source?: string): { root: string; pkg: string } {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-generate-typert-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-generate-typert-'))
   onTestFinished(() => { removeFixtureSafely(root) })
   return { root, pkg: writeTypertWorkspace(root, source) }
 }
@@ -22,7 +22,7 @@ function workspace(source?: string): { root: string; pkg: string } {
  * resolution reports real paths, so the guard must classify files independently of the root's spelling.
  */
 function linkedRoot(root: string): string {
-  const parent = mkdtempSync(join(tmpdir(), 'dsh-generate-typert-link-'))
+  const parent = mkdtempSync(join(tmpdir(), 'mwf-generate-typert-link-'))
   onTestFinished(() => { rmSync(parent, { recursive: true, force: true }) })
   const link = join(parent, 'workspace')
   symlinkSync(root, link, 'junction')
@@ -150,7 +150,7 @@ describe('bundle-free Typert pass', { timeout: 60_000 }, () => {
   })
 
   it('fails outside a workspace without writing', () => {
-    const outside = mkdtempSync(join(tmpdir(), 'dsh-generate-typert-outside-'))
+    const outside = mkdtempSync(join(tmpdir(), 'mwf-generate-typert-outside-'))
     onTestFinished(() => { removeFixtureSafely(outside) })
     const output = captureConsole()
 

@@ -1,15 +1,15 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION, Session, SessionId, type SessionEvent } from '@deepseek-ai/dsh-session'
-import { scheduleDomain } from '@deepseek-ai/dsh-schedule'
-import { createSessionFormatCatalogWithChildren } from '@deepseek-ai/dsh-session-format-catalog'
+import { SESSION_FORMAT_VERSION, Session, SessionId, type SessionEvent } from '@metaworkflow/session'
+import { scheduleDomain } from '@metaworkflow/schedule'
+import { createSessionFormatCatalogWithChildren } from '@metaworkflow/session-format-catalog'
 import {
   generationLogFilename,
   scanLog,
-} from '@deepseek-ai/dsh-session-persistence-jsonl/src/format.ts'
-import { foldSubagentDescriptor } from '@deepseek-ai/dsh-subagent'
-import { projectionCacheDomainSpec } from '@deepseek-ai/dsh-session-projection-cache'
+} from '@metaworkflow/session-persistence-jsonl/src/format.ts'
+import { foldSubagentDescriptor } from '@metaworkflow/subagent'
+import { projectionCacheDomainSpec } from '@metaworkflow/session-projection-cache'
 import {
   buildVfsExampleFiles,
   VFS_EXAMPLE_OLDEST_MESSAGE,
@@ -36,7 +36,7 @@ function filesUnder(root: string): string[] {
 }
 
 function readSession(id: string): ReturnType<typeof scanLog> {
-  const path = `home/sessions/--dsh-workspace--/${id}/${generationLogFilename(SESSION_FORMAT_VERSION, 'none')}`
+  const path = `home/sessions/--mwf-workspace--/${id}/${generationLogFilename(SESSION_FORMAT_VERSION, 'none')}`
   const generated = buildVfsExampleFiles().get(path)
   if (generated === undefined) throw new Error(`missing generated VFS example Session ${path}`)
   return scanLog(Buffer.from(generated))
@@ -64,12 +64,12 @@ describe('WebWorker preview VFS example', () => {
   it('keeps the current showcase and strictly restorable historical child inputs beside their predecessors', () => {
     const expected = buildVfsExampleFiles()
     const currentName = generationLogFilename(SESSION_FORMAT_VERSION, 'none')
-    const main = `home/sessions/--dsh-workspace--/${VFS_EXAMPLE_SESSION_IDS.main}/`
+    const main = `home/sessions/--mwf-workspace--/${VFS_EXAMPLE_SESSION_IDS.main}/`
     const committedPath = (path: string): string => path.endsWith(`/${currentName}`) && !path.startsWith(main)
       ? `${path.slice(0, -currentName.length)}session.v3.jsonl`
       : path
     const predecessors = Object.values(VFS_EXAMPLE_SESSION_IDS)
-      .map(id => `home/sessions/--dsh-workspace--/${id}/session.v2.jsonl`)
+      .map(id => `home/sessions/--mwf-workspace--/${id}/session.v2.jsonl`)
     predecessors.push(`${main}session.v3.jsonl`)
     expect(filesUnder(VFS_EXAMPLE_ROOT)).toEqual([...expected.keys()].map(committedPath).concat(predecessors).sort())
     for (const [path, content] of expected) {
@@ -117,7 +117,7 @@ describe('WebWorker preview VFS example', () => {
       identity: {
         formatVersion: SESSION_FORMAT_VERSION,
         createdAt: 1_787_472_000_000,
-        cwd: '/dsh/workspace',
+        cwd: '/mwf/workspace',
         isSeeded: false,
         inheritedEventCount: 0,
       },
@@ -152,7 +152,7 @@ describe('WebWorker preview VFS example', () => {
     const { meta, inheritedEventCount, events } = readSession(VFS_EXAMPLE_SESSION_IDS.main)
     expect(meta).toMatchObject({
       id: VFS_EXAMPLE_SESSION_IDS.main,
-      cwd: '/dsh/workspace',
+      cwd: '/mwf/workspace',
       delegationDepth: 0,
       agentPreset: 'standard',
     })
@@ -186,7 +186,7 @@ describe('WebWorker preview VFS example', () => {
     const main = readSession(VFS_EXAMPLE_SESSION_IDS.main)
     const child = readSession(VFS_EXAMPLE_SESSION_IDS.oneShot)
     const historical = restoreSession(readFileSync(join(VFS_EXAMPLE_ROOT,
-      `home/sessions/--dsh-workspace--/${VFS_EXAMPLE_SESSION_IDS.main}/session.v3.jsonl`), 'utf8'), 3)
+      `home/sessions/--mwf-workspace--/${VFS_EXAMPLE_SESSION_IDS.main}/session.v3.jsonl`), 'utf8'), 3)
     const prefix = main.events.slice(0, child.inheritedEventCount)
     expect(prefix.filter(event => event.type === 'turn/start')).toHaveLength(28)
     expect(prefix).toEqual(historical.events.slice(0, child.inheritedEventCount))
@@ -231,7 +231,7 @@ describe('WebWorker preview VFS example', () => {
       const { meta, inheritedEventCount, events } = readSession(id)
       expect(meta).toMatchObject({
         id,
-        cwd: '/dsh/workspace',
+        cwd: '/mwf/workspace',
         parentSession: VFS_EXAMPLE_SESSION_IDS.main,
         origin: 'subagent',
         delegationDepth: 1,

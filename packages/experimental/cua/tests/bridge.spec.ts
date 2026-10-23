@@ -1,7 +1,7 @@
 /** Retained app objects use fresh execution bindings while tool results own image admission. */
 import { Buffer } from 'node:buffer'
 import { expect, it, vi } from 'vitest'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { JsonValue } from '@metaworkflow/util-values'
 import { connectCua } from '../src/bridge.ts'
 import type { CuaToolBinding } from '../src/bridge.ts'
 import type { CuaOperation } from '../src/types.ts'

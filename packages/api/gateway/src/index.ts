@@ -2,7 +2,7 @@
  * Live Typert Remote dispatch over Cordis Services and registered providers.
  * Unary transport and response envelopes belong to Connection; live Remote
  * streams use the Gateway-owned WebSocket mux.
- * @module @deepseek-ai/dsh-api-gateway
+ * @module @metaworkflow/api-gateway
  */
 
 import { randomUUID } from 'node:crypto'
@@ -10,13 +10,13 @@ import { Context, Service, symbols } from '@deepseek-ai/cordis'
 import type {
   ConnectionRpcAttachment,
   ConnectionRpcHandler,
-} from '@deepseek-ai/dsh-client-connection'
-import type { RemoteAccessDecision } from '@deepseek-ai/dsh-api-remote-access'
+} from '@metaworkflow/client-connection'
+import type { RemoteAccessDecision } from '@metaworkflow/api-remote-access'
 import { callResources, eventResources } from './access.ts'
-import { Deque } from '@deepseek-ai/dsh-deque'
-import type { WebUpgradeRoute } from '@deepseek-ai/dsh-host-webserver'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
-import type {} from '@deepseek-ai/dsh-cmdline'
+import { Deque } from '@metaworkflow/deque'
+import type { WebUpgradeRoute } from '@metaworkflow/host-webserver'
+import { MAX_TIMER_DELAY_MS } from '@metaworkflow/timeout'
+import type {} from '@metaworkflow/cmdline'
 import z from '@deepseek-ai/schemastery'
 export type { TypertGatewayFaultDetails } from './remote-error-codes.ts'
 import {
@@ -33,7 +33,7 @@ import {
   type RemoteMethodMarker,
   type TypertCodec,
   type TypertGatewayBinding,
-} from '@deepseek-ai/dsh-typert-protocol'
+} from '@metaworkflow/typert-protocol'
 import type {
   InvokeRemoteRequest,
   TypertGateway,

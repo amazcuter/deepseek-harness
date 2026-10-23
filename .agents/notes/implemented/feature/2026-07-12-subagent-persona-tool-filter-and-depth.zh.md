@@ -22,7 +22,7 @@ Status: implemented
 | `toolFilter` | 部署全局工具中哪些进入该子 agent 的可见工具视图？ | 一个有作用域的限制在添加子 agent 局部工具之前过滤全局工具 |
 | `maxDepth` | 这棵委派树最深可以长到多少层？ | 子 agent 深度超过绝对上限时，启动请求被拒绝 |
 
-`dsh-tool-subagent` 和直接调用 `SubagentRuntime` 的调用方公开 `maxDepth`。对应的提供方能力决定后端是否能强制执行上限。persona 和工具过滤值仅在冷恢复时来自历史 descriptor。
+`mwf-tool-subagent` 和直接调用 `SubagentRuntime` 的调用方公开 `maxDepth`。对应的提供方能力决定后端是否能强制执行上限。persona 和工具过滤值仅在冷恢复时来自历史 descriptor。
 
 ### 人设是有作用域的遮蔽
 
@@ -55,7 +55,7 @@ Status: implemented
 
 有效父级深度取持久 `SessionHeader.delegationDepth` 与运行时 `AgentOptions.subagentDepth` 中的较大值。进程内子 agent 把推导出的深度记录在会话 header 中，恢复时会重新载入该 header，因此重启无法降低递归计数。
 
-每个公开入口都自行验证值域，而非依赖单一的面向模型配置路径。负值、小数、负零、非有限值、不安全整数、格式错误的存储父级深度以及推导溢出均被拒绝。直接的 `SubagentStartRequest` 可以省略上限，让此机制不约束深度；`dsh-tool-subagent` 则读取实时 Host 深度设置（初始值为 `1`）、接受数值覆盖，并使用显式的 `'provider-managed'` 来省略由进程外提供方部署拥有递归预算时的上限。[base profile](../../../../packages/bundle/base/cordis.patch.yml)采用 Host 设置。提供方缺少 `depthLimit` 时，数值工具上限会在提供方挂载阶段失败。
+每个公开入口都自行验证值域，而非依赖单一的面向模型配置路径。负值、小数、负零、非有限值、不安全整数、格式错误的存储父级深度以及推导溢出均被拒绝。直接的 `SubagentStartRequest` 可以省略上限，让此机制不约束深度；`mwf-tool-subagent` 则读取实时 Host 深度设置（初始值为 `1`）、接受数值覆盖，并使用显式的 `'provider-managed'` 来省略由进程外提供方部署拥有递归预算时的上限。[base profile](../../../../packages/bundle/base/cordis.patch.yml)采用 Host 设置。提供方缺少 `depthLimit` 时，数值工具上限会在提供方挂载阶段失败。
 
 数值上限不会合成过滤器。委派工具在上限处仍然可见，因为授权可能依赖运行时状态；每次尝试启动都会检查调用方 agent 当前的持久与运行时深度，被拒绝的启动返回错误工具结果，且不发布子 agent。preset 可独立于深度策略省略委派工具插件。达到上限时，工具贡献一条可选的运行时上下文提示，让模型直接完成工作。`includeRuntimeContext: false` 会抑制这条建议性提示；运行时的深度拦截仍然生效。提示启用时，每次请求读取实时上限与持久深度，使恢复会话或调整配置后的 agent 获知当前限制，同时不改变其系统提示词或工具 schema；未变化的上下文不会重复追加。
 

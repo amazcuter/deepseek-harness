@@ -3,7 +3,7 @@ name: dsh-ci-test-reliability
 description: Design, review, and diagnose DeepSeek Harness tests and fixtures that can fail nondeterministically under CI concurrency, shared host resources, clocks, process-global state, subprocesses, network listeners, or asynchronous teardown. Use when adding or changing tests with those risks, investigating flaky CI, or reviewing test isolation; use dsh-pre-push-checks separately to select outgoing commands.
 ---
 
-# Reliable DSH CI tests
+# Reliable MWF CI tests
 
 Build tests that remain correct under the repository's real CI topology, not only when run alone on a quiet workstation. This skill owns isolation and reliability decisions; it does not replace the repository's test-tier policy or select every command for a push.
 

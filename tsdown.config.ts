@@ -7,7 +7,7 @@ import { workspacePackageGlobs } from './scripts/workspace-package-globs.ts'
 function isBuildFaceClient(value: unknown): boolean {
   if (value === undefined || value === 'host') return false
   if (value === 'client') return true
-  throw new Error(`tsdown: --env.DSH_BUILD_FACE must be host or client, received ${String(value)}`)
+  throw new Error(`tsdown: --env.MWF_BUILD_FACE must be host or client, received ${String(value)}`)
 }
 
 /**
@@ -20,7 +20,7 @@ function isBuildFaceClient(value: unknown): boolean {
  * workspace members concurrently without ordering them.
  */
 export default defineConfig(({ env }) => {
-  const client = isBuildFaceClient(env?.DSH_BUILD_FACE)
+  const client = isBuildFaceClient(env?.MWF_BUILD_FACE)
   const packages = workspacePackageGlobs(globSync(['vendor/*/package.json', 'packages/*/*/package.json'], { cwd: import.meta.dirname }))
   return {
     workspace: [...packages, 'apps/cli', ...client ? [] : ['apps/desktop-host']],

@@ -8,7 +8,7 @@ import { promisify } from 'node:util'
 import { expect, it } from 'vitest'
 
 it.skipIf(process.platform !== 'win32')('preserves unrelated PATH entries and rejects stale or foreign removal', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-command-path-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-command-path-'))
   try {
     const systemRoot = process.env.SystemRoot ?? process.env.WINDIR
     if (systemRoot === undefined) throw new Error('SystemRoot is required for the Windows registry test')

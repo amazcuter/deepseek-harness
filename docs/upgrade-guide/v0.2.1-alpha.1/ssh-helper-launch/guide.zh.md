@@ -9,7 +9,7 @@ description: "SSH 和 Node PTC 配置改用显式启动模式，SSH 客户端要
 
 ## 变更
 
-自定义 SSH 组合必须一起更新 `cordis.yml` 和已安装的 helper。`dsh-ssh` 将顶层 `node`、`bootstrapPath` 和 `bootstrapHash` 替换为 `launch`，并要求 SSH 协议 2。`dsh-ptc-runtime-node` 将 `nodeExecutable` 和 `bootstrapPath` 替换为 `launch`。连接的 `nodeExecutable` 和 `bootstrapPath` getter 替换为 `ptcLaunch`。
+自定义 SSH 组合必须一起更新 `cordis.yml` 和已安装的 helper。`mwf-ssh` 将顶层 `node`、`bootstrapPath` 和 `bootstrapHash` 替换为 `launch`，并要求 SSH 协议 2。`mwf-ptc-runtime-node` 将 `nodeExecutable` 和 `bootstrapPath` 替换为 `launch`。连接的 `nodeExecutable` 和 `bootstrapPath` getter 替换为 `ptcLaunch`。
 
 ## 迁移
 

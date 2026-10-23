@@ -1,6 +1,6 @@
 /** Bounded drainage for raw process output after managed execution ends. */
 import type { Readable } from 'node:stream'
-import type { SubprocessHandle } from '@deepseek-ai/dsh-subprocess'
+import type { SubprocessHandle } from '@metaworkflow/subprocess'
 
 /**
  * Wait for queued bytes without letting an inherited descriptor retain a run forever.

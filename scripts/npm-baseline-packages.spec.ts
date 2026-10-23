@@ -8,7 +8,7 @@ import { PRIVATE_EXPERIMENTAL_PACKAGE_DIRECTORIES } from './experimental-package
 import { discoverNpmBaselineManifests } from './npm-baseline-packages.ts'
 
 function fixture(manifests: readonly string[]): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-baseline-discovery-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-baseline-discovery-'))
   onTestFinished(() => { rmSync(root, { recursive: true, force: true }) })
   for (const manifest of manifests) {
     const file = join(root, manifest)

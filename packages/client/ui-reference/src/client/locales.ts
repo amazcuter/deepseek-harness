@@ -1,6 +1,6 @@
 /** `reference` dictionaries for the unified `@` source and inline file navigation. */
 
-import type {} from '@deepseek-ai/dsh-client-ui-slots'
+import type {} from '@metaworkflow/client-ui-slots'
 
 /** Dictionary namespace owned by this plugin. */
 export const NS = 'reference'
@@ -33,7 +33,7 @@ export const zh = {
 /** The reference namespace key union. */
 export type ReferenceKey = keyof typeof zh
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Reference menu and per-file navigation feedback. */
     reference: ReferenceKey

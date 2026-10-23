@@ -17,11 +17,11 @@ Status: implemented
 | `properties` + `required` 同调 | 同上并调 `required` | 强制 tool_choice 10/10；自由调用 pro 7/10、flash 0/10 | 强制 10/10；自由 20/20 |
 | 同调 + 描述文本加一句顺序指令 | 追加「Provide `description` before `command` in the arguments.」 | 自由调用 flash 19/20、pro 20/20 | 20/20 |
 
-在这些样本中，单调 `properties` 无效时，调整 `required` 能改变参数顺序；V4 Flash 自由调用 bash 还需要显式指令。`dsh-tools` 的 schema DSL 按属性声明顺序生成 `required`，所以改源码声明顺序会同时调整两者。探针使用极简系统提示词，不是完整 Harness 提示词。
+在这些样本中，单调 `properties` 无效时，调整 `required` 能改变参数顺序；V4 Flash 自由调用 bash 还需要显式指令。`mwf-tools` 的 schema DSL 按属性声明顺序生成 `required`，所以改源码声明顺序会同时调整两者。探针使用极简系统提示词，不是完整 Harness 提示词。
 
 ## 决策
 
-### 懒计算的参数视图住在 `dsh-util-values`
+### 懒计算的参数视图住在 `mwf-util-values`
 
 `PartialArguments` 是一个与工具无关的懒读器。它分别保留参数分片和顶层键值范围索引，或借用已解析的 PTC 参数。读取只索引新收到的边界；未请求的值不解码、不计数、不解析。请求字段时仅从该字段范围生成值，不需要每工具字段规格或注册表。
 

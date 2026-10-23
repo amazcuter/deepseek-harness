@@ -30,7 +30,7 @@ import Darwin
                                                 "message": .string(diagnostic)])
                 if let data = try? JSONEncoder().encode(failure) { try? FileHandle.standardOutput.write(contentsOf: data + Data([10])) }
             }
-            if let data = "dsh-cua-native: \(diagnostic)\n".data(using: .utf8) { try? FileHandle.standardError.write(contentsOf: data) }
+            if let data = "mwf-cua-native: \(diagnostic)\n".data(using: .utf8) { try? FileHandle.standardError.write(contentsOf: data) }
             exit(1)
         }
     }

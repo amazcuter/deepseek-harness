@@ -15,7 +15,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
-public static class DshFileAssociations {
+public static class MwfFileAssociations {
   [ComImport, Guid("973810ae-9599-4b88-9e4d-6ee98c9552da"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
   public interface IEnumHandlers {
     [PreserveSig] int Next(uint count, out IHandler handler, out uint fetched);
@@ -256,13 +256,13 @@ ${WINDOWS_ASSOCIATIONS}
 '@
 $path = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedPath}'))
 $application = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedApplication}'))
-${application === null ? 'ConvertTo-Json -InputObject @([DshFileAssociations]::List($path)) -Depth 4 -Compress' : '[DshFileAssociations]::Open($path, $application)'}
+${application === null ? 'ConvertTo-Json -InputObject @([MwfFileAssociations]::List($path)) -Depth 4 -Compress' : '[MwfFileAssociations]::Open($path, $application)'}
 `
   // The script travels as a file, not as command-line data: -EncodedCommand grew with the
   // embedded C# and overflowed the 32767-character CreateProcess limit for long paths.
   // PowerShell 5.1 decodes a -File script as ANSI unless it carries a BOM; the BOM keeps
   // the embedded UTF-8 source intact.
-  const directory = await mkdtemp(join(tmpdir(), 'dsh-native-command-'))
+  const directory = await mkdtemp(join(tmpdir(), 'mwf-native-command-'))
   const scriptPath = join(directory, 'associations.ps1')
   try {
     await writeFile(scriptPath, `\uFEFF${script}`, 'utf8')

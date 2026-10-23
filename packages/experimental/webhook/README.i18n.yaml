@@ -5,42 +5,42 @@
 /:
   en: e4ac1bc2fef159c0
   zh: a2d724d2cffb6608
-/deepseek-ai-dsh-webhook:
-  en: 342876b9abe16093
-  zh: 48f48c97e57847a6
-/deepseek-ai-dsh-webhook/summary:
-  en: 406c9bffd5078cb3
-  zh: c7e732b80df254a8
-/deepseek-ai-dsh-webhook/table-of-contents:
+/metaworkflow-webhook:
+  en: 3ea2302572922e42
+  zh: b8103675e45d0641
+/metaworkflow-webhook/summary:
+  en: ad4f70fe8e9d0b8a
+  zh: fda6c6a15fb1d1bd
+/metaworkflow-webhook/table-of-contents:
   en: 2c6f2175556251ee
   zh: 753d216d980e1735
-/deepseek-ai-dsh-webhook/rule-interface:
+/metaworkflow-webhook/rule-interface:
   en: d9674188535399ab
   zh: c52fe9b7ebe8fe79
-/deepseek-ai-dsh-webhook/session-request:
+/metaworkflow-webhook/session-request:
   en: e4d096efc8633575
   zh: b1bf7d45fe76c380
-/deepseek-ai-dsh-webhook/composition:
-  en: 6a19f22997772945
-  zh: b92bec411e0406bc
-/deepseek-ai-dsh-webhook/model-experience:
+/metaworkflow-webhook/composition:
+  en: 778ba983cb8ffbab
+  zh: 455d0398f54546c1
+/metaworkflow-webhook/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-webhook/model-experience/rule-authored-initial-prompt:
+/metaworkflow-webhook/model-experience/rule-authored-initial-prompt:
   en: d9d6f7525ae75c28
   zh: 981d9ea68b9e884b
-/deepseek-ai-dsh-webhook/model-experience/rule-authored-initial-prompt/what-the-model-sees:
+/metaworkflow-webhook/model-experience/rule-authored-initial-prompt/what-the-model-sees:
   en: 44859d5d877a1484
   zh: 0f6c96ff6435167b
-/deepseek-ai-dsh-webhook/model-experience/rule-authored-initial-prompt/token-effect:
+/metaworkflow-webhook/model-experience/rule-authored-initial-prompt/token-effect:
   en: 13937f95014a6bea
   zh: c61031459298c4ab
-/deepseek-ai-dsh-webhook/model-experience/rule-authored-initial-prompt/kv-cache-effect:
+/metaworkflow-webhook/model-experience/rule-authored-initial-prompt/kv-cache-effect:
   en: 88b78de3ce71698f
   zh: d13964bad7485d4e
-/deepseek-ai-dsh-webhook/known-limitations-and-deferred-work:
+/metaworkflow-webhook/known-limitations-and-deferred-work:
   en: 49d9bd7c7c327cc0
   zh: ab94de11bbda1936
-/deepseek-ai-dsh-webhook/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-webhook/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

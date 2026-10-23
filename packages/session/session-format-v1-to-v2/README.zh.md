@@ -3,13 +3,13 @@ description: "冻结的已发布 v1 Session 读取器，以及把 Assistant 流�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-format-v1-to-v2
+# @metaworkflow/session-format-v1-to-v2
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-session-format-v1-to-v2` 通过一个有状态事件 Stage，把已发布 v1 Session 转换为已发布 v2 事件模型。它会消费顶层 `assistant/chunk` 事件，把精确的带时间流嵌入匹配的 `assistant/message`，并在失败、重试、取消或 stream error attempt 已到达 settlement、但没有产生 surface message 时记录 `assistant/attempt`。该迁移边会密集重映射存活事件和每个已声明的同 Session 序号引用；v2 codec 则让每行只存一个事件，并从带标记的 `session/end-seed` 事件推导继承切点。
+`mwf-session-format-v1-to-v2` 通过一个有状态事件 Stage，把已发布 v1 Session 转换为已发布 v2 事件模型。它会消费顶层 `assistant/chunk` 事件，把精确的带时间流嵌入匹配的 `assistant/message`，并在失败、重试、取消或 stream error attempt 已到达 settlement、但没有产生 surface message 时记录 `assistant/attempt`。该迁移边会密集重映射存活事件和每个已声明的同 Session 序号引用；v2 codec 则让每行只存一个事件，并从带标记的 `session/end-seed` 事件推导继承切点。
 
 ## 目录
 
@@ -27,7 +27,7 @@ kind: "package-reference"
 
 ### 何时使用
 
-持久化通过 `dsh-session-format-catalog` 获取该迁移边；功能组合不会挂载它。只有在装配或测试静态已发布格式目录，或检查精确的 v1 到 v2 转换时，才直接导入本包。
+持久化通过 `mwf-session-format-catalog` 获取该迁移边；功能组合不会挂载它。只有在装配或测试静态已发布格式目录，或检查精确的 v1 到 v2 转换时，才直接导入本包。
 
 ### 入口
 

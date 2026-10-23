@@ -3,13 +3,13 @@ description: "In-process fork subagent backend for users and maintainers choosin
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-subagent-fork-in-process
+# @metaworkflow/subagent-fork-in-process
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-subagent-fork-in-process` is an in-process subagent backend that seeds each child with the parent's completed conversation turns: the child sees every finished turn and none of the in-flight one, so follow-up work builds on the conversation without duplicating it. A delegation tool reaches it under the `fork` provider name, and its behavior matches the spawn backend except for the session seed. Choose it when a subtask continues this conversation; choose spawn when the child must stand alone. The seed is a one-time snapshot taken at fork time: later parent turns never reach the child.
+`mwf-subagent-fork-in-process` is an in-process subagent backend that seeds each child with the parent's completed conversation turns: the child sees every finished turn and none of the in-flight one, so follow-up work builds on the conversation without duplicating it. A delegation tool reaches it under the `fork` provider name, and its behavior matches the spawn backend except for the session seed. Choose it when a subtask continues this conversation; choose spawn when the child must stand alone. The seed is a one-time snapshot taken at fork time: later parent turns never reach the child.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this backend when delegated work must build on the parent's conversation. The common path mirrors spawn: load the subagent service and this backend, then point a delegation tool such as `dsh-tool-subagent` at the `fork` provider.
+Mount this backend when delegated work must build on the parent's conversation. The common path mirrors spawn: load the subagent service and this backend, then point a delegation tool such as `mwf-tool-subagent` at the `fork` provider.
 
 ### When to choose it
 
@@ -40,9 +40,9 @@ The seed ends at the parent's last completed turn. A parent's current tool-calli
 Load the subagent service and this backend, then configure a delegation tool. This composition exposes a `subagent` tool backed by fork:
 
 ```yaml
-- name: '@deepseek-ai/dsh-subagent'
-- name: '@deepseek-ai/dsh-subagent-fork-in-process'
-- name: '@deepseek-ai/dsh-tool-subagent'
+- name: '@metaworkflow/subagent'
+- name: '@metaworkflow/subagent-fork-in-process'
+- name: '@metaworkflow/tool-subagent'
   config:
     provider: fork
 ```
@@ -51,7 +51,7 @@ Load the subagent service and this backend, then configure a delegation tool. Th
 |---|---|---|
 | `providerName` | `fork` | Provider name registered on `ctx.subagents` |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-subagent-fork-in-process) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowsubagent-fork-in-process) is the exhaustive source for every accepted field and its JSDoc.
 
 ### What a fork delegation does
 
@@ -95,9 +95,9 @@ The delegation tool creates a background activation and returns a stable child s
 Read these pages when the package-level contract is not enough; they move from the shared subagent model to the sibling backends and the design evidence for preserving the inherited request prefix.
 
 - [Subagent subsystem](../../../docs/subsystems/subagent.md) — start requests, results, provider contract, and in-process depth and seed.
-- [dsh-subagent-spawn-in-process](../subagent-spawn-in-process/README.md) — the fresh-child sibling backend.
-- [dsh-tool-subagent](../tool-subagent/README.md) — the model-facing delegation tool that reaches this provider.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-subagent-fork-in-process) — every accepted config field and its source declaration.
+- [mwf-subagent-spawn-in-process](../subagent-spawn-in-process/README.md) — the fresh-child sibling backend.
+- [mwf-tool-subagent](../tool-subagent/README.md) — the model-facing delegation tool that reaches this provider.
+- [Generated configuration catalog](../../../docs/config-catalog.md#metaworkflowsubagent-fork-in-process) — every accepted config field and its source declaration.
 - [Forked children preserve the parent request prefix](../../../.agents/notes/implemented/architecture/2026-08-10-fork-children-stay-one-shot.md) — why continuable fork preserves the inherited request prefix.
 
 -----
@@ -123,7 +123,7 @@ The child may reuse the inherited byte-identical prefix under the same provider 
 
 #### What the model sees
 
-Through `dsh-tool-subagent`, the parent first receives the child session id, then a completion notice with its final answer. Child-authored messages arrive through `send_message`; the inherited prefix and internal work remain in the child session.
+Through `mwf-tool-subagent`, the parent first receives the child session id, then a completion notice with its final answer. Child-authored messages arrive through `send_message`; the inherited prefix and internal work remain in the child session.
 
 #### Token effect
 

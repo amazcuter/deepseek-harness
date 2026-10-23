@@ -11,13 +11,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: max(24px, var(--dsh-frame-overlay-top, 24px)) 24px;
+  padding: max(24px, var(--mwf-frame-overlay-top, 24px)) 24px;
 }
 
 /* Only paint excludes the native caption; the root still blocks background clicks. */
 .mask {
   position: absolute;
-  inset: var(--dsh-frame-chrome-top, 0px) 0 0;
+  inset: var(--mwf-frame-chrome-top, 0px) 0 0;
   backdrop-filter: var(--dsw-mask-blur);
 }
 

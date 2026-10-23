@@ -2,7 +2,7 @@
 
 import { FiberState } from '@deepseek-ai/cordis'
 import type { Context, Plugin, RegistryService } from '@deepseek-ai/cordis'
-import type { ClientModuleLoader, ClientModuleLoaderTarget } from '@deepseek-ai/dsh-client-modules/client'
+import type { ClientModuleLoader, ClientModuleLoaderTarget } from '@metaworkflow/client-modules/client'
 import { chromium } from 'playwright'
 import { hasExperimentalPackageReference } from '../../../scripts/experimental-package-policy.ts'
 import { expect, it } from 'vitest'
@@ -15,7 +15,7 @@ interface ClientObservation {
 }
 
 async function readClientRoster() {
-  const observation = Reflect.get(globalThis, '__dshIsolationObservation') as ClientObservation
+  const observation = Reflect.get(globalThis, '__mwfIsolationObservation') as ClientObservation
   const { ctx, modules } = observation
   if (ctx === undefined || modules === undefined) throw new Error('Real Client registry was not observed')
   await ctx.loader.await()
@@ -59,7 +59,7 @@ it('activates the actual default Client registry without experimental packages',
       page.on('pageerror', error => errors.push(error.message))
       await page.addInitScript(() => {
         const observation: ClientObservation = {}
-        Reflect.set(globalThis, '__dshIsolationObservation', observation)
+        Reflect.set(globalThis, '__mwfIsolationObservation', observation)
         Object.defineProperty(globalThis, '__ModuleLoader__', {
           configurable: true,
           set(target: ClientModuleLoaderTarget) {
@@ -91,10 +91,10 @@ it('activates the actual default Client registry without experimental packages',
       expect(roster.entries.map(entry => entry.name).sort()).toEqual(host.client.entries.map(entry => entry.id).sort())
       expect(roster.entries.every(entry => entry.state === FiberState.ACTIVE)).toBe(true)
       expect(roster.plugins.length).toBeGreaterThan(roster.entries.length)
-      expect(roster.plugins.some(plugin => plugin.modules.includes('@deepseek-ai/dsh-client-ui-layout'))).toBe(true)
+      expect(roster.plugins.some(plugin => plugin.modules.includes('@metaworkflow/client-ui-layout'))).toBe(true)
       expect(experimentalClientReferences(roster)).toEqual([])
       const contaminatedHost = await request('mount-experimental-entry')
-      const experimentalName = '@deepseek-ai/dsh-experimental-client-ui-agent-team'
+      const experimentalName = '@metaworkflow/experimental-client-ui-agent-team'
       expect(contaminatedHost.client.entries.map(entry => entry.id)).toContain(experimentalName)
       await page.reload()
       await expect.poll(async () => {

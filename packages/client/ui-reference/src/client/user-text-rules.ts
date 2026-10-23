@@ -1,12 +1,12 @@
 /** Forward file and folder recognition in original text, without Facts or discovery. */
-import type { UserTextRule } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextRule } from '@metaworkflow/client-ui-conversation/client'
 
 interface PathReferenceData {
   readonly path: string
   readonly label: string
 }
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@metaworkflow/client-ui-conversation/client' {
   interface UserTextDataMap {
     file: PathReferenceData
     folder: PathReferenceData

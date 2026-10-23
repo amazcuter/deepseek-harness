@@ -3,7 +3,7 @@
  * registry owns store instances; this module exports only the factory so a
  * plugin reload cannot reuse a module-global handle.
  */
-import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-store'
+import { defineStore, type EngineStoreHandle } from '@metaworkflow/client-store'
 
 /** One in-progress answer, including an explicit skip. */
 export interface QuestionDraftAnswer {
@@ -43,7 +43,7 @@ type QuestionDraftActions = {
 export function createQuestionDraftStore(): EngineStoreHandle<QuestionDraftState, QuestionDraftActions> {
   return defineStore({
     init: (): QuestionDraftState => ({ progressByRequest: {} }),
-    persist: 'dsh.user-questions.drafts.v1',
+    persist: 'mwf.user-questions.drafts.v1',
     actions: {
       replace: (draft, requestKey, progress) => {
         draft.progressByRequest[requestKey] = progress

@@ -13,13 +13,13 @@ import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import type { SandboxExecutionPolicy } from '@deepseek-ai/dsh-sandbox'
-import { resolvePwshPath } from '@deepseek-ai/dsh-pwsh-local'
-import { LocalSandboxProvider } from '@deepseek-ai/dsh-sandbox-local'
-import { SandboxPolicyService } from '@deepseek-ai/dsh-sandbox-policy'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
+import type { SandboxExecutionPolicy } from '@metaworkflow/sandbox'
+import { resolvePwshPath } from '@metaworkflow/pwsh-local'
+import { LocalSandboxProvider } from '@metaworkflow/sandbox-local'
+import { SandboxPolicyService } from '@metaworkflow/sandbox-policy'
+import LocalSubprocessRuntime from '@metaworkflow/subprocess-local'
 import { SandboxPwshExecutor } from '../src/index.ts'
-import type { ShellExecSpec, ShellExecution, ShellRunResult } from '@deepseek-ai/dsh-shell'
+import type { ShellExecSpec, ShellExecution, ShellRunResult } from '@metaworkflow/shell'
 
 /** Historical foreground shorthand over the unified execute() seam. */
 async function run(x: { execute(spec: ShellExecSpec): Promise<ShellExecution> }, spec: ShellExecSpec): Promise<ShellRunResult> {
@@ -45,10 +45,10 @@ describe.skipIf(!isWin32 || !pwshAvailable())('pwsh-sandbox real ACL confinement
     // The workspace escape sits under the profile. A separate directory under
     // the ambient temp root proves that the root itself is not granted: the
     // runner creates its own private child and rewrites TMP/TEMP to it.
-    scratchRoot = mkdtempSync(join(homedir(), 'dsh-pwsh-sandbox-e2e-'))
+    scratchRoot = mkdtempSync(join(homedir(), 'mwf-pwsh-sandbox-e2e-'))
     writableDir = join(scratchRoot, 'writable')
     mkdirSync(writableDir)
-    outsideTempDir = mkdtempSync(join(tmpdir(), 'dsh-pwsh-sandbox-e2e-outside-temp-'))
+    outsideTempDir = mkdtempSync(join(tmpdir(), 'mwf-pwsh-sandbox-e2e-outside-temp-'))
     secretFile = join(scratchRoot, 'secret.txt')
     writeFileSync(secretFile, 'top secret - must stay readable to prove the read boundary')
     escapeFile = join(scratchRoot, 'escaped.txt')

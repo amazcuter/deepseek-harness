@@ -175,7 +175,7 @@
 .card::before { border: 0.5px solid var(--dsw-alias-border-l2); }
 .card::after {
   padding: 2px;
-  background: conic-gradient(from var(--dsh-onboarding-border-angle), var(--card-border-stops));
+  background: conic-gradient(from var(--mwf-onboarding-border-angle), var(--card-border-stops));
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
   opacity: 0;
@@ -188,15 +188,15 @@
 .officeCard, .card[data-process='compact'] { --card-border-stops: var(--dsw-gradient-onboarding-violet-stops); }
 .card[data-process='detailed'] { --card-border-stops: var(--dsw-gradient-onboarding-cyan-stops); }
 
-@property --dsh-onboarding-border-angle {
+@property --mwf-onboarding-border-angle {
   syntax: '<angle>';
   inherits: false;
   initial-value: 90deg;
 }
 
 @keyframes borderSweep {
-  from { --dsh-onboarding-border-angle: 90deg; }
-  to { --dsh-onboarding-border-angle: 450deg; }
+  from { --mwf-onboarding-border-angle: 90deg; }
+  to { --mwf-onboarding-border-angle: 450deg; }
 }
 .card:focus-visible, html:not([data-input-modality='pointer']) .card:has(:focus-visible) { outline: 2px solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary)); outline-offset: 5px; }
 .card[aria-disabled='true'] { cursor: wait; }

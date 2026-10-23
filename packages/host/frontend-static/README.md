@@ -3,7 +3,7 @@ description: "SPA dist server for the Web shell: claims the webserver fallback s
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-host-frontend-static
+# @metaworkflow/host-frontend-static
 
 English | [中文](README.zh.md)
 
@@ -30,12 +30,12 @@ Compose this plugin in a browser-facing host that serves the built Web shell: it
 ### Minimal configuration
 
 ```yaml
-- name: '@deepseek-ai/dsh-host-frontend-static'
+- name: '@metaworkflow/host-frontend-static'
   config:
     distIndex: /absolute/path/to/dist/index.html
 ```
 
-`distIndex` is an assembly fact of the composing application: [`dsh-web-app`](../../bundle/web-app/README.md) resolves it through the frontend package's exports and mounts this plugin; a deployment never hardcodes it.
+`distIndex` is an assembly fact of the composing application: [`mwf-web-app`](../../bundle/web-app/README.md) resolves it through the frontend package's exports and mounts this plugin; a deployment never hardcodes it.
 
 ### What the server enforces
 
@@ -81,9 +81,9 @@ The package is one function plugin around `serveStatic`: `apply` resolves the di
 Read these when the serving contract is not enough: the seat owner's contract, then the composition that resolves the dist and the subsystem reference.
 
 - [Webserver](../webserver/README.md) — the fallback seat this plugin claims and the index taps it runs.
-- [dsh-web-app bundle](../../bundle/web-app/README.md) — the application that resolves `distIndex` and mounts this plugin.
+- [mwf-web-app bundle](../../bundle/web-app/README.md) — the application that resolves `distIndex` and mounts this plugin.
 - [HTTP server subsystem](../../../docs/subsystems/web-server.md) — how the fallback seat fits the route tables.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-host-frontend-static) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#metaworkflowhost-frontend-static) — every accepted config field and its source declaration.
 
 -----
 

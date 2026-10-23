@@ -2,7 +2,7 @@
  * Package-local files of generated Typert artifacts. The tsdown plugin and
  * standalone workspace generation both write through this module, so a pass
  * over the same artifacts leaves the same bytes on disk.
- * @module @deepseek-ai/dsh-typert-generator/artifact-files
+ * @module @metaworkflow/typert-generator/artifact-files
  */
 
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'

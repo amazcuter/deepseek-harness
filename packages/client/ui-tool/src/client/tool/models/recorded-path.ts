@@ -1,5 +1,5 @@
 /** Operation-time filesystem locations carried by settled tool results. */
-import { isAbsoluteWorkspacePath } from '@deepseek-ai/dsh-util-workspace-path'
+import { isAbsoluteWorkspacePath } from '@metaworkflow/util-workspace-path'
 
 /**
  * Read one absolute location from opaque persisted result metadata.

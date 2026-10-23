@@ -24,4 +24,4 @@ description: "子路径插件不再从导出的 <子路径>/package.json 读取�
    ```
 
 3. 删除 `./search/package.json` 导出及其文件。
-4. 在 DSH 仓库中运行 `pnpm run verify-package-meta`，或打开插件管理页，确认子路径行显示标题、描述和图片。
+4. 在 MWF 仓库中运行 `pnpm run verify-package-meta`，或打开插件管理页，确认子路径行显示标题、描述和图片。

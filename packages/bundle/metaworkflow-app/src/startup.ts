@@ -1,16 +1,16 @@
 /**
- * The MetaWorkFlow app's command-line provider: it parses the `dsh --profile metaworkflow` flag
+ * The MetaWorkFlow app's command-line provider: it parses the `mwf --profile metaworkflow` flag
  * family (`--host`, `--port`, `--public-url`, `--trusted-host`, `--no-open`, TLS)
  * and its `--help` text, then provides the immutable values as
  * {@link WEB_STARTUP_SERVICE}. Ordinary rows inject that service before
  * reading it from lazy config.
- * @module @deepseek-ai/dsh-metaworkflow-app/startup
+ * @module @metaworkflow/app/startup
  */
 
 import { Command } from 'commander'
 import type { Context } from '@deepseek-ai/cordis'
-import { parseCmdline } from '@deepseek-ai/dsh-cmdline'
-import { isWildcardHost, type TlsConfig } from '@deepseek-ai/dsh-host-webserver'
+import { parseCmdline } from '@metaworkflow/cmdline'
+import { isWildcardHost, type TlsConfig } from '@metaworkflow/host-webserver'
 import { parsePublicUrl } from './public-url.ts'
 
 /** Stable Cordis plugin name. */
@@ -58,25 +58,25 @@ interface WebOptions {
  */
 function webCommand(): Command {
   return new Command()
-    .name('dsh --profile metaworkflow')
+    .name('mwf --profile metaworkflow')
     .description('Serve the MetaWorkFlow browser UI.')
     .helpOption('-h, --help', 'show this help')
     .option('--host <host>', 'bind address: one concrete IPv4 or IPv6 literal of a local interface; wildcard addresses are rejected')
     .option('--no-open', 'do not open the Web UI in the default browser')
     .option('--port <port>', 'listen port; pass 0 to let the OS pick a free one')
-    .option('--public-url <url>', 'advertise this HTTP(S) root in the printed, opened, runtime-context, and DSH_WEB_URL forms; grants no trust')
+    .option('--public-url <url>', 'advertise this HTTP(S) root in the printed, opened, runtime-context, and MWF_WEB_URL forms; grants no trust')
     .option('--trusted-host <authority...>', 'extra authority the /api browser-trust fence accepts (host or host:port; repeatable)')
     .option('--tls-cert <file>', 'PEM server certificate chain; requires --tls-key')
     .option('--tls-key <file>', 'unencrypted PEM private key; requires --tls-cert')
     .addHelpText('after', `
 Examples:
-  dsh --profile metaworkflow                 serve on the composed host and port
-  dsh --profile metaworkflow --no-open       serve without opening a browser
-  dsh --profile metaworkflow --port 8080     serve on another port
-  dsh --profile metaworkflow --host 10.0.0.7 bind one local interface address
-  dsh --profile metaworkflow --public-url https://app.example/ui/ --trusted-host app.example
+  mwf --profile metaworkflow                 serve on the composed host and port
+  mwf --profile metaworkflow --no-open       serve without opening a browser
+  mwf --profile metaworkflow --port 8080     serve on another port
+  mwf --profile metaworkflow --host 10.0.0.7 bind one local interface address
+  mwf --profile metaworkflow --public-url https://app.example/ui/ --trusted-host app.example
                                              advertise a prefix-stripping HTTPS proxy entry and admit its authority
-  dsh --profile metaworkflow --tls-cert ./server-chain.pem --tls-key ./server-key.pem
+  mwf --profile metaworkflow --tls-cert ./server-chain.pem --tls-key ./server-key.pem
                                              serve HTTPS with an existing certificate and key
 `)
 }

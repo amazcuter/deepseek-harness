@@ -9,7 +9,7 @@ description: "Messages 模拟流为原生 SDK 消费方发布具名 SSE 事件�
 
 ## 变更
 
-下一版本的 `@deepseek-ai/dsh-llm-mock-server` 在每个结构化 SSE 载荷旁发送 Messages 事件名。原生 SDK 需要这些名称才能处理消息与内容块事件。只接受无名 SSE 消息的消费方必须更新事件处理。脚本载荷、顺序、请求捕获与分片计数保持不变；刻意生成畸形 JSON 的行为仍直接发送无效数据。
+下一版本的 `@metaworkflow/llm-mock-server` 在每个结构化 SSE 载荷旁发送 Messages 事件名。原生 SDK 需要这些名称才能处理消息与内容块事件。只接受无名 SSE 消息的消费方必须更新事件处理。脚本载荷、顺序、请求捕获与分片计数保持不变；刻意生成畸形 JSON 的行为仍直接发送无效数据。
 
 ## 迁移
 

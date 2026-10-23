@@ -2,14 +2,14 @@
 // substructure references. Stable node and location stores make old snapshots
 // live readers rather than time-point views.
 
-import type { CommandId } from '@deepseek-ai/dsh-commands/brand'
-import type { MessageId } from '@deepseek-ai/dsh-llm/brand'
-import type { ContentBlock } from '@deepseek-ai/dsh-llm/types'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import type { LlmRetryEventData } from '@deepseek-ai/dsh-llm-retry/types'
-import type { TodoItem } from '@deepseek-ai/dsh-tool-todo/client'
+import type { CommandId } from '@metaworkflow/commands/brand'
+import type { MessageId } from '@metaworkflow/llm/brand'
+import type { ContentBlock } from '@metaworkflow/llm/types'
+import type { ImageAttachmentRef } from '@metaworkflow/attachment'
+import type { LlmRetryEventData } from '@metaworkflow/llm-retry/types'
+import type { TodoItem } from '@metaworkflow/tool-todo/client'
 import type { ContextProducerView, KnownContextForm } from './context-producer.ts'
-import type { PartialArguments } from '@deepseek-ai/dsh-util-values'
+import type { PartialArguments } from '@metaworkflow/util-values'
 export type { TodoItem }
 
 /** Request configuration recorded for one provider call. */
@@ -125,7 +125,7 @@ export type ModelRetryNode = LlmRetryEventData & {
 
 /**
  * Durable terminal notice for a turn that ended with an error, a sign-out
- * cancellation, or an interruption by a DSH stop; the turn's settled retry
+ * cancellation, or an interruption by a MWF stop; the turn's settled retry
  * chain renders separately and never replaces this node.
  */
 export interface TurnErrorNode {
@@ -141,7 +141,7 @@ export interface TurnErrorNode {
   /**
    * Stable provider failure code when recorded, or a Client display code:
    * `ACCOUNT_SIGNED_OUT` for a sign-out cancellation, `INTERRUPTED` for a
-   * turn closed after DSH stopped.
+   * turn closed after MWF stopped.
    */
   code?: string
 }

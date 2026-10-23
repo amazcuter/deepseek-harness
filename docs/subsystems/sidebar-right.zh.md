@@ -2,7 +2,7 @@
 
 [English](sidebar-right.md) | 中文
 
-右侧 Sidebar 是 Web Client 里每个会话一份的停靠面：会话区旁的一列 pane 与 tab，按地址寻址的内容——工作区文件、目录树、产品自带页面——在这里打开、分栏、浮出、关闭。[`dsh-client-ui-sidebar-right`](../../packages/client/ui-sidebar-right/README.zh.md) 拥有这个面、tab 类型注册表与导航服务；[`dsh-client-ui-dockkit`](../../packages/client/ui-dockkit/README.zh.md) 是它内部的布局引擎；[`dsh-client-resources`](../../packages/client/resources/README.zh.md) 把地址变成任何组件都能读的活数据；[`dsh-api-workspace-files`](../../packages/api/workspace-files/README.zh.md) 同时提供 Host 工作区文件服务与 Client `file` 资源提供者。
+右侧 Sidebar 是 Web Client 里每个会话一份的停靠面：会话区旁的一列 pane 与 tab，按地址寻址的内容——工作区文件、目录树、产品自带页面——在这里打开、分栏、浮出、关闭。[`mwf-client-ui-sidebar-right`](../../packages/client/ui-sidebar-right/README.zh.md) 拥有这个面、tab 类型注册表与导航服务；[`mwf-client-ui-dockkit`](../../packages/client/ui-dockkit/README.zh.md) 是它内部的布局引擎；[`mwf-client-resources`](../../packages/client/resources/README.zh.md) 把地址变成任何组件都能读的活数据；[`mwf-api-workspace-files`](../../packages/api/workspace-files/README.zh.md) 同时提供 Host 工作区文件服务与 Client `file` 资源提供者。
 
 本页是该子系统契约的参考：地址、tab 类型注册、导航服务、扩展 slot 与其 owner props、资源模型、Workspace Files 服务、内置类型，以及明确不做的事。布局引擎、frame 与停靠面如何拼在一起见 [Agent Note](../../.agents/notes/implemented/feature/2026-09-04-right-sidebar-docking-infrastructure.zh.md)；slot 机制见 [Slots 参考](slots.zh.md)。
 
@@ -25,7 +25,7 @@
 
 每个 tab 都由一个地址字串打开，地址就是 tab 的内容身份。地址分两族。
 
-**资源地址**是 `dsh-resource://<type>/…` 形式的 URL。host 命名资源协议——即 `ResourceProtocolMap` 的键——其后是该协议自己的路径；所有协议共用一个 scheme，新增协议只新增 host、不新增 scheme。`file` 协议的路径以其作用域开头：`session/<sessionId>` 后接相对该会话工作区根的路径（`dsh-resource://file/session/abc/src/notes.txt`），或 `absolute` 后接去掉前导 `/` 的绝对路径（`dsh-resource://file/absolute/home/ys/notes.txt`，Windows 上为 `dsh-resource://file/absolute/C:/x/y.txt`）。id 与每一段路径都做组件编码，盘符的 `:` 保留原样。`fileAddressFor(sessionId, cwd, path)` 构造地址——相对路径或工作区内的绝对路径成为 `session` 相对地址，其他绝对路径成为 `absolute` 地址——`parseFileAddress(address)` 读回各部分或返回 `undefined`（[语法](../../packages/util/workspace-path/README.zh.md)）。
+**资源地址**是 `mwf-resource://<type>/…` 形式的 URL。host 命名资源协议——即 `ResourceProtocolMap` 的键——其后是该协议自己的路径；所有协议共用一个 scheme，新增协议只新增 host、不新增 scheme。`file` 协议的路径以其作用域开头：`session/<sessionId>` 后接相对该会话工作区根的路径（`mwf-resource://file/session/abc/src/notes.txt`），或 `absolute` 后接去掉前导 `/` 的绝对路径（`mwf-resource://file/absolute/home/ys/notes.txt`，Windows 上为 `mwf-resource://file/absolute/C:/x/y.txt`）。id 与每一段路径都做组件编码，盘符的 `:` 保留原样。`fileAddressFor(sessionId, cwd, path)` 构造地址——相对路径或工作区内的绝对路径成为 `session` 相对地址，其他绝对路径成为 `absolute` 地址——`parseFileAddress(address)` 读回各部分或返回 `undefined`（[语法](../../packages/util/workspace-path/README.zh.md)）。
 
 **页面地址**是 Sidebar 为按 kind（而非按资源）打开的 tab 记下的地址：`sidebar://<kind>`，由 Sidebar 自己在 `openTab(kind)` 运行时写入。调用方从不拼它——引导页与文件树以 `openTab('guide')`、`openTab('files')` 打开——此外不存在任何导航地址（[不做](#not-built)）。
 
@@ -37,9 +37,9 @@ tab 身份是 `(kind, address)` 二元组：注册表的认领把地址原文用
 
 | 字段 | 含义 |
 |---|---|
-| `id` | 该实现的身份，在所有注册中唯一；包名是自然取值（`@deepseek-ai/dsh-client-ui-sidebar-files`）。正文与标题坑位按它注册。 |
+| `id` | 该实现的身份，在所有注册中唯一；包名是自然取值（`@metaworkflow/client-ui-sidebar-files`）。正文与标题坑位按它注册。 |
 | `kind` | 类型的判别名：它的 tab 是什么，也是 `openTab` 点名的对象。不唯一——extension 可以接管 builtin 的 kind。内置 kind 为 `guide`、`text`、`files`。 |
-| `patterns` | 可选的资源地址 glob；按 kind 打开的页面类型省略。含 `:` 的模式匹配整个地址（`dsh-resource://file/**`）；不含的匹配 URL 的路径部分且任意深度都中（`*.md`），不是 URL 的地址不会命中此类模式。匹配不分大小写、不隐藏 dotfile；语法为 picomatch 的 POSIX 方言。 |
+| `patterns` | 可选的资源地址 glob；按 kind 打开的页面类型省略。含 `:` 的模式匹配整个地址（`mwf-resource://file/**`）；不含的匹配 URL 的路径部分且任意深度都中（`*.md`），不是 URL 的地址不会命中此类模式。匹配不分大小写、不隐藏 dotfile；语法为 picomatch 的 POSIX 方言。 |
 | `priority` | 三档字面量之一：`extension`（缺省且最高：产品之外的类型压过所有内置查看器）、`builtin`（随产品发布的类型）、`fallback`（任何更具体的类型都应压过的纯内容查看器）。 |
 | `canOpen(address)` | 可选的同步否决，对 glob 命中生效；每次路由决策都会调用。 |
 | `title(address)` | chip 文本，在 tab 打开时捕获进布局记录，之后不再改写。 |
@@ -54,20 +54,20 @@ tab 身份是 `(kind, address)` 二元组：注册表的认领把地址原文用
 
 ```ts ignore-check
 import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
+import type {} from '@metaworkflow/client-ui-sidebar-right/client'
 
 export const inject = ['sidebarRightTabs', 'slots']
 
 export function apply(ctx: Context): void {
   ctx.effect(() => ctx.sidebarRightTabs.register({
-    id: '@acme/dsh-client-ui-image',
+    id: '@acme/mwf-client-ui-image',
     kind: 'image',
     patterns: ['*.png', '*.jpg', '*.gif', '*.svg'],
-    canOpen: address => address.startsWith('dsh-resource://file/'),
+    canOpen: address => address.startsWith('mwf-resource://file/'),
     title: address => address.slice(address.lastIndexOf('/') + 1),
   }), 'image type')
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
-    { name: 'sidebar.right.pane.tab', key: '@acme/dsh-client-ui-image' },
+    { name: 'sidebar.right.pane.tab', key: '@acme/mwf-client-ui-image' },
     ImageBody,
   )), 'image body')
 }
@@ -75,7 +75,7 @@ export function apply(ctx: Context): void {
 
 ## 导航：`ctx.sidebarRight`
 
-两种打开构成导航控制器，进入这一列的每条路都调用其一：`openResource(address, options?)` 打开 `dsh-resource://` 地址——会话区的文件链接、工具行的行号引用、文件树的行；`openTab(kind, options?)` 打开页面——tab 条的新增控件、引导页入口框或 Assistant Markdown 中的 HTTP(S) 链接。两者都以一条历史记录走完四步——认领（注册表为资源排候选，或点名 `kind` 的生效实现应答）；聚焦已显示同一 `(kind, address)` 的 tab；否则落一个新 tab；展开这一列——然后把导航记入 Tab 域（[服务](../../packages/client/ui-sidebar-right/README.zh.md#ctxsidebarright)）。用户看不见的内容不算打开，所以折叠的列会在同一步展开。`openResource` 对 `dsh-resource://` 之外的地址或无人认领的地址抛错；`openTab` 对无人注册的 kind 抛错：二者都是接线错误，不是用户错误。
+两种打开构成导航控制器，进入这一列的每条路都调用其一：`openResource(address, options?)` 打开 `mwf-resource://` 地址——会话区的文件链接、工具行的行号引用、文件树的行；`openTab(kind, options?)` 打开页面——tab 条的新增控件、引导页入口框或 Assistant Markdown 中的 HTTP(S) 链接。两者都以一条历史记录走完四步——认领（注册表为资源排候选，或点名 `kind` 的生效实现应答）；聚焦已显示同一 `(kind, address)` 的 tab；否则落一个新 tab；展开这一列——然后把导航记入 Tab 域（[服务](../../packages/client/ui-sidebar-right/README.zh.md#ctxsidebarright)）。用户看不见的内容不算打开，所以折叠的列会在同一步展开。`openResource` 对 `mwf-resource://` 之外的地址或无人认领的地址抛错；`openTab` 对无人注册的 kind 抛错：二者都是接线错误，不是用户错误。
 
 | 选项 | 含义 |
 |---|---|
@@ -126,7 +126,7 @@ Preview 记录已载入版本和读取开始时的观察版本。自动刷新默
 
 ## 资源模型
 
-模型本身见[客户端资源](client-resources.zh.md)；本节只写 Sidebar 依赖的部分。一份资源是一个地址，资源地址是 `dsh-resource://<type>/…` 形式的 URL，小写 host 即协议键。协议所属的客户端包用 `ctx.resources.register(provider)` 在自身生命周期内注册唯一的提供方；同一协议的第二个提供方抛错（[提供协议](../../packages/client/resources/README.zh.md#provide-a-protocol)）。提供方是 `{ protocol, open(address, { signal }) }`：`open` 产出 `RemoteResult` 帧——首帧是当前状态，之后每次变化一帧——并在 `signal` 中止时停下；失败是 `{ ok: false, error }` 帧而不是抛错，流里抛出的东西是编程错误，模型不捕获。
+模型本身见[客户端资源](client-resources.zh.md)；本节只写 Sidebar 依赖的部分。一份资源是一个地址，资源地址是 `mwf-resource://<type>/…` 形式的 URL，小写 host 即协议键。协议所属的客户端包用 `ctx.resources.register(provider)` 在自身生命周期内注册唯一的提供方；同一协议的第二个提供方抛错（[提供协议](../../packages/client/resources/README.zh.md#provide-a-protocol)）。提供方是 `{ protocol, open(address, { signal }) }`：`open` 产出 `RemoteResult` 帧——首帧是当前状态，之后每次变化一帧——并在 `signal` 中止时停下；失败是 `{ ok: false, error }` 帧而不是抛错，流里抛出的东西是编程错误，模型不捕获。
 
 `useResource<P>(address)` 是每个 slot 组件都有的全局标准 prop，不论作用域。它返回 `{ status, value, failure }`：地址协议没有提供方或地址不是资源地址（`sidebar://guide` 不指向资源）时为 `none`，首帧之前为 `loading`，`live` 携带最新 `ok` 值，`failed` 在最后一个值旁携带最新帧的失败。（[读取资源](../../packages/client/resources/README.zh.md#read-a-resource)）。
 
@@ -136,15 +136,15 @@ Preview 记录已载入版本和读取开始时的观察版本。自动刷新默
 
 Host 的 `ctx.workspaceFiles` 服务与生成的 `workspaceFiles` Remote 命名空间读取 Session 文件系统后端允许的文件：`stat(path)` 返回 `{ absolutePath, version, bytes? }`；`read(path, { offset?, limit? })` 返回一页行（`offset` 1 起，`limit` 受配置页长限制），形如 `{ …stat, offset, text, eof }`；`readBytes(path, { range?, baseFile? })` 在 `maxFileBytes` 上限内返回完整文件，或在 `maxBytes` 上限内返回字节窗口，形如 `{ …stat, offset, data, eof }`，其中 `data` 为原生 `Uint8Array`。可选 `range` 使用 0 起算的 `offset` 与字节数 `length`；`baseFile` 从另一文件所在目录解析相对目标。`list(path)` 仍限定在工作区根内，返回目录的直接子项（`name`、`type: 'file' | 'directory' | 'other'`、`size?`），按配置上限截断并置 `truncated`。`changes(path)` 监听一个目标，由 Host 判断目标类型并将目录限制在工作区。订阅就绪后产出 `{ kind: 'ready' }`，随后产出 `{ kind: 'change', change }` 帧，其载荷为 `{ absolutePath, version }` 或 `{ absolutePath, absent: true }`（[README](../../packages/api/workspace-files/README.zh.md#use-this-package)）。文件读取拒绝末端符号链接并执行传输上限；`read` 还要求 UTF-8 文本。失败使用 `workspace-file/*` 错误码（[失败](../../packages/api/workspace-files/README.zh.md)）。
 
-[`dsh-api-workspace-files`](../../packages/api/workspace-files/README.zh.md) 注册 `file` 提供方，`ResourceProtocolMap.file` 直接是 `WorkspaceFileStat`。Session 地址携带授权 Session 与相对或绝对路径，Host 原样接收并解析。提供方在 stat 前等待 Host 的 `ready` 帧，并按 `stat.absolutePath` 过滤变更。裸 `absolute` 地址没有授权 Session，以 `workspace-file/unknown-workspace` 失败，不借用当前或 Tab Session。任何 UI（包括 Global）访问同一完整地址都共享观察。Preview 的 Remote 回调使用地址中的 Session；`remote.workspaceFiles.readBytes` 通过 Connection 的二进制 RPC 传输返回原生字节。
+[`mwf-api-workspace-files`](../../packages/api/workspace-files/README.zh.md) 注册 `file` 提供方，`ResourceProtocolMap.file` 直接是 `WorkspaceFileStat`。Session 地址携带授权 Session 与相对或绝对路径，Host 原样接收并解析。提供方在 stat 前等待 Host 的 `ready` 帧，并按 `stat.absolutePath` 过滤变更。裸 `absolute` 地址没有授权 Session，以 `workspace-file/unknown-workspace` 失败，不借用当前或 Tab Session。任何 UI（包括 Global）访问同一完整地址都共享观察。Preview 的 Remote 回调使用地址中的 Session；`remote.workspaceFiles.readBytes` 通过 Connection 的二进制 RPC 传输返回原生字节。
 
 ## 内置类型
 
 - **`guide`**——`builtin`，以 `openTab('guide')` 打开。一枚弱化的罗盘位于各类型按 `order` 贡献的入口胶囊上方；入口较少时显示已注册的描述，未提供图标的入口统一使用内置占位符。点选胶囊即在引导 tab 的位置把贡献它的类型作为页面打开。每个 pane 最多一个引导 tab，tab 条的新增控件只在本 pane 没有引导时出现。新 pane 使用已注册的默认页：只有一个引导入口时直接使用该入口，否则使用引导页（[引导](../../packages/client/ui-sidebar-right/README.zh.md#the-guide)）。
-- **`text`**——`fallback`，`dsh-resource://file/**`，只认领 Session 地址。Document Preview 通过 `useResource<'file'>` 观察元数据，经 Remote 回调加载内容，并拥有渲染器选择、工具栏、逐 tab 刷新、滚动与源码定位；未知扩展名按纯文本渲染（[README](../../packages/client/ui-sidebar-documentpreview/README.zh.md)）。
+- **`text`**——`fallback`，`mwf-resource://file/**`，只认领 Session 地址。Document Preview 通过 `useResource<'file'>` 观察元数据，经 Remote 回调加载内容，并拥有渲染器选择、工具栏、逐 tab 刷新、滚动与源码定位；未知扩展名按纯文本渲染（[README](../../packages/client/ui-sidebar-documentpreview/README.zh.md)）。
 - **`files`**——`builtin`，以 `openTab('files')` 打开。工作区目录树，经 `list` 懒加载，按展开目录建立监听，用 `tab.actions.openResource(fileAddressFor(sessionId, root, path))` 在自己所在 pane 打开文件（[README](../../packages/client/ui-sidebar-files/README.zh.md)）。
 - **`browser`**——可多开的 `builtin`，以 `openTab('browser', { params: { url? } })` 打开。Chat 的[链接偏好](../../packages/client/ui-chat/README.zh.md)决定 Assistant Markdown 是否在此打开 HTTP(S) 链接。它在默认 sandbox 下接受公共与 loopback HTTP(S) 目标，本地文件改用 Document Preview，并使用应用已知的 iframe history（[README](../../packages/client/ui-sidebar-browser/README.zh.md)）。
-- **`subagentchat`**——`builtin`，`dsh-resource://subagentchat/session/<child>?parent=<parent>&mode=<mode>`。资源提供方保留一个显式寻址的 subagent Conversation，并通过共享 Conversation Factory 渲染（[README](../../packages/client/ui-subagent/README.zh.md)）。
+- **`subagentchat`**——`builtin`，`mwf-resource://subagentchat/session/<child>?parent=<parent>&mode=<mode>`。资源提供方保留一个显式寻址的 subagent Conversation，并通过共享 Conversation Factory 渲染（[README](../../packages/client/ui-subagent/README.zh.md)）。
 
 <a id="not-built"></a>
 ## 不做

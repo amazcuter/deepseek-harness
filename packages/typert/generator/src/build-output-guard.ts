@@ -5,7 +5,7 @@
  * result cannot depend on whether, or when, package compilation ran: an
  * import that reaches `lib/` on a compiled tree resolves to nothing on a
  * clean one, and both are rejected.
- * @module @deepseek-ai/dsh-typert-generator/build-output-guard
+ * @module @metaworkflow/typert-generator/build-output-guard
  */
 
 import { existsSync, readFileSync, realpathSync } from 'node:fs'

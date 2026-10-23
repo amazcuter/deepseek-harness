@@ -10,7 +10,7 @@
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import type { PluginInstallFailureKind, Registry } from '@deepseek-ai/dsh-api-remotes/client'
+import type { PluginInstallFailureKind, Registry } from '@metaworkflow/api-remotes/client'
 import {
   Button, IconCheckCircleFillRegular, IconChevronDownOutlineRegular, IconChevronLeftOutlineMedium,
   IconChevronRightOutlineRegular, IconCloseOutlineMedium,
@@ -19,8 +19,8 @@ import {
   PluginArtworkDefault, PluginArtworkLoop, PluginArtworkSearch, PluginArtworkSubagent, PluginArtworkTerminal,
   SegmentedTabs, StateDot, Switch, Tag, TerminalBlock, Toast, Tooltip, useAnchoredPosition, useDismissOnOutsidePointer,
   type IconProps, type StateDotState, type TerminalBlockLabels,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@deepseek-ai/dsh-client-ui-slots'
+} from '@metaworkflow/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@metaworkflow/client-ui-slots'
 import type { createNavigationStore } from './navigation-store.ts'
 import { rowConfigKey, type OfficialItem } from './config-ledger.ts'
 import { INSTALL_GIT_EXAMPLE, INSTALL_PATH_EXAMPLE, type PluginManagerLocaleKey } from './locales.ts'
@@ -99,33 +99,33 @@ const HIGHLIGHT_MS = 2_400
 
 /** Built-in profile bundles stay out of this page even when the profile declares them as dependencies. */
 const BUILTIN_PROFILE_BUNDLES = new Set([
-  '@deepseek-ai/dsh-base',
-  '@deepseek-ai/dsh-web-app',
-  '@deepseek-ai/dsh-headless',
-  '@deepseek-ai/dsh-sdk-app',
-  '@deepseek-ai/dsh-acp-app',
-  '@deepseek-ai/dsh-sdk-minimal',
+  '@metaworkflow/base',
+  '@metaworkflow/web-app',
+  '@metaworkflow/headless',
+  '@metaworkflow/sdk-app',
+  '@metaworkflow/acp-app',
+  '@metaworkflow/sdk-minimal',
 ])
 
 /** The optional bundles the main list always holds, in this order; new bundles join the main list. */
 const EXTENSION_BUNDLES = [
-  '@deepseek-ai/dsh-experimental-agent-team-profile',
-  '@deepseek-ai/dsh-experimental-voice-input-bundle',
-  '@deepseek-ai/dsh-experimental-auto-review',
-  '@deepseek-ai/dsh-experimental-inspector-profile',
+  '@metaworkflow/experimental-agent-team-profile',
+  '@metaworkflow/experimental-voice-input-bundle',
+  '@metaworkflow/experimental-auto-review',
+  '@metaworkflow/experimental-inspector-profile',
 ]
 /** The optional bundles the main list holds back until the profile picks them; the More list shows them from the start. */
 const MORE_BUNDLES = [
-  '@deepseek-ai/dsh-experimental-tool-worktree',
-  '@deepseek-ai/dsh-experimental-cot-translation-bundle',
-  '@deepseek-ai/dsh-experimental-terminal-bundle',
-  '@deepseek-ai/dsh-experimental-session-search',
-  '@deepseek-ai/dsh-experimental-session-titles-bundle',
-  '@deepseek-ai/dsh-experimental-badge-skill-bundle',
-  '@deepseek-ai/dsh-experimental-ralph-bundle',
-  '@deepseek-ai/dsh-experimental-plugin-market-bundle',
-  '@deepseek-ai/dsh-subagent-codex',
-  '@deepseek-ai/dsh-subagent-claude-code',
+  '@metaworkflow/experimental-tool-worktree',
+  '@metaworkflow/experimental-cot-translation-bundle',
+  '@metaworkflow/experimental-terminal-bundle',
+  '@metaworkflow/experimental-session-search',
+  '@metaworkflow/experimental-session-titles-bundle',
+  '@metaworkflow/experimental-badge-skill-bundle',
+  '@metaworkflow/experimental-ralph-bundle',
+  '@metaworkflow/experimental-plugin-market-bundle',
+  '@metaworkflow/subagent-codex',
+  '@metaworkflow/subagent-claude-code',
 ]
 /**
  * Whether the main list shows an official optional bundle: the always-held ones, and any held-back one the profile enabled.
@@ -161,8 +161,8 @@ function orderOptionalBundles(packages: readonly PackageView[]): PackageView[] {
 
 /** Feature previews of official bundles, shown on their detail pages and selected by UI language. */
 const BUNDLE_PREVIEWS = new Map<string, Readonly<Record<'en' | 'zh', string>>>([
-  ['@deepseek-ai/dsh-experimental-badge-skill-bundle', { en: badgeSkillPreview, zh: badgeSkillPreviewZh }],
-  ['@deepseek-ai/dsh-experimental-voice-input-bundle', { en: voiceInputPreview, zh: voiceInputPreviewZh }],
+  ['@metaworkflow/experimental-badge-skill-bundle', { en: badgeSkillPreview, zh: badgeSkillPreviewZh }],
+  ['@metaworkflow/experimental-voice-input-bundle', { en: voiceInputPreview, zh: voiceInputPreviewZh }],
 ])
 
 /** How long a toast holds: long enough to read a failure that names what broke. */

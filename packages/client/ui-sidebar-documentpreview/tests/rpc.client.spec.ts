@@ -1,11 +1,11 @@
 /**
- * The address-to-read translation: a `dsh-resource://file/session/<id>/<path>`
+ * The address-to-read translation: a `mwf-resource://file/session/<id>/<path>`
  * address names the session the read runs under and the workspace-relative path
  * it hands the Host; absolute paths also travel inside the Session address.
  * An address without a Session fails loud.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
+import { sessionFileAddress } from '@metaworkflow/util-workspace-path'
 import { createReadPage, hostFileOf } from '../src/client/rpc.ts'
 import type { ReadWorkspaceFilePage, WorkspaceFilesReadRemote } from '../src/client/index.ts'
 import { ADDRESS, FILE, PATH, SESSION, page } from './fixtures.client.ts'
@@ -13,7 +13,7 @@ import { ADDRESS, FILE, PATH, SESSION, page } from './fixtures.client.ts'
 describe('hostFileOf', () => {
   it('reads the session and the decoded relative path out of a session file address', () => {
     expect(hostFileOf(ADDRESS)).toEqual(FILE)
-    expect(hostFileOf('dsh-resource://file/session/s%2F1/work/a%20b%23c.md')).toEqual({ sessionId: 's/1', path: 'work/a b#c.md' })
+    expect(hostFileOf('mwf-resource://file/session/s%2F1/work/a%20b%23c.md')).toEqual({ sessionId: 's/1', path: 'work/a b#c.md' })
   })
 
   it.each(['/etc/hosts', 'C:/w/a b.md', '//host/share/a b.md'])('preserves the Session address\'s absolute path %s for the Host', (path) => {
@@ -22,8 +22,8 @@ describe('hostFileOf', () => {
 
   it('throws for an address that is not a Session file address', () => {
     for (const address of [
-      'dsh-resource://file/absolute/etc/hosts', 'dsh-resource://file/absolute/C:/w/a.md',
-      'dsh-resource://file/shared/team/notes.md', 'dsh-resource://file/session', 'file:///work/notes.md', 'sidebar://guide',
+      'mwf-resource://file/absolute/etc/hosts', 'mwf-resource://file/absolute/C:/w/a.md',
+      'mwf-resource://file/shared/team/notes.md', 'mwf-resource://file/session', 'file:///work/notes.md', 'sidebar://guide',
     ]) {
       expect(() => hostFileOf(address)).toThrow('not a session file address')
     }

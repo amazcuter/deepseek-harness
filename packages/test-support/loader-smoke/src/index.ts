@@ -4,14 +4,14 @@
  *
  * It also owns the mode-aware launch resolver every example subprocess harness shares
  * ({@link resolveExampleLaunch}): booting an example bin from TypeScript source under `tsx` (the
- * zero-build dev path, resolving `@deepseek-ai/dsh-*` / `@cordisjs/*` through the tsconfig `paths`
+ * zero-build dev path, resolving `@metaworkflow/*` / `@cordisjs/*` through the tsconfig `paths`
  * map) or from built `lib/` under plain Node (resolving bare packages through real `exports`, as an
  * installed consumer does, while Node type-strips relative example-local TypeScript plugins).
  *
- * @module @deepseek-ai/dsh-loader-smoke
+ * @module @metaworkflow/loader-smoke
  */
 
-import { clearedProxyEnv } from '@deepseek-ai/dsh-http-proxy'
+import { clearedProxyEnv } from '@metaworkflow/http-proxy'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -32,13 +32,13 @@ export const LOADER_SMOKE_TEST_TIMEOUT_MS = DEFAULT_PROCESS_TIMEOUT_MS + 15_000
 export type ExampleMode = 'src' | 'lib'
 
 /** Environment variable selecting the mode; CI sets it to `lib`, dev leaves it unset (`src`). */
-export const EXAMPLE_MODE_ENV = 'DSH_EXAMPLE_MODE'
+export const EXAMPLE_MODE_ENV = 'MWF_EXAMPLE_MODE'
 
 /**
  * Parse an {@link ExampleMode} from a raw string, defaulting to `src` when absent so an unset
  * environment reproduces the dev/tsx behavior. Throws on any other value rather than silently
  * falling back, so a typo in a gate's env fails loud.
- * @param raw - the raw value; defaults to `process.env.DSH_EXAMPLE_MODE`.
+ * @param raw - the raw value; defaults to `process.env.MWF_EXAMPLE_MODE`.
  * @returns the validated mode.
  */
 export function resolveExampleMode(raw: string | undefined = process.env[EXAMPLE_MODE_ENV]): ExampleMode {
@@ -110,7 +110,7 @@ function toLibBin(srcBin: string): string {
 export function resolveExampleLaunch(options: ExampleLaunchOptions): ExampleLaunch {
   const mode = options.mode ?? resolveExampleMode()
   const configArgs = options.configArgs ?? []
-  // A smoke launches a real `dsh` against local fixtures, so it must not inherit the machine's
+  // A smoke launches a real `mwf` against local fixtures, so it must not inherit the machine's
   // network policy: the harness honors the proxy environment, and a runner that exports one would
   // send a fixture-server request to a proxy that cannot resolve the fixture host. `undefined`
   // removes the name from the child rather than setting it empty.
@@ -148,7 +148,7 @@ interface LoaderSmokeBaseOptions {
   readonly mode?: ExampleMode
   /** Source hook selection; see {@link ExampleLaunchOptions.sourceImport}. */
   readonly sourceImport?: 'tsx/esm'
-  /** Environment overrides layered over the parent and isolated DSH homes. */
+  /** Environment overrides layered over the parent and isolated MWF homes. */
   readonly env?: Readonly<NodeJS.ProcessEnv>
   /** Process deadline override for harness tests. */
   readonly processTimeoutMs?: number
@@ -226,8 +226,8 @@ export async function runLoaderSmoke(options: LoaderSmokeOptions): Promise<Loade
       ...options.sourceImport !== undefined ? { sourceImport: options.sourceImport } : {},
       tsconfigPath: options.tsconfigPath,
       env: {
-        DSH_HOME: join(cwd, '.dsh'),
-        DSH_AGENTS_HOME: join(cwd, '.agents'),
+        MWF_HOME: join(cwd, '.mwf'),
+        MWF_AGENTS_HOME: join(cwd, '.agents'),
         ...options.env,
       },
     })

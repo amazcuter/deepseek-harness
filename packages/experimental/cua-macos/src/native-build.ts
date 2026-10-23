@@ -3,8 +3,8 @@ import { constants } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { access, mkdir, readFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
-import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
-import type { SubprocessOutcome, SubprocessRuntime } from '@deepseek-ai/dsh-subprocess'
+import { withFileLock, writeFileAtomic } from '@metaworkflow/atomic-write'
+import type { SubprocessOutcome, SubprocessRuntime } from '@metaworkflow/subprocess'
 
 /** Architecture names used by the platform-specific native payload. */
 export type NativeArchitecture = 'arm64' | 'x64'
@@ -38,20 +38,20 @@ export interface NativeBuildSpec {
  * @returns Absolute executable path.
  */
 export function nativeExecutablePath(packageRoot: string, architecture: NativeArchitecture): string {
-  return join(packageRoot, 'native', 'bin', `darwin-${architecture}`, 'dsh-cua-native')
+  return join(packageRoot, 'native', 'bin', `darwin-${architecture}`, 'mwf-cua-native')
 }
 
 /**
  * Recognize the repository-owned package location before allowing local compilation.
  * @param packageRoot - Real directory containing this package.
- * @returns True only for a CUA package in a DSH source checkout.
+ * @returns True only for a CUA package in a MWF source checkout.
  */
 export async function isSourcePackage(packageRoot: string): Promise<boolean> {
   const root = resolve(packageRoot, '../../..')
   if (join(root, 'packages/experimental/cua-macos') !== packageRoot) return false
   try {
     const manifest: unknown = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
-    return typeof manifest === 'object' && manifest !== null && 'name' in manifest && manifest.name === '@deepseek-ai/dsh-root'
+    return typeof manifest === 'object' && manifest !== null && 'name' in manifest && manifest.name === '@metaworkflow/root'
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false
     throw error
@@ -77,7 +77,7 @@ async function compileNative(spec: NativeBuildSpec, signal: AbortSignal, executa
   const scratch = join(nativeRoot, '.build', `runtime-${spec.architecture}`)
   const handle = spec.subprocess.spawn({
     argv: ['/usr/bin/xcrun', 'swift', 'build', '--package-path', nativeRoot,
-      '--scratch-path', scratch, '--configuration', 'release', '--product', 'dsh-cua-native',
+      '--scratch-path', scratch, '--configuration', 'release', '--product', 'mwf-cua-native',
       '--arch', spec.architecture === 'x64' ? 'x86_64' : 'arm64'],
     cwd: spec.packageRoot, signal, graceMs: spec.graceMs,
     stdio: { stdin: 'ignore', stdout: { maxBytes: 65_536 }, stderr: { maxBytes: 65_536 } },
@@ -93,7 +93,7 @@ async function compileNative(spec: NativeBuildSpec, signal: AbortSignal, executa
     const diagnostics = `${handle.collected.stdout?.readFrom(0).text ?? ''}${handle.collected.stderr?.readFrom(0).text ?? ''}`
     throw new Error(`Computer Use native preparation failed (${String(outcome.exitCode)}, ${String(outcome.signal)}): ${diagnostics}`)
   }
-  const built = await readFile(join(scratch, 'release', 'dsh-cua-native'))
+  const built = await readFile(join(scratch, 'release', 'mwf-cua-native'))
   let previous: Buffer | undefined
   try { previous = await readFile(executable) } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
@@ -101,7 +101,7 @@ async function compileNative(spec: NativeBuildSpec, signal: AbortSignal, executa
   signal.throwIfAborted()
   if (!previous?.equals(built)) await writeFileAtomic(executable, built, { mode: 0o755 })
   const digest = createHash('sha256').update(built).digest('hex')
-  const runtime = join(nativeRoot, '.build', 'prepared', spec.architecture, digest, 'dsh-cua-native')
+  const runtime = join(nativeRoot, '.build', 'prepared', spec.architecture, digest, 'mwf-cua-native')
   await mkdir(dirname(runtime), { recursive: true })
   let retained: Buffer | undefined
   try { retained = await readFile(runtime) } catch (error) {

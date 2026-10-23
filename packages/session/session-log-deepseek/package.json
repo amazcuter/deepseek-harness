@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-session-log-deepseek",
+  "name": "@metaworkflow/session-log-deepseek",
   "description": "Incremental lossless session-log request extension for the official DeepSeek LLM API",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -34,27 +34,27 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*",
     "@deepseek-ai/schemastery": "workspace:~"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-deepseek-llm-api-extensions": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*"
+    "@metaworkflow/deepseek-llm-api-extensions": "workspace:*",
+    "@metaworkflow/session": "workspace:*"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
     "@deepseek-ai/cordis-plugin-include": "workspace:~",
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-command-feedback": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-llm-api-extensions": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-llm-deepseek": "workspace:*",
-    "@deepseek-ai/dsh-llm-deepseek-api-key": "workspace:*",
-    "@deepseek-ai/dsh-llm-mock-server": "workspace:*",
-    "@deepseek-ai/dsh-message-feedback": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence-jsonl": "workspace:*"
+    "@metaworkflow/command-feedback": "workspace:*",
+    "@metaworkflow/deepseek-llm-api-extensions": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/llm-deepseek": "workspace:*",
+    "@metaworkflow/llm-deepseek-api-key": "workspace:*",
+    "@metaworkflow/llm-mock-server": "workspace:*",
+    "@metaworkflow/message-feedback": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-persistence-jsonl": "workspace:*"
   }
 }

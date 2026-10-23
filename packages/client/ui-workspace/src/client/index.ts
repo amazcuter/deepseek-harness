@@ -15,28 +15,28 @@
  * its relative time and its trailing status line. Export discipline:
  * packages/client/AGENTS.md.
  */
-import type {} from '@deepseek-ai/dsh-client-product-analytics/client'
+import type {} from '@metaworkflow/client-product-analytics/client'
 import type { Context } from '@deepseek-ai/cordis'
-import type { RemoteHostFacts } from '@deepseek-ai/dsh-api-remotes/client'
-import type { ISessions, SessionForkError } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { RemoteHostFacts } from '@metaworkflow/api-remotes/client'
+import type { ISessions, SessionForkError } from '@metaworkflow/api-session-controller/client'
 import type {
   IWorkspaces, SessionActivity, WorkspaceArchiveError, WorkspaceId, WorkspaceSnapshot,
-} from '@deepseek-ai/dsh-api-workspace-controller/client'
-import type { RemoteEndpoint } from '@deepseek-ai/dsh-api-remote-access/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { writeClipboard } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { HostObservable, SnapshotSelectorHook } from '@deepseek-ai/dsh-client-ui-slots'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+} from '@metaworkflow/api-workspace-controller/client'
+import type { RemoteEndpoint } from '@metaworkflow/api-remote-access/client'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import { writeClipboard } from '@metaworkflow/client-ui-primitives'
+import type { HostObservable, SnapshotSelectorHook } from '@metaworkflow/client-ui-slots'
+import type { SessionId } from '@metaworkflow/session/types'
 // Type-only: pulls the Controller service merges.
-import type {} from '@deepseek-ai/dsh-api-session-controller/client'
-import type {} from '@deepseek-ai/dsh-api-workspace-controller/client'
+import type {} from '@metaworkflow/api-session-controller/client'
+import type {} from '@metaworkflow/api-workspace-controller/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@deepseek-ai/dsh-client-locale/client'
+import type {} from '@metaworkflow/client-locale/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
+import type {} from '@metaworkflow/client-ui-renderer/client'
+import type {} from '@metaworkflow/client-ui-layout/client'
 // Type-only: pulls the Session root standard-hook merge.
-import type {} from '@deepseek-ai/dsh-client-ui-session/client'
+import type {} from '@metaworkflow/client-ui-session/client'
 import {
   type ArchiveSessionInjected, type ForkSessionInjected, menuOpenStateFactory, type PinSessionInjected,
   type SessionArchiveConfirmInjected, type SessionArchiveConfirmRequest,
@@ -68,7 +68,7 @@ export type {
 } from './contract/slots.ts'
 export type { WorkspaceKey } from './locales.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@metaworkflow/client-ui-slots' {
   interface GlobalStandardProps {
     /** Selector hook over the pure Workspace Controller snapshot. */
     useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>
@@ -82,7 +82,7 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
   }
 }
 
-declare module '@deepseek-ai/dsh-api-session-controller/client' {
+declare module '@metaworkflow/api-session-controller/client' {
   interface SessionReferenceSourceMap {
     workspaceOperation: unknown
   }
@@ -94,7 +94,7 @@ const NS = 'workspace'
 /**
  * Required services (cordis fiber inject). The target slots are declared by
  * the ui-sidebar / ui-conversation applies, whose activation order relative
- * to this one is NOT constrained: dsh.client.inject edges are informational
+ * to this one is NOT constrained: mwf.client.inject edges are informational
  * (loading/prefetch metadata, never apply sequencing) and neither owner
  * provides a waitable service. apply therefore depends on each slot
  * declaration through `slots.inject()` instead of assuming order.

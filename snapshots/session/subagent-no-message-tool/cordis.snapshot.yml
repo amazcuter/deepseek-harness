@@ -2,7 +2,7 @@
 # script comes from the scenario's committed session JSONL.
 
 - id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+  name: '@metaworkflow/llm-deepseek-api-key'
   disabled: true
 
 - id: plugin-package-inventory-deepseek
@@ -12,13 +12,13 @@
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@deepseek-ai/dsh-session-persistence-jsonl'
+  name: '@metaworkflow/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
+    root: !!js mwfHomePath('sessions')
     compression: none
 
 - id: sandbox
-  name: '@deepseek-ai/dsh-sandbox-local'
+  name: '@metaworkflow/sandbox-local'
   config:
     runnerCommand:
       - bash
@@ -30,7 +30,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@metaworkflow/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -54,25 +54,25 @@
 
 - insert:
     - id: agent-preset-registry
-      name: '@deepseek-ai/dsh-agent-preset-registry'
+      name: '@metaworkflow/agent-preset-registry'
       config:
         default: parent
     - id: preset-parent
-      name: '@deepseek-ai/dsh-agent-preset'
+      name: '@metaworkflow/agent-preset'
       config:
         id: parent
         plugins:
-          - name: '@deepseek-ai/dsh-tool-fs'
-          - name: '@deepseek-ai/dsh-tool-fs-search'
+          - name: '@metaworkflow/tool-fs'
+          - name: '@metaworkflow/tool-fs-search'
             config:
               sampleOverCapGlobResults: false
-          - name: '@deepseek-ai/dsh-tool-web'
+          - name: '@metaworkflow/tool-web'
             config:
               fetch: true
               searchTimeoutMs: 60000
-          - name: '@deepseek-ai/dsh-tool-subagent-control'
+          - name: '@metaworkflow/tool-subagent-control'
     - id: preset-child
-      name: '@deepseek-ai/dsh-agent-preset'
+      name: '@metaworkflow/agent-preset'
       config:
         id: child
         plugins: []
@@ -80,7 +80,7 @@
       name: '../../../packages/test-support/session-snapshot/tests/fixtures/parent-agent-preset.ts'
 
 - id: tool-subagent
-  name: '@deepseek-ai/dsh-tool-subagent'
+  name: '@metaworkflow/tool-subagent'
   inject: [agentPresets]
   config:
     provider: spawn

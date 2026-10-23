@@ -6,7 +6,7 @@ Status: implemented
 
 ## 问题
 
-基准运行在 16 GB 内存的托管 runner 和内存更大的开发机上。两者都无法显示 DSH 在可用内存为 4 GB 或 8 GB 的机器上的表现，而这类机器上 Host、Chromium 和页缓存共享同一份内存预算。
+基准运行在 16 GB 内存的托管 runner 和内存更大的开发机上。两者都无法显示 MWF 在可用内存为 4 GB 或 8 GB 的机器上的表现，而这类机器上 Host、Chromium 和页缓存共享同一份内存预算。
 
 ## 决定
 

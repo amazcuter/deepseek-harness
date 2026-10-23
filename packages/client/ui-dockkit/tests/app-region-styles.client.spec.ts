@@ -27,8 +27,8 @@ const regionRules = [...css.matchAll(/(?<sel>[^{}]+)\{(?<body>[^{}]*)\}/g)]
 
 it('keeps Windows floating headers 20px below the caption, including restored positions', () => {
   const captionRule = css.split(':global(html[data-windows-titlebar]) .float')[1]?.split('}')[0]
-  expect(captionRule).toContain('--dsh-dockkit-float-top: calc(var(--dsh-windows-titlebar-height) + 20px);')
-  expect(css).toMatch(/:global\(html\[data-windows-titlebar\]\[data-fullscreen\]\) \.float\s*\{\s*--dsh-dockkit-float-top: 20px;/)
+  expect(captionRule).toContain('--mwf-dockkit-float-top: calc(var(--mwf-windows-titlebar-height) + 20px);')
+  expect(css).toMatch(/:global\(html\[data-windows-titlebar\]\[data-fullscreen\]\) \.float\s*\{\s*--mwf-dockkit-float-top: 20px;/)
 })
 
 describe('macOS app-region ownership', () => {

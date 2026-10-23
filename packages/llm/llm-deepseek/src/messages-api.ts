@@ -1,4 +1,4 @@
-/** Shared DeepSeek Messages API endpoint and header policy. @module dsh-llm-deepseek/messages-api */
+/** Shared DeepSeek Messages API endpoint and header policy. @module mwf-llm-deepseek/messages-api */
 
 /** Required opt-in for Messages file operations and file-referenced image requests. */
 export const MESSAGES_FILES_BETA = 'files-api-2025-04-14'

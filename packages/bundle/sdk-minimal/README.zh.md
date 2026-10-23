@@ -3,13 +3,13 @@ description: "独立 SDK profile，提供持久 shell、图片读取、自动上
 kind: "package-bundle"
 ---
 
-# `@deepseek-ai/dsh-sdk-minimal`
+# `@metaworkflow/sdk-minimal`
 
 [English](README.md) | 中文
 
 ## 概述
 
-当 SDK 客户端需要小型、显式的 coding agent 运行时时，请使用 `dsh --profile sdk-minimal`。该 profile 默认公布按平台选择的持久 shell、`read_image` 和 `working_directory`，把会话持久化为未压缩 JSONL，并从 SDK 初始化请求选择模型。它提供完整 Cordis 配置树，并排除 `dsh-base`、Web、settings、托管凭据、遥测、文本文件工具、workspace 指令、skill（技能）、jobs 与 subagent。其 danger-full-access 策略允许 shell 修改进程可访问的任何路径，因此只能配合隔离 workspace 使用。
+当 SDK 客户端需要小型、显式的 coding agent 运行时时，请使用 `mwf --profile sdk-minimal`。该 profile 默认公布按平台选择的持久 shell、`read_image` 和 `working_directory`，把会话持久化为未压缩 JSONL，并从 SDK 初始化请求选择模型。它提供完整 Cordis 配置树，并排除 `mwf-base`、Web、settings、托管凭据、遥测、文本文件工具、workspace 指令、skill（技能）、jobs 与 subagent。其 danger-full-access 策略允许 shell 修改进程可访问的任何路径，因此只能配合隔离 workspace 使用。
 
 ## 目录
 
@@ -25,16 +25,16 @@ kind: "package-bundle"
 <a id="use-this-package"></a>
 ## 使用本包
 
-直接启动该 profile，或从 Python SDK 选择它。提供显式 `DSH_HOME`、使用一次性 workspace，并通过 `DEEPSEEK_API_KEY` 提供模型凭据。
+直接启动该 profile，或从 Python SDK 选择它。提供显式 `MWF_HOME`、使用一次性 workspace，并通过 `DEEPSEEK_API_KEY` 提供模型凭据。
 
 ```sh
-export DSH_HOME=/absolute/path/to/example-dsh-home
-dsh --profile sdk-minimal
+export MWF_HOME=/absolute/path/to/example-mwf-home
+mwf --profile sdk-minimal
 ```
 
-`DSH_CONTEXT_WINDOW` 为不在适配器建议目录中的模型设置后备容量。`DSH_SYSTEM_PROMPT` 替换默认 persona。SDK 初始化请求是唯一的模型选择依据，并覆盖环境默认值。
+`MWF_CONTEXT_WINDOW` 为不在适配器建议目录中的模型设置后备容量。`MWF_SYSTEM_PROMPT` 替换默认 persona。SDK 初始化请求是唯一的模型选择依据，并覆盖环境默认值。
 
-使用 `dsh plugin --profile sdk-minimal` 管理持久外部依赖。Profile、home 与有序 `--patch` 文件可以替换完整默认配置树中的配置项，或在该配置树上方插入 bundle。随附模板只在启动时应用 patch。
+使用 `mwf plugin --profile sdk-minimal` 管理持久外部依赖。Profile、home 与有序 `--patch` 文件可以替换完整默认配置树中的配置项，或在该配置树上方插入 bundle。随附模板只在启动时应用 patch。
 
 该 profile 只挂载一套持久 shell：Linux 和 macOS 使用 Bash，Windows 使用 PowerShell。两套配置都使用 300 秒超时与一个 agent 自有终端；另一平台的配置项保持禁用。
 
@@ -48,7 +48,7 @@ dsh --profile sdk-minimal
 <details>
 <summary>实现细节——点击展开</summary>
 
-该 bundle 的单个 insert 就是完整应用配置树：SDK stdio 启动与 JSON-RPC 服务、一个由环境配置的 DeepSeek 适配器、显式 agent 核心、按配置启用的 MCP 资源工具、本地文件系统、图片附件、自动上下文压缩与子进程服务、Session 工作目录状态及其工具、按平台选择的持久 shell PTY，以及位于 `$DSH_HOME/sessions` 的未压缩 JSONL 持久化。它不继承其他 bundle，因此每个额外配置项都是显式 profile 变更。
+该 bundle 的单个 insert 就是完整应用配置树：SDK stdio 启动与 JSON-RPC 服务、一个由环境配置的 DeepSeek 适配器、显式 agent 核心、按配置启用的 MCP 资源工具、本地文件系统、图片附件、自动上下文压缩与子进程服务、Session 工作目录状态及其工具、按平台选择的持久 shell PTY，以及位于 `$MWF_HOME/sessions` 的未压缩 JSONL 持久化。它不继承其他 bundle，因此每个额外配置项都是显式 profile 变更。
 
 ### 源码地图
 
@@ -78,7 +78,7 @@ dsh --profile sdk-minimal
 
 #### 模型看到的内容
 
-系统提示词取 `DSH_SYSTEM_PROMPT`，未设置时使用 `You are a helpful software engineer assistant.`。未配置 MCP 服务器时，对外公布的工具为 `read_image`、`working_directory`，以及 Linux/macOS 上 agent 所有的持久 `bash` 或 Windows 上的 `pwsh`。必需的用户上下文提供当前目录。可选运行时上下文、文本文件工具、workspace 指令、skill、jobs 控制与 Harness 身份均不存在。
+系统提示词取 `MWF_SYSTEM_PROMPT`，未设置时使用 `You are a helpful software engineer assistant.`。未配置 MCP 服务器时，对外公布的工具为 `read_image`、`working_directory`，以及 Linux/macOS 上 agent 所有的持久 `bash` 或 Windows 上的 `pwsh`。必需的用户上下文提供当前目录。可选运行时上下文、文本文件工具、workspace 指令、skill、jobs 控制与 Harness 身份均不存在。
 
 #### Token 影响
 
@@ -92,8 +92,8 @@ dsh --profile sdk-minimal
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- **该组合刻意省略共享产品服务** — 需要 settings、托管凭据、策略预设、遥测、Web 工具或完整默认工具清单时，请选择 `dsh --profile sdk`。
-- **图片读取需要支持图片输入的模型** — 选择适配器声明支持图片输入的路由；纯文本路由会返回工具错误。图片存储在 `$DSH_HOME/attachments/v1` 下。
+- **该组合刻意省略共享产品服务** — 需要 settings、托管凭据、策略预设、遥测、Web 工具或完整默认工具清单时，请选择 `mwf --profile sdk`。
+- **图片读取需要支持图片输入的模型** — 选择适配器声明支持图片输入的路由；纯文本路由会返回工具错误。图片存储在 `$MWF_HOME/attachments/v1` 下。
 - **压缩由系统自动执行** — 通过 profile patch 配置 [compaction-basic](../../compaction/compaction-basic/README.zh.md)。SDK 提示词文本不会执行 `/compact` 或其他斜杠命令。
 - **用户 patch 可以扩展配置树并破坏 stdout** — profile 自定义属于受信任的应用组合；向 stdout 写入普通文本的插件会破坏 JSON-RPC 分帧。
 

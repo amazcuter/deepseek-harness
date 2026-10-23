@@ -3,13 +3,13 @@ description: "The out-of-process SDK subagent backend for users and maintainers 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-subagent-dsh-sdk
+# @metaworkflow/subagent-dsh-sdk
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-subagent-dsh-sdk` runs each delegated task in a fresh DeepSeek Harness subprocess with its own profile, session, model route, and tools. The parent provides the task and working directory, while each child uses its configured runtime and remains isolated from the parent conversation. The parent receives the child's final assistant text or a safe error; intermediate messages and tool traffic stay inside the child process. Choose this backend when delegation needs a complete Harness runtime rather than shared in-process state, and accept the cost of starting a new process for every run.
+`mwf-subagent-dsh-sdk` runs each delegated task in a fresh DeepSeek Harness subprocess with its own profile, session, model route, and tools. The parent provides the task and working directory, while each child uses its configured runtime and remains isolated from the parent conversation. The parent receives the child's final assistant text or a safe error; intermediate messages and tool traffic stay inside the child process. Choose this backend when delegation needs a complete Harness runtime rather than shared in-process state, and accept the cost of starting a new process for every run.
 
 ## Table of Contents
 
@@ -25,23 +25,23 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this provider when a delegation should run as a complete Harness runtime in its own process. The common path is explicit: mount the seam, mount this provider, configure `dshBin` when needed, and select the child `profile` and ordered `patches`.
+Mount this provider when a delegation should run as a complete Harness runtime in its own process. The common path is explicit: mount the seam, mount this provider, configure `mwfBin` when needed, and select the child `profile` and ordered `patches`.
 
 ### When to choose it
 
 Choose this backend when the child must be a full harness peer — its own composition, session persistence, model route, and tools — rather than an agent that shares the parent's process. Choose an in-process backend when the child must share the parent's composition or honor parent-enforced non-route capabilities: this provider accepts agent route options but rejects independent presets, structured output, and depth caps rather than silently omitting them.
 
-The provider advertises `agentOptions: true`, with `agentPreset`/`outputSchema`/`depthLimit` false, and `inheritsParentContext: false`. Its immutable `agentRouteDefaults` publish the configured provider/model baseline to `dsh-tool-subagent` before model overrides and exact-route preflight; the backend applies the same configuration defaults during activation startup, including `maxTokens`. Agent route values cross the SDK wire as an explicit whitelist; the child remains a fresh runtime in another process, and the child process uses the selected effective directory while its Session retains the parent origin directory. `dsh-tool-subagent` deployments over this provider set `maxDepth: 'provider-managed'` — the child harness owns its own recursion budget.
+The provider advertises `agentOptions: true`, with `agentPreset`/`outputSchema`/`depthLimit` false, and `inheritsParentContext: false`. Its immutable `agentRouteDefaults` publish the configured provider/model baseline to `mwf-tool-subagent` before model overrides and exact-route preflight; the backend applies the same configuration defaults during activation startup, including `maxTokens`. Agent route values cross the SDK wire as an explicit whitelist; the child remains a fresh runtime in another process, and the child process uses the selected effective directory while its Session retains the parent origin directory. `mwf-tool-subagent` deployments over this provider set `maxDepth: 'provider-managed'` — the child harness owns its own recursion budget.
 
 ### Configuration
 
 | Field | Default | Meaning |
 |---|---|---|
-| `providerName` | `dsh-sdk` | Registry name on `ctx.subagents` |
-| `dshBin` | SDK dependency | Explicit dsh CLI module, resolved and checked at plugin load; omission uses the SDK dependency |
+| `providerName` | `mwf-sdk` | Registry name on `ctx.subagents` |
+| `mwfBin` | SDK dependency | Explicit mwf CLI module, resolved and checked at plugin load; omission uses the SDK dependency |
 | `profile` | `sdk` | Named child profile |
 | `patches` | `[]` | Ordered per-launch profile patch files, resolved and checked at plugin load |
-| `dshHome` | required | Absolute isolated Harness home for every nested child process |
+| `mwfHome` | required | Absolute isolated Harness home for every nested child process |
 | `provider` | `deepseek-official` | Provider route sent in the child's `initialize` |
 | `model` | `deepseek-v4-flash` | Model sent in the child's `initialize` |
 | `maxTokens` | adapter/provider route default | Per-request output-token cap sent in the child's `initialize` |
@@ -50,24 +50,24 @@ The provider advertises `agentOptions: true`, with `agentPreset`/`outputSchema`/
 | `disposeEofGraceMs` | `6000` | Grace after stdin EOF before platform termination |
 | `disposeGraceMs` | `3000` | Exit-confirmation grace after termination |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-subagent-dsh-sdk) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowsubagent-dsh-sdk) is the exhaustive source for every accepted field and its JSDoc.
 
 Request `agentOptions` override `provider`, `model`, and `maxTokens` independently. `reasoningEffort` has no provider-instance default: an omitted request leaves it absent so the selected child model resolves its own default. The model-facing subagent tool can select provider/model/reasoning per call; `maxTokens` remains deployment-controlled through tool config or this provider's default.
 
 ```yaml
 - id: subagent-dsh-sdk
-  name: '@deepseek-ai/dsh-subagent-dsh-sdk'
+  name: '@metaworkflow/subagent-dsh-sdk'
   config:
-    providerName: dsh-sdk
+    providerName: mwf-sdk
     profile: sdk
     patches: ['./profiles/research-child.cordis.yml']
-    dshHome: !!js dshHomePath('children')
+    mwfHome: !!js mwfHomePath('children')
     maxTokens: 49152
     env:
       DEEPSEEK_API_KEY: !!js process.env.DEEPSEEK_API_KEY
 - id: tool-subagent
-  name: '@deepseek-ai/dsh-tool-subagent'
-  config: { provider: dsh-sdk, toolName: subagent, maxDepth: 'provider-managed' }
+  name: '@metaworkflow/tool-subagent'
+  config: { provider: mwf-sdk, toolName: subagent, maxDepth: 'provider-managed' }
 ```
 
 ### What you get
@@ -76,7 +76,7 @@ A successful run returns the child's final assistant text (or accumulated partia
 
 ### Failure and recovery
 
-The configured SDK runtime must implement `session/wait`; a runtime without it reports an execution failure. Update the provider and a separately configured `dshBin` runtime together. An already-aborted request fails before path resolution or spawn. A route, spawn, handshake, or pre-publication cancellation failure ordinarily rejects only after the subprocess is reaped. If initialization and cleanup both fail, the ordered safe facts preserve both failures without claiming quiescence. A child runtime that fails after publication settles through the run rather than rejecting it; partial output stays separate from the safe diagnostic. Diagnostics expose only the provider plus `initialize`, `session-run`, or `shutdown` stage and a fixed category. They never copy SDK messages, stderr, paths, task content, environment values, credentials, or protocol payloads.
+The configured SDK runtime must implement `session/wait`; a runtime without it reports an execution failure. Update the provider and a separately configured `mwfBin` runtime together. An already-aborted request fails before path resolution or spawn. A route, spawn, handshake, or pre-publication cancellation failure ordinarily rejects only after the subprocess is reaped. If initialization and cleanup both fail, the ordered safe facts preserve both failures without claiming quiescence. A child runtime that fails after publication settles through the run rather than rejecting it; partial output stays separate from the safe diagnostic. Diagnostics expose only the provider plus `initialize`, `session-run`, or `shutdown` stage and a fixed category. They never copy SDK messages, stderr, paths, task content, environment values, credentials, or protocol payloads.
 
 -----
 
@@ -123,10 +123,10 @@ The child environment is the subprocess seam's credential-scrubbed parent enviro
 Read these pages when the package-level contract is not enough. They move from this backend to the seam it plugs into and the SDK it drives.
 
 - [Subagent subsystem](../../../docs/subsystems/subagent.md) — the service contract, provider contract, and terminal result semantics.
-- [dsh-subagent seam](../subagent/README.md) — the registry and start API this provider registers on.
+- [mwf-subagent seam](../subagent/README.md) — the registry and start API this provider registers on.
 - [ACP subagent backend](../subagent-acp/README.md) — the sibling out-of-process provider over the Agent Client Protocol.
 - [TypeScript SDK client](../../sdk/client/README.md) — the stdio JSON-RPC client this backend drives the child through.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-subagent-dsh-sdk) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#metaworkflowsubagent-dsh-sdk) — every accepted config field and its source declaration.
 
 -----
 
@@ -151,7 +151,7 @@ Independent of the parent request cache. Each SDK child can reuse only prefixes 
 
 #### What the model sees
 
-Through `dsh-tool-subagent`, the parent model first receives a child id, then a completion notice containing final or partial assistant text, the stop reason, and safe diagnostic. The parent Session independently retains the external task identity and complete terminal result. Intermediate messages and tool traffic do not enter the parent Session.
+Through `mwf-tool-subagent`, the parent model first receives a child id, then a completion notice containing final or partial assistant text, the stop reason, and safe diagnostic. The parent Session independently retains the external task identity and complete terminal result. Intermediate messages and tool traffic do not enter the parent Session.
 
 #### Token effect
 

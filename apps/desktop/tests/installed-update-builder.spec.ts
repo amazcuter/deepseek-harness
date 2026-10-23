@@ -18,9 +18,9 @@ vi.mock('../scripts/windows-sign.mjs', () => ({
 }))
 
 const versions = ['0.1.6-nightly.20260914.1', '0.1.6-nightly.20260914.2'] as const
-const environment = { DSH_DESKTOP_AUTO_UPDATE_ENV: 'test', DOWNLOAD_TEST_ORIGIN: 'https://download-test.deepseek.com', DOWNLOAD_TEST_RELEASE_ID: '0123456789abcdef0123456789abcdef',
-  DSH_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: 'https://policy.example.com',
-  DSH_DESKTOP_MANDATORY_UPDATE_CONFIG: JSON.stringify({ allowedAuthOrigins: ['https://login.example.com'] }),
+const environment = { MWF_DESKTOP_AUTO_UPDATE_ENV: 'test', DOWNLOAD_TEST_ORIGIN: 'https://download-test.deepseek.com', DOWNLOAD_TEST_RELEASE_ID: '0123456789abcdef0123456789abcdef',
+  MWF_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: 'https://policy.example.com',
+  MWF_DESKTOP_MANDATORY_UPDATE_CONFIG: JSON.stringify({ allowedAuthOrigins: ['https://login.example.com'] }),
   DOWNLOAD_TEST_COS_BUCKET: 'bj-toc-download-test-1320056602' }
 const require = createRequire(import.meta.url)
 const { validateConfiguration } = require('app-builder-lib/out/util/config/config.js') as {
@@ -28,7 +28,7 @@ const { validateConfiguration } = require('app-builder-lib/out/util/config/confi
 }
 
 async function fixture<T>(body: (manifest: string, source: string) => Promise<T>): Promise<T> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-update-builder-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-update-builder-'))
   try {
     const run = await createInstalledUpdateRun(root, versions, { version: '0.1.5-rc.2', commit: 'a'.repeat(40), dirtyFiles: [] })
     const manifest = join(run.root, 'run.json')
@@ -42,9 +42,9 @@ async function fixture<T>(body: (manifest: string, source: string) => Promise<T>
     await writeFile(join(source, 'renderer', 'index.html'), '<p>fixture</p>')
     await writeFile(join(source, '.env.windows'), 'must-not-copy')
     for (const version of versions) {
-      const dsh = join(run.root, version, 'dsh')
-      const runtime = runtimeFixture(dsh, version)
-      writeDesktopRuntime(dsh, runtime.release, runtime.sharedPackages.map(entry => entry.name), { platform: 'win32', arch: 'x64' })
+      const mwf = join(run.root, version, 'mwf')
+      const runtime = runtimeFixture(mwf, version)
+      writeDesktopRuntime(mwf, runtime.release, runtime.sharedPackages.map(entry => entry.name), { platform: 'win32', arch: 'x64' })
     }
     return await body(manifest, source)
   } finally { await rm(root, { recursive: true, force: true }) }
@@ -87,9 +87,9 @@ describe('installed-update application inputs and builder configuration', () => 
         expect(config.extraMetadata.version).toBe(versions[index])
         expect(config.extraMetadata.main).toBe('qualification-bootstrap.mjs')
         expect(config.directories.output).toBe(join(manifest, '..', versions[index]!, 'installer'))
-        const dsh = join(manifest, '..', versions[index]!, 'dsh')
-        expect(config.files.at(-2)).toMatchObject({ from: dsh, to: 'dsh' })
-        expect(config.files.at(-1)).toMatchObject({ from: join(dsh, 'node_modules'), to: 'dsh/node_modules' })
+        const mwf = join(manifest, '..', versions[index]!, 'mwf')
+        expect(config.files.at(-2)).toMatchObject({ from: mwf, to: 'mwf' })
+        expect(config.files.at(-1)).toMatchObject({ from: join(mwf, 'node_modules'), to: 'mwf/node_modules' })
         expect(config.files).toContain('!node_modules/**/*.{js,cjs,mjs,ts,cts,mts,css}.map')
         expect(config.files).toContain('!node_modules/**/*.tsbuildinfo')
         expect(config.win.forceCodeSigning).toBe(true)
@@ -98,7 +98,7 @@ describe('installed-update application inputs and builder configuration', () => 
         expect(typeof config.beforeBuild).toBe('function')
         expect(config.nsis.include).toMatch(/scripts[\\/]installer\.nsh$/u)
         expect(config.publish[0]!.url)
-          .toMatch(/^https:\/\/download-test\.deepseek\.com\/dsh-desk\/feeds\/qualification\/[a-f0-9]{24}\/win-x64\/$/u)
+          .toMatch(/^https:\/\/download-test\.deepseek\.com\/mwf-desk\/feeds\/qualification\/[a-f0-9]{24}\/win-x64\/$/u)
       }
     })
   })
@@ -113,8 +113,8 @@ describe('installed-update application inputs and builder configuration', () => 
   })
 
   it.each([
-    { DSH_DESKTOP_AUTO_UPDATE_ENV: 'production' },
-    { DSH_DESKTOP_UNSIGNED: '1' },
+    { MWF_DESKTOP_AUTO_UPDATE_ENV: 'production' },
+    { MWF_DESKTOP_UNSIGNED: '1' },
     { DOWNLOAD_TEST_ORIGIN: 'https://download.deepseek.com' },
   ])('rejects incompatible qualification settings %j', async (override) => {
     await fixture(async (manifest) => {

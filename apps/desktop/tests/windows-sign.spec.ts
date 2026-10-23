@@ -50,7 +50,7 @@ const SIGN_SCRIPT = resolve(import.meta.dirname, '../scripts/windows-sign.cmd')
 describe('Windows token signing', () => {
   it.each(['invalid-primary', 'timestamp-exhausted', 'timestamp-recovered', 'normalization-corrupt'] as const)(
     'keeps hardware protection separate from %s', async (mode) => {
-      const root = await mkdtemp(join(tmpdir(), 'dsh-sign-completion-'))
+      const root = await mkdtemp(join(tmpdir(), 'mwf-sign-completion-'))
       const certificateFile = join(root, 'server.cer')
       const signTool = join(root, 'signtool.exe')
       const path = join(root, 'application.exe')
@@ -69,13 +69,13 @@ describe('Windows token signing', () => {
         if (argv[0] === '/d') {
           hardware++
           expect(existsSync(join(stateDirectory, 'attempt.json'))).toBe(true)
-          writeFileSync(options.env.DSH_DESKTOP_WINDOWS_SIGN_TARGET!, 'signed:input')
+          writeFileSync(options.env.MWF_DESKTOP_WINDOWS_SIGN_TARGET!, 'signed:input')
           callback(null, '', '')
         } else {
-          expect(options.env.DSH_DESKTOP_WINDOWS_TOKEN_PIN).toBeUndefined()
-          expect(options.env.DSH_DESKTOP_WINDOWS_KEY_CONTAINER).toBeUndefined()
+          expect(options.env.MWF_DESKTOP_WINDOWS_TOKEN_PIN).toBeUndefined()
+          expect(options.env.MWF_DESKTOP_WINDOWS_KEY_CONTAINER).toBeUndefined()
           if (command === 'powershell.exe') {
-            const timestamped = readFileSync(options.env.DSH_RUNTIME_VERIFY_FILE!, 'utf8').endsWith(':timestamp')
+            const timestamped = readFileSync(options.env.MWF_RUNTIME_VERIFY_FILE!, 'utf8').endsWith(':timestamp')
             if (!timestamped) expect(existsSync(join(stateDirectory, 'attempt.json'))).toBe(true)
             callback(null, JSON.stringify({ status: mode === 'invalid-primary' ? 'NotTrusted' : 'Valid', timestamped, thumbprint: 'A'.repeat(40) }), '')
           } else if (argv[0] === 'remove') {
@@ -127,7 +127,7 @@ describe('Windows token signing', () => {
     }, 15_000,
   )
   it('preserves verified copies without hardware and rejects the entire queue after preservation failure', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'dsh-windows-copy-signature-'))
+    const directory = await mkdtemp(join(tmpdir(), 'mwf-windows-copy-signature-'))
     try {
       const certificateFile = join(directory, 'server.cer')
       const signTool = join(directory, 'signtool.exe')
@@ -150,7 +150,7 @@ describe('Windows token signing', () => {
   })
 
   it('stops concurrent and subsequent signing tasks after a PIN failure', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'dsh-windows-pin-failure-'))
+    const directory = await mkdtemp(join(tmpdir(), 'mwf-windows-pin-failure-'))
     try {
       const certificateFile = join(directory, 'server.cer')
       const signTool = join(directory, 'signtool.exe')
@@ -159,12 +159,12 @@ describe('Windows token signing', () => {
       await writeFile(signTool, 'fixture')
       await writeFile(path, 'fixture')
       validateDesktopPackageEnvironment({
-        DSH_DESKTOP_APP_ID: 'com.example.desktop', DOWNLOAD_TEST_ORIGIN: 'https://updates.example.com', DOWNLOAD_TEST_RELEASE_ID: '0123456789abcdef0123456789abcdef',
-        DSH_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: 'https://policy.example.com',
-        DSH_DESKTOP_MANDATORY_UPDATE_CONFIG: JSON.stringify({ allowedAuthOrigins: ['https://login.example.com'] }),
-        DSH_DESKTOP_WINDOWS_CER_FILE: certificateFile, DSH_DESKTOP_WINDOWS_SIGNTOOL: signTool,
-        DSH_DESKTOP_WINDOWS_TOKEN_PIN: 'fixture-pin', DSH_DESKTOP_WINDOWS_KEY_CONTAINER: 'fixture-container',
-        DSH_DESKTOP_WINDOWS_SIGNATURE_CACHE_DIR: 'C:\\fixture\\signature-cache',
+        MWF_DESKTOP_APP_ID: 'com.example.desktop', DOWNLOAD_TEST_ORIGIN: 'https://updates.example.com', DOWNLOAD_TEST_RELEASE_ID: '0123456789abcdef0123456789abcdef',
+        MWF_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: 'https://policy.example.com',
+        MWF_DESKTOP_MANDATORY_UPDATE_CONFIG: JSON.stringify({ allowedAuthOrigins: ['https://login.example.com'] }),
+        MWF_DESKTOP_WINDOWS_CER_FILE: certificateFile, MWF_DESKTOP_WINDOWS_SIGNTOOL: signTool,
+        MWF_DESKTOP_WINDOWS_TOKEN_PIN: 'fixture-pin', MWF_DESKTOP_WINDOWS_KEY_CONTAINER: 'fixture-container',
+        MWF_DESKTOP_WINDOWS_SIGNATURE_CACHE_DIR: 'C:\\fixture\\signature-cache',
       }, { platform: 'win32', arch: 'x64' })
       expect(execFile).not.toHaveBeenCalled()
       vi.mocked(execFile).mockImplementationOnce((...args: unknown[]) => {
@@ -197,7 +197,7 @@ describe('Windows token signing', () => {
   it('passes only the validated BAT fields to the signing command interpreter', () => {
     expect(buildWindowsSigningEnvironment({
       SystemRoot: 'C:\\Windows',
-      DSH_DESKTOP_WINDOWS_TOKEN_PIN: 'inherited-token-secret',
+      MWF_DESKTOP_WINDOWS_TOKEN_PIN: 'inherited-token-secret',
       DEEPSEEK_API_KEY: 'api-secret',
       BUILD_PASSWORD: 'build-secret',
     }, {
@@ -209,12 +209,12 @@ describe('Windows token signing', () => {
       keyContainer: 'te-container',
     })).toEqual({
       SystemRoot: 'C:\\Windows',
-      DSH_DESKTOP_WINDOWS_SIGNTOOL: 'C:\\tools\\signtool.exe',
-      DSH_DESKTOP_WINDOWS_CER_FILE: CERTIFICATE_FILE,
-      DSH_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret!',
-      DSH_DESKTOP_WINDOWS_KEY_CONTAINER: 'te-container',
-      DSH_DESKTOP_WINDOWS_SIGN_TARGET: 'C:\\release\\DeepSeek Harness.exe',
-      DSH_DESKTOP_WINDOWS_SIGN_APPEND: '',
+      MWF_DESKTOP_WINDOWS_SIGNTOOL: 'C:\\tools\\signtool.exe',
+      MWF_DESKTOP_WINDOWS_CER_FILE: CERTIFICATE_FILE,
+      MWF_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret!',
+      MWF_DESKTOP_WINDOWS_KEY_CONTAINER: 'te-container',
+      MWF_DESKTOP_WINDOWS_SIGN_TARGET: 'C:\\release\\DeepSeek Harness.exe',
+      MWF_DESKTOP_WINDOWS_SIGN_APPEND: '',
     })
   })
 
@@ -226,7 +226,7 @@ describe('Windows token signing', () => {
       isNest: true,
       tokenPin: 'token-secret!',
       keyContainer: 'te-container',
-    }).DSH_DESKTOP_WINDOWS_SIGN_APPEND).toBe('1')
+    }).MWF_DESKTOP_WINDOWS_SIGN_APPEND).toBe('1')
   })
 
   it('keeps the verified SafeNet command in an ASCII CRLF CMD file', async () => {
@@ -236,13 +236,13 @@ describe('Windows token signing', () => {
     expect(text).toContain('\r\n')
     expect(text.replaceAll('\r\n', '')).not.toContain('\n')
     expect(text).toContain('setlocal DisableDelayedExpansion\r\n')
-    expect(text).toContain('set "DSH_DESKTOP_WINDOWS_CER_FILE="\r\n')
-    expect(text).toContain('set "DSH_DESKTOP_WINDOWS_TOKEN_PIN="\r\n')
+    expect(text).toContain('set "MWF_DESKTOP_WINDOWS_CER_FILE="\r\n')
+    expect(text).toContain('set "MWF_DESKTOP_WINDOWS_TOKEN_PIN="\r\n')
     expect(text).toContain('"%signTool%" sign /v /fd sha256 /f "%certificateFile%" /kc "[{{%tokenPin%}}]=%keyContainer%" /csp "eToken Base Cryptographic Provider" %appendSignature% "%targetFile%"\r\n')
   })
 
   it('rejects incomplete signing identities and non-SHA-256 signing tasks', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'dsh-windows-sign-tool-'))
+    const directory = await mkdtemp(join(tmpdir(), 'mwf-windows-sign-tool-'))
     const certificateFile = join(directory, 'server.cer')
     const signTool = join(directory, 'signtool.exe')
     await writeFile(certificateFile, 'code-signing-certificate-fixture')
@@ -252,13 +252,13 @@ describe('Windows token signing', () => {
       signTool,
       tokenPin: 'token-secret!',
       keyContainer: 'te-container',
-    })).toThrow(/DSH_DESKTOP_WINDOWS_CER_FILE/u)
+    })).toThrow(/MWF_DESKTOP_WINDOWS_CER_FILE/u)
     expect(() => createWindowsTokenSigner({
       certificateFile,
       signTool: undefined,
       tokenPin: 'token-secret!',
       keyContainer: 'te-container',
-    })).toThrow(/DSH_DESKTOP_WINDOWS_SIGNTOOL/u)
+    })).toThrow(/MWF_DESKTOP_WINDOWS_SIGNTOOL/u)
     const signer = createWindowsTokenSigner({
       certificateFile,
       signTool,
@@ -270,13 +270,13 @@ describe('Windows token signing', () => {
         certificateFile,
         signTool,
         tokenPin: 'token-secret!',
-      })).toThrow(/DSH_DESKTOP_WINDOWS_KEY_CONTAINER/u)
+      })).toThrow(/MWF_DESKTOP_WINDOWS_KEY_CONTAINER/u)
       expect(() => createWindowsTokenSigner({
         certificateFile,
         signTool,
         tokenPin: '',
         keyContainer: 'te-container',
-      })).toThrow(/DSH_DESKTOP_WINDOWS_TOKEN_PIN/u)
+      })).toThrow(/MWF_DESKTOP_WINDOWS_TOKEN_PIN/u)
       expect(() => createWindowsTokenSigner({
         certificateFile,
         signTool,
@@ -300,9 +300,9 @@ describe('Windows token signing', () => {
   it('removes inherited credentials and redacts SignTool process failures', () => {
     expect(scrubWindowsSigningEnvironment({
       SystemRoot: 'C:\\Windows',
-      DSH_DESKTOP_WINDOWS_CER_FILE: 'C:\\release\\server.cer',
-      DSH_DESKTOP_WINDOWS_SIGNTOOL: 'C:\\tools\\signtool.exe',
-      DSH_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret',
+      MWF_DESKTOP_WINDOWS_CER_FILE: 'C:\\release\\server.cer',
+      MWF_DESKTOP_WINDOWS_SIGNTOOL: 'C:\\tools\\signtool.exe',
+      MWF_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret',
       DEEPSEEK_API_KEY: 'api-secret',
       BUILD_PASSWORD: 'build-secret',
     })).toEqual({ SystemRoot: 'C:\\Windows' })
@@ -345,7 +345,7 @@ describe('Windows token signing', () => {
       platform: 'win32',
       environment: {
         SystemRoot: 'C:\\Windows',
-        DSH_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret',
+        MWF_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret',
       },
     })
 
@@ -368,7 +368,7 @@ describe('Windows token signing', () => {
   })
 
   it('clears a certificate table inherited beyond the generated uninstaller', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'dsh-windows-sign-'))
+    const directory = await mkdtemp(join(tmpdir(), 'mwf-windows-sign-'))
     const path = join(directory, 'uninstaller.exe')
     const executable = Buffer.alloc(512)
     const peOffset = 216

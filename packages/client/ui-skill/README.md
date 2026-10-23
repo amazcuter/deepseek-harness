@@ -1,15 +1,15 @@
 ---
-description: "Web skill references and the dedicated skill tool row for the dsh web client: the /-triggered skill source and the skill call card."
+description: "Web skill references and the dedicated skill tool row for the mwf web client: the /-triggered skill source and the skill call card."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-skill
+# @metaworkflow/client-ui-skill
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-client-ui-skill` lets users invoke a skill by choosing it from the `/` suggestions or typing `/name` directly. The same literal command loads the skill consistently from the Web composer, TUI, and ACP, while a name shared with a host command continues to resolve as that command. Skill calls appear in the conversation as expandable `Instructions` cards whose settled contents remain stable when the installed skill catalog changes.
+`mwf-client-ui-skill` lets users invoke a skill by choosing it from the `/` suggestions or typing `/name` directly. The same literal command loads the skill consistently from the Web composer, TUI, and ACP, while a name shared with a host command continues to resolve as that command. Skill calls appear in the conversation as expandable `Instructions` cards whose settled contents remain stable when the installed skill catalog changes.
 
 ## Table of Contents
 
@@ -84,7 +84,7 @@ These pages cover the input machinery, the tool row host, and the host-side skil
 
 #### What the model sees
 
-The user's message reaches the model verbatim, `/name` literal included. The host's pre-step boundary (`dsh-tool-skill`) then appends the canonical `<skill_content>` block — the same `renderSkillContent` output the `skill` tool returns — as injected instructions context at the end of that step's injections, closest to the model's answer. Loading is deterministic: the model receives the full body without being asked to call the `skill` tool, and the catalog tells it not to re-load an inline-injected skill.
+The user's message reaches the model verbatim, `/name` literal included. The host's pre-step boundary (`mwf-tool-skill`) then appends the canonical `<skill_content>` block — the same `renderSkillContent` output the `skill` tool returns — as injected instructions context at the end of that step's injections, closest to the model's answer. Loading is deterministic: the model receives the full body without being asked to call the `skill` tool, and the catalog tells it not to re-load an inline-injected skill.
 
 #### Token effect
 

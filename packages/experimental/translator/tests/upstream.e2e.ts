@@ -13,7 +13,7 @@ async function translator() {
   return ctx.translator
 }
 
-describe.skipIf(process.env.DSH_TRANSLATION_LIVE !== '1')('anonymous translation real endpoints', () => {
+describe.skipIf(process.env.MWF_TRANSLATION_LIVE !== '1')('anonymous translation real endpoints', () => {
   it('uses default Bing with automatic source detection and a Simplified Chinese locale', async () => {
     const service = await translator()
     const spec = service.resolve({ text: 'Hello world.', targetLanguage: 'zh-CN' })

@@ -3,7 +3,7 @@ description: "Web GUI 的模型选择：/model 弹窗与 composer 模型位共�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-model-selection
+# @metaworkflow/client-ui-model-selection
 
 [English](README.md) | 中文
 
@@ -59,7 +59,7 @@ composer 菜单中的模型名称和推理等级均使用 400（regular）字重
 
 ### 选择失败
 
-当会话被其他写句柄占用时，模型选择失败提示用户退出其他正在运行的 DSH 后重试。
+当会话被其他写句柄占用时，模型选择失败提示用户退出其他正在运行的 MWF 后重试。
 
 -----
 
@@ -86,7 +86,7 @@ composer 的 `ModelSelect` 与 `/model` 选项构建器共用[提供方排序](s
 
 - [ui-commands](../ui-commands/README.zh.md)——`/model` 贡献项注册进的 popupSelect 外壳。
 - [ui-conversation](../ui-conversation/README.zh.md)——声明 composer 的 `conversation.input.model` 位。
-- [dsh-agent-default-model](../../core/agent-default-model/README.zh.md)——为从未选择的会话提供默认模型的默认模型服务。
+- [mwf-agent-default-model](../../core/agent-default-model/README.zh.md)——为从未选择的会话提供默认模型的默认模型服务。
 - [客户端包映射](../README.zh.md)——相邻的浏览器 UI 包。
 
 -----

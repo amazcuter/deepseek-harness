@@ -3,7 +3,7 @@ description: "Read the Session’s current directory or enter an existing direct
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tool-working-directory
+# @metaworkflow/tool-working-directory
 
 English | [中文](README.zh.md)
 
@@ -28,7 +28,7 @@ Read the Session’s current directory or enter an existing directory with the s
 Mount alongside `tools` and `workingDirectory`. Call `working_directory({})` to read or `working_directory({ cd: "src" })` to change directory. The tool has no configuration fields.
 
 ```yaml
-- name: '@deepseek-ai/dsh-tool-working-directory'
+- name: '@metaworkflow/tool-working-directory'
 ```
 
 -----
@@ -63,7 +63,7 @@ No runtime invariant companion is published because the tool delegates all direc
 
 #### What the model sees
 
-The [tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-tool-working-directory) defines the optional `cd` argument and canonical `cwd` result. Directory notices are owned by `dsh-working-directory`.
+The [tool catalog](../../../docs/tool-catalog.md#metaworkflowtool-working-directory) defines the optional `cd` argument and canonical `cwd` result. Directory notices are owned by `mwf-working-directory`.
 
 #### Token effect
 

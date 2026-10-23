@@ -9,9 +9,9 @@ import { PassThrough } from 'node:stream'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import * as AppBoot from '@deepseek-ai/dsh-app-boot'
-import { createLaunchEnvironmentSnapshot, DSH_LAUNCH_ENVIRONMENT_KEY } from '@deepseek-ai/dsh-launch-environment'
-import { bindUrlHost, type WebServer } from '@deepseek-ai/dsh-host-webserver'
+import * as AppBoot from '@metaworkflow/app-boot'
+import { createLaunchEnvironmentSnapshot, MWF_LAUNCH_ENVIRONMENT_KEY } from '@metaworkflow/launch-environment'
+import { bindUrlHost, type WebServer } from '@metaworkflow/host-webserver'
 import { apply, Config, internals } from '../src/index.ts'
 
 vi.mock('node:child_process', async importOriginal => ({
@@ -48,7 +48,7 @@ function launcher(): BrowserLauncher {
 
 /** Stage a dist fixture and point the bundle's resolver at it. */
 function stageDist(): string {
-  dist = mkdtempSync(join(tmpdir(), 'dsh-web-app-'))
+  dist = mkdtempSync(join(tmpdir(), 'mwf-web-app-'))
   mkdirSync(join(dist, 'dist'))
   const index = join(dist, 'dist', 'index.html')
   writeFileSync(index, '<head></head><body>shell</body>')
@@ -106,7 +106,7 @@ describe('web-app runtime glue', () => {
     const ctx = new Context()
     onTestFinished(() => ctx.fiber.dispose())
     // Editor markers and a project .env SSH value do not establish a remote launch.
-    ctx.provide(DSH_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot([
+    ctx.provide(MWF_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot([
       { source: 'process', values: { VSCODE_IPC_HOOK_CLI: '/tmp/local-vscode-ipc' } },
       { source: 'project-env', path: '/work/.env', values: { SSH_CONNECTION: 'stale-project-value' } },
     ]))
@@ -128,16 +128,16 @@ describe('web-app runtime glue', () => {
     apply(ctx, new Config({ openBrowser: true, printUrl: true, surfaceContext: true }))
     await vi.waitFor(() => { expect(openBrowser).toHaveBeenCalled() })
 
-    expect(log).toHaveBeenCalledWith('dsh web: http://127.0.0.1:4567/?token=test-token')
-    expect(log).toHaveBeenCalledWith('dsh web: opening the default browser; pass --no-open to disable')
+    expect(log).toHaveBeenCalledWith('mwf web: http://127.0.0.1:4567/?token=test-token')
+    expect(log).toHaveBeenCalledWith('mwf web: opening the default browser; pass --no-open to disable')
     expect(openBrowser).toHaveBeenCalledWith('http://127.0.0.1:4567/?token=test-token')
     expect(lifecycle).toEqual([
-      'dsh web: http://127.0.0.1:4567/?token=test-token',
-      'dsh web: opening the default browser; pass --no-open to disable',
+      'mwf web: http://127.0.0.1:4567/?token=test-token',
+      'mwf web: opening the default browser; pass --no-open to disable',
       'open:http://127.0.0.1:4567/?token=test-token',
     ])
     const webRuntime = contributions.find(contribution => contribution.name === 'web-runtime')
-    expect(webRuntime?.resolve()).toEqual({ DSH_WEB_URL: 'http://127.0.0.1:4567' })
+    expect(webRuntime?.resolve()).toEqual({ MWF_WEB_URL: 'http://127.0.0.1:4567' })
     expect(ctx.webApp.getAdvertisedUrl()).toBe('http://127.0.0.1:4567')
   })
 
@@ -169,12 +169,12 @@ describe('web-app runtime glue', () => {
     await vi.waitFor(() => { expect(openBrowser).toHaveBeenCalled() })
 
     expect(lifecycle).toEqual([
-      'dsh web: https://proxy.example:8443/web/?token=test-token',
-      'dsh web: opening the default browser; pass --no-open to disable',
+      'mwf web: https://proxy.example:8443/web/?token=test-token',
+      'mwf web: opening the default browser; pass --no-open to disable',
       'open:https://proxy.example:8443/web/?token=test-token',
     ])
     const urlContribution = contributions.find(contribution => contribution.name === 'web-runtime')
-    expect(urlContribution?.resolve()).toEqual({ DSH_WEB_URL: 'https://proxy.example:8443/web/' })
+    expect(urlContribution?.resolve()).toEqual({ MWF_WEB_URL: 'https://proxy.example:8443/web/' })
     // The service advertises the row's effective publicUrl, whether it came from --public-url or a profile override.
     expect(ctx.webApp.getAdvertisedUrl()).toBe('https://proxy.example:8443/web/')
   })
@@ -230,7 +230,7 @@ describe('web-app runtime glue', () => {
     const openBrowser = vi.fn(async () => {})
     internals.openBrowser = openBrowser
     apply(ctx, new Config({ openBrowser: false, printUrl: true, surfaceContext: true }))
-    await vi.waitFor(() => { expect(log).toHaveBeenCalledWith(`dsh web: http://${printed}:4567/?token=test-token`) })
+    await vi.waitFor(() => { expect(log).toHaveBeenCalledWith(`mwf web: http://${printed}:4567/?token=test-token`) })
     expect(warn).not.toHaveBeenCalled()
     expect(openBrowser).not.toHaveBeenCalled()
   })
@@ -257,9 +257,9 @@ describe('web-app runtime glue', () => {
     // root names the bind address; startup warns that the port is plain HTTP.
     expect(warn).toHaveBeenCalledTimes(1)
     expect(warn).toHaveBeenCalledWith(
-      `dsh web: listening on ${bind} over plain HTTP; restrict this port to a trusted proxy or network`,
+      `mwf web: listening on ${bind} over plain HTTP; restrict this port to a trusted proxy or network`,
     )
-    expect(log).toHaveBeenCalledWith(`dsh web: http://${printed}:4567/?token=test-token`)
+    expect(log).toHaveBeenCalledWith(`mwf web: http://${printed}:4567/?token=test-token`)
     expect(openBrowser).toHaveBeenCalledWith(`http://${printed}:4567/?token=test-token`)
   })
 
@@ -277,7 +277,7 @@ describe('web-app runtime glue', () => {
     apply(ctx, new Config({ openBrowser: false, printUrl: true, surfaceContext: false }))
     await vi.waitFor(() => { expect(log).toHaveBeenCalled() })
 
-    expect(log).toHaveBeenCalledWith('dsh web: http://[::1]:4567/?token=test-token')
+    expect(log).toHaveBeenCalledWith('mwf web: http://[::1]:4567/?token=test-token')
   })
 
   it.each(['fe80::1%lo', '::127.0.0.1%lo'])('refuses its own activation when %s carries an interface zone id', async (bind) => {
@@ -302,7 +302,7 @@ describe('web-app runtime glue', () => {
       openBrowser: false, printUrl: true, surfaceContext: false, publicUrl: 'https://app.example/ui/',
     }))
     await vi.waitFor(() => { expect(log).toHaveBeenCalled() })
-    expect(log).toHaveBeenCalledWith('dsh web: https://app.example/ui/?token=test-token')
+    expect(log).toHaveBeenCalledWith('mwf web: https://app.example/ui/?token=test-token')
   })
 
 
@@ -332,7 +332,7 @@ describe('web-app runtime glue', () => {
     provideConnection(ctx)
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     apply(ctx, new Config({ openBrowser: false, printUrl: true, surfaceContext: false, publicUrl: null as never }))
-    await vi.waitFor(() => { expect(log).toHaveBeenCalledWith('dsh web: http://127.0.0.1:4567/?token=test-token') })
+    await vi.waitFor(() => { expect(log).toHaveBeenCalledWith('mwf web: http://127.0.0.1:4567/?token=test-token') })
   })
 
   it.each([
@@ -349,7 +349,7 @@ describe('web-app runtime glue', () => {
     internals.openBrowser = openBrowser
     apply(ctx, new Config({ openBrowser: true, printUrl: true, surfaceContext: false }))
     await new Promise(resolve => setTimeout(resolve, 0))
-    expect(log).toHaveBeenCalledWith('dsh web: http://127.0.0.1:4567/?token=test-token')
+    expect(log).toHaveBeenCalledWith('mwf web: http://127.0.0.1:4567/?token=test-token')
     expect(openBrowser).not.toHaveBeenCalled()
     await ctx.fiber.dispose()
   })
@@ -373,7 +373,7 @@ describe('web-app runtime glue', () => {
     expect(openBrowser).not.toHaveBeenCalled()
     release!()
     await new Promise(resolve => setTimeout(resolve, 0))
-    expect(log).toHaveBeenCalledWith('dsh web: http://127.0.0.1:4567/?token=test-token')
+    expect(log).toHaveBeenCalledWith('mwf web: http://127.0.0.1:4567/?token=test-token')
     expect(openBrowser).toHaveBeenCalledWith('http://127.0.0.1:4567/?token=test-token')
     await settled.fiber.dispose()
 
@@ -439,7 +439,7 @@ describe('web-app runtime glue', () => {
     await vi.waitFor(() => { expect(audit).toHaveBeenCalledOnce() })
     await Promise.allSettled(audit.mock.results.map(result => result.value as Promise<void>))
     if (announces) {
-      expect(log).toHaveBeenCalledWith('dsh web: http://127.0.0.1:4567/?token=test-token')
+      expect(log).toHaveBeenCalledWith('mwf web: http://127.0.0.1:4567/?token=test-token')
       expect(openBrowser).toHaveBeenCalledWith('http://127.0.0.1:4567/?token=test-token')
     } else {
       expect(log).not.toHaveBeenCalled()
@@ -468,9 +468,9 @@ describe('web-app runtime glue', () => {
     const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => {})
     apply(ctx, new Config({ openBrowser: true, printUrl: false, surfaceContext: false }))
     await new Promise(resolve => setTimeout(resolve, 0))
-    expect(log).toHaveBeenCalledWith('dsh web: opening the default browser; pass --no-open to disable')
+    expect(log).toHaveBeenCalledWith('mwf web: opening the default browser; pass --no-open to disable')
     expect(diagnostic).toHaveBeenCalledWith(
-      `web-app: could not open the default browser because ${reason}; use the dsh web URL printed at startup`,
+      `web-app: could not open the default browser because ${reason}; use the mwf web URL printed at startup`,
     )
     expect(ctx.get('webServer')).toBeDefined()
     await ctx.fiber.dispose()
@@ -478,7 +478,7 @@ describe('web-app runtime glue', () => {
 
   it('scrubs the helper environment and reports helper spawn or exit failures', async () => {
     vi.stubEnv('DEEPSEEK_API_KEY', 'must-not-reach-browser')
-    vi.stubEnv('DSH_HOME', '/must-not-reach-browser')
+    vi.stubEnv('MWF_HOME', '/must-not-reach-browser')
     const completed = launcher()
     vi.mocked(spawn).mockReturnValueOnce(completed)
     const completion = originalOpenBrowser('http://127.0.0.1:4567')
@@ -492,7 +492,7 @@ describe('web-app runtime glue', () => {
     expect(args?.[2]).toContain("if (process.platform === 'win32')")
     expect(args?.[2]).toContain('launcher.ref()')
     expect(options?.env).not.toHaveProperty('DEEPSEEK_API_KEY')
-    expect(options?.env).not.toHaveProperty('DSH_HOME')
+    expect(options?.env).not.toHaveProperty('MWF_HOME')
     expect(options?.env?.PATH).toBe(process.env.PATH)
     expect(options?.stdio).toEqual(['ignore', 'inherit', 'pipe'])
     completed.emit('close', 0)

@@ -6,7 +6,7 @@ import ts from 'typescript'
 import { experimentalPackageRecordNamespace } from './experimental-package-policy.ts'
 import { parseJsDoc, pointer, rawJsDoc, reportViolations } from './jsdoc.ts'
 
-const SESSION_PACKAGE = '@deepseek-ai/dsh-session'
+const SESSION_PACKAGE = '@metaworkflow/session'
 const SESSION_TYPES_MODULE = `${SESSION_PACKAGE}/types`
 const RECORD_NAME = /^plugin:[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)+$/u
 const printer = ts.createPrinter({ removeComments: true })

@@ -166,7 +166,7 @@ Client SessionEventSource
 
 删除 `SessionToolCallView`、`SessionToolView` 和 `SessionEventEntry.view`。
 
-Client connection 不再从 `dsh-tools/presentation` 转出 `ToolCallView`／`ToolResultView` 供 Session 消费。
+Client connection 不再从 `mwf-tools/presentation` 转出 `ToolCallView`／`ToolResultView` 供 Session 消费。
 
 生成 catalog 与 graph 从各自 source owner 派生已收窄的 Remote 类型和 package dependency。
 
@@ -551,7 +551,7 @@ Host registry 允许不同 scope 为同一 tool name 提供不同定义；Sessio
 ### 静态与文档
 
 - 生产代码不存在 `SessionToolView`／`SessionToolCallView`。
-- Session history 不引用 `dsh-tools/presentation`、`ctx.tools`、`presenterScopeFor` 或 `backscanArgs`。
+- Session history 不引用 `mwf-tools/presentation`、`ctx.tools`、`presenterScopeFor` 或 `backscanArgs`。
 - Client Conversation 不引用 `ToolCallView`／`ToolResultView`。
 - Client model 不读取 `callView`／`resultView`。
 - fixture 不定义 presenter mirror。
@@ -571,7 +571,7 @@ Host registry 允许不同 scope 为同一 tool name 提供不同定义；Sessio
 - 受影响 Host/Client TypeScript face；
 - lint 与 duplication；
 - 受影响源文件 per-file 100% coverage；
-- `DSH_SNAPSHOT=replay pnpm run test:web`，不得 refresh 现有展示 golden；
+- `MWF_SNAPSHOT=replay pnpm run test:web`，不得 refresh 现有展示 golden；
 - 手写 Remote 类型与 TypeScript 检查；
 - `pnpm run doc-sync`；
 - `git diff --check`。

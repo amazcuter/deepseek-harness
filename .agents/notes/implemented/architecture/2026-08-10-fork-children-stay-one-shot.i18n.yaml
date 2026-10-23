@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-10-fork-children-stay-one-shot.md
 /agent-note-forked-children-preserve-the-parent-request-prefix:
-  en: 5254ea4573dedd96
-  zh: ba4ab4517dad0d9f
+  en: 250a042c10ce9ae6
+  zh: 806287d0a283a290
 /agent-note-forked-children-preserve-the-parent-request-prefix/problem:
   en: 1fe344c95a0de36d
   zh: 656c3e0f1117f64e
 /agent-note-forked-children-preserve-the-parent-request-prefix/decision:
-  en: 3f5b3a4646c9466b
-  zh: 690172d6a4025b2a
+  en: 59ab0fbaa05851d4
+  zh: e36f6a5f6efa70d2
 /agent-note-forked-children-preserve-the-parent-request-prefix/alternatives-considered:
   en: bc437309b64997ab
   zh: 947010eed8d6fac4

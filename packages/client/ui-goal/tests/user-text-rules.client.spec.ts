@@ -1,10 +1,10 @@
 import { Context } from '@deepseek-ai/cordis'
-import { UserTextRegistry } from '@deepseek-ai/dsh-client-ui-conversation/src/client/conversation/user-text-registry.ts'
+import { UserTextRegistry } from '@metaworkflow/client-ui-conversation/src/client/conversation/user-text-registry.ts'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { UserTextFacts, UserTextNode, UserTextRule } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextFacts, UserTextNode, UserTextRule } from '@metaworkflow/client-ui-conversation/client'
 import { goalCommandReferenceRule } from '../src/client/user-text-rules.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@metaworkflow/client-ui-conversation/client' {
   interface UserTextDataMap {
     'test.command.blocker': { readonly label: string }
   }

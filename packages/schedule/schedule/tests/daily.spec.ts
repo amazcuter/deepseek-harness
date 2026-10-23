@@ -6,8 +6,8 @@ import {
   ScheduleId, ScheduleInputError, ScheduleLogError, scheduleView,
 } from '../src/domain.ts'
 import type { DailyInput, DailyScheduleRecord } from '../src/types.ts'
-import { SessionSeq } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { SessionSeq } from '@metaworkflow/session'
+import type { SessionEvent } from '@metaworkflow/session'
 
 function daily(now: string, time = '23:00:00', timeZone = 'Asia/Shanghai'): DailyScheduleRecord {
   return createDailyScheduleRecord(

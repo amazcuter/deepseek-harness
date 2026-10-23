@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
+import { RemoteError } from '@metaworkflow/typert-protocol'
 import { planResourceProvider } from '../src/client/plan-resource.ts'
 
-const address = 'dsh-resource://plan/session/call'
+const address = 'mwf-resource://plan/session/call'
 const event = { type: 'tool/call', seq: 1, data: { callId: 'call', name: 'exit_plan_mode', arguments: '{"plan":"# Saved plan"}' } }
 const entry = { type: 'event', event }
 
@@ -38,7 +38,7 @@ describe('plan history resource', () => {
   })
   it.each(['one-shot', 'continuable', 'unknown'] as const)('restores a %s subagent plan with its complete parent address on every page', async (mode) => {
     const b = setup([{ type: 'event', event: { type: 'user/message', seq: 80, data: {} } }], true)
-    const address = `dsh-resource://plan/subagent/parent/child/${mode}/call`
+    const address = `mwf-resource://plan/subagent/parent/child/${mode}/call`
     const session = { kind: 'subagent', parentSessionId: 'parent', childSessionId: 'child', mode }
     expect(await read(b.provider, address)).toMatchObject([{ ok: true, value: { title: 'Saved plan' } }])
     expect(b.follow).toHaveBeenCalledWith({ address: session }, expect.any(AbortSignal))
@@ -48,7 +48,7 @@ describe('plan history resource', () => {
   it('reports missing plans and invalid saved addresses', async () => {
     const b = setup([])
     expect(await read(b.provider)).toMatchObject([{ ok: false, error: { code: 'plan/not-found' } }])
-    expect(await read(b.provider, 'dsh-resource://plan/s/%')).toMatchObject([{ ok: false, error: { code: 'plan/invalid-address' } }])
+    expect(await read(b.provider, 'mwf-resource://plan/s/%')).toMatchObject([{ ok: false, error: { code: 'plan/invalid-address' } }])
     expect(b.follow).toHaveBeenCalledOnce()
   })
   it('does not publish a response after cancellation', async () => {

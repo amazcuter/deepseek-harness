@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Diagnose the DSH sandbox ACL failures on Windows and repair them in one run.
+    Diagnose the MWF sandbox ACL failures on Windows and repair them in one run.
 
 .DESCRIPTION
-    A denial inside the DSH sandbox is worth diagnosing only when it contradicts
+    A denial inside the MWF sandbox is worth diagnosing only when it contradicts
     what the active mode promises: writes inside the workspace, or reads that the
     signed-in user should plainly have. One invocation reads each requested path
     and every ancestor, then repairs what it can in the same run:
@@ -151,8 +151,8 @@ function Get-CurrentIdentity {
 # token that process fails to initialize (STATUS_DLL_INIT_FAILED, 0xc0000142) and
 # raises an application-error dialog on the user's desktop.
 function Initialize-NativeApi {
-    if (-not ('Dsh.TokenInfo' -as [type])) {
-      Add-Type -Namespace Dsh -Name TokenInfo -MemberDefinition @'
+    if (-not ('Mwf.TokenInfo' -as [type])) {
+      Add-Type -Namespace Mwf -Name TokenInfo -MemberDefinition @'
 [StructLayout(LayoutKind.Sequential)]
 public struct SID_AND_ATTRIBUTES { public IntPtr Sid; public uint Attributes; }
 [StructLayout(LayoutKind.Sequential)]
@@ -210,7 +210,7 @@ public static int Level(IntPtr token) {
 
 function Get-IntegritySid {
   try {
-    $level = [Dsh.TokenInfo]::Level([System.Security.Principal.WindowsIdentity]::GetCurrent().Token)
+    $level = [Mwf.TokenInfo]::Level([System.Security.Principal.WindowsIdentity]::GetCurrent().Token)
     switch ($level) {
       0 { return 'S-1-16-0 (Untrusted)' }
       4096 { return 'S-1-16-4096 (Low)' }
@@ -276,7 +276,7 @@ function Get-RepairRefusal {
 
 # A caller that cannot provision a directory also cannot confine a child anywhere
 # under it, so one approved run examines that subtree for explicit package allow
-# ACEs instead of leaving them for a second call. Directories only: DSH grants and
+# ACEs instead of leaving them for a second call. Directories only: MWF grants and
 # traverses directories, and no reparse point or managed application tree is entered.
 function Get-SubtreePackageSources {
   param([string]$Root, [int]$Limit)
@@ -377,9 +377,9 @@ function Restore-SavedDacl {
   if ($saved.Path -isnot [string] -or $saved.Path -ine $FullPath -or $saved.Dacl -isnot [string]) {
     throw [System.ArgumentException]::new('RESTORE_REFUSED backup does not describe the requested path')
   }
-  if (-not [Dsh.TokenInfo]::HasAccess($FullPath, 0x40000)) { throw 'RESTORE_REFUSED the caller lacks WRITE_DAC' }
+  if (-not [Mwf.TokenInfo]::HasAccess($FullPath, 0x40000)) { throw 'RESTORE_REFUSED the caller lacks WRITE_DAC' }
   Invoke-ReportedOperation restore_dacl $FullPath 'Restore the requested backup DACL and inheritance protection, preserving owner and SACL.' acl {
-    [Dsh.TokenInfo]::SetDacl($FullPath, $saved.Dacl)
+    [Mwf.TokenInfo]::SetDacl($FullPath, $saved.Dacl)
   }
   $restoredAcl = Invoke-ReportedOperation read_restored_dacl $FullPath 'Read the restored DACL to compare it with the saved record.' none {
     Get-Acl -LiteralPath $FullPath
@@ -450,7 +450,7 @@ function Get-ObjectFacts {
     $facts.Errors += @{ operation = 'read_owner'; error = (Get-HResultChain $_.Exception) }
   }
   foreach ($check in @(@{ field = 'HasWriteDac'; mask = 0x40000 }, @{ field = 'HasWriteOwner'; mask = 0x80000 })) {
-    try { $facts[$check.field] = [Dsh.TokenInfo]::HasAccess($FullPath, $check.mask) }
+    try { $facts[$check.field] = [Mwf.TokenInfo]::HasAccess($FullPath, $check.mask) }
     catch { $facts.Errors += @{ operation = $check.field; error = (Get-HResultChain $_.Exception) } }
   }
   # The mandatory label lives in the SACL. Reading the SACL needs a privilege while
@@ -564,7 +564,7 @@ try {
     }
 
     # The precondition is judged on the requested path itself. Ancestors above the
-    # tree DSH grants are not part of that grant, so their ownership and rights would
+    # tree MWF grants are not part of that grant, so their ownership and rights would
     # otherwise mark every healthy path as a precondition failure.
     if ($null -eq $targetFacts) { throw "The requested path disappeared before its ACL could be inspected: $full" }
     $unreadable = -not $targetFacts.Readable
@@ -634,7 +634,7 @@ try {
       }
     }
 
-    # Missing WRITE_DAC or WRITE_OWNER on a directory in the chain is what stops DSH
+    # Missing WRITE_DAC or WRITE_OWNER on a directory in the chain is what stops MWF
     # from provisioning the workspace grant. One approved run repairs every such
     # directory, including the authorized root itself.
     $grantTargets = @($inspectOrder | Where-Object {
@@ -665,7 +665,7 @@ try {
         [System.Security.AccessControl.FileSystemRights]::FullControl,
         [System.Security.AccessControl.AccessControlType]::Allow))
       Invoke-ReportedOperation grant_dacl $object "WRITE_DAC or WRITE_OWNER is missing; add a FullControl allow ACE for $meSid while preserving deny ACEs, owner and SACL." acl {
-        [Dsh.TokenInfo]::SetDacl($object, $grantAcl.GetSecurityDescriptorSddlForm([System.Security.AccessControl.AccessControlSections]::Access))
+        [Mwf.TokenInfo]::SetDacl($object, $grantAcl.GetSecurityDescriptorSddlForm([System.Security.AccessControl.AccessControlSections]::Access))
       }
       $grantAfter = Get-ObjectFacts -FullPath $object -MeSid $meSid -CompactRecord
       $factsByPath[$object] = $grantAfter

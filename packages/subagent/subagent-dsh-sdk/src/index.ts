@@ -8,16 +8,16 @@
  * while starting in the directory selected by the subagent service. This plugin uses named
  * exports only; a default would hide its loader metadata (see
  * `docs/postmortem/0001-acp-default-export-drops-inject.md`).
- * @module @deepseek-ai/dsh-subagent-dsh-sdk
+ * @module @metaworkflow/subagent-dsh-sdk
  */
 
 import type { Context } from '@deepseek-ai/cordis'
 import { statSync } from 'node:fs'
 import { isAbsolute, resolve } from 'node:path'
 import z from '@deepseek-ai/schemastery'
-import type { AgentOptions } from '@deepseek-ai/dsh-agent'
-import type { SubagentCapabilities, SubagentProvider, ResolvedSubagentStartRequest } from '@deepseek-ai/dsh-subagent'
-import { assertPositiveFinite, NO_START_CAPABILITIES, assertUsableCwd } from '@deepseek-ai/dsh-subagent'
+import type { AgentOptions } from '@metaworkflow/agent'
+import type { SubagentCapabilities, SubagentProvider, ResolvedSubagentStartRequest } from '@metaworkflow/subagent'
+import { assertPositiveFinite, NO_START_CAPABILITIES, assertUsableCwd } from '@metaworkflow/subagent'
 import {
   DEFAULT_DISPOSE_EOF_GRACE_MS,
   DEFAULT_DISPOSE_GRACE_MS,
@@ -32,16 +32,16 @@ export const inject = ['subagents']
 
 /** Config: how to spawn and drive the child SDK runtime process. */
 export interface Config {
-  /** Provider name on `ctx.subagents` (default `dsh-sdk`). */
+  /** Provider name on `ctx.subagents` (default `mwf-sdk`). */
   providerName: string
-  /** Explicit dsh CLI module, resolved and checked at plugin load; omission uses the SDK dependency. */
-  dshBin?: string
+  /** Explicit mwf CLI module, resolved and checked at plugin load; omission uses the SDK dependency. */
+  mwfBin?: string
   /** Named child profile (default `sdk`). */
   profile: string
   /** Ordered per-launch profile patch files, resolved and checked at plugin load. */
   patches: string[]
   /** Absolute isolated Harness home for every nested child process. */
-  dshHome: string
+  mwfHome: string
   /** Provider route the child runtime initializes with (default `deepseek-official`). */
   provider: string
   /** Model the child runtime initializes with (default `deepseek-v4-flash`). */
@@ -68,11 +68,11 @@ export interface Config {
 }
 
 export const Config: z<Config> = z.object({
-  providerName: z.string().default('dsh-sdk'),
-  dshBin: z.string(),
+  providerName: z.string().default('mwf-sdk'),
+  mwfBin: z.string(),
   profile: z.string().default('sdk'),
   patches: z.array(z.string()).default([]),
-  dshHome: z.string().required(),
+  mwfHome: z.string().required(),
   provider: z.string().default('deepseek-official'),
   model: z.string().default('deepseek-v4-flash'),
   maxTokens: z.number().step(1).min(1).max(Number.MAX_SAFE_INTEGER),
@@ -82,8 +82,8 @@ export const Config: z<Config> = z.object({
   disposeGraceMs: z.number().default(DEFAULT_DISPOSE_GRACE_MS),
 })
 
-/** The shape after schemastery applied the defaults (`dshBin` and `maxTokens` have none). */
-type ResolvedConfig = Required<Omit<Config, 'maxTokens' | 'dshBin'>> & Pick<Config, 'maxTokens' | 'dshBin'>
+/** The shape after schemastery applied the defaults (`mwfBin` and `maxTokens` have none). */
+type ResolvedConfig = Required<Omit<Config, 'maxTokens' | 'mwfBin'>> & Pick<Config, 'maxTokens' | 'mwfBin'>
 
 /** Resolve one configured runtime file against the harness launch directory and require a regular file. */
 function resolveConfiguredFile(field: string, value: string): string {
@@ -96,7 +96,7 @@ function resolveConfiguredFile(field: string, value: string): string {
   throw new TypeError(`subagent-dsh-sdk ${field} must name an existing file: ${path}`)
 }
 
-/** DSH SDK can apply Agent route options while the other start features remain child-owned. */
+/** MWF SDK can apply Agent route options while the other start features remain child-owned. */
 const SDK_START_CAPABILITIES: SubagentCapabilities = Object.freeze({
   ...NO_START_CAPABILITIES,
   agentOptions: true,
@@ -145,10 +145,10 @@ class SdkSubagentProvider implements SubagentProvider {
     }
     const route = resolveSdkRoute(this.config, request.agentOptions)
     const spec: SdkRunSpec = {
-      ...this.config.dshBin === undefined ? {} : { dshBin: this.config.dshBin },
+      ...this.config.mwfBin === undefined ? {} : { mwfBin: this.config.mwfBin },
       profile: this.config.profile,
       patches: this.config.patches,
-      dshHome: this.config.dshHome,
+      mwfHome: this.config.mwfHome,
       cwd,
       originCwd: request.parent.session.header.cwd,
       ...route,
@@ -175,11 +175,11 @@ export function apply(ctx: Context, config: Config): void {
   if (resolved.maxTokens !== undefined && (!Number.isSafeInteger(resolved.maxTokens) || resolved.maxTokens <= 0)) {
     throw new TypeError('subagent-dsh-sdk maxTokens must be a positive safe integer')
   }
-  if (!isAbsolute(resolved.dshHome)) throw new TypeError('subagent-dsh-sdk dshHome must be an absolute path')
+  if (!isAbsolute(resolved.mwfHome)) throw new TypeError('subagent-dsh-sdk mwfHome must be an absolute path')
   const launchPaths: ResolvedConfig = {
     ...resolved,
     patches: resolved.patches.map((path, index) => resolveConfiguredFile(`patches[${String(index)}]`, path)),
-    ...resolved.dshBin === undefined ? {} : { dshBin: resolveConfiguredFile('dshBin', resolved.dshBin) },
+    ...resolved.mwfBin === undefined ? {} : { mwfBin: resolveConfiguredFile('mwfBin', resolved.mwfBin) },
   }
   ctx.subagents.registerProvider(new SdkSubagentProvider(launchPaths.providerName, ctx, launchPaths))
 }

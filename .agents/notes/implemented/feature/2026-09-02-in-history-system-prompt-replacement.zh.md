@@ -18,7 +18,7 @@ Status: implemented
 
 ### 能力
 
-`dsh-llm` 定义 `SystemPromptUpdate = 'in-history'`，并把它作为可选的并列字段 `systemPromptUpdate` 放在 `LlmResolvedModelInfo` 与 `PreparedLlmCall` 上；`normalizeModelInfo` 用代码为 `INVALID_MODEL_INFO` 的 `LlmError` 拒绝任何其他值。DeepSeek 适配器的目录模型（`DeepSeekCatalogModel.systemPromptUpdate`，加载时由 zod 校验）与回放提供者的 `ReplayModelConfig.systemPromptUpdate` 逐模型声明它；缺省表示该模型需要重写消息 0。`dsh-llm-deepseek` 仅内置 `deepseek-flash` 条目，在该条目上声明它，同时声明文本和图片输入。该精确目录条目记录模型能力；名称和协议类别不能推导其他模型是否支持。部署方可以通过 `cordis.yml` 的 `models` 列表替换目录，所有 `dsh-llm-pi-ai` 路由保持替换行为。
+`mwf-llm` 定义 `SystemPromptUpdate = 'in-history'`，并把它作为可选的并列字段 `systemPromptUpdate` 放在 `LlmResolvedModelInfo` 与 `PreparedLlmCall` 上；`normalizeModelInfo` 用代码为 `INVALID_MODEL_INFO` 的 `LlmError` 拒绝任何其他值。DeepSeek 适配器的目录模型（`DeepSeekCatalogModel.systemPromptUpdate`，加载时由 zod 校验）与回放提供者的 `ReplayModelConfig.systemPromptUpdate` 逐模型声明它；缺省表示该模型需要重写消息 0。`mwf-llm-deepseek` 仅内置 `deepseek-flash` 条目，在该条目上声明它，同时声明文本和图片输入。该精确目录条目记录模型能力；名称和协议类别不能推导其他模型是否支持。部署方可以通过 `cordis.yml` 的 `models` 列表替换目录，所有 `mwf-llm-pi-ai` 路由保持替换行为。
 
 循环把该模式记录进会话：`RequestContext.systemPromptUpdate` 与 provider、model、容量并列成为 `request/context` 的字段，其中任一项与最新快照不同时就记录一次。准入读取 `agent/request` 之后实际准备调用的 `PreparedLlmCall.systemPromptUpdate`；先前快照不是准入输入。因此首次请求、恢复的会话、路由变更以及同一路由的能力变更，都使用将服务该调用的绑定适配器的能力。
 
@@ -43,7 +43,7 @@ Status: implemented
 
 Web 在追加的历史内节点自己的位置呈现它。`SystemPromptNode` 携带 `{ seq, time, turn, step, text, update }`，其中 `update` 对已加载窗口内跟在更早系统节点之后的追加 `system/message` 为真。Chat 把非空的更新渲染为一张折叠的 `system-prompt` 卡片，标题取自 locale 键 `message.systemPromptUpdate`，同一 turn 与 step 内的 `request/header` 不会重复提示词卡片；`inspectRequestPrompt` 对跟在更新之后的 header 不报告系统变更。Trajectory 把跟在已加载请求 header 之后的更新折叠为一条合成的请求 header 事实，`promptChange.kind = 'system'`，因此之后的请求无需真实的 header 变更就能显示有效提示词。已加载窗口缺少更早的系统节点时，更新按初始提示词呈现。转录投影像对待所有 `system/message` 一样跳过它。
 
-`dsh-token-meter` 把 surface 顺序中最后一个非空且存活的系统节点计入 `contextBreakdown.systemTokens`；其余可见节点（包括被取代的提示词）计入 `messageTokens`。休眠空节点被忽略。该单元只保留存活的系统提示词和一个 surface 运行总量，并依据紧邻的影子价事件为替换定价（[系统提示词状态](../architecture/2026-10-13-context-breakdown-system-prompt-state.zh.md)）。后续 assistant 用量中的 `cacheReadTokens` 仍是可观察的提供方缓存效果。
+`mwf-token-meter` 把 surface 顺序中最后一个非空且存活的系统节点计入 `contextBreakdown.systemTokens`；其余可见节点（包括被取代的提示词）计入 `messageTokens`。休眠空节点被忽略。该单元只保留存活的系统提示词和一个 surface 运行总量，并依据紧邻的影子价事件为替换定价（[系统提示词状态](../architecture/2026-10-13-context-breakdown-system-prompt-state.zh.md)）。后续 assistant 用量中的 `cacheReadTokens` 仍是可观察的提供方缓存效果。
 
 Trajectory 选择前一条真实 header 与前一条合成系统 header 中较新的一个作为比较状态。真实 header 拥有配置与工具；追加的提示词可以在没有另一条真实 header 时推进该状态。只比较真实 header 会在 A → B → C 序列中把 A 而不是 B 报告为先前提示词。
 

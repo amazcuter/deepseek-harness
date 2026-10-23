@@ -5,16 +5,16 @@
  * outcomes into null (admitted) or a user-visible failure line; teardown
  * empties the seat (HMR safety).
  */
-import { ConversationEventRegistry } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import { ConversationEventRegistry } from '@metaworkflow/client-ui-conversation/client'
 import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { ChatSnapshot } from '@deepseek-ai/dsh-client-ui-chat/client'
+import { SlotRegistry } from '@metaworkflow/client-ui-renderer/client'
+import type { SessionId } from '@metaworkflow/session/types'
+import { LocaleRuntime } from '@metaworkflow/client-locale/client'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import type { ChatSnapshot } from '@metaworkflow/client-ui-chat/client'
 import { EMPTY_CHAT_SNAPSHOT } from '../../ui-chat/src/client/contract/snapshot.ts'
-import { RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
+import { RemoteError } from '@metaworkflow/client-test-runtime'
 import { PlanChip } from '../src/client/PlanModeControl.tsx'
 import { PlanCards, PlanReviewOpen, type PlanCardsInjected, type PlanOpenInjected, type PlanReviewOpenInjected } from '../src/client/PlanCard.tsx'
 import { PlanPreview, PlanTitle } from '../src/client/PlanPreview.tsx'
@@ -22,9 +22,9 @@ import { submittedPlan } from '../src/client/plan.ts'
 import type { PlanChipInjected } from '../src/client/index.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as nodeApply } from '../src/index.ts'
-import { createSidebarRightController } from '@deepseek-ai/dsh-client-ui-sidebar-right/src/client/service.ts'
-import { SidebarRightTabRegistry } from '@deepseek-ai/dsh-client-ui-sidebar-right/src/client/tab-registry.ts'
-import { createSidebarRightStore } from '@deepseek-ai/dsh-client-ui-sidebar-right/src/client/stores.ts'
+import { createSidebarRightController } from '@metaworkflow/client-ui-sidebar-right/src/client/service.ts'
+import { SidebarRightTabRegistry } from '@metaworkflow/client-ui-sidebar-right/src/client/tab-registry.ts'
+import { createSidebarRightStore } from '@metaworkflow/client-ui-sidebar-right/src/client/stores.ts'
 
 function providePreview(ctx: Context) {
   const events = new ConversationEventRegistry(ctx)
@@ -128,12 +128,12 @@ describe('ui-plan browser apply', () => {
       const plan = submittedPlan({ type: 'tool/call', data: { callId: 'child-plan', name: 'exit_plan_mode', arguments: '{"plan":"# Child plan"}' } })!
       opener.openPlan(plan.callId)
       const resources = () => Object.values(store.getSnapshot().bySession[parent]!.layout.tabs).map(tab => tab.contentId)
-      expect(resources()).toContain('dsh-resource://plan/subagent/visible-parent/embedded-child/continuable/child-plan')
+      expect(resources()).toContain('mwf-resource://plan/subagent/visible-parent/embedded-child/continuable/child-plan')
       expect(store.getSnapshot().bySession[child]).toBeUndefined()
       const review = b.slots.entries('conversation.plan-review.actions')[0]!
       const reviewOpener = (review.inject as unknown as (sessionId: SessionId) => PlanReviewOpenInjected)(child)
       reviewOpener.openReview({ id: 'pending', question: 'Approve?', plan: '# Temporary child plan', approve: { label: 'Approve' } }, 'child-question')
-      expect(resources().some(address => address.startsWith('dsh-resource://plan-review/embedded-child/'))).toBe(true)
+      expect(resources().some(address => address.startsWith('mwf-resource://plan-review/embedded-child/'))).toBe(true)
       expect(store.getSnapshot().bySession[child]).toBeUndefined()
     } finally {
       await fiber.dispose()
@@ -206,7 +206,7 @@ describe('ui-plan browser apply', () => {
       const removeFileEntry = b.slots.register({ name: 'conversation.chat.turnTail', id: 'test-file-deliveries' }, () => null)
       expect(b.slots.entries('conversation.chat.turnTail')).toHaveLength(2)
       removeFileEntry()
-      const address = 'dsh-resource://plan/s-plan/call'
+      const address = 'mwf-resource://plan/s-plan/call'
       const type = b.registerType.mock.calls[0]![0]
       expect(type.canOpen!(address)).toBe(true)
       expect(type.canOpen!('file:///plan.md')).toBe(false)
@@ -227,14 +227,14 @@ describe('ui-plan browser apply', () => {
       expect(b.openResource).toHaveBeenLastCalledWith(address)
       b.subagentAddress.mockReturnValue({ parentSessionId: 'parent' as SessionId, childSessionId: SID, mode: 'continuable' })
       injected.openPlan(plan.callId)
-      expect(b.openResource).toHaveBeenLastCalledWith('dsh-resource://plan/subagent/parent/s-plan/continuable/call')
+      expect(b.openResource).toHaveBeenLastCalledWith('mwf-resource://plan/subagent/parent/s-plan/continuable/call')
       reviewInjected.openReview(pending, 'question:1')
-      expect(b.openResource).toHaveBeenLastCalledWith('dsh-resource://plan/subagent/parent/s-plan/continuable/call')
+      expect(b.openResource).toHaveBeenLastCalledWith('mwf-resource://plan/subagent/parent/s-plan/continuable/call')
       const temporary = { id: 'review', question: 'Approve?', plan: '# Temporary\n\nComplete body', approve: { label: 'Approve' } }
       reviewInjected.openReview(temporary, 'question:2')
       const first = b.openResource.mock.calls.at(-1)!
       expect(type.canOpen!(first[0])).toBe(true)
-      expect(first).toEqual([expect.stringMatching(/^dsh-resource:\/\/plan-review\/s-plan\//), {
+      expect(first).toEqual([expect.stringMatching(/^mwf-resource:\/\/plan-review\/s-plan\//), {
         params: { planReview: { title: 'Temporary', markdown: temporary.plan } },
       }])
       reviewInjected.openReview(temporary, 'question:2')

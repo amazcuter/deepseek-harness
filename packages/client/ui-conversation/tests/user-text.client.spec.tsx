@@ -73,9 +73,9 @@ describe('UserText projection', () => {
   })
 
   it('keeps decorated text inline and preserves whitespace between references', () => {
-    const host = project('反反复复 /dsh-acp-test @执行几个命令测试', ['执行几个命令测试'], ['dsh-acp-test'])
+    const host = project('反反复复 /mwf-acp-test @执行几个命令测试', ['执行几个命令测试'], ['mwf-acp-test'])
     expect(host.querySelectorAll('div').length).toBe(0)
-    expect(host.textContent).toBe('反反复复 /dsh-acp-test 执行几个命令测试')
+    expect(host.textContent).toBe('反反复复 /mwf-acp-test 执行几个命令测试')
     const chips = host.querySelectorAll('[data-ref-chip]')
     expect([...chips].map(c => c.getAttribute('data-ref-chip'))).toEqual(['skill', 'session'])
     // The whitespace between tokens survives as its own inline run.
@@ -85,16 +85,16 @@ describe('UserText projection', () => {
   })
 
   it('folds the wire session form to its label with the session glyph', () => {
-    const host = project('看看 @[查看并分析图片](dsh-session:InNlc3Npb24tNDM0) 的结论')
+    const host = project('看看 @[查看并分析图片](mwf-session:InNlc3Npb24tNDM0) 的结论')
     const chip = host.querySelector('[data-ref-chip="session"]')!
     expect(chip.textContent).toBe('查看并分析图片')
-    expect(chip.getAttribute('title')).toBe('@[查看并分析图片](dsh-session:InNlc3Npb24tNDM0)')
+    expect(chip.getAttribute('title')).toBe('@[查看并分析图片](mwf-session:InNlc3Npb24tNDM0)')
     expect(chip.querySelector('svg')).not.toBeNull()
     expect(host.textContent).toBe('看看 查看并分析图片 的结论')
   })
 
   it('prefers the wire fold over the bare-token scan on the same range', () => {
-    const host = project('@[a](dsh-session:x)', [])
+    const host = project('@[a](mwf-session:x)', [])
     expect(host.querySelectorAll('[data-ref-chip]').length).toBe(1)
     expect(host.querySelector('[data-ref-chip="session"]')!.textContent).toBe('a')
   })

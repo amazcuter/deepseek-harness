@@ -6,7 +6,7 @@ Status: implemented
 
 ## 问题
 
-浏览器对外壳自有路由的每一处引用都以源站根绝对形式书写：`/api/...` RPC、`/plugins/??...` 插件 bundle、Remote 流 mux、HMR 事件流，以及启动入口清理 token 时重定向到的 `/`。当一个监听端口位于剥离前缀的代理之后（例如 `https://host/tools/dsh/` 这样的挂载，把 `/tools/dsh/...` 转发为 `/...`），这些请求会落在源站根，那里没有任何路由应答：外壳、插件 bundle、流全部落空。同一份 bundle 必须同时服务源站根与任一挂载，而不能为此再构建一次。
+浏览器对外壳自有路由的每一处引用都以源站根绝对形式书写：`/api/...` RPC、`/plugins/??...` 插件 bundle、Remote 流 mux、HMR 事件流，以及启动入口清理 token 时重定向到的 `/`。当一个监听端口位于剥离前缀的代理之后（例如 `https://host/tools/mwf/` 这样的挂载，把 `/tools/mwf/...` 转发为 `/...`），这些请求会落在源站根，那里没有任何路由应答：外壳、插件 bundle、流全部落空。同一份 bundle 必须同时服务源站根与任一挂载，而不能为此再构建一次。
 
 挂载点无法从传输层恢复。配置 base URL 会把它变成部署输入，转发前缀推断会让请求头对路由具有权威性，代理内改写在碎片里重复同一事实。唯一已经知道挂载点的地方，就是所服务的文档自身。
 
@@ -22,7 +22,7 @@ Status: implemented
 
 需要绝对 URL 的消费方相对 `document.baseURI` 解析：Gateway 构造 WebSocket URL 并选择 `ws:` 或 `wss:` 时，以及 Inspector 从启动图定位自身 bundle 时。
 
-Desktop 是另一个文档所有者。它的窗口加载 `dsh-app://app/`：该来源在根目录提供同一份 dist，并把其他所有应用路径转发给它拥有的 Host，因此它的文档目录本就是根目录，无需为它注入 base 行；它改为通过传输层的 `streamBaseUrl` 为 Gateway 指定该 Host origin。它的资源就位于该根目录，这也是所服务 HTTP 外壳的 `./` 不适用于它的原因。
+Desktop 是另一个文档所有者。它的窗口加载 `mwf-app://app/`：该来源在根目录提供同一份 dist，并把其他所有应用路径转发给它拥有的 Host，因此它的文档目录本就是根目录，无需为它注入 base 行；它改为通过传输层的 `streamBaseUrl` 为 Gateway 指定该 Host origin。它的资源就位于该根目录，这也是所服务 HTTP 外壳的 `./` 不适用于它的原因。
 
 ## 曾考虑的替代方案
 

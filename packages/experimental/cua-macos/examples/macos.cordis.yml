@@ -4,4 +4,4 @@
     - id: cua
       name: '../src/index.ts'
       config:
-        helperPath: !!js process.env.DSH_CUA_HELPER
+        helperPath: !!js process.env.MWF_CUA_HELPER

@@ -1,29 +1,29 @@
 # Keyless filesystem snapshots combine spill settings with replay. The
-# sandboxed filesystem stack already lives in `dsh-base`; the ACP row re-pins
+# sandboxed filesystem stack already lives in `mwf-base`; the ACP row re-pins
 # `deepseek-v4-flash` for the recorded corpus.
 - id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+  name: '@metaworkflow/llm-deepseek-api-key'
   disabled: true
 
 - id: agent-default-model
-  name: '@deepseek-ai/dsh-agent-default-model'
+  name: '@metaworkflow/agent-default-model'
   config:
     provider: deepseek-official
     model: deepseek-v4-flash
 
 - id: session-persistence-jsonl
-  name: '@deepseek-ai/dsh-session-persistence-jsonl'
+  name: '@metaworkflow/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
+    root: !!js mwfHomePath('sessions')
     compression: none
 
 - id: agent-instructions
-  name: '@deepseek-ai/dsh-agent-instructions'
+  name: '@metaworkflow/agent-instructions'
   config:
     maxBytes: 65536
 
 - id: system-prompt
-  name: '@deepseek-ai/dsh-system-prompt'
+  name: '@metaworkflow/system-prompt'
   config:
     personaPrefix: |
       You are a coding assistant powered by the {{model}} model. Your bash tool runs under a file sandbox — a `[sandbox: file access denied …]` result is policy, not a command bug.
@@ -32,7 +32,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@metaworkflow/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -42,12 +42,12 @@
               - id: deepseek-v4-pro
 
 - id: spill-local
-  name: '@deepseek-ai/dsh-spill-local'
+  name: '@metaworkflow/spill-local'
   config:
-    root: !!js process.env.DSH_SNAPSHOT_SPILL_ROOT ?? './.spill'
+    root: !!js process.env.MWF_SNAPSHOT_SPILL_ROOT ?? './.spill'
 
 - id: spill-policy
-  name: '@deepseek-ai/dsh-spill-policy'
+  name: '@metaworkflow/spill-policy'
   config:
     maxInlineTokens: 200
 
@@ -55,5 +55,5 @@
     - id: snapshot-spill-locators
       name: ../../../scripts/snapshot-spill-locators.ts
       config:
-        root: !!js process.env.DSH_SNAPSHOT_SPILL_ROOT
-        locatorRoot: !!js process.env.DSH_SNAPSHOT_SPILL_LOCATOR_ROOT
+        root: !!js process.env.MWF_SNAPSHOT_SPILL_ROOT
+        locatorRoot: !!js process.env.MWF_SNAPSHOT_SPILL_LOCATOR_ROOT

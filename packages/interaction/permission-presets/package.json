@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-permission-presets",
+  "name": "@metaworkflow/permission-presets",
   "description": "User-facing permission presets (ctx.permissionPresets) for the DeepSeek Harness: one product-level Permissions select bundling the sandbox-mode and approval-policy knobs, written through to their own session events",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -50,14 +50,14 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-shell": "workspace:*",
-    "@deepseek-ai/dsh-commands": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-user-approval": "workspace:*",
+    "@metaworkflow/shell": "workspace:*",
+    "@metaworkflow/commands": "workspace:*",
+    "@metaworkflow/sandbox": "workspace:*",
+    "@metaworkflow/sandbox-policy": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-projection": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/user-approval": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "dependencies": {
@@ -65,15 +65,15 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-shell": "workspace:*",
-    "@deepseek-ai/dsh-commands": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-user-approval": "workspace:*",
+    "@metaworkflow/shell": "workspace:*",
+    "@metaworkflow/commands": "workspace:*",
+    "@metaworkflow/sandbox": "workspace:*",
+    "@metaworkflow/sandbox-policy": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-projection": "workspace:*",
+    "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/user-approval": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-settings": "workspace:*"
+    "@metaworkflow/settings": "workspace:*"
   }
 }

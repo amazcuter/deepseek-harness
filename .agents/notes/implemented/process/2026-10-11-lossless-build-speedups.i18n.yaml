@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-10-11-lossless-build-speedups.md
 /agent-note-build-speed-ups-that-keep-outputs-unchanged:
-  en: 48682b646b8f993a
-  zh: 4c26cb4aab5cd08c
+  en: 80715cfb97c611bb
+  zh: d414c5eb36cdade4
 /agent-note-build-speed-ups-that-keep-outputs-unchanged/problem:
   en: 46551eb7e33c40ca
   zh: f8c1fc063fa77062
 /agent-note-build-speed-ups-that-keep-outputs-unchanged/decision:
-  en: 3948d6fc3fabf32e
-  zh: c3b8dcdfe8168275
+  en: 75b68fff26cf7917
+  zh: 523eed16ce29a07c
 /agent-note-build-speed-ups-that-keep-outputs-unchanged/decision/measurement-conditions:
-  en: 2ab844073ec7c336
-  zh: b25e39f2f80b0d7e
+  en: 25260d5181f9183d
+  zh: 8a1311bddc113dd3
 /agent-note-build-speed-ups-that-keep-outputs-unchanged/decision/1-only-the-root-manifest-declares-react-type-packages:
-  en: 1101c94d04f9c7e9
-  zh: 413b7b15f98a5f62
+  en: ecb229a32358819b
+  zh: 12ca3ab7114b945c
 /agent-note-build-speed-ups-that-keep-outputs-unchanged/decision/2-typert-selects-packages-by-manifest-first:
   en: 1ae4b65792db0975
   zh: a11c0d90842a3b55
@@ -24,8 +24,8 @@
   en: 0c8ab2d412113914
   zh: 01ba4f5042422d77
 /agent-note-build-speed-ups-that-keep-outputs-unchanged/decision/4-typert-parses-package-tsconfigs-lazily:
-  en: cd6e05c61a7cc495
-  zh: 480d2d85d78d2d7f
+  en: b8d80dbce490b090
+  zh: 14d7bdb241fdec17
 /agent-note-build-speed-ups-that-keep-outputs-unchanged/decision/5-the-typert-workspace-root-also-requires-packages:
   en: 8b89436df201141c
   zh: 2fab82419c8ba704
@@ -39,8 +39,8 @@
   en: 80c2ddc5fdff0b5f
   zh: f5ce309a2e88ff4f
 /agent-note-build-speed-ups-that-keep-outputs-unchanged/alternatives-considered:
-  en: 4372c82ef0c944dd
-  zh: 5fb70d499baadea7
+  en: e2109f9968983c47
+  zh: 69bb9afcecf40908
 /agent-note-build-speed-ups-that-keep-outputs-unchanged/consequences:
-  en: 93a96d3ed398f348
-  zh: 93b7c7405be981a6
+  en: 60fa6510762f0ffb
+  zh: 376ab1d464aca270

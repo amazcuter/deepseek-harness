@@ -11,7 +11,7 @@ afterEach(async () => {
 })
 
 async function temporaryRoot(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-coverage-file-times-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-coverage-file-times-'))
   roots.push(root)
   return root
 }

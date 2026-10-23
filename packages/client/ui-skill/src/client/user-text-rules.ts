@@ -1,7 +1,7 @@
 /** Original-text skill candidates restricted to caller-confirmed names. */
-import type { UserTextRule } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextRule } from '@metaworkflow/client-ui-conversation/client'
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@metaworkflow/client-ui-conversation/client' {
   interface UserTextDataMap {
     /** A skill name confirmed for this message, without the leading slash. */
     skill: { readonly name: string }

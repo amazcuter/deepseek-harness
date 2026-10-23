@@ -4,22 +4,22 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import { defineContentToolFixture } from '@deepseek-ai/dsh-tools'
-import { bindScopeParent, createScope, scopeOf } from '@deepseek-ai/dsh-scope'
-import LocalFileReference from '@deepseek-ai/dsh-file-reference-local'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import * as SubagentSpawn from '@deepseek-ai/dsh-subagent-spawn-in-process'
-import * as SubagentTool from '@deepseek-ai/dsh-tool-subagent'
-import Selection from '@deepseek-ai/dsh-tool-subagent/model-selection-settings'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
+import AgentLoop from '@metaworkflow/agent-loop'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
+import { mountAgentLoopTestDependencies } from '@metaworkflow/agent-loop-testkit'
+import { SessionId } from '@metaworkflow/session'
+import { defineContentToolFixture } from '@metaworkflow/tools'
+import { bindScopeParent, createScope, scopeOf } from '@metaworkflow/scope'
+import LocalFileReference from '@metaworkflow/file-reference-local'
+import SubagentRuntime from '@metaworkflow/subagent'
+import * as SubagentSpawn from '@metaworkflow/subagent-spawn-in-process'
+import * as SubagentTool from '@metaworkflow/tool-subagent'
+import Selection from '@metaworkflow/tool-subagent/model-selection-settings'
+import type { Agent } from '@metaworkflow/agent'
+import { createUserMessage } from '@metaworkflow/llm'
+import type { ContextFormed } from '@metaworkflow/llm'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     'due-work': { kind: 'due-work'; plugin: string } & ContextFormed
   }
@@ -125,7 +125,7 @@ describe('serial creation listener integrations', () => {
   })
 
   it('starts due plugin work only after every creation listener finishes', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-serial-due-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-serial-due-'))
     roots.push(root)
     const ctx = await core(root)
     const sessionId = SessionId('review-due-work')

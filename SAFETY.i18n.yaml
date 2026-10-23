@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write SAFETY.md
 /safety:
-  en: a374f70c56b3f221
-  zh: a07f7a9ba9af40fc
+  en: 925777991b19cea8
+  zh: 86dbb3caaa344d1c
 /safety/experimental-status:
   en: 39a995a6c819f73e
   zh: e577df19392736ac

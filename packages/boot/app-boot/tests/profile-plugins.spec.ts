@@ -16,7 +16,7 @@ function writeManifest(dir: string, value: unknown): void {
 }
 
 function fixture(): ProfilePluginLocation {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-profile-plugins-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-profile-plugins-'))
   roots.push(root)
   const profileDir = join(root, 'profile')
   const installAnchor = join(root, 'runtime', 'package.json')
@@ -27,7 +27,7 @@ function fixture(): ProfilePluginLocation {
 
 function installed(location: ProfilePluginLocation, name: string, bundle = true): void {
   writeManifest(join(location.profileDir, 'node_modules', name), {
-    name, version: '1.0.0', ...(bundle ? { dsh: { bundle: { patch: 'unbuilt.yml' } } } : {}),
+    name, version: '1.0.0', ...(bundle ? { mwf: { bundle: { patch: 'unbuilt.yml' } } } : {}),
   })
 }
 
@@ -36,17 +36,17 @@ describe('profile plugin inventory', () => {
     const location = fixture()
     writeManifest(location.profileDir, {
       dependencies: { alias: 'file:../local-package', shared: '^2', library: '^1', missing: 'git+example', unversioned: 'file:../unversioned' },
-      dsh: { profile: { bundles: ['shared', 'alias'] } },
+      mwf: { profile: { bundles: ['shared', 'alias'] } },
     })
     const source = join(location.profileDir, '..', 'local-package')
-    writeManifest(source, { name: 'original-name', version: '3.0.0', dsh: { bundle: { patch: 'missing.yml' } } })
+    writeManifest(source, { name: 'original-name', version: '3.0.0', mwf: { bundle: { patch: 'missing.yml' } } })
     mkdirSync(join(location.profileDir, 'node_modules'))
     symlinkSync(source, join(location.profileDir, 'node_modules', 'alias'), 'junction')
     installed(location, 'shared', false)
     installed(location, 'library', false)
     writeManifest(join(location.profileDir, 'node_modules', 'unversioned'), { name: 'unversioned' })
     writeManifest(join(dirname(location.installAnchor), 'node_modules', 'shared'), {
-      name: 'shared', version: '9.0.0', dsh: { bundle: { patch: 'bundle.yml' } },
+      name: 'shared', version: '9.0.0', mwf: { bundle: { patch: 'bundle.yml' } },
     })
     expect(readProfilePlugins(location).dependencies).toEqual([
       { name: 'alias', version: '3.0.0', bundle: true, enabled: true },
@@ -77,7 +77,7 @@ describe('profile plugin reconciliation', () => {
     const beforeManifest = {
       name: 'custom-profile', private: false, custom: { keep: true },
       dependencies: { active: '^1', disabled: '^1', gaining: '^1', losing: '^1', removed: '^1' },
-      dsh: { profile: { bundles: ['template', 'template', 'active', 'losing', 'removed'] } },
+      mwf: { profile: { bundles: ['template', 'template', 'active', 'losing', 'removed'] } },
     }
     writeManifest(location.profileDir, beforeManifest)
     for (const name of Object.keys(beforeManifest.dependencies)) installed(location, name, name !== 'gaining')
@@ -92,12 +92,12 @@ describe('profile plugin reconciliation', () => {
     installed(location, 'new-library', false)
     const result = reconcileProfilePlugins({ ...location, before, preserveDisabled })
     const bundles = ['template', 'template', 'active', ...preserveDisabled ? [] : ['disabled'], 'gaining', 'added']
-    expect(result.plugins.manifest.dsh?.profile?.bundles).toEqual(bundles)
+    expect(result.plugins.manifest.mwf?.profile?.bundles).toEqual(bundles)
     expect(result.plugins.dependencies.filter(dependency => dependency.enabled).map(dependency => dependency.name))
       .toEqual(['active', ...preserveDisabled ? [] : ['disabled'], 'gaining', 'added'])
     expect(result.addedPlainDependencies).toEqual(['new-library'])
     expect(JSON.parse(readFileSync(join(location.profileDir, 'package.json'), 'utf8'))).toMatchObject({
-      custom: { keep: true }, private: false, dsh: { profile: { bundles } },
+      custom: { keep: true }, private: false, mwf: { profile: { bundles } },
     })
     const bytes = readFileSync(join(location.profileDir, 'package.json'), 'utf8')
     expect(reconcileProfilePlugins({ ...location, before: result.plugins, preserveDisabled }).addedPlainDependencies).toEqual([])
@@ -109,17 +109,17 @@ describe('profile plugin reconciliation', () => {
     const before = readProfilePlugins(location)
     writeManifest(location.profileDir, { dependencies: { added: '^1' } })
     installed(location, 'added')
-    expect(reconcileProfilePlugins({ ...location, before, preserveDisabled: false }).plugins.manifest.dsh?.profile?.bundles)
+    expect(reconcileProfilePlugins({ ...location, before, preserveDisabled: false }).plugins.manifest.mwf?.profile?.bundles)
       .toEqual(['added'])
   })
 
   it('removes an unresolved dependency layer while preserving custom profile metadata', () => {
     const location = fixture()
-    writeManifest(location.profileDir, { dependencies: { missing: '^1' }, dsh: { profile: { bundles: ['missing', 'template'] } } })
+    writeManifest(location.profileDir, { dependencies: { missing: '^1' }, mwf: { profile: { bundles: ['missing', 'template'] } } })
     const before = readProfilePlugins(location)
     const reconciled = reconcileProfilePlugins({ ...location, before, preserveDisabled: true })
-    expect(reconciled.plugins.manifest.dsh?.profile?.bundles).toEqual(['template'])
-    expect(writeProfileBundles(location.profileDir, reconciled.plugins.manifest, ['template', 'manual']).dsh?.profile?.bundles)
+    expect(reconciled.plugins.manifest.mwf?.profile?.bundles).toEqual(['template'])
+    expect(writeProfileBundles(location.profileDir, reconciled.plugins.manifest, ['template', 'manual']).mwf?.profile?.bundles)
       .toEqual(['template', 'manual'])
   })
 })

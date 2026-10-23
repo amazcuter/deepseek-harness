@@ -1,5 +1,5 @@
 /** Copy the row's Session ID without opening its history. */
-import { IconCopyOutlineRegular, MenuItemButton } from '@deepseek-ai/dsh-client-ui-primitives'
+import { IconCopyOutlineRegular, MenuItemButton } from '@metaworkflow/client-ui-primitives'
 import type { SessionIdInjected, SessionMenuItemProps } from '../contract/slots.ts'
 
 /**

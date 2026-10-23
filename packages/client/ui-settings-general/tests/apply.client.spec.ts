@@ -6,13 +6,13 @@
  * across Loader rebuilds of the declaring chain.
  */
 import { describe, expect, onTestFinished, vi } from 'vitest'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import { ok, type RemoteMock } from '@deepseek-ai/dsh-remote-mock'
-import type { SettingsNamespaceView } from '@deepseek-ai/dsh-settings/types'
-import { createClientTest, type TestClient, webApp } from '@deepseek-ai/dsh-client-test-runtime/src/assembly/index.ts'
-import { graphFromRoster } from '@deepseek-ai/dsh-client-test-runtime/src/assembly/roster.ts'
-import { resolveSlotLabel } from '@deepseek-ai/dsh-client-ui-slots'
-import { LOCALE_SETTINGS_NAMESPACE, LocaleSettingsSchema } from '@deepseek-ai/dsh-client-locale/src/locale-settings.ts'
+import type {} from '@metaworkflow/client-ui-renderer/client'
+import { ok, type RemoteMock } from '@metaworkflow/remote-mock'
+import type { SettingsNamespaceView } from '@metaworkflow/settings/types'
+import { createClientTest, type TestClient, webApp } from '@metaworkflow/client-test-runtime/src/assembly/index.ts'
+import { graphFromRoster } from '@metaworkflow/client-test-runtime/src/assembly/roster.ts'
+import { resolveSlotLabel } from '@metaworkflow/client-ui-slots'
+import { LOCALE_SETTINGS_NAMESPACE, LocaleSettingsSchema } from '@metaworkflow/client-locale/src/locale-settings.ts'
 import { inject } from '../src/client/index.ts'
 import type { DeveloperToolsRowInjected } from '../src/client/DeveloperToolsRow.tsx'
 import { HostReleasePrompt, type HostReleasePromptInjected } from '../src/client/HostReleasePrompt.tsx'
@@ -21,8 +21,8 @@ import { GeneralSection } from '../src/client/GeneralSection.tsx'
 import { SettingsDocumentAction } from '../src/client/SettingsDocumentAction.tsx'
 import type { SettingsDocumentActionInjected } from '../src/client/SettingsDocumentAction.tsx'
 
-const SELF = '@deepseek-ai/dsh-client-ui-settings-general'
-const SIDEBAR = '@deepseek-ai/dsh-client-ui-sidebar'
+const SELF = '@metaworkflow/client-ui-settings-general'
+const SIDEBAR = '@metaworkflow/client-ui-sidebar'
 const it = createClientTest({ roster: webApp })
 /** The whole roster's first boot pays the cold module transform of every plugin package. */
 const COLD_BOOT_TIMEOUT_MS = 60_000

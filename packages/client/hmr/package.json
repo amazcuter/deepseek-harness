@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-hmr",
+  "name": "@metaworkflow/client-hmr",
   "description": "Web client graph synchronization and rebuilt-bundle reload transport",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -26,10 +26,10 @@
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json"
   },
-  "dsh": {
+  "mwf": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-client-modules"
+        "@metaworkflow/client-modules"
       ],
       "platform": "web",
       "immediately": true
@@ -44,8 +44,8 @@
   },
   "devDependencies": {
     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-client-modules": "workspace:*",
-    "@deepseek-ai/dsh-host-webserver": "workspace:*",
+    "@metaworkflow/client-modules": "workspace:*",
+    "@metaworkflow/host-webserver": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
     "eventsource-parser": "^3.1.0"
   },

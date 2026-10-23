@@ -2,23 +2,23 @@
  * Shared service mounting, real AgentLoop drivers, and structural Inbox stubs
  * for agent-loop tests. Callers retain ownership of their contexts, adapters,
  * optional plugins, agents, and teardown.
- * @module @deepseek-ai/dsh-agent-loop-testkit
+ * @module @metaworkflow/agent-loop-testkit
  */
 
 import type { Context } from '@deepseek-ai/cordis'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import type { Agent, AgentOptions, Inbox, InboxTarget } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import LlmRuntime from '@deepseek-ai/dsh-llm'
-import SessionStore from '@deepseek-ai/dsh-session'
-import type { SessionHeader, SessionId, UserMessage } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import type { Config as SystemPromptConfig } from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import type { Config as ToolRuntimeConfig } from '@deepseek-ai/dsh-tools'
-import FsLocal from '@deepseek-ai/dsh-fs-local'
-import WorkingDirectory from '@deepseek-ai/dsh-working-directory'
+import AgentRegistry from '@metaworkflow/agent'
+import type { Agent, AgentOptions, Inbox, InboxTarget } from '@metaworkflow/agent'
+import AgentLoop from '@metaworkflow/agent-loop'
+import LlmRuntime from '@metaworkflow/llm'
+import SessionStore from '@metaworkflow/session'
+import type { SessionHeader, SessionId, UserMessage } from '@metaworkflow/session'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import SystemPrompt from '@metaworkflow/system-prompt'
+import type { Config as SystemPromptConfig } from '@metaworkflow/system-prompt'
+import ToolRuntime from '@metaworkflow/tools'
+import type { Config as ToolRuntimeConfig } from '@metaworkflow/tools'
+import FsLocal from '@metaworkflow/fs-local'
+import WorkingDirectory from '@metaworkflow/working-directory'
 
 export { createInboxStub, unsupportedInbox } from './inbox.ts'
 export { provideWorkingDirectoryFixture } from './working-directory-fixture.ts'

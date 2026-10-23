@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseBrowserAddress } from '../src/client/browser/url.ts'
 
-const APP = 'https://dsh.example'
+const APP = 'https://mwf.example'
 
 describe('Browser address policy', () => {
   it('normalizes host names and HTTPS addresses', () => {

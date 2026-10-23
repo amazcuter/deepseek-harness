@@ -4,13 +4,13 @@ import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, expect, it, vi } from 'vitest'
-import { TimeoutReason } from '@deepseek-ai/dsh-timeout'
+import { TimeoutReason } from '@metaworkflow/timeout'
 import { downloadAsset } from '../src/runtime.ts'
 
 const cleanup: Array<() => Promise<void>> = []
 afterEach(async () => { vi.unstubAllGlobals(); for (const close of cleanup.splice(0).reverse()) await close() })
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-speech-runtime-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-speech-runtime-'))
   cleanup.push(async () => { await rm(root, { recursive: true, force: true }) })
   return root
 }

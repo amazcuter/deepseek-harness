@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { inspectDshPackageLicenses } from './verify-dsh-package-licenses.ts'
+import { inspectMwfPackageLicenses } from './verify-dsh-package-licenses.ts'
 
 const roots: string[] = []
 
@@ -17,22 +17,22 @@ function writeManifest(root: string, file: string, manifest: Record<string, unkn
 }
 
 function createWorkspace(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-package-licenses-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-package-licenses-'))
   roots.push(root)
   writeManifest(root, 'package.json', {
-    name: '@deepseek-ai/dsh-root',
+    name: '@metaworkflow/root',
     license: 'MIT',
     workspaces: ['apps/*', 'packages/*/*', 'vendor/*'],
   })
   return root
 }
 
-describe('DSH package license gate', () => {
-  it('checks root, unhyphenated CLI, and dsh-prefixed package names while ignoring other families', () => {
+describe('MWF package license gate', () => {
+  it('checks root, unhyphenated CLI, and mwf-prefixed package names while ignoring other families', () => {
     const root = createWorkspace()
-    writeManifest(root, 'apps/cli/package.json', { name: '@deepseek-ai/dsh', license: 'MIT' })
+    writeManifest(root, 'apps/cli/package.json', { name: '@metaworkflow/cli', license: 'MIT' })
     writeManifest(root, 'packages/core/agent/package.json', {
-      name: '@deepseek-ai/dsh-agent',
+      name: '@metaworkflow/agent',
       license: 'BSD-3-Clause',
     })
     writeManifest(root, 'vendor/cordis/package.json', {
@@ -40,20 +40,20 @@ describe('DSH package license gate', () => {
       license: 'BSD-3-Clause',
     })
 
-    expect(inspectDshPackageLicenses(root)).toEqual({
+    expect(inspectMwfPackageLicenses(root)).toEqual({
       packageCount: 3,
       failures: [
-        'packages/core/agent/package.json: @deepseek-ai/dsh-agent must declare "license": "MIT"; found "BSD-3-Clause".',
+        'packages/core/agent/package.json: @metaworkflow/agent must declare "license": "MIT"; found "BSD-3-Clause".',
       ],
     })
   })
 
   it('rejects a missing license declaration', () => {
     const root = createWorkspace()
-    writeManifest(root, 'packages/core/agent/package.json', { name: '@deepseek-ai/dsh-agent' })
+    writeManifest(root, 'packages/core/agent/package.json', { name: '@metaworkflow/agent' })
 
-    expect(inspectDshPackageLicenses(root).failures).toEqual([
-      'packages/core/agent/package.json: @deepseek-ai/dsh-agent must declare "license": "MIT"; found undefined.',
+    expect(inspectMwfPackageLicenses(root).failures).toEqual([
+      'packages/core/agent/package.json: @metaworkflow/agent must declare "license": "MIT"; found undefined.',
     ])
   })
 })

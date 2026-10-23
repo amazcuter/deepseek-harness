@@ -173,10 +173,10 @@ describe.skipIf(process.platform === 'win32')('SSH connection startup', () => {
   it('launches an executable directly and publishes its embedded PTC worker', async () => {
     const test = setup({
       config: { launch: { kind: 'executable' }, helper: '/remote/helper with spaces' },
-      hello: { kind: 'executable', executable: '/canonical/dsh-ssh-helper' },
+      hello: { kind: 'executable', executable: '/canonical/mwf-ssh-helper' },
     })
     await test.service.ready
-    expect(test.service.ptcLaunch).toEqual({ kind: 'embedded', executable: '/canonical/dsh-ssh-helper' })
+    expect(test.service.ptcLaunch).toEqual({ kind: 'embedded', executable: '/canonical/mwf-ssh-helper' })
     const argv = transport.spawn.mock.calls[0]?.[1] as string[]
     expect(argv.at(-1)).toBe("NODE_OPTIONS='--disable-sigusr1' '/remote/helper with spaces'")
     expect(test.calls[0]?.params).toEqual({ protocol: 2, workspace: '/remote/workspace', leaseMs: 30_000 })

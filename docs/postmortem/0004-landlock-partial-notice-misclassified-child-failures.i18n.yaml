@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/postmortem/0004-landlock-partial-notice-misclassified-child-failures.md
 /post-mortem-0004-landlock-partial-enforcement-notice-misclassified-child-failures:
-  en: b71a197449d26d2f
-  zh: 2b62b51f43516f16
+  en: 0a67b4818e9296e2
+  zh: 2a3630aa2564bc40
 /post-mortem-0004-landlock-partial-enforcement-notice-misclassified-child-failures/executive-summary:
   en: 2ec1637fb5a99515
   zh: f3bca251dca064d6
@@ -21,8 +21,8 @@
   en: 97c948a04dd4ac89
   zh: dec9b74160efb68f
 /post-mortem-0004-landlock-partial-enforcement-notice-misclassified-child-failures/guardrails-added:
-  en: bf3bc8101efe4b0f
-  zh: 3d17794adb3f61c7
+  en: cb198e1ce454717e
+  zh: cfd721d5e1978884
 /post-mortem-0004-landlock-partial-enforcement-notice-misclassified-child-failures/lessons:
   en: eea3aedb5f5f4f9f
   zh: 1c718cd06caa9f25

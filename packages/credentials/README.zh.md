@@ -9,7 +9,7 @@ kind: "package-group"
 
 ## 概述
 
-`credentials/` 组让配置引用机密的名字，而不嵌入机密值。使用 `credentials/` 存储、查询和移除凭据；使用 `credentials-local/` 将凭据私密地存储在本机，并以环境作为后备来源；当需要向人询问以获取凭据时，使用 `authorization/`。轮换后的存储值会作用于下一次模型请求，且存储值优先于 `DEEPSEEK_API_KEY=… dsh`。配置文件只包含凭据名称；本地机密值只有同一 OS 用户可读。
+`credentials/` 组让配置引用机密的名字，而不嵌入机密值。使用 `credentials/` 存储、查询和移除凭据；使用 `credentials-local/` 将凭据私密地存储在本机，并以环境作为后备来源；当需要向人询问以获取凭据时，使用 `authorization/`。轮换后的存储值会作用于下一次模型请求，且存储值优先于 `DEEPSEEK_API_KEY=… mwf`。配置文件只包含凭据名称；本地机密值只有同一 OS 用户可读。
 
 ## 目录
 
@@ -39,7 +39,7 @@ kind: "package-group"
 
 - [凭据子系统参考](../../docs/subsystems/credentials.zh.md)——`CredentialRef` 与 `CredentialKey`、按操作解析、可安全用于 UI 的 `CredentialInfo`、授权 flow 与生成的 Cordis 接口面。
 - [能力 seam](../../docs/capability-seams.zh.md)——本家族遵循的 Service Definition / Service Provider / Consumer 拆分。
-- [生成配置目录](../../docs/config-catalog.zh.md#deepseek-aidsh-credentials-local)——本地存储的每个受支持字段。
+- [生成配置目录](../../docs/config-catalog.zh.md#metaworkflowcredentials-local)——本地存储的每个受支持字段。
 
 <a id="dev-note"></a>
 ## 开发备注

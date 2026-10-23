@@ -20,7 +20,7 @@ The second parameter of `startSession(workspaceId?, options?)` contains `prompt`
 
 A string represents input without structured references; an ambiguous `@` query never selects a file automatically. The public `SessionInput.setDraft` and `InputActions.setDraft` methods accept only text. Internal structured restoration reuses the editor's reference restoration without listing directories or reading files. Plain text and file, folder, and Session chips all pass through the registered editor transforms and projection.
 
-The existing `dsh.conversation.<sessionId>` key remains. Readers accept both legacy strings and structured `draft` values; new writes store structured values. The original Conversation store still writes the complete record, without a second writer for that key. Reference changes must reach persistence even when the visible text does not change.
+The existing `mwf.conversation.<sessionId>` key remains. Readers accept both legacy strings and structured `draft` values; new writes store structured values. The original Conversation store still writes the complete record, without a second writer for that key. Reference changes must reach persistence even when the visible text does not change.
 
 ### Classes and methods
 

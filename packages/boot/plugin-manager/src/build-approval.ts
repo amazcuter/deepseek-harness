@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { isAlias, isMap, isNode, isScalar, parseDocument, visit } from 'yaml'
 import { ManagementFailure } from './failure.ts'
-import { writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
+import { writeFileAtomic } from '@metaworkflow/atomic-write'
 
 /** Value pnpm leaves for a build script that still needs a decision. */
 const UNDECIDED_BUILD = 'set this to true or false'

@@ -9,4 +9,4 @@ header:
 platform: posix
 permission: read-only
 environment:
-  DSH_SNAPSHOT_PROVIDER_CWD: /recorded-provider/workspace
+  MWF_SNAPSHOT_PROVIDER_CWD: /recorded-provider/workspace

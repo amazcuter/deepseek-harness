@@ -1,7 +1,7 @@
 /**
  * `internal/modules/esm/module_map` for the Worker, following Node v24.18.0. The Worker evaluates no ES module
  * jobs, so a {@link LoadCache} stays empty and refuses to store one.
- * @module @deepseek-ai/dsh-experimental-webworker-runtime/src/node/internal_modules/module-map
+ * @module @metaworkflow/experimental-webworker-runtime/src/node/internal_modules/module-map
  */
 import { notAvailableError } from '../notImplementedFail.ts'
 

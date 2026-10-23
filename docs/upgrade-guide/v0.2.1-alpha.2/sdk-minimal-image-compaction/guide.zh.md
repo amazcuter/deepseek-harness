@@ -15,7 +15,7 @@ description: "sdk-minimal 默认工具清单新增 read_image，并自动生成�
 
 ## 迁移
 
-1. 接受新增默认能力，或将以下 patch 写入 `$DSH_HOME/profiles/sdk-minimal/cordis.patch.yml`，保留原有默认工具并关闭自动压缩：
+1. 接受新增默认能力，或将以下 patch 写入 `$MWF_HOME/profiles/sdk-minimal/cordis.patch.yml`，保留原有默认工具并关闭自动压缩：
 
 ```yaml
 - id: tool-fs

@@ -2,7 +2,7 @@
 
 ## Summary
 
-Page-level style preferences that make DSH pages scannable and difficult to misread: a short Summary, controlled technical English, `-----` separators between major parts, `<details>` folds that keep section titles visible, and disciplined emphasis. The template is the `session-persistence-jsonl` README pair.
+Page-level style preferences that make MWF pages scannable and difficult to misread: a short Summary, controlled technical English, `-----` separators between major parts, `<details>` folds that keep section titles visible, and disciplined emphasis. The template is the `session-persistence-jsonl` README pair.
 
 ## Table of Contents
 

@@ -10,9 +10,9 @@ import { verifyDefaultProductIsolation } from './verify-default-product-isolatio
 import { writeFixtureFile as write } from './fixture-file.ts'
 
 const roots: string[] = []
-const experimental = '@deepseek-ai/dsh-experimental-prototype'
-const core = '@deepseek-ai/dsh-core'
-const base = '@deepseek-ai/dsh-base'
+const experimental = '@metaworkflow/experimental-prototype'
+const core = '@metaworkflow/core'
+const base = '@metaworkflow/base'
 const profile = 'packages/boot/app-boot/src/profile.ts'
 const preset = 'packages/bundle/web-app/presets/standard.patch.yml'
 const patch = 'packages/bundle/base/cordis.patch.yml'
@@ -23,20 +23,20 @@ function manifest(root: string, path: string, fields: Record<string, unknown>): 
 }
 
 function fixture(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh.default-isolation-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf.default-isolation-'))
   roots.push(root)
-  write(root, 'apps/cli/package.json', { name: '@deepseek-ai/dsh', dependencies: { [core]: 'workspace:^' } })
+  write(root, 'apps/cli/package.json', { name: '@metaworkflow/cli', dependencies: { [core]: 'workspace:^' } })
   write(root, 'apps/cli/src/bin.ts', 'export {}\n')
-  write(root, 'apps/web/package.json', { name: '@deepseek-ai/dsh-web-frontend' })
+  write(root, 'apps/web/package.json', { name: '@metaworkflow/web-frontend' })
   write(root, 'apps/web/index.html', '<script type="module" src="/src/main.ts"></script>')
   write(root, 'apps/web/src/main.ts', 'export {}\n')
-  write(root, 'python/sdk-runtime/package.json', { name: '@deepseek-ai/dsh-python-runtime' })
+  write(root, 'python/sdk-runtime/package.json', { name: '@metaworkflow/python-runtime' })
   write(root, 'packages/core/core/package.json', { name: core })
   write(root, 'packages/core/core/src/index.ts', 'export {}\n')
-  write(root, 'packages/bundle/base/package.json', { name: base, dsh: { bundle: { patch: './cordis.patch.yml' } } })
+  write(root, 'packages/bundle/base/package.json', { name: base, mwf: { bundle: { patch: './cordis.patch.yml' } } })
   write(root, patch, [{ insert: [{ name: core }] }])
-  write(root, preset, [{ insert: [{ name: '@deepseek-ai/dsh-agent-preset', config: { id: 'standard', plugins: [{ name: core }] } }] }])
-  write(root, 'packages/preset/agent-preset/package.json', { name: '@deepseek-ai/dsh-agent-preset' })
+  write(root, preset, [{ insert: [{ name: '@metaworkflow/agent-preset', config: { id: 'standard', plugins: [{ name: core }] } }] }])
+  write(root, 'packages/preset/agent-preset/package.json', { name: '@metaworkflow/agent-preset' })
   write(root, profile, `export const PROFILE_TEMPLATES = { web: { bundles: ['${base}'] } }\n`
     + `export const DEFAULT_PROFILE_BUNDLES = ['${base}']\n`)
   write(root, 'packages/experimental/prototype/package.json', { name: experimental })
@@ -59,7 +59,7 @@ describe('default product isolation', () => {
         if (route === 'value import') write(root, 'apps/cli/src/bin.ts', `import '${name}'\n`)
         if (route === 'subpath import') write(root, 'apps/cli/src/bin.ts', `import '${name}/feature'\n`)
         if (route === 'profile row') write(root, patch, [{ insert: [{ name }] }])
-        if (route === 'preset row') write(root, preset, [{ insert: [{ name: '@deepseek-ai/dsh-agent-preset', config: { id: 'standard', plugins: [{ name }] } }] }])
+        if (route === 'preset row') write(root, preset, [{ insert: [{ name: '@metaworkflow/agent-preset', config: { id: 'standard', plugins: [{ name }] } }] }])
         expect(verifyDefaultProductIsolation(root).failures).toEqual(expect.arrayContaining([
           expect.stringMatching(new RegExp(`${name}.*default product must not include experimental packages`)),
         ]))
@@ -115,11 +115,11 @@ describe('default product isolation', () => {
 
   it.each([true, false])('ships an optional bundle switched off with legacy icon=%s', (legacy) => {
     const root = fixture()
-    const layer = '@deepseek-ai/dsh-experimental-layer'
+    const layer = '@metaworkflow/experimental-layer'
     write(root, 'packages/experimental/layer/package.json', {
       name: layer, ...legacy ? { icon: './icon.svg' } : {},
       exports: { ...legacy ? {} : { './icon': './icon.svg' }, './locale/*.json': './locale/*.json' },
-      dependencies: { [experimental]: 'workspace:^' }, dsh: { bundle: { patch: './cordis.patch.yml' } },
+      dependencies: { [experimental]: 'workspace:^' }, mwf: { bundle: { patch: './cordis.patch.yml' } },
     })
     write(root, 'packages/experimental/layer/cordis.patch.yml', [{ insert: [{ name: experimental }] }])
     manifest(root, 'apps/cli/package.json', { dependencies: { [core]: 'workspace:^', [layer]: 'workspace:^' } })
@@ -141,10 +141,10 @@ describe('default product isolation', () => {
   it.each(['dependencies', 'source', 'patch'])(
     'checks a nonexperimental optional bundle for experimental %s', (kind) => {
       const root = fixture()
-      const layer = '@deepseek-ai/dsh-optional-layer'
+      const layer = '@metaworkflow/optional-layer'
       write(root, 'packages/bundle/optional-layer/package.json', {
         name: layer, icon: './icon.svg', exports: { './locale/*.json': './locale/*.json' },
-        dsh: { bundle: { patch: './cordis.patch.yml' } },
+        mwf: { bundle: { patch: './cordis.patch.yml' } },
       })
       write(root, 'packages/bundle/optional-layer/src/index.ts', 'export {}')
       write(root, 'packages/bundle/optional-layer/cordis.patch.yml', [])
@@ -170,7 +170,7 @@ describe('default product isolation', () => {
       + `export const OPTIONAL_BUNDLES = ['${experimental}']\n`)
     const failures = verifyDefaultProductIsolation(root).failures.join('\n')
     expect(failures).toContain(`optional bundle ${experimental} must be a runtime dependency of apps/cli`)
-    expect(failures).toContain(`optional bundle ${experimental} must declare dsh.bundle.patch`)
+    expect(failures).toContain(`optional bundle ${experimental} must declare mwf.bundle.patch`)
     expect(failures).toContain(`optional bundle ${experimental} must declare icon or export ./icon`)
     expect(failures).toContain(`optional bundle ${experimental} must export ./locale/*.json display metadata`)
 
@@ -178,7 +178,7 @@ describe('default product isolation', () => {
     write(root, profile, `export const PROFILE_TEMPLATES = { web: { bundles: ['${base}'] } }\n`
       + `export const DEFAULT_PROFILE_BUNDLES = ['${base}']\n`)
     manifest(root, 'apps/cli/package.json', { dependencies: { [core]: 'workspace:^', [experimental]: 'workspace:^' } })
-    expect(verifyDefaultProductIsolation(root).failures.join('\n')).toContain(`@deepseek-ai/dsh dependencies -> ${experimental}`)
+    expect(verifyDefaultProductIsolation(root).failures.join('\n')).toContain(`@metaworkflow/cli dependencies -> ${experimental}`)
   })
 
   it.each(['dependencies', 'optionalDependencies', 'peerDependencies'])(
@@ -204,12 +204,12 @@ describe('default product isolation', () => {
 
   it('rejects experimental names absent from the inventory and paths with another package name', () => {
     const root = fixture()
-    manifest(root, 'apps/cli/package.json', { dependencies: { '@deepseek-ai/dsh-experimental-missing': '*' } })
+    manifest(root, 'apps/cli/package.json', { dependencies: { '@metaworkflow/experimental-missing': '*' } })
     manifest(root, 'packages/experimental/prototype/package.json', { name: '@fixture/innocent' })
     manifest(root, 'python/sdk-runtime/package.json', { dependencies: { '@fixture/innocent': '*' } })
 
     const failures = verifyDefaultProductIsolation(root).failures.join('\n')
-    expect(failures).toContain('@deepseek-ai/dsh-experimental-missing')
+    expect(failures).toContain('@metaworkflow/experimental-missing')
     expect(failures).toContain('@fixture/innocent')
   })
 
@@ -371,7 +371,7 @@ describe('default product isolation', () => {
     const root = fixture()
     write(root, profile, `export const PROFILE_TEMPLATES = { web: { bundles: ['${experimental}'] } }\n`
       + `export const DEFAULT_PROFILE_BUNDLES = ['${base}']\n`)
-    manifest(root, 'apps/cli/package.json', { dsh: { configTrees: [{ path: './config' }] } })
+    manifest(root, 'apps/cli/package.json', { mwf: { configTrees: [{ path: './config' }] } })
     write(root, 'apps/cli/config/extra.cordis.yml', [{ name: experimental }])
     const failures = verifyDefaultProductIsolation(root).failures.join('\n')
     expect(failures).toContain(`${profile} -> ${experimental}`)
@@ -380,7 +380,7 @@ describe('default product isolation', () => {
 
   it.each([false, true])('rejects a declared config tree without composition files when its directory exists: %s', (existing) => {
     const root = fixture()
-    manifest(root, 'apps/cli/package.json', { dsh: { configTrees: [{ path: './config' }] } })
+    manifest(root, 'apps/cli/package.json', { mwf: { configTrees: [{ path: './config' }] } })
     if (existing) write(root, 'apps/cli/config/README.i18n.yaml', 'en: test\n')
 
     expect(verifyDefaultProductIsolation(root).failures.join('\n')).toContain('apps/cli/config')
@@ -405,8 +405,8 @@ describe('default product isolation', () => {
 
   it('checks group contents after an id-only patch changes the composed Web tree', () => {
     const root = fixture()
-    const web = '@deepseek-ai/dsh-web-app'
-    write(root, 'packages/bundle/web-app/package.json', { name: web, dsh: { bundle: { patch: './cordis.patch.yml' } } })
+    const web = '@metaworkflow/web-app'
+    write(root, 'packages/bundle/web-app/package.json', { name: web, mwf: { bundle: { patch: './cordis.patch.yml' } } })
     write(root, patch, [{ insert: [{ id: 'feature-group', group: true, config: [{ name: core }] }] }])
     write(root, 'packages/bundle/web-app/cordis.patch.yml', [
       { id: 'feature-group', config: [{ name: experimental }] },

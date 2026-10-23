@@ -62,7 +62,7 @@ export type InspectorSourceEvent =
     readonly frame: ClientSourceResponseFrame
   }
 
-/** Read-only diagnostic for `DSHInspector.getSources`. */
+/** Read-only diagnostic for `MWFInspector.getSources`. */
 export interface InspectorSourceView {
   readonly sourceId: string
   readonly generation: string

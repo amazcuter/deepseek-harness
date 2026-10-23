@@ -32,7 +32,7 @@ Measured on this host: an Untrusted (`S-1-16-0`) token cannot start `pwsh` at al
 
 ### Why not deny `FILE_DELETE_CHILD` with `OI|CI`?
 
-It also lands the deny on every FILE inside the granted root (observed through `icacls`: `Everyone:(I)(DENY)(DC)`), and `0x40` is part of `FILE_ALL_ACCESS`, so `CreateFileW(GENERIC_ALL)` on those files returns `ERROR_ACCESS_DENIED` for the user, Administrators, SYSTEM, and the DSH host alike. Narrowing the flag removes that class; a FullControl open of a DIRECTORY inside a granted root stays denied, which is the irreducible cost of denying a right that is a member of the full-access mask.
+It also lands the deny on every FILE inside the granted root (observed through `icacls`: `Everyone:(I)(DENY)(DC)`), and `0x40` is part of `FILE_ALL_ACCESS`, so `CreateFileW(GENERIC_ALL)` on those files returns `ERROR_ACCESS_DENIED` for the user, Administrators, SYSTEM, and the MWF host alike. Narrowing the flag removes that class; a FullControl open of a DIRECTORY inside a granted root stays denied, which is the irreducible cost of denying a right that is a member of the full-access mask.
 
 ### Why not drop the confinement layer and document the escape?
 
@@ -44,7 +44,7 @@ Mandatory integrity control has five fixed levels (Untrusted, Low, Medium, High,
 
 ## Consequences
 
-Bought: deletes confined through every authority Windows accepts AND confined to the granted root that owns them; the previously documented Everyone-write boundary closed; writes, reads, and process visibility otherwise unchanged; fail-closed errors on every Win32 call. Cost, all recorded in the package README: the standing Low label widens the workspace tree for ANY other process running at Low integrity as the same user and outlives DSH (the price of having a write boundary at all at this integrity level); a granted directory must now also grant `WRITE_OWNER` for its label (a Full-control workspace has it, a Modify-only one fails loudly); a FullControl open of a directory inside a granted root is denied; a tree another AppContainer tool has ACL'd with a package SID is unreadable to the Low child; FAT-class targets stay unverified. The [restricted-token rung note](2026-08-08-windows-acl-restricted-token-sandbox.md) remains the owner of the rung's token lists, runner contract, and grant lifecycle; this note owns only the delete route and the integrity layer that closes it.
+Bought: deletes confined through every authority Windows accepts AND confined to the granted root that owns them; the previously documented Everyone-write boundary closed; writes, reads, and process visibility otherwise unchanged; fail-closed errors on every Win32 call. Cost, all recorded in the package README: the standing Low label widens the workspace tree for ANY other process running at Low integrity as the same user and outlives MWF (the price of having a write boundary at all at this integrity level); a granted directory must now also grant `WRITE_OWNER` for its label (a Full-control workspace has it, a Modify-only one fails loudly); a FullControl open of a directory inside a granted root is denied; a tree another AppContainer tool has ACL'd with a package SID is unreadable to the Low child; FAT-class targets stay unverified. The [restricted-token rung note](2026-08-08-windows-acl-restricted-token-sandbox.md) remains the owner of the rung's token lists, runner contract, and grant lifecycle; this note owns only the delete route and the integrity layer that closes it.
 
 ## Testing
 

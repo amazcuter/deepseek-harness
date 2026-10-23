@@ -55,7 +55,7 @@ ctx.slots.inject('plugins.detail.badge', () => ctx.slots.register({
 
 ## 5. 浏览器半侧挂在哪里
 
-浏览器半侧由[客户端模块系统](../../packages/client/modules)送到页面：它扫描已启用的 Loader 条目，找出声明了 `dsh.client` 的包，送出每个包构建好的 `./client` 导出——但它只把一个包的半侧挂在说明符恰为裸包名的那一行上。从子路径导出挂载的行永远不带半侧，因此把一个包拆成多行的组合包，其半侧留在根行上，它注册的每个页面都随根行关闭而消失。需要在其他行关闭时仍保留页面的子插件，应作为独立的包发布。
+浏览器半侧由[客户端模块系统](../../packages/client/modules)送到页面：它扫描已启用的 Loader 条目，找出声明了 `mwf.client` 的包，送出每个包构建好的 `./client` 导出——但它只把一个包的半侧挂在说明符恰为裸包名的那一行上。从子路径导出挂载的行永远不带半侧，因此把一个包拆成多行的组合包，其半侧留在根行上，它注册的每个页面都随根行关闭而消失。需要在其他行关闭时仍保留页面的子插件，应作为独立的包发布。
 
 构建出的 `./client` 文件必须是客户端模块系统的 lazy-CJS factory 格式：一段脚本，向页面的模块加载器登记包名和一个 `factory(require)`，见[客户端模块系统的 README](../../packages/client/modules/README.zh.md)。生成它的 `clientBundle` tsdown 预设位于 `packages/client/tsdown.client.ts`，而不在任何已发布的包里，因此仓库之外的包要自己复刻这一步构建。
 
@@ -65,7 +65,7 @@ ctx.slots.inject('plugins.detail.badge', () => ctx.slots.register({
     ".": { "types": "./lib/types/index.d.ts", "default": "./lib/index.js" },
     "./client": { "types": "./lib/types/client/index.d.ts", "default": "./lib/client.js" }
   },
-  "dsh": { "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-ui-settings"] } }
+  "mwf": { "client": { "platform": "web", "inject": ["@metaworkflow/client-ui-settings"] } }
 }
 ```
 

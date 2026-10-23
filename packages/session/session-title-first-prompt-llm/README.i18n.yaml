@@ -5,60 +5,60 @@
 /:
   en: 9debfac1371e2e75
   zh: 48d13d8bde854157
-/deepseek-ai-dsh-session-title-first-prompt-llm:
-  en: c93e663d382f0ca7
-  zh: ddbea0a6b61ddb72
-/deepseek-ai-dsh-session-title-first-prompt-llm/summary:
-  en: f285f80e499c78e7
-  zh: 4001261b52131d29
-/deepseek-ai-dsh-session-title-first-prompt-llm/table-of-contents:
+/metaworkflow-session-title-first-prompt-llm:
+  en: 3940d2acf257cf3e
+  zh: 579463074bc33a64
+/metaworkflow-session-title-first-prompt-llm/summary:
+  en: eafb5ea046d93430
+  zh: ee534e5f5337ad23
+/metaworkflow-session-title-first-prompt-llm/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-session-title-first-prompt-llm/use-this-package:
-  en: 2e60e0b77b5f4813
-  zh: 0523c0af3a78f67a
-/deepseek-ai-dsh-session-title-first-prompt-llm/use-this-package/when-titles-are-generated:
+/metaworkflow-session-title-first-prompt-llm/use-this-package:
+  en: 126b230cb205b3b2
+  zh: acd8032fd9504ab1
+/metaworkflow-session-title-first-prompt-llm/use-this-package/when-titles-are-generated:
   en: 3215179477572a94
   zh: 54bf9a139aeafa44
-/deepseek-ai-dsh-session-title-first-prompt-llm/use-this-package/configuration:
-  en: 623d02888bda633e
-  zh: 969f25b04c20995c
-/deepseek-ai-dsh-session-title-first-prompt-llm/use-this-package/failures-and-recovery:
+/metaworkflow-session-title-first-prompt-llm/use-this-package/configuration:
+  en: cec42b8b59ea39b3
+  zh: 51fc7bb6fd6f2ae3
+/metaworkflow-session-title-first-prompt-llm/use-this-package/failures-and-recovery:
   en: 9e5b1bd0b388b87d
   zh: 7b1d07e48d4267ca
-/deepseek-ai-dsh-session-title-first-prompt-llm/understand-the-implementation:
+/metaworkflow-session-title-first-prompt-llm/understand-the-implementation:
   en: 506933ffa7745b7d
   zh: a9bb6f06a32b7c18
-/deepseek-ai-dsh-session-title-first-prompt-llm/understand-the-implementation/design-concept:
-  en: dc7b69fcfd3a5538
-  zh: 57cbc803f2938cc0
-/deepseek-ai-dsh-session-title-first-prompt-llm/understand-the-implementation/source-map:
+/metaworkflow-session-title-first-prompt-llm/understand-the-implementation/design-concept:
+  en: 3de581f94fc3da1b
+  zh: 7f02b3f6e1db7eb6
+/metaworkflow-session-title-first-prompt-llm/understand-the-implementation/source-map:
   en: 7daf8c1232bc702d
   zh: 4b4147eb8994e325
-/deepseek-ai-dsh-session-title-first-prompt-llm/understand-the-implementation/scheduling:
+/metaworkflow-session-title-first-prompt-llm/understand-the-implementation/scheduling:
   en: a79488f550380f5e
   zh: 0ca8a457084c0fca
-/deepseek-ai-dsh-session-title-first-prompt-llm/further-exploration:
-  en: 5a8cd304162c6fd1
-  zh: 7a8008989d8a0de8
-/deepseek-ai-dsh-session-title-first-prompt-llm/model-experience:
+/metaworkflow-session-title-first-prompt-llm/further-exploration:
+  en: efda66a9000ae097
+  zh: 12b9dadcbf321aa5
+/metaworkflow-session-title-first-prompt-llm/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-session-title-first-prompt-llm/model-experience/first-message-title-request:
+/metaworkflow-session-title-first-prompt-llm/model-experience/first-message-title-request:
   en: b216200be66e9ec4
   zh: 6805c5bfb9c55091
-/deepseek-ai-dsh-session-title-first-prompt-llm/model-experience/first-message-title-request/what-the-model-sees:
+/metaworkflow-session-title-first-prompt-llm/model-experience/first-message-title-request/what-the-model-sees:
   en: 54d7319253bad069
   zh: 48fe072d55271912
-/deepseek-ai-dsh-session-title-first-prompt-llm/model-experience/first-message-title-request/token-effect:
+/metaworkflow-session-title-first-prompt-llm/model-experience/first-message-title-request/token-effect:
   en: e4640d9fe3e33875
   zh: fd22d9196a32aa69
-/deepseek-ai-dsh-session-title-first-prompt-llm/model-experience/first-message-title-request/kv-cache-effect:
+/metaworkflow-session-title-first-prompt-llm/model-experience/first-message-title-request/kv-cache-effect:
   en: 22c407527c295def
   zh: c7e35aa298fe6b5f
-/deepseek-ai-dsh-session-title-first-prompt-llm/known-limitations-and-deferred-work:
+/metaworkflow-session-title-first-prompt-llm/known-limitations-and-deferred-work:
   en: 7df1fa6515924136
   zh: 39535dca0c9fe9ab
-/deepseek-ai-dsh-session-title-first-prompt-llm/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-session-title-first-prompt-llm/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

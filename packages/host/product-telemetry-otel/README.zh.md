@@ -3,7 +3,7 @@ description: "配置显式产品使用事件、OTLP/HTTP 路由、批量发送�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-host-product-telemetry-otel
+# @metaworkflow/host-product-telemetry-otel
 
 [English](README.md) | 中文
 
@@ -25,24 +25,24 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在 Cordis 组合中挂载插件并提供应用标识；需要时可覆盖接收地址。桌面组合在开启[产品埋点](../../client/product-analytics/README.zh.md)时挂载本插件；普通 Web 不挂载。下方独立示例读取 `DSH_APP_VERSION`；桌面端由原生启动器提供 `DSH_CLIENT_VERSION`。两者均须为运行中的发布版本；缺少版本时 schema 会拒绝配置。
+在 Cordis 组合中挂载插件并提供应用标识；需要时可覆盖接收地址。桌面组合在开启[产品埋点](../../client/product-analytics/README.zh.md)时挂载本插件；普通 Web 不挂载。下方独立示例读取 `MWF_APP_VERSION`；桌面端由原生启动器提供 `MWF_CLIENT_VERSION`。两者均须为运行中的发布版本；缺少版本时 schema 会拒绝配置。
 
 ```yaml
-- name: '@deepseek-ai/dsh-otel'
-- name: '@deepseek-ai/dsh-host-product-telemetry-otel'
+- name: '@metaworkflow/otel'
+- name: '@metaworkflow/host-product-telemetry-otel'
   config:
-    endpoint: https://dsh-otel-collector.deepseeksvc.com/v1/logs
+    endpoint: https://mwf-otel-collector.deepseeksvc.com/v1/logs
     serviceName: deepseek-harness
-    serviceVersion: !!js process.env.DSH_APP_VERSION
+    serviceVersion: !!js process.env.MWF_APP_VERSION
     compression: gzip
     scheduledDelayMillis: 30000
 ```
 
 | 字段 | 默认值 | 含义 |
 |---|---|---|
-| `endpoint` | `https://dsh-otel-collector.deepseeksvc.com/v1/logs` | 完整 HTTP(S) 日志地址 |
+| `endpoint` | `https://mwf-otel-collector.deepseeksvc.com/v1/logs` | 完整 HTTP(S) 日志地址 |
 | `serviceName`, `serviceVersion` | 必填 | OTel resource 中的应用标识 |
-| `channel` | `dsh_otel_report` | 接收服务的 `x-channel` 请求头 |
+| `channel` | `mwf_otel_report` | 接收服务的 `x-channel` 请求头 |
 | `compression` | SDK 环境变量 | `gzip` 或 `none`；省略时遵循 OTel 压缩环境变量 |
 | `maxExportBatchSize`, `maxQueueSize` | `512`, `2048` | 记录条数上限；批次大小不能超过队列大小 |
 | `scheduledDelayMillis` | `30000` | 不满批次时的发送间隔 |

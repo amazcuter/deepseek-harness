@@ -3,32 +3,32 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/guide/plugin-market.md
 /plugin-markets:
-  en: 09b2a6328dcae63c
-  zh: ac7bce767e4f5011
+  en: f18d487e21bb79b0
+  zh: bd4d515a64961096
 /plugin-markets/summary:
-  en: 2716b194b8a12aa7
-  zh: b90773d095851969
+  en: 7a67e33cd26e4f32
+  zh: fb258bd090026518
 /plugin-markets/table-of-contents:
   en: a8d1e6785c3c3c30
   zh: 7ea1eaa8204a5a1e
 /plugin-markets/turn-on-discover:
-  en: 96b2fd994f8f3e7e
-  zh: 203e8460ec6aed7a
+  en: e4497036ee70a171
+  zh: 82b5f19338a176de
 /plugin-markets/browse-and-install:
-  en: cf616bba26958533
-  zh: 1e32df16a6f4bba7
+  en: 8767a5d5317f3898
+  zh: 5575fd5ab4bb4ecc
 /plugin-markets/publish-an-index:
-  en: b85b82b22c1e14b8
-  zh: 920c0d6f20956c07
+  en: 891daf2cd8ae8665
+  zh: 006a47a66bc86fef
 /plugin-markets/generate-an-index-with-the-reference-generator:
-  en: 57a48912c00e1c85
-  zh: 69f2934eed0fbadf
+  en: 6db6e9972cc884ff
+  zh: e9296931a3839bda
 /plugin-markets/index-format-reference:
-  en: d058d12c27433f64
-  zh: f43b85e4934817f3
+  en: 12f66a67fa07b993
+  zh: 57067af464ad7304
 /plugin-markets/further-exploration:
-  en: 3c0a90e8bf73c89b
-  zh: 95608eb4f6278cb4
+  en: c561d548c0af2f79
+  zh: 890c1924f38b2a63
 /plugin-markets/dev-note:
   en: b75c8458928b72b9
   zh: 003ba4e17b4b5269

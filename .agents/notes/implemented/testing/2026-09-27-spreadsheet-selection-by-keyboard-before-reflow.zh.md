@@ -30,7 +30,7 @@ Status: implemented
 
 PR #5291 处于草稿阶段时在托管 Linux lane 上运行的带探针逐字副本，在三次 lane 运行共 38 次中有 7 次（2/6、1/6、4/20）在第一次重排处复现 `expected 'B1' to be 'A1'`。每次失败都记录到 `mousedown` 的目标是 `#luckysheet-sheettable_0` 而不是拖拽手柄，且 `B1` 的提交先于只有按下 updater 才会安排的延迟 `cellInput.focus()`；在同时给 cell area 的 `getBoundingClientRect` 加了钩子的两次 lane 运行里，5 次失败全部带有上述四次执行的特征。键盘驱动的副本在这两次 lane 运行中 26 次全部通过。本地以 20× 的 `Emulation.setCPUThrottlingRate` 运行可让点击到达 cell area，并记录到每次点击三次 `handleCellAreaMouseDown` 执行；键盘驱动的副本在该限速下 6 次全部通过，在 React 调度器唤醒被推迟 200 ms 时也 6 次全部通过。
 
-`env -u TSX_TSCONFIG_PATH DSH_SNAPSHOT=replay pnpm exec vitest run --config vitest.web.config.ts apps/web/tests/document-preview.e2e.ts -t "fills the spreadsheet pane"` 在本地 10 次重复中 10 次都通过两个 locale 用例；整个文件的 6 个用例在 3 次本地运行中 2 次通过，第 3 次在文档 gate 并行运行时失败于无关的 `:849` `Coding Tools` 开关轮询，失败截图显示开关已打开。
+`env -u TSX_TSCONFIG_PATH MWF_SNAPSHOT=replay pnpm exec vitest run --config vitest.web.config.ts apps/web/tests/document-preview.e2e.ts -t "fills the spreadsheet pane"` 在本地 10 次重复中 10 次都通过两个 locale 用例；整个文件的 6 个用例在 3 次本地运行中 2 次通过，第 3 次在文档 gate 并行运行时失败于无关的 `:849` `Coding Tools` 开关轮询，失败截图显示开关已打开。
 
 ## Consequences
 

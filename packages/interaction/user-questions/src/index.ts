@@ -1,20 +1,20 @@
 /**
  * Service Definition for the user-questions capability seam (`ctx.userQuestions`): a UI-backed service for
  * pausing an agent tool call until the human answers a question. The model-
- * facing tool lives in `@deepseek-ai/dsh-tool-ask-user`; UI packages compose
+ * facing tool lives in `@metaworkflow/tool-ask-user`; UI packages compose
  * answerers on the Agent-scoped Cordis waterfall.
  *
- * @module @deepseek-ai/dsh-user-questions
+ * @module @metaworkflow/user-questions
  */
 
 import { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-agent'
-import { createUserMessage, HarnessError, type MessageId, type ToolCallId, type UserMessage } from '@deepseek-ai/dsh-llm'
-import type { Session } from '@deepseek-ai/dsh-session'
-import { scopeTarget } from '@deepseek-ai/dsh-scope'
-import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-session-projection'
+import type {} from '@metaworkflow/agent'
+import { createUserMessage, HarnessError, type MessageId, type ToolCallId, type UserMessage } from '@metaworkflow/llm'
+import type { Session } from '@metaworkflow/session'
+import { scopeTarget } from '@metaworkflow/scope'
+import { Remote, TypertRemoteService } from '@metaworkflow/typert-protocol'
+import type { Agent } from '@metaworkflow/agent'
+import type {} from '@metaworkflow/session-projection'
 import z from '@deepseek-ai/schemastery'
 import { userQuestionProjectionDefinition } from './projection.ts'
 import { TimedQuestionWait } from './timed-wait.ts'

@@ -4,7 +4,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 export async function mandatoryFrame(parent) {
   const deadline = Date.now() + 10000
   while (Date.now() < deadline) {
-    const frame = parent.webContents.mainFrame.frames.find(frame => frame.url === 'dsh-app://shell/mandatory-update.html')
+    const frame = parent.webContents.mainFrame.frames.find(frame => frame.url === 'mwf-app://shell/mandatory-update.html')
     if (frame && await frame.executeJavaScript("document.readyState === 'complete'")) return frame
     await delay(20)
   }

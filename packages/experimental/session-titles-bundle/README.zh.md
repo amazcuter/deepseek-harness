@@ -3,7 +3,7 @@ description: "在收到新的用户提示时更新会话标题。"
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-session-titles-bundle
+# @metaworkflow/experimental-session-titles-bundle
 
 [English](README.md) | 中文
 

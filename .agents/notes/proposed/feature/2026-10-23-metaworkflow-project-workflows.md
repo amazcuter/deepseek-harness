@@ -6,7 +6,7 @@ English | [中文](2026-10-23-metaworkflow-project-workflows.zh.md)
 
 ## Problem
 
-The requested fork rebuilds the existing DSH Web application around workflow project management. The home page manages projects; each project contains its workflow canvas, coordinator conversation, node capabilities, and execution results. Users import a Mermaid flowchart, develop the executable workflow through conversation, and run independent DSH Agents and Python functions with durable progress. Novel generation is the first example; coordinator decisions, revision loops, and recovery are specified below without external product references.
+The requested fork rebuilds the existing MWF Web application around workflow project management. The home page manages projects; each project contains its workflow canvas, coordinator conversation, node capabilities, and execution results. Users import a Mermaid flowchart, develop the executable workflow through conversation, and run independent MWF Agents and Python functions with durable progress. Novel generation is the first example; coordinator decisions, revision loops, and recovery are specified below without external product references.
 
 This note records confirmed requirements and proposed implementation details for user review. It does not claim that the feature is implemented. Implementation starts only after the user approves the proposal.
 
@@ -20,7 +20,7 @@ This note records confirmed requirements and proposed implementation details for
 
 - Import a Mermaid graph containing step names and connections. The coordinator generates node implementation, prompts, output definitions, input mappings, and edge conditions, then accepts further changes through conversation.
 
-- AI task nodes use configurable DSH Agents, including models, instructions, tools, skills, and memory. Models can differ between nodes and the coordinator. Each AI node has its own list of tools, each with an enable/disable switch. A node either reuses its own continuing conversation across activations or starts a fresh one each time; reuse is the default.
+- AI task nodes use configurable MWF Agents, including models, instructions, tools, skills, and memory. Models can differ between nodes and the coordinator. Each AI node has its own list of tools, each with an enable/disable switch. A node either reuses its own continuing conversation across activations or starts a fresh one each time; reuse is the default.
 
 - Program nodes execute AI-authored Python functions, rather than requiring a fixed catalog of built-in operators. Python may use third-party libraries, network services, and ordinary host filesystem access without an application sandbox.
 
@@ -30,7 +30,7 @@ This note records confirmed requirements and proposed implementation details for
 
 ### Web pages and navigation
 
-Project management becomes the application's top-level organization. Rework the Web shell, navigation, home page, and main actions around projects and workflow runs. The result is browser-only, launched as `dsh metaworkflow`, and carries its own profile and bundle; the Desktop product keeps its current interface and data (the verified constraints and design decisions section states that split). Existing DSH conversation, tool, file, and Session capabilities become parts of the project experience. Reuse their services and suitable components while changing where and how users reach them.
+Project management becomes the application's top-level organization. Rework the Web shell, navigation, home page, and main actions around projects and workflow runs. The result is browser-only, launched as `mwf metaworkflow`, and carries its own profile and bundle; the Desktop product keeps its current interface and data (the verified constraints and design decisions section states that split). Existing MWF conversation, tool, file, and Session capabilities become parts of the project experience. Reuse their services and suitable components while changing where and how users reach them.
 
 | Page or panel | Main responsibilities |
 | --- | --- |
@@ -42,7 +42,7 @@ Project management becomes the application's top-level organization. Rework the 
 
 The coordinator conversation remains attached to the current project when a node is selected. Node Session details open in the node inspector, keeping node execution context distinct from the coordinator's continuing conversation. Switching projects restores that project's canvas, conversation, and run state. Sessions serve coordinators and nodes; they do not become additional workflow projects.
 
-The table proposes page responsibilities; whether node details, results, and history use tabs, drawers, or panels remains an implementation choice. Reuse DSH visual tokens, localized controls, and existing conversation renderers. On narrow screens, switch between canvas, conversation, and details instead of squeezing all three into unreadable columns.
+The table proposes page responsibilities; whether node details, results, and history use tabs, drawers, or panels remains an implementation choice. Reuse MWF visual tokens, localized controls, and existing conversation renderers. On narrow screens, switch between canvas, conversation, and details instead of squeezing all three into unreadable columns.
 
 The [interface sketch](2026-10-23-metaworkflow-project-workflows.preview.html) shows this page composition with example data; it executes no real task and defines no behavior.
 
@@ -78,7 +78,7 @@ def nodemain_check(inputs):
     }, ensure_ascii=False)
 ```
 
-An AI node performs its work through DSH tools and finishes by calling a task-completion tool with JSON matching the node's declared output. Ordinary assistant prose does not complete the workflow node. Invalid completion returns actionable validation errors to that Agent; only accepted completion advances scheduling. Business decisions such as review acceptance remain in Python nodes and edge conditions.
+An AI node performs its work through MWF tools and finishes by calling a task-completion tool with JSON matching the node's declared output. Ordinary assistant prose does not complete the workflow node. Invalid completion returns actionable validation errors to that Agent; only accepted completion advances scheduling. Business decisions such as review acceptance remain in Python nodes and edge conditions.
 
 Proposed implementation: the coordinator derives an editable output schema from each node's task instructions and uses it for the completion tool and runtime validation. The completion tool copies the `structured_output` pattern from subagent runs: schema-check the submitted value, backfill it through a `tools/post-execute` block, commit it with `concludeTurn`, and guard repeated or missing completion. Both node kinds yield a validated JSON value to the scheduler, while the Python author-facing return remains a JSON string. Repair limits and execution limits are explicit configurable values.
 
@@ -92,11 +92,11 @@ Support back-edges for loops. Each activation belongs to a run and loop iteratio
 
 ### Files, persistence, and recovery
 
-Proposed storage keeps one `project.db` per project (node:sqlite, measured working under Electron 44.7 / Node 24.21) plus a small global registry database, and mounts neither through a storage-domain static route. Each database opens once per backend process and keeps one writer connection: the open sets WAL journal mode, a busy timeout, and foreign keys, and the scheduler, the outbox writer, and readers share that connection instead of opening their own. The project database holds scheduling state and references; files hold node source and immutable published artifacts; existing DSH Session persistence retains model-visible tool and message history. Runs, activations, attempts, iterations, edge routing, and definition revisions stay out of the Session event map, which gains no members.
+Proposed storage keeps one `project.db` per project (node:sqlite, measured working under Electron 44.7 / Node 24.21) plus a small global registry database, and mounts neither through a storage-domain static route. Each database opens once per backend process and keeps one writer connection: the open sets WAL journal mode, a busy timeout, and foreign keys, and the scheduler, the outbox writer, and readers share that connection instead of opening their own. The project database holds scheduling state and references; files hold node source and immutable published artifacts; existing MWF Session persistence retains model-visible tool and message history. Runs, activations, attempts, iterations, edge routing, and definition revisions stay out of the Session event map, which gains no members.
 
 At dispatch, capture the exact definition revision, node implementation, input values, and artifact versions. Materialize the declared input files in the receiving node's workspace. Published artifacts retain stable versions so a later local file edit cannot silently change an earlier result or another node's input.
 
-Node acceptance and downstream scheduling are committed together. Pause cancels affected in-flight attempts; DSH has no pause primitive, so continuing starts a new turn or resumes a Session, and retry creates a new attempt. Single-step executes one selected ready activation, then pauses scheduling. For parallel workflows, the UI makes the selected activation explicit. The scheduler owns its execution slots because DSH has no global concurrency pool.
+Node acceptance and downstream scheduling are committed together. Pause cancels affected in-flight attempts; MWF has no pause primitive, so continuing starts a new turn or resumes a Session, and retry creates a new attempt. Single-step executes one selected ready activation, then pauses scheduling. For parallel workflows, the UI makes the selected activation explicit. The scheduler owns its execution slots because MWF has no global concurrency pool.
 
 Closing a browser tab does not stop the local backend. After backend restart, runs reopen paused with interrupted attempts identified. Continue resumes AI work only to the last committed assistant/tool exchange: `agents.resume()` synthesizes an error result for every unsettled tool call (`TOOL_OUTCOME_UNKNOWN` when the call may have started, `TOOL_NOT_STARTED` when it did not), and the model decides again from that result. Python functions restart from their entry point. The scheduler neither repairs the Session tail nor relies on the Session for exactly-once. Arbitrary Python instruction-level recovery is not part of this proposal.
 
@@ -108,7 +108,7 @@ The coordinator determines the rerun set and records the reason. The scheduler e
 
 ### Canvas and authoring
 
-Mermaid rendering is a new browser dependency. The repository declares `mermaid` 11.17.2 only as a root and website devDependency, and the Web bundle does not integrate it; the documentation site's renderer is a Vue component for VitePress and cannot be reused in the client, so the renderer is newly written inside the MetaWorkFlow client plugin. The layout should be compact, with short node labels, balanced grouping, zoom and pan, and DSH-compatible colors and typography. Select layout options against actual graphs rather than promising that any renderer eliminates long chains. Stable node IDs connect rendered elements to inspectors and runtime status.
+Mermaid rendering is a new browser dependency. The repository declares `mermaid` 11.17.2 only as a root and website devDependency, and the Web bundle does not integrate it; the documentation site's renderer is a Vue component for VitePress and cannot be reused in the client, so the renderer is newly written inside the MetaWorkFlow client plugin. The layout should be compact, with short node labels, balanced grouping, zoom and pan, and MWF-compatible colors and typography. Select layout options against actual graphs rather than promising that any renderer eliminates long chains. Stable node IDs connect rendered elements to inspectors and runtime status.
 
 Proposed authoring model: a structured workflow definition is authoritative after import; Mermaid is an import and display representation. The coordinator preserves node identity during ordinary edits. Click a node to inspect or edit its Python, Agent configuration, memory policy, inputs, output schema, attempts, and artifacts. The first release does not require a separate drag-and-drop wiring editor.
 
@@ -118,9 +118,9 @@ The default authoring check validates graph references, input mappings, conditio
 
 These decisions resolve the implementation questions the sections above leave open and record what the repository and the user's Windows host actually provide.
 
-- **Product scope: browser only.** The application ships as its own `metaworkflow` profile plus an independent bundle copied from the Web bundle and reworked, and starts as `dsh metaworkflow`. The Desktop product is an existing DSH product: it keeps its current interface and data, and this work changes nothing in Desktop. `PROFILE_TEMPLATES.web` keeps its current bundles.
+- **Product scope: browser only.** The application ships as its own `metaworkflow` profile plus an independent bundle copied from the Web bundle and reworked, and starts as `mwf metaworkflow`. The Desktop product is an existing MWF product: it keeps its current interface and data, and this work changes nothing in Desktop. `PROFILE_TEMPLATES.web` keeps its current bundles.
 
-- **Data isolation.** `DSH_HOME` points at a separate root inside the repository (for example `<repo>\.mwf-home`), and the backend never reads or writes `~/.dsh`. The first `dsh metaworkflow` initializes `$DSH_HOME/profiles/metaworkflow` directly from the shipped template. `--from-default-profile` only resets a custom profile name to a copy of a shipped template and rejects a shipped name, so it is not part of this setup (see `apps/cli/src/profile-boot.ts:126` and the [`--from-default-profile` upgrade guide](../../../../docs/upgrade-guide/v0.2.1-alpha.2/from-default-profile-replaces-target/guide.md)). `DSH_HOME` stays a per-terminal environment variable; a permanent value would also move the Desktop product's home, so it is never set globally. `DSH_AGENTS_HOME` is set as well when the shell exports one.
+- **Data isolation.** `MWF_HOME` points at a separate root inside the repository (for example `<repo>\.mwf-home`), and the backend never reads or writes `~/.mwf`. The first `mwf metaworkflow` initializes `$MWF_HOME/profiles/metaworkflow` directly from the shipped template. `--from-default-profile` only resets a custom profile name to a copy of a shipped template and rejects a shipped name, so it is not part of this setup (see `apps/cli/src/profile-boot.ts:126` and the [`--from-default-profile` upgrade guide](../../../../docs/upgrade-guide/v0.2.1-alpha.2/from-default-profile-replaces-target/guide.md)). `MWF_HOME` stays a per-terminal environment variable; a permanent value would also move the Desktop product's home, so it is never set globally. `MWF_AGENTS_HOME` is set as well when the shell exports one.
 
 - **Recovery stops at the last committed exchange.** There is no restoration to the middle of a tool call. After a crash, `agents.resume()` synthesizes an `isError` result for each unsettled tool call (`TOOL_OUTCOME_UNKNOWN` when execution may have started, `TOOL_NOT_STARTED` when it did not), and the model decides again from that result. Recovery reaches only the last committed assistant/tool exchange.
 
@@ -136,7 +136,7 @@ These decisions resolve the implementation questions the sections above leave op
 
 - **Decision requests answer immediately.** The tool returns `{status: 'pending', requestId}` and calls `concludeTurn()`; the attempt becomes `waiting` and frees its slot. A delivered decision continues the attempt through `followup()` or `resume()`.
 
-- **There is no pause primitive.** Pausing cancels the attempt; continuing starts a new turn or resumes the Session. DSH has no global concurrency pool, so the scheduler creates and owns its execution slots.
+- **There is no pause primitive.** Pausing cancels the attempt; continuing starts a new turn or resumes the Session. MWF has no global concurrency pool, so the scheduler creates and owns its execution slots.
 
 - **Python execution.** Each project has one virtual environment and a configurable interpreter (CPython 3.10–3.14, excluding free-threaded 3.14t). Installs pass `--only-binary=:all:` because the host has no MSVC toolchain and any sdist build fails. Inputs travel as UTF-8 JSON on stdin rather than argv; the result is one stdout sentinel line `__MWF_RESULT__ <json>` that is never subject to the truncating log buffer. The child environment sets `PYTHONUTF8=1`, `PYTHONIOENCODING=utf-8`, and `PYTHONUNBUFFERED=1`, because a default GBK locale mangles output silently and raises on emoji. `child.kill()` leaves orphans, so termination falls back to `taskkill /T /F`, with an optional PowerShell Job Object supervisor (`KILL_ON_JOB_CLOSE`, breakaway disabled) for long runs. Project root paths stay below 200 characters because a venv fails at 277 characters or more.
 
@@ -150,11 +150,11 @@ These decisions resolve the implementation questions the sections above leave op
 
 The [workflow reference](../../../../packages/workflow/workflow/README.md), in its Summary, documents caller-owned JavaScript runs without saved workflows or resumable execution. The experimental [Python runtime](../../../../packages/experimental/ptc-runtime-python/README.md#known-limitations-and-deferred-work) documents an execution host limited to Unix and rejects a non-Unix platform at load. These are documentation facts, not local runtime validation. This proposal requires durable graph scheduling and a Python function runner that supports the user's native Windows host.
 
-Use Cordis plugins and existing [Agent scopes](../../../../packages/core/agent/README.md), [local subprocess management](../../../../packages/subprocess/subprocess-local/README.md), presets, tools, Session persistence, [compaction](../../../../packages/compaction/compaction/README.md), and `@deepseek-ai/dsh-workspace`, which already owns a project concept: a durable list of project directories and the Sessions run in each. Add project storage, scheduler, node executors, and coordinator tools as owning capabilities, and recompose the Web application around the project dashboard and project workbench. Launch through the dedicated profile and bundle with the isolated Harness home described above. Plugin reuse describes the internal implementation; the user-facing scope includes replacing the existing session-oriented navigation and page organization. Exact package names and persisted type definitions remain implementation details for review.
+Use Cordis plugins and existing [Agent scopes](../../../../packages/core/agent/README.md), [local subprocess management](../../../../packages/subprocess/subprocess-local/README.md), presets, tools, Session persistence, [compaction](../../../../packages/compaction/compaction/README.md), and `@metaworkflow/workspace`, which already owns a project concept: a durable list of project directories and the Sessions run in each. Add project storage, scheduler, node executors, and coordinator tools as owning capabilities, and recompose the Web application around the project dashboard and project workbench. Launch through the dedicated profile and bundle with the isolated Harness home described above. Plugin reuse describes the internal implementation; the user-facing scope includes replacing the existing session-oriented navigation and page organization. Exact package names and persisted type definitions remain implementation details for review.
 
-The existing [workflow PTC decision](../../implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.md) remains applicable to the current JavaScript workflow implementation. This proposal adds a project workflow capability with a distinct Python execution choice; it does not supersede or alter that existing decision. The scoped active-note search found no existing owner for workflow projects; `dsh-workspace` owns a project-directory concept, and this proposal extends and rewrites that ownership. No notes are archived.
+The existing [workflow PTC decision](../../implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.md) remains applicable to the current JavaScript workflow implementation. This proposal adds a project workflow capability with a distinct Python execution choice; it does not supersede or alter that existing decision. The scoped active-note search found no existing owner for workflow projects; `mwf-workspace` owns a project-directory concept, and this proposal extends and rewrites that ownership. No notes are archived.
 
-1. M1 skeleton: the `metaworkflow` profile, auto-initialized from the shipped template on the first `dsh metaworkflow`, its bundle copied from the Web bundle, an isolated Harness home, the project dashboard, and a launch guard that refuses to start unless the home is the MetaWorkFlow one.
+1. M1 skeleton: the `metaworkflow` profile, auto-initialized from the shipped template on the first `mwf metaworkflow`, its bundle copied from the Web bundle, an isolated Harness home, the project dashboard, and a launch guard that refuses to start unless the home is the MetaWorkFlow one.
 
 2. M1: project storage in two schema steps (v2, then v3), so the schema is reviewed before it freezes.
 
@@ -186,7 +186,7 @@ The existing [workflow PTC decision](../../implemented/architecture/2026-09-13-w
 
 ## Acceptance criteria
 
-- `dsh metaworkflow` opens the project dashboard in a browser. Create and open a project, then use its canvas, embedded coordinator conversation, node capabilities, and results within the project workbench. Switching projects preserves their independent context and running state.
+- `mwf metaworkflow` opens the project dashboard in a browser. Create and open a project, then use its canvas, embedded coordinator conversation, node capabilities, and results within the project workbench. Switching projects preserves their independent context and running state.
 
 - Import a small Mermaid graph, let the coordinator fill executable definitions, inspect them in the browser, and modify the graph through the same conversation.
 
@@ -204,7 +204,7 @@ The existing [workflow PTC decision](../../implemented/architecture/2026-09-13-w
 
 - Use keyless fixtures for scheduler and tool behavior, recorded Sessions for model-visible changes, and a real-model browser smoke for end-to-end verification. Record actual checks separately from these planned criteria.
 
-- Finish the full run and verify that `~/.dsh` gained no files, settings, or Sessions, that the backend used the repository-local home, and that the Desktop product opens with its own project list, settings, and Sessions unchanged.
+- Finish the full run and verify that `~/.mwf` gained no files, settings, or Sessions, that the backend used the repository-local home, and that the Desktop product opens with its own project list, settings, and Sessions unchanged.
 
 ## Risks
 
@@ -214,7 +214,7 @@ A killed Python function or external tool may already have changed a file or cal
 
 Runtime editing and configurable joins are the main consistency risks. Acceptance tests must cover changes during in-flight tool calls, unchanged parallel branches, stale completions, loop iterations, and restart between result acceptance and successor dispatch.
 
-Isolation depends on `DSH_HOME` reaching only the MetaWorkFlow backend. A permanent export would redirect the Desktop product to the MetaWorkFlow home, so the launch guard compares the resolved home and refuses to start on a mismatch, and acceptance verifies `~/.dsh` instead of trusting the guard alone.
+Isolation depends on `MWF_HOME` reaching only the MetaWorkFlow backend. A permanent export would redirect the Desktop product to the MetaWorkFlow home, so the launch guard compares the resolved home and refuses to start on a mismatch, and acceptance verifies `~/.mwf` instead of trusting the guard alone.
 
 The Mermaid renderer is newly written client code with no Web integration to start from, and the repository has no earlier `prototypes/` directory, so the sketch is a static HTML file with example data rather than a shipped page.
 

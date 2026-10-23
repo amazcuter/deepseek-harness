@@ -5,33 +5,33 @@
 /:
   en: c2a264438157aa27
   zh: b52d9d387759a1b6
-/deepseek-ai-dsh-experimental-client-ui-cot-translation:
-  en: f0c620cc1849b0a4
-  zh: dce4b301af1d6ef6
-/deepseek-ai-dsh-experimental-client-ui-cot-translation/summary:
+/metaworkflow-experimental-client-ui-cot-translation:
+  en: 545299d07785a729
+  zh: 1b738d6b0db42c4a
+/metaworkflow-experimental-client-ui-cot-translation/summary:
   en: 8d78ff49b12e8101
   zh: f04c7111dceef20f
-/deepseek-ai-dsh-experimental-client-ui-cot-translation/table-of-contents:
+/metaworkflow-experimental-client-ui-cot-translation/table-of-contents:
   en: d152484eb41ac6b4
   zh: ce40cab8e7534137
-/deepseek-ai-dsh-experimental-client-ui-cot-translation/use-this-package:
-  en: 94c2a52dd06ffb3d
-  zh: 363bf773e5307b93
-/deepseek-ai-dsh-experimental-client-ui-cot-translation/understand-the-implementation:
+/metaworkflow-experimental-client-ui-cot-translation/use-this-package:
+  en: 470d3651d834613c
+  zh: c62b59ac563d7f46
+/metaworkflow-experimental-client-ui-cot-translation/understand-the-implementation:
   en: e38f4caa4efcdeee
   zh: bfd3fe1a78fd2c7f
-/deepseek-ai-dsh-experimental-client-ui-cot-translation/further-exploration:
-  en: f4a5c92999a62f37
-  zh: e1e69493f11f1368
-/deepseek-ai-dsh-experimental-client-ui-cot-translation/model-experience:
+/metaworkflow-experimental-client-ui-cot-translation/further-exploration:
+  en: 1731e89906537b78
+  zh: 256390e079b5ac74
+/metaworkflow-experimental-client-ui-cot-translation/model-experience:
   en: 3abb215d69a83fa6
   zh: 5000ed802a0db760
-/deepseek-ai-dsh-experimental-client-ui-cot-translation/model-experience/kv-cache-effect:
-  en: ef2f52503c155a69
-  zh: 3d5d50ba6b31414a
-/deepseek-ai-dsh-experimental-client-ui-cot-translation/known-limitations-and-deferred-work:
+/metaworkflow-experimental-client-ui-cot-translation/model-experience/kv-cache-effect:
+  en: 66d09bc117ec247d
+  zh: a79cd561366d46de
+/metaworkflow-experimental-client-ui-cot-translation/known-limitations-and-deferred-work:
   en: 280e59a910068659
   zh: 8230bebfd7b18cf6
-/deepseek-ai-dsh-experimental-client-ui-cot-translation/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-experimental-client-ui-cot-translation/known-limitations-and-deferred-work/dev-note:
   en: 0225ba087c5266f3
   zh: 0400e21a2683a23c

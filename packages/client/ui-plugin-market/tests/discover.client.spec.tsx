@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { MarketListingEntry, MarketListingVersion, MarketSearchResult } from '@deepseek-ai/dsh-api-remotes/client'
-import { bindSnapshotSelector } from '@deepseek-ai/dsh-client-test-runtime'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { LocaleSnapshot } from '@deepseek-ai/dsh-client-locale/client'
+import type { MarketListingEntry, MarketListingVersion, MarketSearchResult } from '@metaworkflow/api-remotes/client'
+import { bindSnapshotSelector } from '@metaworkflow/client-test-runtime'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import type { LocaleSnapshot } from '@metaworkflow/client-locale/client'
 import { DiscoverSection, type DiscoverSectionProps } from '../src/client/DiscoverSection.tsx'
 import type { DiscoverState, ListingState } from '../src/client/market-store.ts'
 import { INITIAL_QUERY, type DiscoverQuery } from '../src/client/presentation.ts'
@@ -28,7 +28,7 @@ function release(name: string, version: string, fields: Partial<MarketListingVer
   }
 }
 
-const INCOMPATIBLE = { compatible: false, runtimeVersion: '0.2.0', requirements: { 'engines.dsh': '0.1.0' } } as const
+const INCOMPATIBLE = { compatible: false, runtimeVersion: '0.2.0', requirements: { 'engines.mwf': '0.1.0' } } as const
 
 function entry(
   name: string, fields: Partial<MarketListingEntry> = {}, metadata: Partial<MarketListingEntry['metadata']> = {},
@@ -57,19 +57,19 @@ const LISTING: MarketSearchResult = {
     sortKeys: { downloads: { title: 'Downloads', order: 'desc' } },
   },
   entries: [
-    entry('dsh-a', {
+    entry('mwf-a', {
       title: { en: 'Alpha', zh: '甲' }, description: 'Does A', author: 'Jane', icon: 'https://cdn.example/a.png',
       homepage: 'https://example.com/alpha#readme', repository: { url: 'https://github.com/o/plugins', directory: 'packages/a' },
     }, { category: 'tools', labels: ['official', 'beta'], sortKeys: { downloads: 1 } }, {
-      source: { type: 'npm', registry: 'https://r.example/' }, install: { spec: 'dsh-a@1.0.0', registry: 'https://r.example/' },
+      source: { type: 'npm', registry: 'https://r.example/' }, install: { spec: 'mwf-a@1.0.0', registry: 'https://r.example/' },
     }),
-    entry('dsh-b', { installation: { status: 'installed', installedVersion: '1.0.0' } }, { category: 'themes', labels: ['official'], sortKeys: { downloads: 9 } }, {
+    entry('mwf-b', { installation: { status: 'installed', installedVersion: '1.0.0' } }, { category: 'themes', labels: ['official'], sortKeys: { downloads: 9 } }, {
       publishTimestamp: 1790000000, source: { type: 'git', url: 'https://github.com/o/r', commit: COMMIT, path: 'packages/b' },
     }),
-    entry('dsh-c', { installation: { status: 'update-available', installedVersion: '0.9.0' }, repository: { url: 'https://git.example/o/c' } }),
-    entry('dsh-f', { installation: { status: 'provided' } }, {}, { source: { type: 'git', url: 'https://github.com/o/f', commit: COMMIT } }),
-    entry('dsh-g', {}, {}, { compatibility: { ...INCOMPATIBLE, exempted: false } }),
-    entry('dsh-h', {}, {}, { compatibility: { ...INCOMPATIBLE, exempted: true } }),
+    entry('mwf-c', { installation: { status: 'update-available', installedVersion: '0.9.0' }, repository: { url: 'https://git.example/o/c' } }),
+    entry('mwf-f', { installation: { status: 'provided' } }, {}, { source: { type: 'git', url: 'https://github.com/o/f', commit: COMMIT } }),
+    entry('mwf-g', {}, {}, { compatibility: { ...INCOMPATIBLE, exempted: false } }),
+    entry('mwf-h', {}, {}, { compatibility: { ...INCOMPATIBLE, exempted: true } }),
   ],
 }
 
@@ -129,34 +129,34 @@ describe('DiscoverSection', () => {
 
   it('lists entries with one action each: install after confirmation, or open the installed bundle', () => {
     const { install, openPackage } = renderTab()
-    expect(names()).toEqual(['dsh-a', 'dsh-b', 'dsh-c', 'dsh-f', 'dsh-g', 'dsh-h'])
-    expect(card('dsh-a').getByText('Official')).toBeTruthy()
-    expect(card('dsh-a').getByText('Does A')).toBeTruthy()
-    expect(card('dsh-a').getByText(/^1\.0\.0 · Jane · /)).toBeTruthy()
-    expect(card('dsh-c').getByText(/^1\.0\.0 · Sep/)).toBeTruthy()
-    fireEvent.click(card('dsh-a').getByRole('button', { name: 'Install Alpha' }))
+    expect(names()).toEqual(['mwf-a', 'mwf-b', 'mwf-c', 'mwf-f', 'mwf-g', 'mwf-h'])
+    expect(card('mwf-a').getByText('Official')).toBeTruthy()
+    expect(card('mwf-a').getByText('Does A')).toBeTruthy()
+    expect(card('mwf-a').getByText(/^1\.0\.0 · Jane · /)).toBeTruthy()
+    expect(card('mwf-c').getByText(/^1\.0\.0 · Sep/)).toBeTruthy()
+    fireEvent.click(card('mwf-a').getByRole('button', { name: 'Install Alpha' }))
     const dialog = within(screen.getByRole('dialog', { name: 'Install "Alpha"?' }))
-    expect(dialog.getByText('dsh-a@1.0.0')).toBeTruthy()
+    expect(dialog.getByText('mwf-a@1.0.0')).toBeTruthy()
     expect(dialog.getByText('https://r.example/')).toBeTruthy()
     expect(dialog.getByText('Jane')).toBeTruthy()
     expect(dialog.getByText(en.installTrust)).toBeTruthy()
     fireEvent.click(dialog.getByRole('button', { name: en.cancel }))
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(install).not.toHaveBeenCalled()
-    fireEvent.click(card('dsh-a').getByRole('button', { name: 'Install Alpha' }))
+    fireEvent.click(card('mwf-a').getByRole('button', { name: 'Install Alpha' }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: en.install }))
-    expect(install).toHaveBeenCalledWith({ spec: 'dsh-a@1.0.0', registry: 'https://r.example/', title: 'Alpha', version: '1.0.0' })
+    expect(install).toHaveBeenCalledWith({ spec: 'mwf-a@1.0.0', registry: 'https://r.example/', title: 'Alpha', version: '1.0.0' })
     expect(screen.queryByRole('dialog')).toBeNull()
-    for (const [name, label] of [['dsh-b', en.statusInstalled], ['dsh-c', en.statusUpdate], ['dsh-f', en.statusProvided]] as const) {
+    for (const [name, label] of [['mwf-b', en.statusInstalled], ['mwf-c', en.statusUpdate], ['mwf-f', en.statusProvided]] as const) {
       fireEvent.click(card(name).getByRole('button', { name: `View ${name} in Installed` }))
       expect(card(name).getByText(label)).toBeTruthy()
       expect(openPackage).toHaveBeenLastCalledWith(name)
     }
     // An incompatible entry cannot be installed; an exempted one can, and its dialog says why.
-    fireEvent.click(card('dsh-g').getByRole('button', { name: 'Install dsh-g' }))
+    fireEvent.click(card('mwf-g').getByRole('button', { name: 'Install mwf-g' }))
     expect(screen.queryByRole('dialog')).toBeNull()
-    expect(card('dsh-g').getByRole('button', { name: 'Install dsh-g' }).getAttribute('aria-disabled')).toBe('true')
-    fireEvent.click(card('dsh-h').getByRole('button', { name: 'Install dsh-h' }))
+    expect(card('mwf-g').getByRole('button', { name: 'Install mwf-g' }).getAttribute('aria-disabled')).toBe('true')
+    fireEvent.click(card('mwf-h').getByRole('button', { name: 'Install mwf-h' }))
     expect(within(screen.getByRole('dialog')).getByText(en.exempted)).toBeTruthy()
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: en.close }))
     expect(screen.queryByRole('dialog')).toBeNull()
@@ -164,10 +164,10 @@ describe('DiscoverSection', () => {
 
   it('falls back to the default artwork when an icon fails to load', () => {
     renderTab()
-    const image = document.querySelector('[data-market-entry="dsh-a"] img') as HTMLImageElement
+    const image = document.querySelector('[data-market-entry="mwf-a"] img') as HTMLImageElement
     expect(image.getAttribute('loading')).toBe('lazy')
     fireEvent.error(image)
-    expect(document.querySelector('[data-market-entry="dsh-a"] img')).toBeNull()
+    expect(document.querySelector('[data-market-entry="mwf-a"] img')).toBeNull()
   })
 
   it('sends typed text after a pause, ordered by relevance, and offers that order only with text', () => {
@@ -183,7 +183,7 @@ describe('DiscoverSection', () => {
       const typed = { ...INITIAL_QUERY, text: 'does a', sort: { kind: 'relevance' } } as const
       expect(actions.search).toHaveBeenCalledExactlyOnceWith(typed)
       answer(typed, { entries: LISTING.entries.slice(0, 1), total: 1 })
-      expect(names()).toEqual(['dsh-a'])
+      expect(names()).toEqual(['mwf-a'])
       openMenu(/^Sort: Best match/)
       pick(en.sortDefault)
       expect(actions.search).toHaveBeenLastCalledWith({ ...typed, sort: { kind: 'index' } })
@@ -279,11 +279,11 @@ describe('DiscoverSection', () => {
 
   it('opens an entry page with its source facts and actions, and returns to the list', () => {
     const { install, openPackage } = renderTab()
-    fireEvent.click(card('dsh-a').getByRole('button', { name: 'View Alpha' }))
-    const detail = within(document.querySelector('[data-market-detail="dsh-a"]') as HTMLElement)
+    fireEvent.click(card('mwf-a').getByRole('button', { name: 'View Alpha' }))
+    const detail = within(document.querySelector('[data-market-detail="mwf-a"]') as HTMLElement)
     expect(detail.getByRole('heading', { name: 'Alpha' })).toBeTruthy()
-    expect(detail.getByText('dsh-a')).toBeTruthy()
-    for (const value of ['Jane', 'dsh-a@1.0.0', 'https://r.example/', 'Tools', 'Official', 'Beta', 'Alpha market']) expect(detail.getByText(value)).toBeTruthy()
+    expect(detail.getByText('mwf-a')).toBeTruthy()
+    for (const value of ['Jane', 'mwf-a@1.0.0', 'https://r.example/', 'Tools', 'Official', 'Beta', 'Alpha market']) expect(detail.getByText(value)).toBeTruthy()
     const homepage = detail.getByRole('link', { name: 'https://example.com/alpha#readme' })
     expect([homepage.getAttribute('href'), homepage.getAttribute('target'), homepage.getAttribute('rel')])
       .toEqual(['https://example.com/alpha#readme', '_blank', 'noopener noreferrer'])
@@ -295,29 +295,29 @@ describe('DiscoverSection', () => {
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: en.install }))
     expect(install).toHaveBeenCalledOnce()
     fireEvent.click(detail.getByRole('button', { name: en.backToList }))
-    fireEvent.click(card('dsh-b').getByRole('button', { name: 'View dsh-b' }))
-    const git = within(document.querySelector('[data-market-detail="dsh-b"]') as HTMLElement)
+    fireEvent.click(card('mwf-b').getByRole('button', { name: 'View mwf-b' }))
+    const git = within(document.querySelector('[data-market-detail="mwf-b"]') as HTMLElement)
     expect(git.queryByRole('link')).toBeNull()
     for (const value of ['https://github.com/o/r', COMMIT, 'packages/b', 'Themes']) expect(git.getByText(value)).toBeTruthy()
-    fireEvent.click(git.getByRole('button', { name: 'View dsh-b in Installed' }))
-    expect(openPackage).toHaveBeenCalledWith('dsh-b')
+    fireEvent.click(git.getByRole('button', { name: 'View mwf-b in Installed' }))
+    expect(openPackage).toHaveBeenCalledWith('mwf-b')
     fireEvent.click(git.getByRole('button', { name: en.backToList }))
-    fireEvent.click(card('dsh-g').getByRole('button', { name: 'View dsh-g' }))
-    expect(screen.getAllByText('This version is not compatible with the running DSH 0.2.0; it requires DSH 0.1.0.')).toHaveLength(2)
+    fireEvent.click(card('mwf-g').getByRole('button', { name: 'View mwf-g' }))
+    expect(screen.getAllByText('This version is not compatible with the running MWF 0.2.0; it requires MWF 0.1.0.')).toHaveLength(2)
     fireEvent.click(screen.getByRole('button', { name: en.backToList }))
-    fireEvent.click(card('dsh-h').getByRole('button', { name: 'View dsh-h' }))
+    fireEvent.click(card('mwf-h').getByRole('button', { name: 'View mwf-h' }))
     expect(screen.getAllByText(en.exempted)).toHaveLength(2)
   })
 
   it('links a repository without a directory', () => {
     renderTab()
-    fireEvent.click(card('dsh-c').getByRole('button', { name: 'View dsh-c' }))
-    const detail = within(document.querySelector('[data-market-detail="dsh-c"]') as HTMLElement)
+    fireEvent.click(card('mwf-c').getByRole('button', { name: 'View mwf-c' }))
+    const detail = within(document.querySelector('[data-market-detail="mwf-c"]') as HTMLElement)
     expect(detail.getByRole('link', { name: 'https://git.example/o/c' }).closest('dd')?.querySelector('code')).toBeNull()
   })
 
   it('lists every version on the entry page and installs the one chosen', () => {
-    const name = 'dsh-v'
+    const name = 'mwf-v'
     const versions = [
       release(name, '3.0.0-rc.1'),
       release(name, '2.0.0', { compatibility: { ...INCOMPATIBLE, exempted: false } }),
@@ -344,17 +344,17 @@ describe('DiscoverSection', () => {
     expect(row('1.0.0+build.1').queryByRole('button')).toBeNull()
     fireEvent.click(list.getByRole('button', { name: `Install ${name} 3.0.0-rc.1` }))
     const dialog = within(screen.getByRole('dialog'))
-    expect(dialog.getByText('dsh-v@3.0.0-rc.1')).toBeTruthy()
+    expect(dialog.getByText('mwf-v@3.0.0-rc.1')).toBeTruthy()
     fireEvent.click(dialog.getByRole('button', { name: en.install }))
-    expect(install).toHaveBeenCalledWith({ spec: 'dsh-v@3.0.0-rc.1', title: 'dsh-v', version: '3.0.0-rc.1' })
+    expect(install).toHaveBeenCalledWith({ spec: 'mwf-v@3.0.0-rc.1', title: 'mwf-v', version: '3.0.0-rc.1' })
   })
 
-  it('marks exempted versions and offers no version of a bundle DSH provides', () => {
-    const name = 'dsh-x'
+  it('marks exempted versions and offers no version of a bundle MWF provides', () => {
+    const name = 'mwf-x'
     const exempted = release(name, '2.0.0', { compatibility: { ...INCOMPATIBLE, exempted: true } })
     const entries: MarketListingEntry[] = [
       { name, versions: [exempted], installation: { status: 'not-installed' }, metadata: { keywords: [], labels: [], sortKeys: {} } },
-      entry('dsh-p', { installation: { status: 'provided', installedVersion: '0.9.0' } }),
+      entry('mwf-p', { installation: { status: 'provided', installedVersion: '0.9.0' } }),
     ]
     renderTab({ listing: { url: A, query: INITIAL_QUERY, status: 'ready', value: { ...LISTING, entries }, answered: INITIAL_QUERY, failure: null } })
     fireEvent.click(card(name).getByRole('button', { name: `View ${name}` }))
@@ -363,12 +363,12 @@ describe('DiscoverSection', () => {
     expect(row.getAllByText(en.exempted).length).toBeGreaterThan(0)
     expect(row.getByRole('button', { name: `Install ${name} 2.0.0` })).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: en.backToList }))
-    fireEvent.click(card('dsh-p').getByRole('button', { name: 'View dsh-p' }))
+    fireEvent.click(card('mwf-p').getByRole('button', { name: 'View mwf-p' }))
     expect(within(document.querySelector('[data-market-version="1.0.0"]') as HTMLElement).queryByRole('button')).toBeNull()
   })
 
   it('asks for the next page while the Host has more', () => {
-    const many = Array.from({ length: 50 }, (_, index) => entry(`dsh-${String(index).padStart(3, '0')}`))
+    const many = Array.from({ length: 50 }, (_, index) => entry(`mwf-${String(index).padStart(3, '0')}`))
     const { actions, set } = renderTab({
       listing: { url: A, query: INITIAL_QUERY, status: 'ready', value: { ...LISTING, metadata: { categories: {}, labels: {}, sortKeys: {} }, entries: many, total: 120, nextOffset: 50 }, answered: INITIAL_QUERY, failure: null },
     })
@@ -387,9 +387,9 @@ describe('DiscoverSection', () => {
 
   it('keeps an opened entry page when a reload no longer includes it, and shows its latest state when it does', () => {
     const { answer } = renderTab()
-    fireEvent.click(card('dsh-a').getByRole('button', { name: 'View Alpha' }))
+    fireEvent.click(card('mwf-a').getByRole('button', { name: 'View Alpha' }))
     answer(INITIAL_QUERY, { entries: LISTING.entries.slice(1) })
-    expect(document.querySelector('[data-market-detail="dsh-a"]')).toBeTruthy()
+    expect(document.querySelector('[data-market-detail="mwf-a"]')).toBeTruthy()
     const installed = { ...LISTING.entries[0] as MarketListingEntry, installation: { status: 'installed', installedVersion: '1.0.0' } } as const
     answer(INITIAL_QUERY, { entries: [installed] })
     expect(screen.getByRole('button', { name: 'View Alpha in Installed' })).toBeTruthy()
@@ -449,8 +449,8 @@ describe('DiscoverSection', () => {
   it('renders the Chinese copy and dates', () => {
     renderTab({}, zh)
     expect(screen.getByRole('button', { name: '切换插件市场，当前为 甲市场' })).toBeTruthy()
-    expect(card('dsh-a').getByText('甲')).toBeTruthy()
-    expect(card('dsh-a').getByText(/^1\.0\.0 · Jane · 2026年9月/)).toBeTruthy()
-    expect(card('dsh-b').getByText(zh.statusInstalled)).toBeTruthy()
+    expect(card('mwf-a').getByText('甲')).toBeTruthy()
+    expect(card('mwf-a').getByText(/^1\.0\.0 · Jane · 2026年9月/)).toBeTruthy()
+    expect(card('mwf-b').getByText(zh.statusInstalled)).toBeTruthy()
   })
 })

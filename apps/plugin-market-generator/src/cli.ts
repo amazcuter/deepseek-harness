@@ -11,7 +11,7 @@
 import { existsSync, lstatSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { Command, CommanderError, InvalidArgumentError, Option } from 'commander'
-import { MAX_INLINE_ICON_BYTES } from '@deepseek-ai/dsh-plugin-market-index'
+import { MAX_INLINE_ICON_BYTES } from '@metaworkflow/plugin-market-index'
 import { writeIfChanged } from './files.ts'
 import { generate } from './generate.ts'
 import { GENERATED_ICON } from './metadata.ts'

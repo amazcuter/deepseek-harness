@@ -6,7 +6,7 @@ Status: implemented
 
 ## Problem
 
-`dsh web` 升级后，或开发者在另一个 commit 上重启 `pnpm run dev:web` 后，已打开的浏览器页面会自动重连到新 Host，但页面的静态 shell 仍停在旧 release。协议一旦不兼容，页面会一直重连失败或报错，用户也不知道需要刷新。
+`mwf web` 升级后，或开发者在另一个 commit 上重启 `pnpm run dev:web` 后，已打开的浏览器页面会自动重连到新 Host，但页面的静态 shell 仍停在旧 release。协议一旦不兼容，页面会一直重连失败或报错，用户也不知道需要刷新。
 
 技术原因：
 
@@ -43,7 +43,7 @@ release 指 Host 的版本身份：版本号加可选的源码 commit。名字�
 
 - 字段：`{ version, commit? }`，两个字段都相等才算同一 release。每次完整构建（包括正式发布）都会记录仓库 commit，所以页面比较的是两个字段；发布新版本时两者一起变。
 - `version` 取 client-modules 自己 package.json 的版本。所有包同一版本号发布，所以它等于 CLI 版本。
-- `commit` 在构建时固化。共享 client 构建预设 [tsdown.client.ts](../../../../packages/client/tsdown.client.ts) 给每个 client 包的 Node 半侧注入与浏览器半侧相同的公开 `process.env.DSH_CLIENT_*` 取值（[`clientBuildValueDefines`](../../../../scripts/client-build-environment.ts) 只替换具体变量，保留 `process.env` 本身）。client-modules 的 Host 代码读 `process.env.DSH_CLIENT_COMMIT_HASH`，在构建产物里是常量。
+- `commit` 在构建时固化。共享 client 构建预设 [tsdown.client.ts](../../../../packages/client/tsdown.client.ts) 给每个 client 包的 Node 半侧注入与浏览器半侧相同的公开 `process.env.MWF_CLIENT_*` 取值（[`clientBuildValueDefines`](../../../../scripts/client-build-environment.ts) 只替换具体变量，保留 `process.env` 本身）。client-modules 的 Host 代码读 `process.env.MWF_CLIENT_COMMIT_HASH`，在构建产物里是常量。
 - 从 TypeScript 源码启动的 Host 没有构建这一步：`pnpm run dev:web` 把构建取值放进 Host 进程环境，因此读到的是同一个 commit；不经 dev-web 的源码启动只发布版本号。
 - 字段值属于 wire 数据，对话框原样显示，不做本地化。
 
@@ -60,7 +60,7 @@ BootManifest { ...; release?: WebBootRelease }
 ```
 
 - [ClientModuleRegistry](../../../../packages/client/modules/src/index.ts) 在构造时计算一次 release，由 `compose()` 写入每个 graph；`release` 不计入 `graph.rev`。不新增配置项，组合配置不变。
-- `__DSH_BOOT__` 和每个 SSE `graph` 帧都带这个字段，所以一个 graph 帧同时携带 Host 的 release 和完整模块图；client-hmr 的 Host 半侧不变。rebuilt 帧与同一条 SSE 连接上前一个 graph 帧来自同一个 Host 进程，因此沿用那一帧的 release。
+- `__MWF_BOOT__` 和每个 SSE `graph` 帧都带这个字段，所以一个 graph 帧同时携带 Host 的 release 和完整模块图；client-hmr 的 Host 半侧不变。rebuilt 帧与同一条 SSE 连接上前一个 graph 帧来自同一个 Host 进程，因此沿用那一帧的 release。
 - `parseBootManifest` 允许 `release` 缺省，拒绝非字符串的 `version` 或 `commit`，并丢弃身份以外的成员，因此相等判断只看这两个字段。`readRelease` 只读取收到的 graph 的 `release` 成员，所以页面先比较 release，再校验其余内容；读不出的 release 视为缺省。不认识该字段的旧页面会忽略它。
 
 ### 页面侧
@@ -119,7 +119,7 @@ class ClientEntries {
 - **自动调用 `location.reload()`**：可能丢失尚未保存的输入，而且应当让用户看到并确认刷新。
 - **把身份放进 API ready 帧（`ConnectionHostInfo`）**：协议不兼容时 ready 帧本身就可能解析失败，检测根本不会发生；暂停热替换仍然属于 `ClientEntries`。
 - **由 web-app 拼身份（CLI 版本 + web-app 版本 + commit），通过 `webApp` 服务和组合配置交给 modules**：要改 web-app 的服务接口、测试、文档和生成的 API 清单，还让 modules 等待 web-runtime 激活；两个版本号一起发布，分开读取没有区别。
-- **给 client-modules 加 `commit` 配置项，在组合配置里写 `!!js process.env.DSH_CLIENT_COMMIT_HASH`**：运行时读环境变量，而正式发布的 `dsh web` 不设置这个变量；commit 必须在构建时固化。
+- **给 client-modules 加 `commit` 配置项，在组合配置里写 `!!js process.env.MWF_CLIENT_COMMIT_HASH`**：运行时读环境变量，而正式发布的 `mwf web` 不设置这个变量；commit 必须在构建时固化。
 - **client-modules 依赖 app-boot 读取 CLI 版本**：要新增依赖边、依赖策略分类、tsconfig 引用和 lockfile 改动，而本包自己的版本就是同一个数。
 - **把判断逻辑留在 `ClientEntries` 里**：调和与 release 比较是两件独立的事；拆出 gate 后 `ClientEntries` 只多几行。
 - **选择暂不刷新后应用另一个 release 的插件更新**：页面会在一个 release 的 shell 和静态库上运行另一个 release 的插件，其状态无法再用一个 release 描述；回到启动 release 时还得再问一次，而两个选择的结果完全相同。

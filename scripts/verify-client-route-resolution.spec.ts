@@ -158,7 +158,7 @@ function writeFaceAggregates(root: string, client: readonly string[], host: read
 
 describe('browser face discovery', () => {
   it('takes every DOM client project, and only its src/client half when the Host aggregate also compiles it', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-route-face-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-route-face-'))
     try {
       writeProject(root, 'packages/client/browser-package', { lib: ['ES2024', 'DOM'], sources: ['src/view.ts', 'src/globals.d.ts'] })
       // Compiles in both aggregates and keeps its browser code in plain `src`.
@@ -183,7 +183,7 @@ describe('browser face discovery', () => {
   })
 
   it('fails loud when a DOM client project compiles nothing from its source tree', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-route-face-moved-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-route-face-moved-'))
     try {
       // The DOM face still has a `src` directory, but its config now compiles a
       // tree the discovery does not know: scanning less must not pass quietly.

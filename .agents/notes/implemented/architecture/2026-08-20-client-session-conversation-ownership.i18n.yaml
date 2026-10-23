@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-20-client-session-conversation-ownership.md
 /agent-note-client-session-conversation-and-ui-ownership-layers:
-  en: 24e6b5894fbcdc97
-  zh: 1fe37f9234be5ff4
+  en: f0af48063a6c6127
+  zh: 503da3bbf954bdda
 /agent-note-client-session-conversation-and-ui-ownership-layers/problem:
   en: 87d3188b6f534c2a
   zh: e805eb702d3f0f7f
 /agent-note-client-session-conversation-and-ui-ownership-layers/decision:
-  en: 0db1b673e3486661
-  zh: ce9fdf739a211943
+  en: 5a969c9dbf987c17
+  zh: 48b2edccb6f2b5a9
 /agent-note-client-session-conversation-and-ui-ownership-layers/layering-principles:
   en: 8fa111a6c0477c2c
   zh: 89bfc65c4986c521

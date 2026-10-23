@@ -91,7 +91,7 @@ abstract class LogicalSession {
 
 ### 执行门禁与完成条件
 
-`verify-logical-session-access` 报告所属包之外的生产代码对具体 `Session` 类的绑定。其执行强度可切换：签入默认为 `warn`，此时门禁把每项发现打印为警告、为每项发现写入一条 GitHub Actions `::warning` 注解并以 0 退出，使仍绑定该类的分支在其消费方迁移期间可以合并；`DSH_LOGICAL_SESSION_ACCESS=enforce` 使门禁在单次运行中对任何发现失败，而在没有进行中的分支再绑定该类之后把签入默认改为 `enforce`，门禁即拒绝每一处剩余绑定。该包仅为外部源码兼容保留公开类与静态构造器。仓库生产代码没有允许列表并统一使用 `LogicalSession`；兼容测试持续验证旧导入与构造器，直至后续独立移除决策给出生态证据与发布边界。
+`verify-logical-session-access` 报告所属包之外的生产代码对具体 `Session` 类的绑定。其执行强度可切换：签入默认为 `warn`，此时门禁把每项发现打印为警告、为每项发现写入一条 GitHub Actions `::warning` 注解并以 0 退出，使仍绑定该类的分支在其消费方迁移期间可以合并；`MWF_LOGICAL_SESSION_ACCESS=enforce` 使门禁在单次运行中对任何发现失败，而在没有进行中的分支再绑定该类之后把签入默认改为 `enforce`，门禁即拒绝每一处剩余绑定。该包仅为外部源码兼容保留公开类与静态构造器。仓库生产代码没有允许列表并统一使用 `LogicalSession`；兼容测试持续验证旧导入与构造器，直至后续独立移除决策给出生态证据与发布边界。
 
 当生产代码仅使用公开逻辑会话接口与游离构造函数、deprecated `Session` 入口只有专门兼容测试而无生产消费方、访问门禁没有迁移允许列表、生成的 API 文档已更新，并且快照与 SDK 输出保持不变时，阶段 1 完成。
 
@@ -144,8 +144,8 @@ composition ──► SessionService ──► LogicalSession implementation
 - [清理依赖生命周期](2026-10-09-cordis-cleanup-dependency-lifetimes.zh.md)为阶段 4 的入队所有权变更补充有序清理要求：保留写入器与必需监听器，直到生产者完成最终事件发布。
 - [会话子系统](../../../../docs/subsystems/session.zh.md)定义已交付的会话 API 与事件语义。
 - [会话持久化子系统](../../../../docs/subsystems/persistence.zh.md)定义已交付的持久格式与生命周期。
-- [`@deepseek-ai/dsh-session`](../../../../packages/core/session/README.zh.md)拥有会话包约定。
-- [`@deepseek-ai/dsh-session-persistence`](../../../../packages/session/session-persistence/README.zh.md)拥有当前持久化服务约定。
+- [`@metaworkflow/session`](../../../../packages/core/session/README.zh.md)拥有会话包约定。
+- [`@metaworkflow/session-persistence`](../../../../packages/session/session-persistence/README.zh.md)拥有当前持久化服务约定。
 
 ## 考虑过的替代方案
 

@@ -1,19 +1,19 @@
 /** Browser-safe request, result, and lifecycle vocabulary for the Session Remote service. */
-import type { NativeFileApplication } from '@deepseek-ai/dsh-native-command/types'
+import type { NativeFileApplication } from '@metaworkflow/native-command/types'
 
 import type {
   AttachmentIdType, ImageAttachmentLimits, ImageAttachmentRef, ImageMediaType,
-} from '@deepseek-ai/dsh-attachment'
-import type { Branded } from '@deepseek-ai/dsh-brand'
-import type { LlmAttemptId, MessageId } from '@deepseek-ai/dsh-llm/brand'
-import type { TextBlock } from '@deepseek-ai/dsh-llm'
-import type { SessionId, SessionSeqCursor } from '@deepseek-ai/dsh-session/types'
-import type { SessionProjectionMap } from '@deepseek-ai/dsh-session-projection/types'
-import type { Principal } from '@deepseek-ai/dsh-typert-protocol'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
-import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
+} from '@metaworkflow/attachment'
+import type { Branded } from '@metaworkflow/brand'
+import type { LlmAttemptId, MessageId } from '@metaworkflow/llm/brand'
+import type { TextBlock } from '@metaworkflow/llm'
+import type { SessionId, SessionSeqCursor } from '@metaworkflow/session/types'
+import type { SessionProjectionMap } from '@metaworkflow/session-projection/types'
+import type { Principal } from '@metaworkflow/typert-protocol'
+import type { JsonValue } from '@metaworkflow/util-values'
+import type { WorkspaceId } from '@metaworkflow/workspace/types'
 
-declare module '@deepseek-ai/dsh-session-projection/types' {
+declare module '@metaworkflow/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Host state persisted for cold Session list summaries. */
     sessionListMetadata: SessionListMetadata
@@ -32,7 +32,7 @@ declare module '@deepseek-ai/dsh-session-projection/types' {
   }
 }
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@metaworkflow/session/types' {
   interface SessionEventMap {
     /**
      * Complete validated model selection requested for subsequent prompt
@@ -202,7 +202,7 @@ export const SESSION_SEARCH_RESULT_LIMIT = 20
 /** Maximum search snippet length in Unicode code points. */
 export const SESSION_SEARCH_SNIPPET_MAX_CODE_POINTS = 240
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@metaworkflow/typert-protocol' {
   interface RemoteErrorDetailsMap {
     'session/provider-credentials-unavailable': Record<string, never>
     'session/provider-models-unavailable': { readonly provider: string }
@@ -408,7 +408,7 @@ export interface SessionOpenWorkspacePathValue {
 /** Client-minted prompt identity used to reconcile optimistic and durable messages. */
 export type SessionRequestId = Branded<'session-request-id'>
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@metaworkflow/llm' {
   interface MessageSourceMap {
     /**
      * Browser prompt correlation, optional Host-validated time zone, and the

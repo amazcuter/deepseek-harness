@@ -4,7 +4,7 @@ import { rawMarkdownRoute } from '../scripts/project-doc-site.ts'
 
 /**
  * Serve published source text while preserving Vite's Markdown module imports.
- * Explicit `dsh-raw=1` fetches return 404 for unpublished Markdown routes.
+ * Explicit `mwf-raw=1` fetches return 404 for unpublished Markdown routes.
  *
  * @param base Site URL prefix with leading and trailing slashes.
  * @param index Render the current llms.txt index.
@@ -29,7 +29,7 @@ export function rawMarkdownMiddleware(base: string, index: () => string): Connec
       return
     }
     const path = url.pathname.slice(base.length)
-    const explicit = path.endsWith('.md') && url.searchParams.get('dsh-raw') === '1'
+    const explicit = path.endsWith('.md') && url.searchParams.get('mwf-raw') === '1'
     const destination = req.headers['sec-fetch-dest']
     // Script imports always belong to Vite, including imports carrying a query.
     if (destination !== undefined && destination !== 'document' && !(destination === 'empty' && explicit)) {

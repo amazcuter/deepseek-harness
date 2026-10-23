@@ -2,12 +2,12 @@
  * Public type vocabulary of the workspace entity: the `WorkspaceId` brand and
  * the `Workspace` consumer interface. Types only — the `WorkspaceId` factory
  * lives in `index.ts` (this file carries no runtime code).
- * @module @deepseek-ai/dsh-workspace/src/types
+ * @module @metaworkflow/workspace/src/types
  */
 
-import type { Branded } from '@deepseek-ai/dsh-brand'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { TypertResource } from '@deepseek-ai/dsh-typert-protocol'
+import type { Branded } from '@metaworkflow/brand'
+import type { SessionId } from '@metaworkflow/session/types'
+import type { TypertResource } from '@metaworkflow/typert-protocol'
 
 /**
  * Identifies one workspace record. A generated uuid, never the path: path
@@ -15,7 +15,7 @@ import type { TypertResource } from '@deepseek-ai/dsh-typert-protocol'
  */
 export type WorkspaceId = Branded<'WorkspaceId'>
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@metaworkflow/typert-protocol' {
   interface TypertResourceMap {
     /** One Workspace; the Workspace Controller registers its default `workspaceId` wire field. */
     workspace: TypertResource<WorkspaceId>

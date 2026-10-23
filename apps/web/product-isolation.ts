@@ -3,7 +3,7 @@
 import type { Plugin } from 'vite'
 import { WebProductBundleIsolation } from '../../scripts/web-product-bundle-isolation.ts'
 
-const DEPENDENCY_ANALYSIS_PLUGIN = 'dsh-browser-dependency-analysis'
+const DEPENDENCY_ANALYSIS_PLUGIN = 'mwf-browser-dependency-analysis'
 
 /**
  * Identify a dependency-disclosure walk that deliberately leaves third-party imports external.
@@ -31,7 +31,7 @@ export function productWebBundleIsolation(repository: string, webRoot: string): 
   const inputs = new WebProductBundleIsolation(repository, webRoot)
   let dependencyAnalysis = false
   return [{
-    name: 'dsh-product-web-chunk-inputs',
+    name: 'mwf-product-web-chunk-inputs',
     apply: 'build',
     generateBundle: {
       order: 'pre',
@@ -40,7 +40,7 @@ export function productWebBundleIsolation(repository: string, webRoot: string): 
       },
     },
   }, {
-    name: 'dsh-product-web-bundle-isolation',
+    name: 'mwf-product-web-bundle-isolation',
     apply: 'build',
     enforce: 'post',
     config(config) {
@@ -55,7 +55,7 @@ export function productWebBundleIsolation(repository: string, webRoot: string): 
         },
         worker: {
           plugins: () => [...workerPlugins?.() ?? [], {
-            name: 'dsh-worker-build-inputs',
+            name: 'mwf-worker-build-inputs',
             generateBundle: {
               order: 'post',
               handler(_options, bundle) { inputs.workerBundle(bundle, this.getWatchFiles()) },

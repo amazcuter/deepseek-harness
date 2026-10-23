@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@deepseek-ai/dsh-session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@metaworkflow/session-format'
 import { mapEventMessages, rewritePluginSource, rewriteV3MessageSource } from '../src/sources.ts'
 
 function event(type: string, data: SessionFormatJsonObject): SessionFormatEvent {

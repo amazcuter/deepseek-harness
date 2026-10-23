@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-scope",
+  "name": "@metaworkflow/scope",
   "description": "Scoped-context registration primitive (scope tags, scope-filtered event dispatch) for the DeepSeek Harness",
   "version": "0.2.1-rc.2",
   "publishConfig": {

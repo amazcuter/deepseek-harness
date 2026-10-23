@@ -6,10 +6,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   apply, createClientModuleSystem, parseBootManifest,
   type BootModuleRow, type ClientBundleRegistration, type ClientModuleCreateOptions,
-  type ClientModuleLoader, type ClientModuleLoaderTarget, type DshWindow,
+  type ClientModuleLoader, type ClientModuleLoaderTarget, type MwfWindow,
 } from '../src/client/index.ts'
 
-const MODULES_ID = '@deepseek-ai/dsh-client-modules'
+const MODULES_ID = '@metaworkflow/client-modules'
 
 // The host composes graph rows and batch descriptors as app-directory-relative
 // browser references, so these fixtures carry the same form.
@@ -19,7 +19,7 @@ const chunkReference = (id: string, fileName: string, rev = '0'): string =>
   `plugins/${id}/${fileName}?rev=${rev}`
 const BOOTSTRAP_URL = comboReference([MODULES_ID], 'bootstrap')
 const APPLICATION_URL = comboReference(['a', 'b'], 'application')
-const win = globalThis as DshWindow
+const win = globalThis as MwfWindow
 const bootstrapExports = { apply, createClientModuleSystem }
 
 type Factory = ClientBundleRegistration['factory']
@@ -110,7 +110,7 @@ function bench(
       : url === APPLICATION_URL
         ? entries.filter(entry => entry.initialUrl === APPLICATION_URL).map(entry => entry.id)
         : undefined
-    const parsed = new URL(url, 'http://dsh.invalid')
+    const parsed = new URL(url, 'http://mwf.invalid')
     const combo = parsed.search.startsWith('??') ? parsed.search.slice(2).split('&', 1)[0] : undefined
     const singleId = combo?.split(',').length === 1 && combo.endsWith('/client.js')
       ? combo.slice(0, -'/client.js'.length)

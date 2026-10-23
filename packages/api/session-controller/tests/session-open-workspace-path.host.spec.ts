@@ -1,9 +1,9 @@
 import { resolve } from 'node:path'
-import * as nativeCommand from '@deepseek-ai/dsh-native-command'
+import * as nativeCommand from '@metaworkflow/native-command'
 import { Context } from '@deepseek-ai/cordis'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionStore from '@deepseek-ai/dsh-session'
-import FsLocal from '@deepseek-ai/dsh-fs-local'
+import AgentRegistry from '@metaworkflow/agent'
+import SessionStore from '@metaworkflow/session'
+import FsLocal from '@metaworkflow/fs-local'
 import { onTestFinished } from 'vitest'
 import { describe, expect, it, vi } from 'vitest'
 import {

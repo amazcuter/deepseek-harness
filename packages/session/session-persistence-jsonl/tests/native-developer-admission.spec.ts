@@ -1,8 +1,8 @@
 /** Native JSONL reads enforce developer relationships before exposing stored data. */
 import { Context } from '@deepseek-ai/cordis'
-import { SESSION_FORMAT_VERSION, SessionId } from '@deepseek-ai/dsh-session'
-import { SessionPersistenceCorruptionError } from '@deepseek-ai/dsh-session-persistence'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { SESSION_FORMAT_VERSION, SessionId } from '@metaworkflow/session'
+import { SessionPersistenceCorruptionError } from '@metaworkflow/session-persistence'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -19,7 +19,7 @@ const developer = { type: 'developer/message', surfaceOp: 'append', data: {
 
 describe.each(modes)('native developer admission ($compression, $access)', ({ compression, access }) => {
   async function stored(event: object, corruptPrefix = false) {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-native-developer-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-native-developer-'))
     const ctx = new Context()
     onTestFinished(async () => {
       try {

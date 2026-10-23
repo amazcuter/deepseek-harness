@@ -3,35 +3,35 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/core.md
 /core:
-  en: f6ae07d8902e8edf
-  zh: c92fef531c6da331
+  en: 8d24e7fdaee1ddaf
+  zh: 3819763e5d88b76d
 /core/the-spine-package-by-package:
-  en: c90cb23528ddb6c8
-  zh: 62724b7255b586b6
+  en: c3e530a427824e55
+  zh: 8098d562f02e83fb
 /core/creation-and-ownership:
   en: ab09a38b4e1f0883
   zh: 81e2d14c4036ab6c
 /core/the-agent-handle:
-  en: c21787347d8e2b14
-  zh: 25bc9cb60ee1520a
+  en: 6ae3efb6775b3129
+  zh: 3594ccd8cc25fa46
 /core/initiating-agent:
-  en: 6c8c47ac78de2dde
-  zh: c9d527a25a85d1d9
+  en: 228a2b2dd9a5439e
+  zh: c17b8a7b93badb17
 /core/interception-decisions:
   en: 6fccceb0a5f1cad9
   zh: f43c30c2386d8cc8
 /core/sessions:
-  en: 9a38f693a00fa80d
-  zh: d0f66664ac85ae64
+  en: 48e1872ee760ce97
+  zh: 2deb23d65b5fd84d
 /core/tooldefinition:
-  en: d926a9b80aada2e5
-  zh: 7e191ba5dab904df
+  en: 73b3120669c064c2
+  zh: dc0de93f906abeac
 /core/repo-wide-type-patterns:
   en: 057db6d8bf356c0f
   zh: 1441b39e5142b0bf
 /core/repo-wide-type-patterns/the-map-derived-union-pattern:
-  en: 84c039e929edb897
-  zh: 84241bb993f23ef2
+  en: 742c275472432016
+  zh: 2a935e9a405be3ac
 /core/repo-wide-type-patterns/branded-ids:
-  en: 10f8ac0f97e7c54a
-  zh: 75cd2311aabfe464
+  en: c294cb350ea42a53
+  zh: a84345e5c980111b

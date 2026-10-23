@@ -3,17 +3,17 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { inspect } from 'node:util'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { StartupError } from '@deepseek-ai/dsh-app-boot'
+import { StartupError } from '@metaworkflow/app-boot'
 import { reportStartupFailure } from '../src/startup-diagnostics.ts'
 
 async function home(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'dsh-startup-diagnostics-'))
+  const dir = await mkdtemp(join(tmpdir(), 'mwf-startup-diagnostics-'))
   onTestFinished(() => rm(dir, { recursive: true, force: true }))
   return dir
 }
 
 function startupError(reason: unknown): StartupError {
-  const error = new StartupError('dsh: startup failed: 1 required plugin did not activate', [
+  const error = new StartupError('mwf: startup failed: 1 required plugin did not activate', [
     { id: 'webserver', module: './webserver.mjs', required: true, fiberState: 3, outcome: { kind: 'failed', error: reason } },
     { id: 'waiting', module: './waiting.mjs', required: false, fiberState: 0, outcome: { kind: 'pending', missing: ['webServer'] } },
   ])
@@ -33,7 +33,7 @@ describe('startup diagnostic files', () => {
     })
     onTestFinished(() => { write.mockRestore() })
     await reportStartupFailure(startupError('failed'), { home: dir, version: '1.2.3', profile: 'web' })
-    expect(write).toHaveBeenCalledWith(expect.stringContaining('dsh: startup failed:'), expect.any(Function))
+    expect(write).toHaveBeenCalledWith(expect.stringContaining('mwf: startup failed:'), expect.any(Function))
     expect(write).toHaveBeenCalledWith(expect.stringContaining(`Full diagnostics: ${join(dir, 'logs')}`), expect.any(Function))
   })
 
@@ -95,7 +95,7 @@ describe('startup diagnostic files', () => {
       'WARNING: Raw diagnostics may contain configuration or credential values from plugin errors. Review before sharing.\n\n',
     )).toBe(true)
     for (const text of [
-      'dshVersion: \'1.2.3\'', "profile: 'web'", process.version, 'configurationPath:', '/example/cordis.yml',
+      'mwfVersion: \'1.2.3\'', "profile: 'web'", process.version, 'configurationPath:', '/example/cordis.yml',
       "module: './waiting.mjs'", 'required: false', 'fiberState: 0', "missing: [ 'webServer'", 'messages:',
       'AggregateError: activation failed', '[cause]', '[errors]', 'EADDRINUSE', '[hiddenDetail]',
       'non-enumerable detail', 'Symbol(diagnostic-field)', '42n', '[Circular', large, 'value-104', '[Getter]',
@@ -129,8 +129,8 @@ describe('startup diagnostic files', () => {
       home: dir, version: '1.2.3', profile: 'web',
     }, (text) => { chunks.push(text) })
     const output = chunks.join('')
-    expect(output).toContain('dsh: startup failed:')
-    expect(output).toContain('dsh: warning: could not write startup diagnostics:')
+    expect(output).toContain('mwf: startup failed:')
+    expect(output).toContain('mwf: warning: could not write startup diagnostics:')
     expect(output).toContain('Full diagnostics:\n')
     expect(output).toContain('original details')
     expect(output).toContain('CUSTOM')

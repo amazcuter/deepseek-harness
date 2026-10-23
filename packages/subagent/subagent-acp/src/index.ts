@@ -4,7 +4,7 @@
  * the subagent service supplies the captured child working directory. This plugin uses
  * named exports only; a default would hide its
  * loader metadata (see `docs/postmortem/0001-acp-default-export-drops-inject.md`).
- * @module @deepseek-ai/dsh-subagent-acp
+ * @module @metaworkflow/subagent-acp
  */
 
 import type { Context } from '@deepseek-ai/cordis'
@@ -13,9 +13,9 @@ import type {
   ResolvedSubagentStartRequest,
   SubagentCapabilities,
   SubagentProvider,
-} from '@deepseek-ai/dsh-subagent'
-import { assertUsableCwd } from '@deepseek-ai/dsh-subagent'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+} from '@metaworkflow/subagent'
+import { assertUsableCwd } from '@metaworkflow/subagent'
+import { MAX_TIMER_DELAY_MS } from '@metaworkflow/timeout'
 import { acpConfigurationFailure, type AcpRunSpec, DEFAULT_DISPOSE_EOF_GRACE_MS, DEFAULT_DISPOSE_GRACE_MS, type PermissionPolicy, startAcpRun } from './run.ts'
 
 export const name = 'subagent-acp'

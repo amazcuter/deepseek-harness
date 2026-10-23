@@ -1,9 +1,9 @@
 ---
-description: "The agent loop's settings page on the dsh web client's Plugins page: the parallel tool-call cap of the agent-loop namespace."
+description: "The agent loop's settings page on the mwf web client's Plugins page: the parallel tool-call cap of the agent-loop namespace."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-settings-agent-loop
+# @metaworkflow/client-ui-settings-agent-loop
 
 English | [中文](README.zh.md)
 

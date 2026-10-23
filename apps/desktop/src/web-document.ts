@@ -7,7 +7,7 @@ const MIME: Readonly<Record<string, string>> = {
   '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json',
   '.woff2': 'font/woff2', '.png': 'image/png', '.ico': 'image/x-icon',
 }
-const BOOT = '<script>globalThis.__DSH_BOOT_READY__ = Promise.withResolvers()</script>'
+const BOOT = '<script>globalThis.__MWF_BOOT_READY__ = Promise.withResolvers()</script>'
 
 /**
  * Read an application-owned static asset; the index waits for asynchronous Host injections.
@@ -77,7 +77,7 @@ const PLUGIN_BUNDLE_PATH = /^\/plugins\//u
 export async function forwardWebRequest(request: Request, host: string, cookie: string): Promise<Response> {
   const source = new URL(request.url)
   const origin = request.headers.get('origin')
-  if (origin !== null && origin !== 'dsh-app://app') return new Response(null, { status: 403 })
+  if (origin !== null && origin !== 'mwf-app://app') return new Response(null, { status: 403 })
   const target = new URL(host)
   target.pathname = source.pathname
   target.search = source.search

@@ -31,7 +31,7 @@ export const Shared = Schema.union([
 `
 
 function fixture(schema = sharedSchema) {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-config-catalog-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-config-catalog-'))
   roots.push(root)
   const write = (path: string, value: string): void => {
     const file = join(root, path)
@@ -159,14 +159,14 @@ export const Shared = Schema.union([MissingSchema])
 describe('config catalog rendering', () => {
   const entries = (inject: string[]): CatalogEntry[] => [
     {
-      pkg: '@deepseek-ai/dsh-demo',
+      pkg: '@metaworkflow/demo',
       dir: 'packages/demo/demo',
       entry: 'packages/demo/demo/src/index.ts',
       kind: 'config',
       inject,
       pastes: [{ text: 'export interface DemoConfig {}', source: 'packages/demo/demo/src/index.ts:3' }],
     },
-    { pkg: '@deepseek-ai/dsh-plain', dir: 'packages/demo/plain', entry: 'packages/demo/plain/src/index.ts', kind: 'no-config', inject },
+    { pkg: '@metaworkflow/plain', dir: 'packages/demo/plain', entry: 'packages/demo/plain/src/index.ts', kind: 'no-config', inject },
   ]
   const paths = translationPairPaths('docs/config-catalog.md')
   const record = (inject: string[]) => computeTranslationPairingRecord(
@@ -179,7 +179,7 @@ describe('config catalog rendering', () => {
   it('keeps package data in generated regions shared by both languages', () => {
     const en = generatedRegions(render(entries(['jobs']), 'en')).map(region => region.text)
     expect(en.map(region => region.split('\n')[0])).toEqual([
-      '<!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-demo -->',
+      '<!-- BEGIN GENERATED config-catalog:@metaworkflow/demo -->',
       '<!-- BEGIN GENERATED config-catalog:no-config -->',
       '<!-- BEGIN GENERATED config-catalog:seam -->',
       '<!-- BEGIN GENERATED config-catalog:library -->',
@@ -190,6 +190,6 @@ describe('config catalog rendering', () => {
 
   it('leaves the consistency record unchanged when only package data changes', () => {
     expect(record(['jobs', 'typert'])).toEqual(record(['jobs']))
-    expect([...record(['jobs']).keys()].some(key => key.includes('dsh-demo'))).toBe(false)
+    expect([...record(['jobs']).keys()].some(key => key.includes('mwf-demo'))).toBe(false)
   })
 })

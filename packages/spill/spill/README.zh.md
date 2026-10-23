@@ -3,13 +3,13 @@ description: "spill 存储服务：保存超大工具文本或已捕获的会话
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-spill
+# @metaworkflow/spill
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-spill` 让插件和工具通过公开的 `ctx.spillStore` API 保存超大文本，并取得不透明定位信息、精确字节数与取回指引。当完整结果必须保持可取回、同时又不能填满模型上下文时选择它。配置 `dsh-spill-local` 可获得本地持久化；当超大工具结果应变为有界预览时，再添加 `dsh-spill-policy`。该 API 不提供保留、替换、取回或搜索操作。存储故障会使保存操作拒绝，由调用方决定保留内联内容还是让操作失败。
+`mwf-spill` 让插件和工具通过公开的 `ctx.spillStore` API 保存超大文本，并取得不透明定位信息、精确字节数与取回指引。当完整结果必须保持可取回、同时又不能填满模型上下文时选择它。配置 `mwf-spill-local` 可获得本地持久化；当超大工具结果应变为有界预览时，再添加 `mwf-spill-policy`。该 API 不提供保留、替换、取回或搜索操作。存储故障会使保存操作拒绝，由调用方决定保留内联内容还是让操作失败。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-保存 spill 产物的组合需要挂载一个后端——仅本包本身不存储任何内容。`dsh-spill-policy` 决定工具结果何时 spill；`dsh-session-reference` 直接保存截断后的会话引用 transcript（文本记录），不需要该策略。调用方使用 `ctx.spillStore.saveText()` 并明确指定归属；可选消费方通过 `ctx.get("spillStore")` 获取后端。
+保存 spill 产物的组合需要挂载一个后端——仅本包本身不存储任何内容。`mwf-spill-policy` 决定工具结果何时 spill；`mwf-session-reference` 直接保存截断后的会话引用 transcript（文本记录），不需要该策略。调用方使用 `ctx.spillStore.saveText()` 并明确指定归属；可选消费方通过 `ctx.get("spillStore")` 获取后端。
 
 ### 何时选择
 
@@ -36,8 +36,8 @@ kind: "package-reference"
 把后端与策略一起挂载；设置 `maxInlineTokens` 后，过大的图文工具结果都会自动变成预览加定位信息。
 
 ```yaml
-- name: '@deepseek-ai/dsh-spill-local'
-- name: '@deepseek-ai/dsh-spill-policy'
+- name: '@metaworkflow/spill-local'
+- name: '@metaworkflow/spill-policy'
   config:
     maxInlineTokens: 12500
 ```
@@ -55,7 +55,7 @@ const ref = await ctx.spillStore.saveText({
 })
 ```
 
-返回的 `SpillRef` 携带三个字段：`locator`，后端产生的面向模型的不透明句柄（对 `dsh-spill-local` 是本地文件路径，对其他后端可能是 URI 或键）；`bytes`，写入的精确 UTF-8 字节数；`retrievalHint`，消费方展示给模型的指引——对本地后端而言是读取或搜索该路径。消费方将定位信息与指引一同呈现，绝不自行解析定位信息。
+返回的 `SpillRef` 携带三个字段：`locator`，后端产生的面向模型的不透明句柄（对 `mwf-spill-local` 是本地文件路径，对其他后端可能是 URI 或键）；`bytes`，写入的精确 UTF-8 字节数；`retrievalHint`，消费方展示给模型的指引——对本地后端而言是读取或搜索该路径。消费方将定位信息与指引一同呈现，绝不自行解析定位信息。
 
 ### 归属与边界
 
@@ -63,7 +63,7 @@ const ref = await ctx.spillStore.saveText({
 
 ### 故障与恢复
 
-`saveText` 只在真实存储故障时拒绝——权限不足、磁盘已满或后端不可用。由调用方决定如何降级：已交付的策略把拒绝当作尽力而为处理，记录警告并保留原始内联结果，因此 spill 失败绝不会把成功的工具调用变成错误或隐藏内容。如果没有挂载后端，就没有可保存的目标；请在组合中加载 `dsh-spill-local` 或其他后端。
+`saveText` 只在真实存储故障时拒绝——权限不足、磁盘已满或后端不可用。由调用方决定如何降级：已交付的策略把拒绝当作尽力而为处理，记录警告并保留原始内联结果，因此 spill 失败绝不会把成功的工具调用变成错误或隐藏内容。如果没有挂载后端，就没有可保存的目标；请在组合中加载 `mwf-spill-local` 或其他后端。
 
 -----
 
@@ -79,7 +79,7 @@ const ref = await ctx.spillStore.saveText({
 
 本包建立在一个分离与刻意的极简之上：
 
-- **约定、实现与策略保持分离。** 本包定义后端做什么（`saveText`）；`dsh-spill-local` 实现它；`dsh-spill-policy` 决定何时触发。各项关注点独立演进与替换。
+- **约定、实现与策略保持分离。** 本包定义后端做什么（`saveText`）；`mwf-spill-local` 实现它；`mwf-spill-policy` 决定何时触发。各项关注点独立演进与替换。
 - **只有一个方法，别无其他。** 该 seam 不负责保留策略、结果替换或取回/搜索 API——那些都有各自的归属包。
 - **在 seam 处拒绝，绝不静默降级。** 降级由调用方负责；seam 报告真实存储故障。
 
@@ -109,9 +109,9 @@ const ref = await ctx.spillStore.saveText({
 
 - [spill 子系统](../../../docs/subsystems/spill.zh.md)——穷尽式词汇、归属与后端关系。
 - [spill 包映射](../README.zh.md)——三包家族与各自职责。
-- [dsh-spill-local](../spill-local/README.zh.md)——已交付的本地文件系统后端。
-- [dsh-spill-policy](../spill-policy/README.zh.md)——决定最终结果何时过大的策略。
-- [dsh-output-retention](../../util/output-retention/README.zh.md)——策略背后的预览机制。
+- [mwf-spill-local](../spill-local/README.zh.md)——已交付的本地文件系统后端。
+- [mwf-spill-policy](../spill-policy/README.zh.md)——决定最终结果何时过大的策略。
+- [mwf-output-retention](../../util/output-retention/README.zh.md)——策略背后的预览机制。
 - [工具输出 spill 决策](../../../.agents/notes/implemented/architecture/2026-07-08-tool-output-spill-files.zh.md)——能力边界与设计依据。
 
 -----

@@ -7,11 +7,11 @@ import type {
   SessionReference,
   SessionRetainInfo,
   SessionSnapshot,
-} from '@deepseek-ai/dsh-api-session-controller/client'
-import { MutableSessionEventSource } from '@deepseek-ai/dsh-api-session-controller/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { HostObservable, RootStandardSourceContribution } from '@deepseek-ai/dsh-client-ui-slots'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+} from '@metaworkflow/api-session-controller/client'
+import { MutableSessionEventSource } from '@metaworkflow/api-session-controller/client'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import type { HostObservable, RootStandardSourceContribution } from '@metaworkflow/client-ui-slots'
+import type { SessionId } from '@metaworkflow/session/types'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   apply,

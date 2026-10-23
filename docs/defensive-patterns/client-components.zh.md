@@ -201,7 +201,7 @@ const activeTabId = globalThis.__activeTabId   // every tab reads the same value
 ```tsx
 // The bottom layer is the standard hook, reached through the component's inject face.
 function useChatMessages(useResource: UseResource, id: string) {
-  const resource = useResource<'chat'>(`dsh-resource://chat/${id}`)
+  const resource = useResource<'chat'>(`mwf-resource://chat/${id}`)
   return resource.status === 'live' && resource.value !== undefined
     ? { messages: resource.value.messages, loading: false }
     : { messages: [], loading: true }

@@ -1,11 +1,11 @@
 /**
  * Strict Schedule decoding, replay, time validation, and framing.
- * @module @deepseek-ai/dsh-schedule
+ * @module @metaworkflow/schedule
  */
 
 import { Temporal } from '@js-temporal/polyfill'
-import { SessionLogOffset } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionLogOffset as SessionLogOffsetType } from '@deepseek-ai/dsh-session'
+import { SessionLogOffset } from '@metaworkflow/session'
+import type { SessionEvent, SessionLogOffset as SessionLogOffsetType } from '@metaworkflow/session'
 import type {
   AfterScheduleRecord,
   AtInput,

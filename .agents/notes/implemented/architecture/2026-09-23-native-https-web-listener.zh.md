@@ -10,7 +10,7 @@ Status: implemented
 
 ## Decision
 
-WebServer 通过 `tls: { certFile, keyFile }` 拥有可选 TLS，由 `dsh web` 的成对 `--tls-cert` 与 `--tls-key` flag 暴露。证书与不带口令的私钥 PEM 文件在绑定前加载；材料不可读、为空、无效或不匹配时激活失败，绝不回退到 HTTP。HTTP 仍为默认值。两种传输共用路由、升级与释放；释放也负责未完成的 TLS 握手。
+WebServer 通过 `tls: { certFile, keyFile }` 拥有可选 TLS，由 `mwf web` 的成对 `--tls-cert` 与 `--tls-key` flag 暴露。证书与不带口令的私钥 PEM 文件在绑定前加载；材料不可读、为空、无效或不匹配时激活失败，绝不回退到 HTTP。HTTP 仍为默认值。两种传输共用路由、升级与释放；释放也负责未完成的 TLS 握手。
 
 `webServer.protocol` 决定绑定地址 URL、非 loopback 明文 HTTP 警告及 Connection 的 `Secure` cookie 属性。转发 header 与 `publicUrl` 都不控制加密或该属性。显式 Host 端口授权按监听器的 scheme 归一化，Origin 比较则按 Origin 的 HTTP(S) scheme 进行，以允许 HTTPS 代理保留 HTTP 上游。TLS 不授予额外的 Host authority，也不替代认证。
 

@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-api-gateway",
+  "name": "@metaworkflow/api-gateway",
   "description": "Typert Remote Host dispatcher and Client API endpoint",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -36,11 +36,11 @@
     },
     "./locale/*.json": "./locale/*.json"
   },
-  "dsh": {
+  "mwf": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-typert-registry",
-        "@deepseek-ai/dsh-client-connection"
+        "@metaworkflow/typert-registry",
+        "@metaworkflow/client-connection"
       ],
       "platform": "web",
       "immediately": true
@@ -60,24 +60,24 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-deque": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
+    "@metaworkflow/deque": "workspace:*",
+    "@metaworkflow/timeout": "workspace:*",
     "@deepseek-ai/schemastery": "workspace:~",
     "ws": "^8.21.3",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@metaworkflow/typert-protocol": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-api-remote-access": "workspace:*",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-cmdline": "workspace:*",
-    "@deepseek-ai/dsh-client-connection": "workspace:*",
-    "@deepseek-ai/dsh-host-webserver": "workspace:*",
-    "@deepseek-ai/dsh-remote-mock": "workspace:*",
-    "@deepseek-ai/dsh-typert-registry": "workspace:*",
-    "@deepseek-ai/dsh-util-crypto": "workspace:*",
+    "@metaworkflow/api-remote-access": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/cmdline": "workspace:*",
+    "@metaworkflow/client-connection": "workspace:*",
+    "@metaworkflow/host-webserver": "workspace:*",
+    "@metaworkflow/remote-mock": "workspace:*",
+    "@metaworkflow/typert-registry": "workspace:*",
+    "@metaworkflow/util-crypto": "workspace:*",
     "@types/ws": "^8.18.1",
     "@deepseek-ai/cordis": "workspace:~",
     "zod": "4.4.3"

@@ -5,22 +5,22 @@ import { resolve } from 'node:path'
 import { afterEach, expect, vi } from 'vitest'
 import { cleanup, render, waitFor } from '@testing-library/react'
 import type { ComponentType } from 'react'
-import type { DirectoryFlowOwnerProps } from '@deepseek-ai/dsh-client-ui-workspace/client'
-import { ClientRoster, createClientTest, webApp } from '@deepseek-ai/dsh-client-test-runtime/src/assembly/index.ts'
+import type { DirectoryFlowOwnerProps } from '@metaworkflow/client-ui-workspace/client'
+import { ClientRoster, createClientTest, webApp } from '@metaworkflow/client-test-runtime/src/assembly/index.ts'
 
 const manifest = JSON.parse(readFileSync(resolve(import.meta.dirname, '../package.json'), 'utf8')) as {
   name: string
-  dsh: { client: { inject: string[] } }
+  mwf: { client: { inject: string[] } }
 }
 // Auto mounts the native row dynamically; use that package's actual dependency declaration.
 const test = createClientTest({ roster: ClientRoster.of([...webApp.rows, {
-  name: manifest.name, inject: manifest.dsh.client.inject, immediately: false,
+  name: manifest.name, inject: manifest.mwf.client.inject, immediately: false,
 }]) })
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 test('the composed native flow cancels through Desktop without invoking the Host chooser', async ({ start, remote }) => {
   const pick = vi.fn<() => Promise<string | null>>().mockResolvedValue(null)
-  vi.stubGlobal('__DSH_DIRECTORY_PICKER__', { pick })
+  vi.stubGlobal('__MWF_DIRECTORY_PICKER__', { pick })
   const client = await start()
   const entry = client.ctx.slots.entries('sidebar.workspaces.directoryFlow')[0]!
   const injected = (entry.inject as () => { pick: () => Promise<string | null> })()

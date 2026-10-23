@@ -345,7 +345,7 @@ export function normalizeTranslationMarkdownLinkEdits(
   visitResolvedDocumentLinks(markdown, context, skipTargets, (node, destination, resolved) => {
     edits.push({
       node,
-      ...replacementFor(destination, `dsh-translation-target:${resolved.pair.source}${resolved.suffix}`),
+      ...replacementFor(destination, `mwf-translation-target:${resolved.pair.source}${resolved.suffix}`),
     })
   }, tree)
   const content = applyReplacements(markdown, [...edits])
@@ -380,5 +380,5 @@ export function semanticTranslationLinkNodeTarget(
   const resolved = resolveTranslationLink(node.url, context, destination.url)
   return resolved === undefined
     ? destination.url
-    : `dsh-translation-target:${resolved.pair.source}${resolved.suffix}`
+    : `mwf-translation-target:${resolved.pair.source}${resolved.suffix}`
 }

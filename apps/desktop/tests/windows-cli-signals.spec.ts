@@ -20,7 +20,7 @@ let entry: string
 
 describe.skipIf(process.platform !== 'win32')('Windows Electron console signals', () => {
   beforeAll(async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-cli-console-'))
+    root = await mkdtemp(join(tmpdir(), 'mwf-cli-console-'))
     electron = require('electron') as string
     const programFiles = process.env['ProgramFiles(x86)']
     if (programFiles === undefined || process.env.ComSpec === undefined) throw new Error('Windows compiler environment is unavailable')

@@ -6,7 +6,7 @@ import { dirname, join, parse, resolve } from 'node:path'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import sharp from 'sharp'
-import type { ImageAttachmentLimits } from '@deepseek-ai/dsh-attachment'
+import type { ImageAttachmentLimits } from '@metaworkflow/attachment'
 import type { NormalizationPolicy } from '../src/normalization.ts'
 import {
   commitPreparedImageFile,
@@ -59,7 +59,7 @@ const LIMITS: ImageAttachmentLimits = {
 const roots: string[] = []
 
 async function root(): Promise<string> {
-  const value = await mkdtemp(join(tmpdir(), 'dsh-attachment-'))
+  const value = await mkdtemp(join(tmpdir(), 'mwf-attachment-'))
   roots.push(value)
   return join(value, 'attachments', 'v1')
 }
@@ -90,7 +90,7 @@ describe('local attachment store', () => {
 
     await saveImageFile(storageRoot, { data: PNG, mediaType: 'image/png' }, LIMITS, POLICY)
 
-    // Each process first proves DSH_HOME durable all the way to the filesystem
+    // Each process first proves MWF_HOME durable all the way to the filesystem
     // root; existence alone cannot vouch for a concurrent creator's fsync.
     // Later directory creation can then stop at that process-proven boundary.
     expect(fsControl.syncedDirectories).toEqual([

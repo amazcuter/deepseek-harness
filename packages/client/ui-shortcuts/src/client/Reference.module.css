@@ -126,8 +126,8 @@
 }
 .search::placeholder { color: var(--dsw-alias-label-tertiary); opacity: 1; }
 .list {
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --mwf-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --mwf-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
   flex: 1;
   min-height: 0;
   overflow-y: auto;

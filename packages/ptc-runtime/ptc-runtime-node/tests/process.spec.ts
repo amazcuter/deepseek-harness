@@ -9,7 +9,7 @@ import { JsonChannel } from '../src/channel.ts'
 import { decodePtcJsonWire, encodePtcJsonWire } from '../src/json-wire.ts'
 
 it('boots an unbuilt source closure outside the workspace and exchanges tool replies', async () => {
-  const directory = await mkdtemp(join(tmpdir(), 'dsh-node-source-'))
+  const directory = await mkdtemp(join(tmpdir(), 'mwf-node-source-'))
   onTestFinished(async () => { await rm(directory, { recursive: true, force: true }) })
   for (const file of ['process.ts', 'bootstrap.ts', 'channel.ts', 'json-wire.ts', 'output-json.ts', 'protocol.ts', 'environment.ts']) {
     await copyFile(new URL(`../src/${file}`, import.meta.url), join(directory, file))

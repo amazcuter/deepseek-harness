@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/develop/basic/config.md
 /plugin-configuration:
-  en: f605e6e8021b82ba
-  zh: 3f33c4b0afb3f249
+  en: e822686a042df232
+  zh: f559c05d9a5df5ff
 /plugin-configuration/define-the-config-type:
   en: a351a086d890f148
   zh: 385803dd9d671391
@@ -18,11 +18,11 @@
   en: da67063750a52b55
   zh: bd2c5978e10b6f79
 /plugin-configuration/design-principles/fail-loudly-on-invalid-configuration:
-  en: 98a4ff7d959783bd
-  zh: cb1410360b03b7a7
+  en: cda115773f357e32
+  zh: 83f4a62db62d9232
 /plugin-configuration/work-with-hmr:
   en: 939f750af6fefbd5
   zh: 94fbb3a0d761f098
 /plugin-configuration/next-steps:
-  en: 1151bb8b59577519
-  zh: 47a95340df47d273
+  en: 9ed8fcc4d60104a1
+  zh: 315aef5dbb7d240f

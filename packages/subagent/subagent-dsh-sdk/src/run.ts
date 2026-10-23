@@ -1,17 +1,17 @@
 /**
  * Fresh-process SDK subagent client. Drives one child DeepSeek Harness
- * runtime over stdio JSON-RPC through `@deepseek-ai/dsh-sdk-client` and owns
+ * runtime over stdio JSON-RPC through `@metaworkflow/sdk-client` and owns
  * cancellation and quiescent disposal. It publishes after the child
  * handshake, maps child failures to stop reasons, and tears down to
  * quiescence. The SDK client spawns the child rather than using
  * `ctx.subprocess` — the subprocess seam's documented exception for
  * SDK-managed transports — so this driver applies the seam's shared env scrub.
  *
- * @module @deepseek-ai/dsh-subagent-dsh-sdk/run
+ * @module @metaworkflow/subagent-dsh-sdk/run
  */
 
 import { randomUUID } from 'node:crypto'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@metaworkflow/brand'
 import {
   DeepSeekHarness,
   type DeepSeekHarnessOptions,
@@ -19,23 +19,23 @@ import {
   SdkProtocolError,
   TransportClosedError,
   validatedSessionEvent,
-} from '@deepseek-ai/dsh-sdk-client'
-import type { ContentBlock, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-import type { SessionId, TurnEndReason } from '@deepseek-ai/dsh-session'
-import type { SubagentResult, SubagentRun, SubagentStartRequest, SubagentStopReason } from '@deepseek-ai/dsh-subagent'
-import { AssistantOutputFold, settleRunResult, subprocessRunHandle } from '@deepseek-ai/dsh-subagent'
-import { scrubbedParentEnv } from '@deepseek-ai/dsh-subprocess'
+} from '@metaworkflow/sdk-client'
+import type { ContentBlock, ReasoningEffortId } from '@metaworkflow/llm'
+import type { SessionId, TurnEndReason } from '@metaworkflow/session'
+import type { SubagentResult, SubagentRun, SubagentStartRequest, SubagentStopReason } from '@metaworkflow/subagent'
+import { AssistantOutputFold, settleRunResult, subprocessRunHandle } from '@metaworkflow/subagent'
+import { scrubbedParentEnv } from '@metaworkflow/subprocess'
 
 /** Resolved spawn spec for an SDK runtime child process (no defaults — see Config). */
 export interface SdkRunSpec {
-  /** Explicit dsh CLI module; omission resolves the SDK client's same-version dependency. */
-  dshBin?: string
+  /** Explicit mwf CLI module; omission resolves the SDK client's same-version dependency. */
+  mwfBin?: string
   /** Named child profile. */
   profile: string
   /** Ordered per-launch profile patch files. */
   patches: string[]
   /** Absolute isolated Harness home for the nested runtime. */
-  dshHome: string
+  mwfHome: string
   /** Absolute initial working directory selected by the delegating runtime. */
   cwd: string
   /** Parent origin directory recorded independently of the child's effective directory. */
@@ -52,7 +52,7 @@ export interface SdkRunSpec {
    * Extra environment variables to ADD for the child (e.g. the child
    * runtime's own `DEEPSEEK_API_KEY`). Merged after
    * the seam's `scrubbedParentEnv()` base, so an explicit credential or
-   * current `DSH_*` fact survives while ambient namesakes never leak.
+   * current `MWF_*` fact survives while ambient namesakes never leak.
    */
   env: Record<string, string>
   /** Bound (ms) on the protocol `shutdown` exchange during dispose. */
@@ -98,7 +98,7 @@ interface SdkFailureFacts {
 /** Fixed safe failure text derived only from provider-owned structured facts. */
 function failureDiagnostic(facts: SdkFailureFacts): string {
   const fields = [
-    'provider: DSH SDK',
+    'provider: MWF SDK',
     `stage: ${facts.stage}`,
     `category: ${facts.category}`,
   ]
@@ -120,7 +120,7 @@ export const internals: { createHarness(options: DeepSeekHarnessOptions): DeepSe
 /**
  * Hide a pre-spawn workspace/configuration failure behind fixed safe facts.
  * @param cause - original Host failure retained on the Error cause chain.
- * @returns an Error whose message contains only the fixed DSH SDK failure line.
+ * @returns an Error whose message contains only the fixed MWF SDK failure line.
  */
 export function sdkConfigurationFailure(cause: unknown): Error {
   return new SdkRunFailure({ stage: 'initialize', category: 'configuration' }, cause)
@@ -235,10 +235,10 @@ export async function startSdkRun(request: SubagentStartRequest, spec: SdkRunSpe
   const id = brandString<SessionId>(randomUUID())
 
   const harness = internals.createHarness({
-    ...spec.dshBin === undefined ? {} : { dshBin: spec.dshBin },
+    ...spec.mwfBin === undefined ? {} : { mwfBin: spec.mwfBin },
     profile: spec.profile,
     patches: spec.patches,
-    dshHome: spec.dshHome,
+    mwfHome: spec.mwfHome,
     processCwd: spec.cwd,
     env: { ...scrubbedParentEnv(), ...spec.env },
     shutdownTimeoutMs: spec.shutdownTimeoutMs,

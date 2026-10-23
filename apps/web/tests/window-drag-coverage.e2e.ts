@@ -19,10 +19,10 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { initialShortcutConfig } from '@deepseek-ai/dsh-client-shortcuts/protocol'
+import { initialShortcutConfig } from '@metaworkflow/client-shortcuts/protocol'
 import {
   INTERACTIVE_SELECTOR, RECALL_MARK, isDraggableAt, type RegionRect,
-} from '@deepseek-ai/dsh-client-web/src/window-drag/regions.ts'
+} from '@metaworkflow/client-web/src/window-drag/regions.ts'
 import { launchWebScaffold, watchConsole, type WebScaffold } from './scaffold.ts'
 import { connectFreshWorkspace, newEnglishPage, saveFailureShot } from './support.ts'
 
@@ -205,7 +205,7 @@ describe('web e2e: macOS window drag coverage', () => {
     const page = await newEnglishPage(browser)
     await page.addInitScript(({ value, snapshot }) => {
       // The Desktop platform marker requires the preload's keyboard and preference capabilities.
-      Object.assign(window, { dshDesktop: { protocolVersion: 1,
+      Object.assign(window, { mwfDesktop: { protocolVersion: 1,
         keyboard: { subscribe: () => () => {}, closeWindow: async () => {} },
         shortcuts: { get: async () => ({ ...snapshot, status: 'ready' }),
           subscribe: () => () => {}, recording: async () => {},

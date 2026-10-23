@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 /** Browser type, Slot, locale, and HMR disposal through the real registries. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ShortcutRegistry } from '@deepseek-ai/dsh-client-shortcuts/src/client/registry.ts'
-import type { ShortcutCommand, ShortcutPlatform } from '@deepseek-ai/dsh-client-shortcuts/client'
+import { ShortcutRegistry } from '@metaworkflow/client-shortcuts/src/client/registry.ts'
+import type { ShortcutCommand, ShortcutPlatform } from '@metaworkflow/client-shortcuts/client'
 import { Context } from '@deepseek-ai/cordis'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { SidebarRightTabRegistry } from '@deepseek-ai/dsh-client-ui-sidebar-right/src/client/tab-registry.ts'
+import { createSnapshotStore } from '@metaworkflow/client-store'
+import { SidebarRightTabRegistry } from '@metaworkflow/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { BrowserBody } from '../src/client/view/BrowserBody.tsx'
 import { BrowserTitle } from '../src/client/view/BrowserTitle.tsx'
 import type { BrowserInjected } from '../src/client/browser/BrowserController.ts'
@@ -13,7 +13,7 @@ import { BROWSER_ID, BROWSER_KIND } from '../src/client/definition.tsx'
 import { apply, inject } from '../src/client/index.ts'
 import { en, zh } from '../src/client/locales.ts'
 import { createBrowserStore } from '../src/client/browser/store.ts'
-import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
+import type { TabId } from '@metaworkflow/client-ui-dockkit'
 import type { DesktopBrowserBridge, DesktopBrowserLeaseId } from '../src/types.ts'
 
 const contexts: Context[] = []
@@ -77,7 +77,7 @@ describe('ui-sidebar-browser apply', () => {
       release: vi.fn(async () => {}),
       onOpenRequested: vi.fn(() => () => {}),
     }
-    vi.stubGlobal('dshDesktop', { protocolVersion, browser: bridge })
+    vi.stubGlobal('mwfDesktop', { protocolVersion, browser: bridge })
     const h = await boot()
     expect(h.tabs.get(BROWSER_KIND)?.keepMounted).toBe(protocolVersion === 1)
     const injectFace = h.registered.find(entry => entry.name === 'sidebar.right.pane.tab')!.inject as
@@ -92,7 +92,7 @@ describe('ui-sidebar-browser apply', () => {
     const signal = new AbortController()
     const tabId = 'apply-tab' as TabId
     try {
-      controller.mount({ tabId, signal: signal.signal, viewportId: host.id, applicationOrigin: 'https://dsh.example',
+      controller.mount({ tabId, signal: signal.signal, viewportId: host.id, applicationOrigin: 'https://mwf.example',
         initial: undefined, initialUrl: 'https://example.test/', openTab: vi.fn() })
       expect(replacementStore.getSnapshot().byTab[tabId]).toBeDefined()
       expect(firstStore.getSnapshot().byTab[tabId]).toBeUndefined()
@@ -102,13 +102,13 @@ describe('ui-sidebar-browser apply', () => {
       signal.abort()
       expect(replacementStore.getSnapshot().byTab[tabId]).toBeUndefined()
       const reopened = new AbortController()
-      controller.mount({ tabId, signal: reopened.signal, viewportId: host.id, applicationOrigin: 'https://dsh.example',
+      controller.mount({ tabId, signal: reopened.signal, viewportId: host.id, applicationOrigin: 'https://mwf.example',
         initial: undefined, initialUrl: 'https://retained.example/', openTab: vi.fn() })
       h.openTabs.set([{ sessionId: 'session', tabId }])
       reopened.abort()
       expect(replacementStore.getSnapshot().byTab[tabId]).toBeDefined()
       const active = new AbortController()
-      controller.mount({ tabId, signal: active.signal, viewportId: host.id, applicationOrigin: 'https://dsh.example',
+      controller.mount({ tabId, signal: active.signal, viewportId: host.id, applicationOrigin: 'https://mwf.example',
         initial: undefined, initialUrl: undefined, openTab: vi.fn() })
       await h.fiber.dispose()
       expect(controller.keyedHooks.browserState(tabId)).toBeUndefined()

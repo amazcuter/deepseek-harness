@@ -3,7 +3,7 @@ description: "Waterfall-based question and answer service for tools, permission 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-user-questions
+# @metaworkflow/user-questions
 
 English | [中文](README.zh.md)
 
@@ -28,7 +28,7 @@ Call `ask()` when work cannot continue without the answer. Call `askTimed()` whe
 
 For a single-select question, `custom` overrides the selected choice and `selected` is empty. For a multi-select question, `custom` may supplement the labels in `selected`. A UI may preserve a skipped item as `{ id, selected: [] }`, keeping the existing answer shape while retaining other answers in the batch.
 
-A question may carry a presentation `intent`, which declares that it IS a known kind of decision so a UI that recognises the tag may present it as such; the one tag is `plan-review`, whose `detail` is the plan under review and whose `approve` names the affirmative option. An intent changes presentation only: a UI honouring it answers with the same option labels a generic UI would send, and a UI that does not know the tag renders the generic option list. `ask()` rejects with `BAD_INTENT` the two assertions no type can carry: an `approve` naming none of that question's own options, and an intent on a question with no `detail`. `dsh-plan-mode` sets it on the `exit_plan_mode` review question.
+A question may carry a presentation `intent`, which declares that it IS a known kind of decision so a UI that recognises the tag may present it as such; the one tag is `plan-review`, whose `detail` is the plan under review and whose `approve` names the affirmative option. An intent changes presentation only: a UI honouring it answers with the same option labels a generic UI would send, and a UI that does not know the tag renders the generic option list. `ask()` rejects with `BAD_INTENT` the two assertions no type can carry: an `approve` naming none of that question's own options, and an intent on a question with no `detail`. `mwf-plan-mode` sets it on the `exit_plan_mode` review question.
 
 When a request carries an agent, `ask()` authenticates its exact identity through the live `AgentRegistry` and admits only a runtime root. A live child cannot open a human interaction. An agentless programmatic request remains available to unscoped local waterfall listeners and fails with `NO_PROVIDER` when none accepts it.
 
@@ -42,7 +42,7 @@ While the tool call is open, the only answer path is that request; a browser tha
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through `dsh-tool-ask-user`, which retains a successful answer as compact JSON or one of these failures: `Error: ask_user_question was aborted before the user answered`, `Error: ask_user_question requires at least one question`, `Error: human interaction requires the exact live calling agent when an agent is supplied`, `Error: human interaction is unavailable while the calling agent is owned by another live agent; include the unresolved question or decision in the child agent's final result`, `Error: no user-questions answerer accepted the request`, or `Error: <message>`. Waiting for the human adds no tokens.
+Indirectly, through `mwf-tool-ask-user`, which retains a successful answer as compact JSON or one of these failures: `Error: ask_user_question was aborted before the user answered`, `Error: ask_user_question requires at least one question`, `Error: human interaction requires the exact live calling agent when an agent is supplied`, `Error: human interaction is unavailable while the calling agent is owned by another live agent; include the unresolved question or decision in the child agent's final result`, `Error: no user-questions answerer accepted the request`, or `Error: <message>`. Waiting for the human adds no tokens.
 
 #### KV Cache effect
 

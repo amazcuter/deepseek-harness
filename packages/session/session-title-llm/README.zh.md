@@ -3,7 +3,7 @@ description: "面向会话标题提供方的共享模型执行策略：路由、
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-session-title-llm
+# @metaworkflow/session-title-llm
 
 [English](README.md) | 中文
 

@@ -398,7 +398,7 @@
 
 .skeletonFill {
   background: var(--dsw-alias-bg-skeleton);
-  animation: dsh-market-skeleton 2s cubic-bezier(0.36, 0, 0.64, 1) infinite;
+  animation: mwf-market-skeleton 2s cubic-bezier(0.36, 0, 0.64, 1) infinite;
 }
 
 .icon.skeletonFill {
@@ -415,7 +415,7 @@
 .skeletonTitle { width: min(144px, 60%); }
 .skeletonDescription { width: min(280px, 85%); }
 
-@keyframes dsh-market-skeleton {
+@keyframes mwf-market-skeleton {
   0% { opacity: 1; }
   40% { opacity: 0.6; }
   80%, 100% { opacity: 1; }

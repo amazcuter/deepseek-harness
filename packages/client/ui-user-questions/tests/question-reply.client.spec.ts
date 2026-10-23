@@ -1,8 +1,8 @@
 /** Late-reply conversation node: source matching and payload projection. */
 import { describe, expect, it } from 'vitest'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { SessionSeq } from '@deepseek-ai/dsh-session'
-import type { ConversationViewNode } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import { makeTranslate } from '@metaworkflow/client-test-runtime'
+import { SessionSeq } from '@metaworkflow/session'
+import type { ConversationViewNode } from '@metaworkflow/client-ui-conversation/client'
 import { messageDefinition } from '../../ui-chat/src/client/conversation-nodes/message.ts'
 import { ConversationNodeAssembler } from '../../ui-conversation/src/client/conversation/assembler.ts'
 import { en } from '../src/client/locales.ts'

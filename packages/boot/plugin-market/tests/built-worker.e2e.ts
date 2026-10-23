@@ -63,7 +63,7 @@ describe.skipIf(!built)('built index parsing (plain node)', () => {
       import { join } from 'node:path'
       import { Worker } from 'node:worker_threads'
 
-      const root = await mkdtemp(join(tmpdir(), 'dsh-built-market-worker-'))
+      const root = await mkdtemp(join(tmpdir(), 'mwf-built-market-worker-'))
       const path = join(root, 'worker.cjs')
       const run = (workerData, transferList = []) => new Promise((resolve) => {
         const worker = new Worker(path, { workerData, transferList })
@@ -74,13 +74,13 @@ describe.skipIf(!built)('built index parsing (plain node)', () => {
       try {
         await copyFile('lib/worker.cjs', path)
         const body = new TextEncoder().encode(JSON.stringify({ format: 1, title: 'M', plugins: [{ name: 'p', icon: 'p.svg', versions: [{ version: '1.0.0', publishTimestamp: 1, source: { type: 'npm' } }] }] }))
-        const valid = await run({ body, url: 'https://m.example/dsh/index.json' }, [body.buffer])
+        const valid = await run({ body, url: 'https://m.example/mwf/index.json' }, [body.buffer])
         const malformed = await run({ body: 'x', url: 1 })
         console.log(JSON.stringify({ icon: valid.message.index.plugins[0].icon, malformed }))
       } finally {
         await rm(root, { recursive: true, force: true })
       }
     `)
-    expect(result).toEqual({ icon: 'https://m.example/dsh/p.svg', malformed: { error: 'index parser request is malformed' } })
+    expect(result).toEqual({ icon: 'https://m.example/mwf/p.svg', malformed: { error: 'index parser request is malformed' } })
   })
 })

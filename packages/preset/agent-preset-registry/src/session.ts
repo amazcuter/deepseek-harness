@@ -11,13 +11,13 @@
  *
  * Reconstruction reads the `agentPreset` Session projection, never the header
  * alone.
- * @module @deepseek-ai/dsh-agent-preset-registry/session
+ * @module @metaworkflow/agent-preset-registry/session
  */
 
-import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
+import type { ProjectionDefinition } from '@metaworkflow/session-projection'
 import { z } from 'zod'
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@metaworkflow/session/types' {
   interface SessionEventMap {
     /**
      * The session's agent preset was chosen after creation, while the session
@@ -26,7 +26,7 @@ declare module '@deepseek-ai/dsh-session/types' {
      * the header's creation-time value. In a child Session, an occurrence
      * before its first own `subagent/descriptor` marks an independent spawn
      * selection that cold resume restores instead of joining the parent's
-     * composition (`dsh-subagent` README, "Restoring child composition").
+     * composition (`mwf-subagent` README, "Restoring child composition").
      */
     'agent-preset/selected': { agentPreset: string }
   }

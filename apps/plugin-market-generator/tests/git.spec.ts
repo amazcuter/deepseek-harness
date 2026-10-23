@@ -37,7 +37,7 @@ function repository() {
   return { dir, git, write, commit }
 }
 
-const bundle = (name: string, version: string, extra: object = {}) => JSON.stringify({ name, version, dsh: { bundle: { patch: './cordis.patch.yml' } }, ...extra })
+const bundle = (name: string, version: string, extra: object = {}) => JSON.stringify({ name, version, mwf: { bundle: { patch: './cordis.patch.yml' } }, ...extra })
 
 /**
  * Configure Git for the generator through a private home directory: the https REPOSITORY is routed to the fixture, protocol
@@ -95,7 +95,7 @@ it('lists Git versions from release tags and the default branch by reading objec
     'packages/a/locale/en.json': JSON.stringify({ meta: { title: 'Alpha', description: 'Does A' } }),
     'packages/a/icon.svg': '<svg/>',
     'packages/b/package.json': bundle('@s/b', '2.0.0', { keywords: ['head'] }),
-    'packages/d/package.json': JSON.stringify({ ...JSON.parse(bundle('@s/d', '0.1.0')), peerDependencies: { '@deepseek-ai/dsh': 'workspace:>=1' } }),
+    'packages/d/package.json': JSON.stringify({ ...JSON.parse(bundle('@s/d', '0.1.0')), peerDependencies: { '@metaworkflow/cli': 'workspace:>=1' } }),
   })
   const head = repo.commit(1790000300)
   repo.git(['tag', 'v2.0.0'])
@@ -117,7 +117,7 @@ it('lists Git versions from release tags and the default branch by reading objec
     },
     { name: '@s/b', title: '@s/b', metadata: { keywords: ['tagged'] }, versions: [{ version: '2.0.0', publishTimestamp: 1790000100, source: source(second, 'packages/b') }] },
   ])
-  expect([result.failures, warnings]).toEqual([[], [`${REPOSITORY}: @s/d@0.1.0 skipped: DSH range "workspace:>=1" is not a valid SemVer range`]])
+  expect([result.failures, warnings]).toEqual([[], [`${REPOSITORY}: @s/d@0.1.0 skipped: MWF range "workspace:>=1" is not a valid SemVer range`]])
   expect([existsSync(marker), readdirSync(temporary)]).toEqual([false, []])
   expect(await generate(options(cacheDir, warnings))).toEqual(result)
 
@@ -146,21 +146,21 @@ it('reads a root package, reports repositories without one, and refuses transpor
   repo.commit(1790000000)
   expect(await run(true)).toEqual([[], [expect.stringContaining("transport 'file' not allowed") as string]])
   expect(await run()).toEqual([[], []])
-  repo.write({ 'package.json': JSON.stringify({ version: '1.0.0', dsh: { bundle: { patch: 'p.yml' } } }) })
+  repo.write({ 'package.json': JSON.stringify({ version: '1.0.0', mwf: { bundle: { patch: 'p.yml' } } }) })
   repo.commit(1790000100)
   expect(await run()).toEqual([[], []])
-  repo.write({ 'package.json': bundle('dsh-root', '1.0.0') })
+  repo.write({ 'package.json': bundle('mwf-root', '1.0.0') })
   const commit = repo.commit(1790000200)
   expect(await run()).toEqual([[{
-    name: 'dsh-root', title: 'dsh-root', versions: [{ version: '1.0.0', publishTimestamp: 1790000200, source: { type: 'git', url: REPOSITORY, commit } }],
+    name: 'mwf-root', title: 'mwf-root', versions: [{ version: '1.0.0', publishTimestamp: 1790000200, source: { type: 'git', url: REPOSITORY, commit } }],
   }], []])
-  expect(warnings).toEqual([`${REPOSITORY}: ${REPOSITORY}: no HEAD commit`, expect.stringContaining('not allowed') as string, `${REPOSITORY}: no package declares dsh.bundle`, `${REPOSITORY}: package.json has no name`])
+  expect(warnings).toEqual([`${REPOSITORY}: ${REPOSITORY}: no HEAD commit`, expect.stringContaining('not allowed') as string, `${REPOSITORY}: no package declares mwf.bundle`, `${REPOSITORY}: package.json has no name`])
 })
 
 it('skips a release tag it cannot read, refuses oversized manifests, and ignores Git overrides from the environment', GIT_TEST, async () => {
   const repo = repository()
   repo.write({
-    'package.json': bundle('dsh-root', '1.0.0'),
+    'package.json': bundle('mwf-root', '1.0.0'),
   })
   repo.commit(1790000000)
   const blob = repo.git(['hash-object', '-w', 'package.json'])
@@ -175,7 +175,7 @@ it('skips a release tag it cannot read, refuses oversized manifests, and ignores
   expect(result.failures).toEqual([])
   expect(warnings).toEqual([expect.stringMatching(new RegExp(`^${REPOSITORY}: ${blob}: skipped: `, 'u')) as string])
 
-  repo.write({ 'package.json': JSON.stringify({ name: 'dsh-root', version: '1.1.0', padding: 'x'.repeat(1024 * 1024) }) })
+  repo.write({ 'package.json': JSON.stringify({ name: 'mwf-root', version: '1.1.0', padding: 'x'.repeat(1024 * 1024) }) })
   repo.commit(1790000100)
   const oversized = await generate(options(scratch(), warnings))
   expect(oversized.failures).toEqual([`${REPOSITORY}: package.json exceeds 1048576 bytes`])

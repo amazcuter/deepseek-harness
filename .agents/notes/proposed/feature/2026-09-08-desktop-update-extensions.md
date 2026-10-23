@@ -23,9 +23,9 @@ If Desktop-only fixes become necessary on a prerelease line, evaluate the reserv
 < 0.1.3-rc.3
 ```
 
-Such a release would record Desktop `0.1.3-rc.2.dsk.1` separately from bundled dsh `0.1.3-rc.2`. Introduce independent `desktopVersion`, `bundledDshVersion`, and `releaseChannel` records only with corresponding build, runtime descriptor, profile reconciliation, publisher, and backend-policy validation. The initial build continues to require equal versions.
+Such a release would record Desktop `0.1.3-rc.2.dsk.1` separately from bundled mwf `0.1.3-rc.2`. Introduce independent `desktopVersion`, `bundledMwfVersion`, and `releaseChannel` records only with corresponding build, runtime descriptor, profile reconciliation, publisher, and backend-policy validation. The initial build continues to require equal versions.
 
-Do not use `0.1.3-dsk.1` to repair stable `0.1.3`: SemVer orders it below the stable release. Stable fixes require a higher shared dsh/Desktop patch version, such as `0.1.4`. Independent prerelease revisions are an exceptional release path, not a routine per-build counter.
+Do not use `0.1.3-dsk.1` to repair stable `0.1.3`: SemVer orders it below the stable release. Stable fixes require a higher shared mwf/Desktop patch version, such as `0.1.4`. Independent prerelease revisions are an exceptional release path, not a routine per-build counter.
 
 ### Stable subscription and channel switching
 
@@ -34,7 +34,7 @@ Do not use `0.1.3-dsk.1` to repair stable `0.1.3`: SemVer orders it below the st
 | Stable | `latest.yml` / `latest-mac.yml` | Stable only |
 | Nightly | `nightly.yml` / `nightly-mac.yml` | Alpha, rc, and stable |
 
-The [initial publication rule](2026-09-08-desktop-update-policy-and-installation.md) adds the stable feed when shared stable releases exist, without switching fixed-Nightly clients. A user-facing stable subscription and selector remain deferred. If enabled, persist the selected channel; never infer it from the installed version. Preserve `allowDowngrade = false` when assigning the updater channel. Moving from Nightly to stable keeps a higher installed Nightly until a higher stable version exists, without downgrading Desktop or bundled dsh.
+The [initial publication rule](2026-09-08-desktop-update-policy-and-installation.md) adds the stable feed when shared stable releases exist, without switching fixed-Nightly clients. A user-facing stable subscription and selector remain deferred. If enabled, persist the selected channel; never infer it from the installed version. Preserve `allowDowngrade = false` when assigning the updater channel. Moving from Nightly to stable keeps a higher installed Nightly until a higher stable version exists, without downgrading Desktop or bundled mwf.
 
 Channel switching may immediately check; download behavior must follow the approved setting. Ignore old-channel responses and reconfirm downloaded artifacts against the new channel before installation. A channel change does not clear mandatory blocking without a valid policy response for the new conditions. Display a persistent Nightly explanation under the selector, with candidate Chinese copy “提前体验新功能，版本可能不稳定。”; hide it after selecting stable, while separately explaining any wait for a higher stable version.
 
@@ -53,7 +53,7 @@ Automatic download and installation in this table are deferred product choices; 
 
 ### Next-launch installation
 
-Target a complete process launch, not reopening a window or reloading the renderer. Prefer installation before restoring business tasks or starting local dsh; surviving managed resources require explicit shutdown approval. A cached ZIP or installer is not proof of completed native preparation. Surface extraction, verification, and preparation honestly without fabricated progress.
+Target a complete process launch, not reopening a window or reloading the renderer. Prefer installation before restoring business tasks or starting local mwf; surviving managed resources require explicit shutdown approval. A cached ZIP or installer is not proof of completed native preparation. Surface extraction, verification, and preparation honestly without fabricated progress.
 
 Use the already prepared target instead of delaying launch for a fresh package download. A bounded check may discover a newer candidate and defer this installation while the current app opens, but only if the platform still permits abandoning the staged target. Native installer handoff may prevent cancellation or retargeting; never simulate it by deleting native staging directories. Measure download-to-ready, click-to-exit, replacement, and new-version profile reconciliation and Host startup separately.
 

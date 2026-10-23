@@ -10,7 +10,7 @@ Web 监听器只接受 `127.0.0.1` 或 `0.0.0.0`。通配绑定会暴露机器�
 
 ## 决策
 
-`webserver.config.host` 接受一个具体的 IPv4 或 IPv6 地址字面量，默认回环；未指定地址的所有拼写（`0.0.0.0`、`::`、`::ffff:0.0.0.0` 及其展开形式）在配置加载时被拒绝，随附的 `dsh web` 命令在任何消费者激活前对 `--host` 拒绝同样的拼写。IPv6 的 `%zone` 保留给 `listen`；通过导出的 `isWildcardHost` 与 `isLoopbackHost` 分类时只读取地址本身。
+`webserver.config.host` 接受一个具体的 IPv4 或 IPv6 地址字面量，默认回环；未指定地址的所有拼写（`0.0.0.0`、`::`、`::ffff:0.0.0.0` 及其展开形式）在配置加载时被拒绝，随附的 `mwf web` 命令在任何消费者激活前对 `--host` 拒绝同样的拼写。IPv6 的 `%zone` 保留给 `listen`；通过导出的 `isWildcardHost` 与 `isLoopbackHost` 分类时只读取地址本身。
 
 浏览器 Host/Origin 栅栏接受监听器自身的绑定 IP 字面量作为任意端口上的 `Host`，独立于 `trustedHosts` 并忽略 zone。拨号该字面量的浏览器把它作为 `Host` 呈现，该字面量不是重绑目标，Origin 与跨站检查仍然生效。解析到该地址的 DNS 名称、其他接口与代理 authority 仍需 `--trusted-host`。Connection 直接从 `webStartup` 提供方读取调用 authority；`webRuntime` 服务与 LAN 采样不再存在。
 

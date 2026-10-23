@@ -37,7 +37,7 @@ Before changing the writer, use the [archive command](../persistence-changes/his
 
 Follow the package checklist to create a library for N→N+1, not a mounted plugin. An identity body conversion is only an initial wiring scaffold. The [V2-to-V3 specification](../../packages/session/session-format-v2-to-v3/README.md#v2-to-v3-specification) is a fixed example of explicit transformations and preservation rules, not an edge to extend or treat as an identity conversion.
 
-Declare `dsh.sessionFormatMigration` with numeric `from: N` and `to: N+1`, an export path, and the exported migration, source codec, target codec, target-header validator, and target restorer. Reuse the source codec exported by the preceding edge package and depend on that package; do not copy or redefine a released codec. Export the target codec and validators from the new package. Add the edge as a direct dependency of the catalog and add the workspace’s TypeScript paths and project references.
+Declare `mwf.sessionFormatMigration` with numeric `from: N` and `to: N+1`, an export path, and the exported migration, source codec, target codec, target-header validator, and target restorer. Reuse the source codec exported by the preceding edge package and depend on that package; do not copy or redefine a released codec. Export the target codec and validators from the new package. Add the edge as a direct dependency of the catalog and add the workspace’s TypeScript paths and project references.
 
 Set `SESSION_FORMAT_VERSION` in [core Session types](../../packages/core/session/src/types.ts) to N+1 alongside the new edge declarations, then generate the catalog. The command below generates only the declared chain; it does not implement a new version:
 
@@ -121,13 +121,13 @@ git diff --check
 <a id="v4-corpus-trial"></a>
 ### Developer V4 corpus trial
 
-Use the one-time [migration script](../../scripts/migrate-sessions-to-v4.ts) from an installed contributor checkout whose writer is V4. Stop DSH processes using the target root before starting so writer locks and changing child logs do not prevent migration. Run from the repository root:
+Use the one-time [migration script](../../scripts/migrate-sessions-to-v4.ts) from an installed contributor checkout whose writer is V4. Stop MWF processes using the target root before starting so writer locks and changing child logs do not prevent migration. Run from the repository root:
 
 ```sh
 pnpm run migrate:sessions-to-v4
 ```
 
-The default root is `~/.dsh/sessions`. Use `--sessions-dir /path/to/sessions-copy` for another corpus, or `--help` for usage. Concurrent jobs default to the available CPU count capped at 16; `--jobs N` accepts any positive safe integer, including larger expert overrides, and `--jobs 1` runs serially. A bounded queue opens only that many Sessions at once, regardless of corpus size. Each historical Session goes through the normal locked, validated publication path to create a V4 successor beside its unchanged source files. Existing V4 Sessions are opened read-only; rerunning does not reconvert them. The script makes no model requests and does not change conversion or refusal rules.
+The default root is `~/.mwf/sessions`. Use `--sessions-dir /path/to/sessions-copy` for another corpus, or `--help` for usage. Concurrent jobs default to the available CPU count capped at 16; `--jobs N` accepts any positive safe integer, including larger expert overrides, and `--jobs 1` runs serially. A bounded queue opens only that many Sessions at once, regardless of corpus size. Each historical Session goes through the normal locked, validated publication path to create a V4 successor beside its unchanged source files. Existing V4 Sessions are opened read-only; rerunning does not reconvert them. The script makes no model requests and does not change conversion or refusal rules.
 
 The terminal reports each Session's selected file, version, progress, outcome, and elapsed time. Individual errors do not stop later Sessions. The final summary lists every failure and the full diagnostic log under the system temporary directory; any failure returns a nonzero exit status. It also prints JSON and saves the same report as `summary.json` beside `migration.log`: counts by source version and outcome, grouped failure reasons, per-input diagnostics, runtime details, and both report paths. Known diagnostics expose event types, unexpected members, child-log involvement, and sequence numbers; unrecognized errors retain their messages without inferred causes. Include these reports when reporting a migration problem. Sessions converted during this run remain distinct from those already at V4.
 

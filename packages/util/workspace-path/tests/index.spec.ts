@@ -2,25 +2,25 @@ import { describe, expect, it } from 'vitest'
 import {
   abbreviateHomePath, fileAddressFor, isAbsoluteWorkspacePath, parseFileAddress, pathPartsOf, relativizeToCwd,
   resolveWorkspacePath, workspaceTitleOf,
-} from '@deepseek-ai/dsh-util-workspace-path'
+} from '@metaworkflow/util-workspace-path'
 
 describe('Workspace path helpers', () => {
   it('addresses every path by session and keeps absolute paths outside the workspace', () => {
-    expect(fileAddressFor('s', '/w', 'src/a.ts')).toBe('dsh-resource://file/session/s/src/a.ts')
-    expect(fileAddressFor('s', undefined, 'src/a.ts')).toBe('dsh-resource://file/session/s/src/a.ts')
-    expect(fileAddressFor('s', '/w/', '/w/src/a.ts')).toBe('dsh-resource://file/session/s/src/a.ts')
-    expect(fileAddressFor('s', '/w', '/w')).toBe('dsh-resource://file/session/s/')
-    expect(fileAddressFor('s', '/w', '/work/a.ts')).toBe('dsh-resource://file/session/s//work/a.ts')
-    expect(fileAddressFor('s', undefined, '/etc/hosts')).toBe('dsh-resource://file/session/s//etc/hosts')
-    expect(fileAddressFor('s', 'C:\\w', 'C:\\w\\x.ts')).toBe('dsh-resource://file/session/s/x.ts')
-    expect(fileAddressFor('s', 'C:\\w', 'D:\\x.ts')).toBe('dsh-resource://file/session/s/D:/x.ts')
-    expect(fileAddressFor('s', undefined, '\\\\server\\share\\x.ts')).toBe('dsh-resource://file/session/s///server/share/x.ts')
-    expect(fileAddressFor('s', '\\\\server\\share', '\\\\server\\share\\x.ts')).toBe('dsh-resource://file/session/s/x.ts')
+    expect(fileAddressFor('s', '/w', 'src/a.ts')).toBe('mwf-resource://file/session/s/src/a.ts')
+    expect(fileAddressFor('s', undefined, 'src/a.ts')).toBe('mwf-resource://file/session/s/src/a.ts')
+    expect(fileAddressFor('s', '/w/', '/w/src/a.ts')).toBe('mwf-resource://file/session/s/src/a.ts')
+    expect(fileAddressFor('s', '/w', '/w')).toBe('mwf-resource://file/session/s/')
+    expect(fileAddressFor('s', '/w', '/work/a.ts')).toBe('mwf-resource://file/session/s//work/a.ts')
+    expect(fileAddressFor('s', undefined, '/etc/hosts')).toBe('mwf-resource://file/session/s//etc/hosts')
+    expect(fileAddressFor('s', 'C:\\w', 'C:\\w\\x.ts')).toBe('mwf-resource://file/session/s/x.ts')
+    expect(fileAddressFor('s', 'C:\\w', 'D:\\x.ts')).toBe('mwf-resource://file/session/s/D:/x.ts')
+    expect(fileAddressFor('s', undefined, '\\\\server\\share\\x.ts')).toBe('mwf-resource://file/session/s///server/share/x.ts')
+    expect(fileAddressFor('s', '\\\\server\\share', '\\\\server\\share\\x.ts')).toBe('mwf-resource://file/session/s/x.ts')
   })
 
   it.each(['/workspace', undefined])('round-trips a parent-relative address with workspace root %s', (cwd) => {
     const address = fileAddressFor('s', cwd, '../outside/a.txt')
-    expect(address).toBe('dsh-resource://file/session/s/../outside/a.txt')
+    expect(address).toBe('mwf-resource://file/session/s/../outside/a.txt')
     expect(parseFileAddress(address)).toEqual({ scope: 'session', sessionId: 's', path: '../outside/a.txt' })
   })
 

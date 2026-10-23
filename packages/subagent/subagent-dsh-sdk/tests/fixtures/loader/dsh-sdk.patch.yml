@@ -27,7 +27,7 @@
       name: './mock-delegating-llm.ts'
 
     - id: subagent-model-selection-settings
-      name: '@deepseek-ai/dsh-tool-subagent/model-selection-settings'
+      name: '@metaworkflow/tool-subagent/model-selection-settings'
       config:
         enabled: true
         allowedModels:
@@ -37,21 +37,21 @@
     - id: test-tool-subagent
       name: './scoped-tool-subagent.ts'
       config:
-        provider: dsh-sdk
+        provider: mwf-sdk
         toolName: subagent
         agentOptions:
           maxTokens: 777
         maxDepth: 'provider-managed'
 
-    # providerName is omitted to exercise the shipped `dsh-sdk` default.
+    # providerName is omitted to exercise the shipped `mwf-sdk` default.
     - id: subagent-dsh-sdk
-      name: '@deepseek-ai/dsh-subagent-dsh-sdk'
+      name: '@metaworkflow/subagent-dsh-sdk'
       config:
         profile: sdk
-        patches: !!js JSON.parse(process.env.DSH_TEST_CHILD_PATCHES ?? '[]')
-        dshHome: !!js process.env.DSH_TEST_CHILD_HOME
+        patches: !!js JSON.parse(process.env.MWF_TEST_CHILD_PATCHES ?? '[]')
+        mwfHome: !!js process.env.MWF_TEST_CHILD_HOME
         provider: mock
         model: mock-routed
         env:
-          DSH_TELEMETRY_DISABLED: '1'
-          DSH_TEST_CHILD_FAILURE: !!js String(process.env.DSH_TEST_CHILD_FAILURE ?? '')
+          MWF_TELEMETRY_DISABLED: '1'
+          MWF_TEST_CHILD_FAILURE: !!js String(process.env.MWF_TEST_CHILD_FAILURE ?? '')

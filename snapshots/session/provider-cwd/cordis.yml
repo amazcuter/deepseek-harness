@@ -6,4 +6,4 @@
     - id: provider-cwd-fs
       name: '../../../packages/bundle/headless/tests/fixtures/provider-cwd.ts'
       config:
-        root: !!js process.env.DSH_SNAPSHOT_PROVIDER_CWD
+        root: !!js process.env.MWF_SNAPSHOT_PROVIDER_CWD

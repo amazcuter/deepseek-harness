@@ -1,7 +1,7 @@
 /** External browser fixture; screenshots contain no host or network content. */
 import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
 import { createInterface } from 'node:readline'
-mkdirSync('.dsh', { recursive: true })
+mkdirSync('.mwf', { recursive: true })
 const catalog = JSON.parse(readFileSync(new URL('./catalog.json', import.meta.url), 'utf8'))
 const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWNgZGIGAAAOAAeCcsnOAAAAAElFTkSuQmCC'
 const lines = createInterface({ input: process.stdin })
@@ -15,8 +15,8 @@ lines.on('line', line => {
       process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: request.id, error: { code: -32601, message: 'Legacy browser fixture' } }) + '\n')
       return
     case 'initialize':
-      writeFileSync('.dsh/browser-fixture.started', 'chrome-devtools-mcp\n', { flag: 'wx' })
-      process.once('exit', () => unlinkSync('.dsh/browser-fixture.started'))
+      writeFileSync('.mwf/browser-fixture.started', 'chrome-devtools-mcp\n', { flag: 'wx' })
+      process.once('exit', () => unlinkSync('.mwf/browser-fixture.started'))
       result = { protocolVersion: request.params.protocolVersion, capabilities: { tools: {} }, serverInfo: { name: 'browser-fixture', version: '1' } }
       break
     case 'tools/list':

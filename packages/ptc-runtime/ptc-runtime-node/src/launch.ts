@@ -1,8 +1,8 @@
 /** Select source or built bootstrap assets in the mounted execution world. */
 import { dirname, isAbsolute, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import type { FileSystem } from '@deepseek-ai/dsh-fs'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+import type { FileSystem } from '@metaworkflow/fs'
+import { assertNever } from '@metaworkflow/util-values'
 
 /** Deployment-owned worker invocation in the subprocess execution world. */
 export type LaunchConfig = {
@@ -67,7 +67,7 @@ function scriptBootstrapArgs(
     return [mapped(fileURLToPath(new URL(`./${moduleName}.js`, import.meta.url))), String(maxMessageBytes)]
   }
   const entry = mapped(fileURLToPath(new URL(`./${moduleName}.ts`, import.meta.url)))
-  const subprocess = dirname(fileURLToPath(import.meta.resolve('@deepseek-ai/dsh-subprocess/package.json')))
+  const subprocess = dirname(fileURLToPath(import.meta.resolve('@metaworkflow/subprocess/package.json')))
   const helper = mapped(resolve(subprocess, 'src/control.ts'))
   const main = persistent ? 'runPersistentMain' : 'runNodeMain'
   const source = `const {openInheritedControlChannel}=await import(${JSON.stringify(pathToFileURL(helper).href)});const {${main}}=await import(${JSON.stringify(pathToFileURL(entry).href)});await ${main}(openInheritedControlChannel(),${maxMessageBytes},process);`

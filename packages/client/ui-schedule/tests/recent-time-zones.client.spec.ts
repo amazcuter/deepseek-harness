@@ -20,14 +20,14 @@ describe('recent time zones', () => {
   })
 
   it('falls back safely when persisted data is invalid', () => {
-    localStorage.setItem('dsh.schedule.recent-time-zones.v1', '{')
+    localStorage.setItem('mwf.schedule.recent-time-zones.v1', '{')
     expect(loadRecentTimeZones('Europe/Paris')).toEqual(['Europe/Paris', 'UTC'])
   })
 
   it('falls back when persisted data is not an array or holds no usable zone', () => {
-    localStorage.setItem('dsh.schedule.recent-time-zones.v1', '42')
+    localStorage.setItem('mwf.schedule.recent-time-zones.v1', '42')
     expect(loadRecentTimeZones('Europe/Paris')).toEqual(['Europe/Paris', 'UTC'])
-    localStorage.setItem('dsh.schedule.recent-time-zones.v1', '["", 7]')
+    localStorage.setItem('mwf.schedule.recent-time-zones.v1', '["", 7]')
     expect(loadRecentTimeZones('Europe/Paris')).toEqual(['Europe/Paris', 'UTC'])
   })
 

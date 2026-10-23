@@ -1,27 +1,27 @@
 // @vitest-environment jsdom
 import type { Context } from '@deepseek-ai/cordis'
-import * as modulesClient from '@deepseek-ai/dsh-client-modules/client'
+import * as modulesClient from '@metaworkflow/client-modules/client'
 import type {
-  ClientBundleRegistration, ClientModuleCreateOptions, ClientModuleLoaderTarget, DshWindow,
+  ClientBundleRegistration, ClientModuleCreateOptions, ClientModuleLoaderTarget, MwfWindow,
   WebBootEntry,
-} from '@deepseek-ai/dsh-client-modules/client'
+} from '@metaworkflow/client-modules/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AppWebEntry } from '../src/boot.ts'
 
-const MODULES_ID = '@deepseek-ai/dsh-client-modules'
+const MODULES_ID = '@metaworkflow/client-modules'
 const PROVIDER_CLIENT_ID = 'provider/client'
 const RUNTIME_CLIENT_ID = 'runtime/client'
-const win = globalThis as DshWindow
+const win = globalThis as MwfWindow
 const transportGlobal = globalThis as {
-  __DSH_TRANSPORT__?: { loadBundle(url: string): Promise<void> }
+  __MWF_TRANSPORT__?: { loadBundle(url: string): Promise<void> }
 }
 const moduleFace = modulesClient as Record<string, unknown>
 
 afterEach(() => {
   vi.restoreAllMocks()
-  delete win.__DSH_BOOT__
+  delete win.__MWF_BOOT__
   delete win.__ModuleLoader__
-  delete transportGlobal.__DSH_TRANSPORT__
+  delete transportGlobal.__MWF_TRANSPORT__
   document.body.innerHTML = ''
 })
 
@@ -66,7 +66,7 @@ describe('bootstrap failure rendering', () => {
     expect(failure).toHaveBeenCalledWith(new Error('web boot: window.__ModuleLoader__ bootstrap facade is missing'))
     expect(container.textContent).toContain('Loading plugins')
     expect(container.textContent).not.toContain('Failed to load plugins')
-    expect(container.querySelector('[data-dsh-boot-spinner]')).not.toBeNull()
+    expect(container.querySelector('[data-mwf-boot-spinner]')).not.toBeNull()
     await entry.dispose()
   })
 
@@ -75,7 +75,7 @@ describe('bootstrap failure rendering', () => {
     const container = document.createElement('div')
     document.body.append(container)
     const target = installFacade()
-    win.__DSH_BOOT__ = {
+    win.__MWF_BOOT__ = {
       rev: 'graph',
       entries: [{ id: 'broken', url: '/broken.js', rev: '1' }],
       batches: [{ phase: 'application', url: '/application.js', rev: '1', entries: ['broken'] }],
@@ -91,7 +91,7 @@ describe('bootstrap failure rendering', () => {
       if (carrier) {
         expect(report).toHaveBeenCalledOnce()
         expect(String(report.mock.calls[0]![0])).toContain('broken')
-        expect(container.querySelector('[data-dsh-boot-spinner]')).not.toBeNull()
+        expect(container.querySelector('[data-mwf-boot-spinner]')).not.toBeNull()
         expect(container.textContent).not.toContain('Failed to load plugins')
       } else {
         expect(report).not.toHaveBeenCalled()
@@ -119,15 +119,15 @@ describe('bootstrap failure rendering', () => {
   it('renders a malformed boot manifest', async () => {
     await expectBootFailure(() => {
       installFacade()
-      delete win.__DSH_BOOT__
-    }, 'window.__DSH_BOOT__ is missing or not an object')
+      delete win.__MWF_BOOT__
+    }, 'window.__MWF_BOOT__ is missing or not an object')
   })
 
   it('renders a module-system construction failure', async () => {
     await expectBootFailure(() => {
       installFacade()
       const duplicate = { id: 'duplicate', url: '/duplicate/client.js', rev: '1' }
-      win.__DSH_BOOT__ = {
+      win.__MWF_BOOT__ = {
         rev: 'graph',
         entries: [duplicate, duplicate],
         batches: [{ phase: 'application', url: '/batch.js', rev: 'batch', entries: ['duplicate'] }],
@@ -154,7 +154,7 @@ describe('plugin activation', () => {
       { id: 'renderer', url: '/renderer.js', rev: '1' },
     ]
     const applicationUrl = '/application.js'
-    win.__DSH_BOOT__ = {
+    win.__MWF_BOOT__ = {
       rev: 'graph',
       entries,
       batches: [{ phase: 'application', url: applicationUrl, rev: 'batch', entries: entries.map(row => row.id) }],
@@ -189,7 +189,7 @@ describe('plugin activation', () => {
         }),
       },
     ]
-    transportGlobal.__DSH_TRANSPORT__ = {
+    transportGlobal.__MWF_TRANSPORT__ = {
       loadBundle: async (url) => {
         loaded.push(url)
         if (url !== applicationUrl) throw new Error(`missing fixture batch ${url}`)
@@ -214,7 +214,7 @@ describe('plugin activation', () => {
       { id: MODULES_ID, url: '/modules.js', rev: '1' },
       { id: 'renderer', url: '/renderer.js', rev: '1' },
     ]
-    win.__DSH_BOOT__ = {
+    win.__MWF_BOOT__ = {
       rev: 'graph',
       entries,
       batches: [{
@@ -268,7 +268,7 @@ describe('plugin activation', () => {
 
 it('draws the shared boot page before Host injections and resumes without replacing the document', async () => {
   const gate = Promise.withResolvers<undefined>()
-  vi.stubGlobal('__DSH_BOOT_READY__', gate)
+  vi.stubGlobal('__MWF_BOOT_READY__', gate)
   const container = document.createElement('div')
   document.body.append(container)
   const create = vi.fn(() => { throw new Error('injections consumed') })
@@ -276,8 +276,8 @@ it('draws the shared boot page before Host injections and resumes without replac
   const entry = new AppWebEntry(container)
   const boot = entry.run()
   try {
-    const page = container.querySelector('[data-dsh-boot]')
-    const spinner = container.querySelector('[data-dsh-boot-spinner]')
+    const page = container.querySelector('[data-mwf-boot]')
+    const spinner = container.querySelector('[data-mwf-boot-spinner]')
     expect(spinner).not.toBeNull()
     await Promise.resolve()
     expect(create).not.toHaveBeenCalled()
@@ -286,7 +286,7 @@ it('draws the shared boot page before Host injections and resumes without replac
     gate.resolve(undefined)
     await boot
     expect(create).toHaveBeenCalledOnce()
-    expect(container.querySelector('[data-dsh-boot]')).toBe(page)
+    expect(container.querySelector('[data-mwf-boot]')).toBe(page)
     expect(container.textContent).toContain('injections consumed')
   } finally {
     gate.resolve(undefined)

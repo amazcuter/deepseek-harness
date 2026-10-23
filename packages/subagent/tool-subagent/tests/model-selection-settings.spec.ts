@@ -3,17 +3,17 @@ import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-direc
 
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { assembleContextFor } from '@deepseek-ai/dsh-agent'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
-import { Session, SESSION_FORMAT_VERSION, SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import { bindScopeParent, createScope, scopeOf, scopeTarget } from '@deepseek-ai/dsh-scope'
+import { assembleContextFor } from '@metaworkflow/agent'
+import { ToolCallId } from '@metaworkflow/llm'
+import { Session, SESSION_FORMAT_VERSION, SessionId } from '@metaworkflow/session'
+import type { SessionEvent } from '@metaworkflow/session'
+import { bindScopeParent, createScope, scopeOf, scopeTarget } from '@metaworkflow/scope'
 import { liveConfig } from '../../../settings/settings/tests/live-config.ts'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import * as SubagentSpawn from '@deepseek-ai/dsh-subagent-spawn-in-process'
+import AgentLoop from '@metaworkflow/agent-loop'
+import { mountAgentLoopTestDependencies } from '@metaworkflow/agent-loop-testkit'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import SubagentRuntime from '@metaworkflow/subagent'
+import * as SubagentSpawn from '@metaworkflow/subagent-spawn-in-process'
 import * as tool from '../src/index.ts'
 import SubagentModelSelectionConfig from '../src/model-selection-settings.ts'
 import {
@@ -373,7 +373,7 @@ describe('SubagentModelSelectionConfig', () => {
       provider: 'missing',
       modelSelectionSettings: true,
       maxDepth: 'provider-managed',
-    })).rejects.toThrow('requires @deepseek-ai/dsh-tool-subagent/model-selection-settings')
+    })).rejects.toThrow('requires @metaworkflow/tool-subagent/model-selection-settings')
     await withoutSettings.fiber.dispose()
 
     const withoutAgent = await boot(false)

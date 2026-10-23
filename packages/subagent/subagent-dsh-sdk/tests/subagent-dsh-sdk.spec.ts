@@ -14,18 +14,18 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { Agent, AgentOptions } from '@deepseek-ai/dsh-agent'
+import SubagentRuntime from '@metaworkflow/subagent'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
+import type { Agent, AgentOptions } from '@metaworkflow/agent'
 import {
   DeepSeekHarness,
   HarnessClient,
   SdkProtocolError,
-} from '@deepseek-ai/dsh-sdk-client'
+} from '@metaworkflow/sdk-client'
 import { createProcessDeepSeekHarness } from '../../../sdk/client/src/api.ts'
 import type { RuntimeProcessOptions } from '../../../sdk/client/src/launch.ts'
-import type { DeepSeekHarnessOptions } from '@deepseek-ai/dsh-sdk-client'
-import { ReasoningEffortId } from '@deepseek-ai/dsh-llm'
+import type { DeepSeekHarnessOptions } from '@metaworkflow/sdk-client'
+import { ReasoningEffortId } from '@metaworkflow/llm'
 import * as sdk from '../src/index.ts'
 import {
   DEFAULT_DISPOSE_EOF_GRACE_MS,
@@ -92,10 +92,10 @@ async function setup(fakeEnv: Record<string, string> = {}, config: Partial<sdk.C
   // name is stated here; the Loader-composition fixture omits providerName and
   // exercises the schemastery default end to end.
   await ctx.plugin(sdk, {
-    providerName: 'dsh-sdk',
+    providerName: 'mwf-sdk',
     profile: 'sdk',
     patches: [],
-    dshHome: process.cwd(),
+    mwfHome: process.cwd(),
     provider: 'fake-provider',
     model: 'fake-model',
     env: fakeEnv,
@@ -109,7 +109,7 @@ function text(blocks: readonly { type: string; text?: string }[]): string {
 }
 
 function expectedFailure(fields: string): string {
-  return `Subagent failure (provider: DSH SDK; ${fields})`
+  return `Subagent failure (provider: MWF SDK; ${fields})`
 }
 
 /**
@@ -154,16 +154,16 @@ describe('sdkChildOutcome', () => {
   })
 })
 
-describe('dsh-subagent-dsh-sdk provider', () => {
-  it('constructs the production dsh-backed harness lazily', async () => {
+describe('mwf-subagent-dsh-sdk provider', () => {
+  it('constructs the production mwf-backed harness lazily', async () => {
     const harness = defaultCreateHarness({})
-    expect(harness).toBeInstanceOf((await import('@deepseek-ai/dsh-sdk-client')).DeepSeekHarness)
+    expect(harness).toBeInstanceOf((await import('@metaworkflow/sdk-client')).DeepSeekHarness)
     await harness.close()
   })
 
   it('runs a child turn end to end with a parent-unique run id', async () => {
     const ctx = await setup({ FAKE_TEXT: 'hello from sdk child' })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request('do X'))
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request('do X'))
     expect(ctx.sessions.get(run.childId)).toBeUndefined()
     const result = await run.result
     expect(result.stopReason).toBe('completed')
@@ -174,7 +174,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     expect(run.dispose()).toBe(disposal)
     await disposal
 
-    const nextRun = await startExternalActivation(ctx, 'dsh-sdk', request('again'))
+    const nextRun = await startExternalActivation(ctx, 'mwf-sdk', request('again'))
     expect(nextRun.childId).not.toBe(run.childId)
     await nextRun.result
     await nextRun.dispose()
@@ -182,14 +182,14 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('resolves relative launch files at load and forwards absolute paths', async () => {
-    const ctx = await setup({ FAKE_TEXT: 'explicit dsh child' }, {
-      dshBin: relative(process.cwd(), fakeRuntime),
+    const ctx = await setup({ FAKE_TEXT: 'explicit mwf child' }, {
+      mwfBin: relative(process.cwd(), fakeRuntime),
       patches: [relative(process.cwd(), existingPatch)],
     })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
-    expect(text((await run.result).output)).toBe('explicit dsh child')
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
+    expect(text((await run.result).output)).toBe('explicit mwf child')
     expect(createdHarnessOptions[0]).toMatchObject({
-      dshBin: fakeRuntime,
+      mwfBin: fakeRuntime,
       patches: [existingPatch],
     })
     await run.dispose()
@@ -197,11 +197,11 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('initializes the child with the configured provider/model/maxTokens and the parent cwd', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-init-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-mwf-sdk-init-'))
     const recordFile = join(tmp, 'init.jsonl')
     try {
       const ctx = await setup({ FAKE_RECORD_INIT: recordFile }, { maxTokens: 4096 })
-      const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+      const run = await startExternalActivation(ctx, 'mwf-sdk', request())
       await run.result
       await run.dispose()
       const { readFileSync } = await import('node:fs')
@@ -219,11 +219,11 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('preserves instance defaults around a partial request override', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-partial-route-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-mwf-sdk-partial-route-'))
     const recordFile = join(tmp, 'init.jsonl')
     try {
       const ctx = await setup({ FAKE_RECORD_INIT: recordFile }, { maxTokens: 4096 })
-      const run = await startExternalActivation(ctx, 'dsh-sdk', request('partial', new AbortController().signal, {
+      const run = await startExternalActivation(ctx, 'mwf-sdk', request('partial', new AbortController().signal, {
         reasoningEffort: ReasoningEffortId('high'),
       }))
       await run.result
@@ -243,18 +243,18 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('isolates complete per-run route overrides on concurrent children', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-routes-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-mwf-sdk-routes-'))
     const recordFile = join(tmp, 'init.jsonl')
     try {
       const ctx = await setup({ FAKE_RECORD_INIT: recordFile }, { maxTokens: 4096 })
       const runs = await Promise.all([
-        startExternalActivation(ctx, 'dsh-sdk', request('first', new AbortController().signal, {
+        startExternalActivation(ctx, 'mwf-sdk', request('first', new AbortController().signal, {
           provider: 'provider-a',
           model: 'model-a',
           reasoningEffort: ReasoningEffortId('high'),
           maxTokens: 111,
         })),
-        startExternalActivation(ctx, 'dsh-sdk', request('second', new AbortController().signal, {
+        startExternalActivation(ctx, 'mwf-sdk', request('second', new AbortController().signal, {
           provider: 'provider-b',
           model: 'model-b',
           reasoningEffort: ReasoningEffortId('max'),
@@ -290,28 +290,28 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('scrubs ambient credentials but forwards explicit config env', async () => {
-    process.env.DSH_TEST_AMBIENT_SECRET_KEY = 'leak-me-not'
+    process.env.MWF_TEST_AMBIENT_SECRET_KEY = 'leak-me-not'
     try {
       const ctx = await setup({
-        FAKE_ECHO_ENV: 'DSH_TEST_AMBIENT_SECRET_KEY,DEEPSEEK_API_KEY',
+        FAKE_ECHO_ENV: 'MWF_TEST_AMBIENT_SECRET_KEY,DEEPSEEK_API_KEY',
         DEEPSEEK_API_KEY: 'explicit-child-key',
         FAKE_TEXT: 'done',
       })
-      const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+      const run = await startExternalActivation(ctx, 'mwf-sdk', request())
       const result = await run.result
       const answer = text(result.output)
-      expect(answer).toContain('DSH_TEST_AMBIENT_SECRET_KEY=\n')
+      expect(answer).toContain('MWF_TEST_AMBIENT_SECRET_KEY=\n')
       expect(answer).toContain('DEEPSEEK_API_KEY=explicit-child-key')
       await run.dispose()
       await ctx.fiber.dispose()
     } finally {
-      delete process.env.DSH_TEST_AMBIENT_SECRET_KEY
+      delete process.env.MWF_TEST_AMBIENT_SECRET_KEY
     }
   })
 
   it('maps a max-tokens child turn end', async () => {
     const ctx = await setup({ FAKE_REASON_KIND: 'max-tokens', FAKE_STATUS: 'error' })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
     expect(result.stopReason).toBe('max-tokens')
     expect(result.diagnostic).toBeUndefined()
@@ -321,7 +321,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
   it('flattens a child turn error into stopReason error and keeps partial text', async () => {
     const ctx = await setup({ FAKE_REASON_KIND: 'error', FAKE_STATUS: 'error', FAKE_TEXT: 'partial answer' })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
     expect(result.stopReason).toBe('error')
     expect(result.diagnostic).toBe(
@@ -334,7 +334,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
   it('keeps durable attempt text when a malformed final message prevents completion', async () => {
     const ctx = await setup({ FAKE_MALFORMED_MESSAGE: '1', FAKE_TEXT: 'stream-only answer' })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
 
     expect(result.stopReason).toBe('error')
@@ -345,7 +345,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
   it('classifies a malformed child turn reason as a protocol failure', async () => {
     const ctx = await setup({ FAKE_MALFORMED_REASON: '1', FAKE_TEXT: 'partial before bad reason' })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
 
     expect(result).toEqual({
@@ -362,7 +362,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     // max-tokens attempt commits only an empty usage anchor. The empty message
     // is not Assistant output and must not erase the durable attempt fallback.
     const ctx = await setup({ FAKE_EMPTY_MESSAGE: '1', FAKE_REASON_KIND: 'max-tokens' })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
     expect(result.stopReason).toBe('max-tokens')
     expect(text(result.output)).toBe('hello from fake runtime')
@@ -372,7 +372,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
   it('reports a settled-without-turn child as an error', async () => {
     const ctx = await setup({ FAKE_REASON_KIND: 'none', FAKE_STATUS: 'error' })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     expect(await run.result).toMatchObject({
       stopReason: 'error',
       diagnostic: expectedFailure('stage: session-run; category: missing-terminal'),
@@ -383,7 +383,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
   it('maps a blocked child turn to the shared refusal stop reason', async () => {
     const ctx = await setup({ FAKE_REASON_KIND: 'blocked' })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
     expect(result.stopReason).toBe('refusal')
     expect(result.diagnostic).toBeUndefined()
@@ -400,7 +400,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     })
     try {
       const ctx = await setup({ FAKE_MALFORMED: '1' })
-      const error = await startExternalActivation(ctx, 'dsh-sdk', request()).catch((cause: unknown) => cause)
+      const error = await startExternalActivation(ctx, 'mwf-sdk', request()).catch((cause: unknown) => cause)
       expect(error).toBeInstanceOf(AggregateError)
       expect((error as Error).message).toBe(
         `subagent-dsh-sdk: ${expectedFailure('stage: initialize; category: protocol')}; `
@@ -425,7 +425,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       const pending = startSdkRun(request('p', controller.signal), {
         profile: 'sdk',
         patches: [],
-        dshHome: process.cwd(),
+        mwfHome: process.cwd(),
         cwd: process.cwd(),
         provider: 'p',
         model: 'm',
@@ -456,7 +456,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       const pending = startSdkRun(request('p', controller.signal), {
         profile: 'sdk',
         patches: [],
-        dshHome: process.cwd(),
+        mwfHome: process.cwd(),
         cwd: process.cwd(),
         provider: 'p',
         model: 'm',
@@ -478,7 +478,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
   it('preserves a disposed child cancellation without treating it as local cancellation', async () => {
     const ctx = await setup({ FAKE_REASON_KIND: 'aborted', FAKE_ABORT_REASON_KIND: 'disposed' })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
     expect(result.stopReason).toBe('aborted')
     expect(result.diagnostic).toBe(
@@ -490,7 +490,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
   it('keeps an ordinary child abort diagnostic-free', async () => {
     const ctx = await setup({ FAKE_REASON_KIND: 'aborted', FAKE_ABORT_REASON_KIND: 'user' })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
     expect(result.stopReason).toBe('aborted')
     expect(result.diagnostic).toBeUndefined()
@@ -501,7 +501,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   it('uses a fixed fallback for an unknown child terminal reason', async () => {
     const rawReason = 'private/path/SECRET_TOKEN'
     const ctx = await setup({ FAKE_REASON_KIND: rawReason })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
     expect(result.stopReason).toBe('error')
     expect(result.diagnostic).toBe(
@@ -515,7 +515,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   it('disposing the activation settles a hung child as aborted', async () => {
     const ctx = await setup({ FAKE_HANG_PROMPT: '1' }, { disposeEofGraceMs: 200, disposeGraceMs: 200 })
     const controller = new AbortController()
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request('p', controller.signal))
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request('p', controller.signal))
     void run.dispose()
     const result = await run.result
     expect(result.stopReason).toBe('aborted')
@@ -531,7 +531,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     // handshake window): the fake touches READY, we abort, then GO lets the
     // handshake complete — so the post-race `flags.cancelled` recheck must
     // reject even though the handshake itself succeeded.
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-midcancel-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-mwf-sdk-midcancel-'))
     const ready = join(tmp, 'ready')
     const go = join(tmp, 'go')
     const createHarness = runInternals.createHarness.bind(runInternals)
@@ -541,7 +541,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       const spec: SdkRunSpec = {
         profile: 'sdk',
         patches: [],
-        dshHome: process.cwd(),
+        mwfHome: process.cwd(),
         cwd: process.cwd(),
         provider: 'p',
         model: 'm',
@@ -578,7 +578,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     // needed to establish this run's durable inbox receipt. The text therefore
     // lies outside an owned activity interval and cannot become its output.
     const ctx = await setup({ FAKE_STREAM_THEN_MALFORMED: '1' }, { shutdownTimeoutMs: 100, disposeEofGraceMs: 200, disposeGraceMs: 200 })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
     expect(result.stopReason).toBe('error')
     expect(result.diagnostic).toBe(
@@ -596,7 +596,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       FAKE_TEXT: 'partial before transport exit',
       FAKE_STDERR: stderr,
     })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     const result = await run.result
     expect(result.stopReason).toBe('error')
     expect(result.output).toEqual([{ type: 'text', text: 'partial before transport exit' }])
@@ -614,7 +614,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       .mockRejectedValue(new Error(rawMessage))
     try {
       const ctx = await setup()
-      const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+      const run = await startExternalActivation(ctx, 'mwf-sdk', request())
       const result = await run.result
       expect(result.diagnostic).toBe(
         expectedFailure('stage: session-run; category: unknown'),
@@ -631,7 +631,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     const start = (reason: 'error' | 'unknown-reason') => startSdkRun(request(), {
       profile: 'sdk',
       patches: [],
-      dshHome: process.cwd(),
+      mwfHome: process.cwd(),
       cwd: process.cwd(),
       provider: 'p',
       model: 'm',
@@ -653,14 +653,14 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
   it('dispose cancels a hung child locally and reaps it', async () => {
     const ctx = await setup({ FAKE_HANG_PROMPT: '1' }, { shutdownTimeoutMs: 100, disposeEofGraceMs: 200, disposeGraceMs: 200 })
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     await run.dispose()
     expect((await run.result).stopReason).toBe('aborted')
     await ctx.fiber.dispose()
   })
 
   it('rejects WITHOUT spawning when the signal is already aborted', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-preabort-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-mwf-sdk-preabort-'))
     const sentinel = join(tmp, 'spawned')
     try {
       const controller = new AbortController()
@@ -670,7 +670,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
         {
           profile: 'sdk',
           patches: [],
-          dshHome: sentinel,
+          mwfHome: sentinel,
           cwd: tmp,
           provider: 'p',
           model: 'm',
@@ -691,7 +691,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     const controller = new AbortController()
     controller.abort()
     const parent = { id: 'parent', session: { header: {} } } as unknown as Agent
-    const provider = ctx.subagents.getProvider('dsh-sdk')!
+    const provider = ctx.subagents.getProvider('mwf-sdk')!
     await expect(Promise.resolve().then(() => provider.start!({
       label: 'p',
       prompt: [{ type: 'text' as const, text: 'p' }],
@@ -703,7 +703,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('rejects a child directory removed after resolution without starting a runtime', async () => {
-    const cwd = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-removed-cwd-'))
+    const cwd = mkdtempSync(join(tmpdir(), 'subagent-mwf-sdk-removed-cwd-'))
     const ctx = await setup()
     const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
     try {
@@ -713,10 +713,10 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
       }
       rmSync(cwd, { recursive: true })
-      expect(() => ctx.subagents.getProvider('dsh-sdk')!.start!(resolved))
+      expect(() => ctx.subagents.getProvider('mwf-sdk')!.start!(resolved))
         .toThrow(expectedFailure('stage: initialize; category: configuration'))
       expect(createdHarnessOptions).toEqual([])
-      expect(warn).toHaveBeenCalledWith('subagent-dsh-sdk "dsh-sdk": child start failed: %o', expect.any(Error))
+      expect(warn).toHaveBeenCalledWith('subagent-dsh-sdk "mwf-sdk": child start failed: %o', expect.any(Error))
     } finally {
       warn.mockRestore()
       await ctx.fiber.dispose()
@@ -727,7 +727,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   it('rejects after reaping when the child dies before the handshake', async () => {
     const rawStderr = 'scripted boot failure at /private/path SECRET_TOKEN'
     const ctx = await setup({ FAKE_EXIT_BEFORE_INIT: '1', FAKE_STDERR: rawStderr })
-    const failure = await startExternalActivation(ctx, 'dsh-sdk', request()).then(
+    const failure = await startExternalActivation(ctx, 'mwf-sdk', request()).then(
       () => { throw new Error('start unexpectedly succeeded') },
       (error: unknown) => error,
     )
@@ -743,7 +743,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     [{ FAKE_INIT_ERROR: '1' }, 'protocol'],
   ] as const)('rejects an initialize failure with safe %s facts', async (env, category) => {
     const ctx = await setup({ ...env })
-    await expect(startExternalActivation(ctx, 'dsh-sdk', request())).rejects.toThrow(
+    await expect(startExternalActivation(ctx, 'mwf-sdk', request())).rejects.toThrow(
       `subagent-dsh-sdk: ${expectedFailure(`stage: initialize; category: ${category}`)}`,
     )
     await ctx.fiber.dispose()
@@ -754,7 +754,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     const spec: SdkRunSpec = {
       profile: 'sdk',
       patches: [],
-      dshHome: process.cwd(),
+      mwfHome: process.cwd(),
       cwd: process.cwd(),
       provider: 'p',
       model: 'm',
@@ -773,7 +773,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     const spec: SdkRunSpec = {
       profile: 'sdk',
       patches: [],
-      dshHome: process.cwd(),
+      mwfHome: process.cwd(),
       cwd: process.cwd(),
       provider: 'p',
       model: 'm',
@@ -801,13 +801,13 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     const ctx = await setup({ FAKE_MALFORMED_PROMPT: '1' })
     const warnings: string[] = []
     ctx.logger.warn = ((message: unknown) => { warnings.push(String(message)) }) as typeof ctx.logger.warn
-    const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+    const run = await startExternalActivation(ctx, 'mwf-sdk', request())
     expect(await run.result).toMatchObject({
       stopReason: 'error',
       diagnostic: expectedFailure('stage: session-run; category: protocol'),
     })
     expect(warnings).toHaveLength(1)
-    expect(warnings[0]).toContain('subagent-dsh-sdk "dsh-sdk": child run failed (error)')
+    expect(warnings[0]).toContain('subagent-dsh-sdk "mwf-sdk": child run failed (error)')
     await run.dispose()
     await ctx.fiber.dispose()
   })
@@ -821,7 +821,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       throw new Error(rawCleanup)
     })
     try {
-      const run = await startExternalActivation(ctx, 'dsh-sdk', request())
+      const run = await startExternalActivation(ctx, 'mwf-sdk', request())
       await run.result
       const error = await run.dispose().catch((cause: unknown) => cause)
       expect(error).toBeInstanceOf(Error)
@@ -844,7 +844,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       providerName: 'sdk-hmr',
       profile: 'sdk',
       patches: [],
-      dshHome: process.cwd(),
+      mwfHome: process.cwd(),
       provider: 'p',
       model: 'm',
       env: {},
@@ -867,14 +867,14 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     await ctx.plugin(SessionProjectionRegistry)
     await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
-    const base = { providerName: 'sdk', profile: 'sdk', patches: [], dshHome: process.cwd(), provider: 'p', model: 'm', env: {} }
+    const base = { providerName: 'sdk', profile: 'sdk', patches: [], mwfHome: process.cwd(), provider: 'p', model: 'm', env: {} }
     await expect(ctx.plugin(sdk, { ...base, shutdownTimeoutMs: 0 })).rejects.toThrow('shutdownTimeoutMs must be a positive finite number')
     await expect(ctx.plugin(sdk, { ...base, disposeEofGraceMs: -1 })).rejects.toThrow('disposeEofGraceMs must be a positive finite number')
     await expect(ctx.plugin(sdk, { ...base, disposeGraceMs: Number.NaN })).rejects.toThrow('disposeGraceMs must be a positive finite number')
     await ctx.fiber.dispose()
   })
 
-  it('requires an explicit absolute Harness home for nested dsh runtimes', async () => {
+  it('requires an explicit absolute Harness home for nested mwf runtimes', async () => {
     const ctx = new Context()
     await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
@@ -882,17 +882,17 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       providerName: 'sdk',
       profile: 'sdk',
       patches: [],
-      dshHome: './personal-home',
+      mwfHome: './personal-home',
       provider: 'p',
       model: 'm',
       env: {},
-    })).rejects.toThrow('dshHome must be an absolute path')
+    })).rejects.toThrow('mwfHome must be an absolute path')
     await ctx.fiber.dispose()
   })
 
   it.each([
-    { field: 'dshBin', override: { dshBin: './missing-dsh-bin' } },
-    { field: 'dshBin', override: { dshBin: '.' } },
+    { field: 'mwfBin', override: { mwfBin: './missing-mwf-bin' } },
+    { field: 'mwfBin', override: { mwfBin: '.' } },
     { field: 'patches[0]', override: { patches: ['./missing-child-patch.yml'] } },
   ])('rejects an invalid $field at load', async ({ field, override }) => {
     const ctx = new Context()
@@ -902,7 +902,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       providerName: 'sdk',
       profile: 'sdk',
       patches: [],
-      dshHome: process.cwd(),
+      mwfHome: process.cwd(),
       provider: 'p',
       model: 'm',
       env: {},
@@ -922,7 +922,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
         providerName: 'sdk',
         profile: 'sdk',
         patches: [],
-        dshHome: process.cwd(),
+        mwfHome: process.cwd(),
         provider: 'p',
         model: 'm',
         maxTokens,
@@ -943,7 +943,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
         providerName: 'sdk',
         profile: 'sdk',
         patches: [],
-        dshHome: process.cwd(),
+        mwfHome: process.cwd(),
         provider: 'p',
         model: 'm',
         maxTokens,
@@ -957,10 +957,10 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   )
 
   it('uses an explicit child directory while preserving the parent origin', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-cwd-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-mwf-sdk-cwd-'))
     try {
       const ctx = await setup({ FAKE_ECHO_CWD: '1', FAKE_TEXT: 'done' })
-      const run = await startExternalActivation(ctx, 'dsh-sdk', { ...request(), cwd: tmp })
+      const run = await startExternalActivation(ctx, 'mwf-sdk', { ...request(), cwd: tmp })
       const result = await run.result
       const { realpathSync } = await import('node:fs')
       expect(text(result.output)).toContain(`cwd=${realpathSync(tmp)}`)
@@ -975,7 +975,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   it('uses the runtime directory when the parent has no origin', async () => {
     const ctx = await setup()
     const parent = { id: 'parent', session: { header: {} } } as unknown as Agent
-    const run = await startExternalActivation(ctx, 'dsh-sdk', { ...request(), parent })
+    const run = await startExternalActivation(ctx, 'mwf-sdk', { ...request(), parent })
     expect((await run.result).stopReason).toBe('completed')
     await run.dispose()
     await ctx.fiber.dispose()

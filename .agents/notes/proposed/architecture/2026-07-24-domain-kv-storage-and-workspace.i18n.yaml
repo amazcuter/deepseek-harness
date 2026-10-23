@@ -3,35 +3,35 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/architecture/2026-07-24-domain-kv-storage-and-workspace.md
 /agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity:
-  en: e1792a25ca5d684d
-  zh: ddb20d72b56eebf8
+  en: d491b725e12b6fbe
+  zh: 256e12ac44d350b8
 /agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/problem:
-  en: 22a80335f54b17e9
-  zh: 6c0d695a4dba7f0d
+  en: 0d62a0973a9d4597
+  zh: 022ab850bd5913fc
 /agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal:
-  en: 34e5bde1535a2bb1
-  zh: 559deb25b2ec50ba
-/agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/dsh-storage-the-storage-hub:
-  en: 191afc01a150e4a0
-  zh: da3fbc33875a4f60
-/agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/dsh-storage-json:
-  en: a18ec1e534a5488b
-  zh: 2f5beb445e30554b
-/agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/dsh-storage-sqlite:
-  en: 6a26dd7ef357db74
-  zh: 951b31136e2415f9
-/agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/dsh-domain-the-domain-data-form:
-  en: 2ee24f36cd93f7dd
-  zh: 45c83bd745de41f9
+  en: 5acc68161f9f3b0e
+  zh: 4d0c6802ec904021
+/agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/mwf-storage-the-storage-hub:
+  en: 4a11360eab445c31
+  zh: 5dc697533f31d743
+/agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/mwf-storage-json:
+  en: 16f40437339bd81a
+  zh: be7c47dac6cb9871
+/agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/mwf-storage-sqlite:
+  en: bf62b6e2ea708d32
+  zh: 8938c3425526b05c
+/agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/mwf-domain-the-domain-data-form:
+  en: 24ed3d0d2771542e
+  zh: eb46112ced9afce6
 /agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/future-work-session-side-deletion-design-settled-not-implemented-this-phase:
   en: a3824326587b6539
   zh: 9736e3060bd57651
-/agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/dsh-workspace:
-  en: 13e68c6072cbfc98
-  zh: 5f111dd13038b535
+/agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/mwf-workspace:
+  en: 4ab494b66f2b3292
+  zh: fe07e686139903c0
 /agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/reuse-and-the-session-backend-migration-outlook:
-  en: e586acdb16085b91
-  zh: 4fae53c5b9e4fd5b
+  en: 5d65700ee7060ff5
+  zh: 642e4e2d9c3edb45
 /agent-note-domain-kv-storage-capability-seam-and-the-workspace-entity/proposal/test-matrix:
   en: 4f8560110ec03322
   zh: 574d611d6e086e96

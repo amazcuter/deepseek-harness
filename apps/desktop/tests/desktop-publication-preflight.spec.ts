@@ -18,7 +18,7 @@ it.each(['mac-arm64', 'win-x64'] as const)('preflights a complete retained %s bu
     await mkdir(join(configRoot, 'publishing'))
     await writeFile(join(app, 'package.json'), JSON.stringify({ version: '1.0.0' }))
     const releaseId = 'a'.repeat(32)
-    await writeFile(join(configRoot, 'presets/test.env'), `DSH_DESKTOP_AUTO_UPDATE_ENV=test\nDOWNLOAD_TEST_RELEASE_ID=${releaseId}\n`)
+    await writeFile(join(configRoot, 'presets/test.env'), `MWF_DESKTOP_AUTO_UPDATE_ENV=test\nDOWNLOAD_TEST_RELEASE_ID=${releaseId}\n`)
     await writeFile(join(configRoot, 'publishing/test.json'), JSON.stringify({
       bucket: 'fixture-1250000000', origin: 'https://EXAMPLE.com:443/', credentialsFile: join(root, 'absent-credentials.json'),
     }))
@@ -31,15 +31,15 @@ it.each(['mac-arm64', 'win-x64'] as const)('preflights a complete retained %s bu
     if (target !== 'win-x64') await writeFile(join(artifacts, `${base}.dmg`), 'fixture DMG')
     await writeFile(join(artifacts, `${target}-release.json`), JSON.stringify({
       schemaVersion: 1, target, environment: 'test', version: '1.0.0', commit, dirty: false,
-      publicUrl: `https://example.com/dsh-desk/${releaseId}/feeds/${target}/`,
+      publicUrl: `https://example.com/mwf-desk/${releaseId}/feeds/${target}/`,
     }))
     await writeFile(join(artifacts, target === 'win-x64' ? 'nightly.yml' : 'nightly-mac.yml'), JSON.stringify({
       version: '1.0.0', files: [{ url: `${base}.${extension}`, size: Buffer.byteLength(bytes),
         sha512: createHash('sha512').update(bytes).digest('base64') }],
     }))
     const env = {
-      DSH_PACKAGING_CONFIG_DIR: configRoot, DSH_PACKAGING_PRESET: 'test',
-      DSH_DESKTOP_TARGET_PLATFORM: target === 'win-x64' ? 'win32' : 'darwin', DSH_DESKTOP_TARGET_ARCH: target === 'win-x64' ? 'x64' : 'arm64',
+      MWF_PACKAGING_CONFIG_DIR: configRoot, MWF_PACKAGING_PRESET: 'test',
+      MWF_DESKTOP_TARGET_PLATFORM: target === 'win-x64' ? 'win32' : 'darwin', MWF_DESKTOP_TARGET_ARCH: target === 'win-x64' ? 'x64' : 'arm64',
       PACKAGE_SOURCE_REF: 'master', PACKAGE_SOURCE_SHA: 'b'.repeat(40), PACKAGE_VERSION: '1.0.0', PACKAGE_SIGNING: 'signed', PACKAGE_SKIP_NOTARIZATION: 'false',
       GITHUB_RUN_ID: '10', GITHUB_RUN_ATTEMPT: '2', GITHUB_REPOSITORY: 'owner/repo', GITHUB_SHA: commit, RUNNER_NAME: 'fixture-runner',
       DESKTOP_PUBLISH_ROUTE: JSON.stringify({ sourceRef: 'master', channel: 'nightly', runId: '10', attempt: '2', commit, runnerName: 'fixture-runner', target, preset: 'test' }),

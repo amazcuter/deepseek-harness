@@ -3,13 +3,13 @@ description: "通过共享工具、显式服务器选择和 agent 作用域访�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-mcp-resources
+# @metaworkflow/mcp-resources
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-mcp-resources` 让模型发现和读取已配置 MCP 服务器提供的文档。随附 profile 在调用方作用域中配置了服务器时，自动提供三个共享工具。每个工具都要求显式指定服务器名称，并且仅在调用时读取内容。资源文本进入对话历史；二进制载荷仍可供程序化调用方访问，并以说明文字呈现给模型。
+`mwf-mcp-resources` 让模型发现和读取已配置 MCP 服务器提供的文档。随附 profile 在调用方作用域中配置了服务器时，自动提供三个共享工具。每个工具都要求显式指定服务器名称，并且仅在调用时读取内容。资源文本进入对话历史；二进制载荷仍可供程序化调用方访问，并以说明文字呈现给模型。
 
 ## 目录
 
@@ -51,7 +51,7 @@ kind: "package-reference"
 
 ```yaml
 - id: mcp-resources
-  name: '@deepseek-ai/dsh-mcp-resources'
+  name: '@metaworkflow/mcp-resources'
 ```
 
 作用域中的首个提供方注册该作用域的共享工具；移除最后一个提供方会移除本地工具注册，继承的提供方与工具仍然可见。资源服务独立于首个提供方插件拥有共享工具 effect，因此卸载该提供方不会移除其他服务器仍需要的工具。提供方选择与服务器名称提示词使用同一作用域注册表。每次调用都在派发前解析服务器。
@@ -87,7 +87,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-[生成的工具 schema](../../../docs/tool-catalog.zh.md#deepseek-aidsh-mcp-resources)定义了调用方可见的所有已配置服务器共享的三个工具。没有这类服务器时，native schema、PTC 声明与绑定以及服务器名称提示词均不存在。激活的客户端连接、断开或重试时，这些共享工具定义保持不变。挂载系统提示词装配且存在可见提供方时，`MCP resource servers` 段落显示 `Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: <JSON array>.` 名称来自同一作用域注册表，包括既没有工具也没有指令的服务器。注册表为空时不贡献该段落。
+[生成的工具 schema](../../../docs/tool-catalog.zh.md#metaworkflowmcp-resources)定义了调用方可见的所有已配置服务器共享的三个工具。没有这类服务器时，native schema、PTC 声明与绑定以及服务器名称提示词均不存在。激活的客户端连接、断开或重试时，这些共享工具定义保持不变。挂载系统提示词装配且存在可见提供方时，`MCP resource servers` 段落显示 `Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: <JSON array>.` 名称来自同一作用域注册表，包括既没有工具也没有指令的服务器。注册表为空时不贡献该段落。
 
 #### Token 影响
 

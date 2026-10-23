@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cookbook/extension-cookbook.md
 /cookbook-extension-plugin-shapes:
-  en: 1d31f2923d4b4e42
-  zh: 194aaeceaa020e8e
+  en: 296680dd741c3cba
+  zh: fbb07aec8257ff4d
 /cookbook-extension-plugin-shapes/a-tool-plugin:
-  en: 39704ef102f2f2f7
-  zh: 8771f9c19450b347
+  en: 042f93e399a98358
+  zh: 6ded69881f0e9db2
 /cookbook-extension-plugin-shapes/a-hook-plugin-permission-gate-example:
-  en: 9e67a75370812101
-  zh: e8a77dd7bd758ea8
+  en: 6c228310f7a7e310
+  zh: 51296b4c88bfe91c
 /cookbook-extension-plugin-shapes/a-ui-plugin:
-  en: 0084c11d8d57beba
-  zh: ba867efbd90908d3
+  en: e3c3dd478ad37a99
+  zh: ae327e7a6122746a
 /cookbook-extension-plugin-shapes/an-external-protocol-driver:
-  en: fc5e0d074214eaaf
-  zh: aac2bf67d6e7b30a
+  en: a619cd81f3487c17
+  zh: b49c5affe7e1ded0
 /cookbook-extension-plugin-shapes/runnable-wirings:
-  en: f0a28d07c0bb4d1b
-  zh: 840962f512cb4031
+  en: c464144f7f7fafa1
+  zh: b8aad5e4e8825220
 /cookbook-extension-plugin-shapes/the-feature-mechanism-map:
-  en: fa917d46c071fad2
-  zh: 4062805237e2c847
+  en: dd8dc4993d7a6653
+  zh: d5c962faef551e79

@@ -11,14 +11,14 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it, type TestContext } from 'vitest'
-import { parseTar } from '@deepseek-ai/dsh-experimental-webworker-runtime/src/storage/tar.ts'
+import { parseTar } from '@metaworkflow/experimental-webworker-runtime/src/storage/tar.ts'
 import { MANIFEST_PATH, packVfsImage, type PackOptions } from '../src/pack.ts'
 
-const SUBJECT = '@deepseek-ai/dsh-lazy-chunk-fixture'
+const SUBJECT = '@metaworkflow/lazy-chunk-fixture'
 const PREFIX = `node_modules/${SUBJECT}/lib`
 
 function fixture(test: TestContext, files: Record<string, string>): PackOptions {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-image-lazy-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-image-lazy-'))
   test.onTestFinished(() => { rmSync(root, { recursive: true, force: true }) })
   mkdirSync(join(root, 'lib'))
   writeFileSync(join(root, 'package.json'), JSON.stringify({

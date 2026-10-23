@@ -3,13 +3,13 @@ import assert from 'node:assert/strict'
 import { writeFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import { boot } from '@deepseek-ai/dsh-app-boot'
-import type { SubprocessHandle } from '@deepseek-ai/dsh-subprocess'
-import type {} from '@deepseek-ai/dsh-ssh'
-import type {} from '@deepseek-ai/dsh-fs-ssh'
-import type {} from '@deepseek-ai/dsh-subprocess-ssh'
-import type {} from '@deepseek-ai/dsh-sandbox-ssh'
-import type {} from '@deepseek-ai/dsh-ptc-runtime-node'
+import { boot } from '@metaworkflow/app-boot'
+import type { SubprocessHandle } from '@metaworkflow/subprocess'
+import type {} from '@metaworkflow/ssh'
+import type {} from '@metaworkflow/fs-ssh'
+import type {} from '@metaworkflow/subprocess-ssh'
+import type {} from '@metaworkflow/sandbox-ssh'
+import type {} from '@metaworkflow/ptc-runtime-node'
 
 const [configPath, reportPath, sandbox] = process.argv.slice(2)
 if (configPath === undefined || reportPath === undefined || !['required', 'unavailable', 'portable'].includes(sandbox ?? '')) throw new Error('Artifact driver requires config, report, and expected sandbox availability')
@@ -55,7 +55,7 @@ try {
   assert.equal(await completed(ordinary), 'ordinary')
   assert.equal(ordinary.collected.stderr?.readFrom(0).text, 'diagnostic')
   checks.push('managed-process-output')
-  if (process.env.DSH_VERIFY_NO_NODE === '1') {
+  if (process.env.MWF_VERIFY_NO_NODE === '1') {
     assert.equal(await completed(ctx.subprocess.spawn({ ...options, argv: ['/bin/sh', '-c', 'set -e; if command -v node; then exit 90; fi; test ! -e /usr/bin/node; test ! -e /usr/local/bin/node; printf no-node'] })), 'no-node')
     checks.push('target-has-no-node')
   }
@@ -113,7 +113,7 @@ try {
   checks.push('embedded-ptc-and-deadline')
 
   if (sandbox === 'required') {
-    const runner = process.env.DSH_EXPECT_SANDBOX_RUNNER
+    const runner = process.env.MWF_EXPECT_SANDBOX_RUNNER
     if (runner !== undefined) {
       const invocation = await ctx.sandbox.confine(['/bin/sh', '-c', 'true'], { mode: 'read-only', workspaceRoot: root })
       assert.equal(basename(invocation.argv[0]!), runner)

@@ -2,9 +2,9 @@
 import { cleanup, fireEvent, render, screen, act, within } from '@testing-library/react'
 import { useMemo, useSyncExternalStore } from 'react'
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
-import type { GlobalStandardProps } from '@deepseek-ai/dsh-client-ui-slots'
-import type { AccountDetails, AccountView, SignInAttemptId } from '@deepseek-ai/dsh-deepseek-account/types'
-import type { ThemeSnapshot } from '@deepseek-ai/dsh-client-ui-theme/client'
+import type { GlobalStandardProps } from '@metaworkflow/client-ui-slots'
+import type { AccountDetails, AccountView, SignInAttemptId } from '@metaworkflow/deepseek-account/types'
+import type { ThemeSnapshot } from '@metaworkflow/client-ui-theme/client'
 import type { PlatformBridge } from '../src/client/PlatformOverlay.tsx'
 import { createPlatformPages, type PlatformPages } from '../src/client/platform-pages.ts'
 import { AccountPlatformHost } from '../src/client/AccountPlatformHost.tsx'
@@ -509,17 +509,17 @@ it.each(['initializing', 'waiting-browser', 'exchanging'] as const)('shows %s an
 })
 
 it('opens the authorization link with the active application palette and follows later switches', () => {
-  const authorizeUrl = 'https://platform.deepseek.com/dsh/authorize?state=example'
+  const authorizeUrl = 'https://platform.deepseek.com/mwf/authorize?state=example'
   const operations = operationsOf({ status: 'signed-out', attempt: { id: 'attempt' as SignInAttemptId, phase: 'waiting-browser', authorizeUrl } })
   const element = (theme: ThemeSnapshot) => <AccountSection {...({} as GlobalStandardProps)} {...operations}
     useAccount={selector => selector(operations.hooks.account.getSnapshot())}
     useTheme={selector => selector(theme)} close={() => {}} t={key => key in en ? en[key as AccountKey] : key} />
   const view = render(element(themeOf('dark')))
   expect(screen.getByRole('link', { name: en.open }).getAttribute('href'))
-    .toBe('https://platform.deepseek.com/dsh/authorize?state=example&theme=dark')
+    .toBe('https://platform.deepseek.com/mwf/authorize?state=example&theme=dark')
   view.rerender(element(themeOf('light')))
   expect(screen.getByRole('link', { name: en.open }).getAttribute('href'))
-    .toBe('https://platform.deepseek.com/dsh/authorize?state=example&theme=light')
+    .toBe('https://platform.deepseek.com/mwf/authorize?state=example&theme=light')
 })
 
 it.each(['failed', 'expired'] as const)('allows a new sign-in after the attempt is %s', (phase) => {

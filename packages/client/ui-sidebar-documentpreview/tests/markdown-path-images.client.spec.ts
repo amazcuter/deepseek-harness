@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { markdownImageUrl } from '../src/client/markdown/path-images.ts'
 
-const BASE = 'https://example.test/tools/dsh/'
+const BASE = 'https://example.test/tools/mwf/'
 
 describe('Markdown preview image URLs', () => {
   it.each([
@@ -37,7 +37,7 @@ describe('Markdown preview image URLs', () => {
     expect(markdownImageUrl(BASE, '/work/notes.md', destination)).toBeUndefined()
   })
 
-  it.each(['about:blank', 'dsh-app://shell/', 'file:///app', 'ws://localhost/'])(
+  it.each(['about:blank', 'mwf-app://shell/', 'file:///app', 'ws://localhost/'])(
     'keeps the file route unavailable for %s', (base) => {
       expect(markdownImageUrl(base, '/work/notes.md', 'a.png')).toBeUndefined()
     },
@@ -50,8 +50,8 @@ describe('Markdown preview image URLs', () => {
 
   it('resolves relative and absolute images through the Desktop file route', () => {
     for (const destination of ['图%20片.png', '/work/guide/图%20片.png']) {
-      const url = new URL(markdownImageUrl('dsh-app://app/', '/work/guide/notes.md', destination)!)
-      expect(url.href.split('?')[0]).toBe('dsh-app://app/api/file')
+      const url = new URL(markdownImageUrl('mwf-app://app/', '/work/guide/notes.md', destination)!)
+      expect(url.href.split('?')[0]).toBe('mwf-app://app/api/file')
       expect(url.searchParams.get('path')).toBe('/work/guide/图 片.png')
     }
   })

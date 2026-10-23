@@ -6,7 +6,7 @@ KbdInteractiveAuthentication no
 PermitRootLogin no
 UsePAM no
 AuthenticationMethods publickey
-AllowUsers dsh
+AllowUsers mwf
 AllowTcpForwarding yes
 AllowStreamLocalForwarding yes
 PidFile /run/sshd.pid

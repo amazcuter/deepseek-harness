@@ -3,11 +3,11 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/simplification/2026-09-17-defer-office-background-scheduling.md
 /agent-note-defer-office-background-scheduling-until-a-consumer-needs-it:
-  en: 9966b1c4fdb2585b
-  zh: 4eb24c283facf38d
+  en: fe58c39cfb9e7234
+  zh: 83d38c60865b72f7
 /agent-note-defer-office-background-scheduling-until-a-consumer-needs-it/problem:
-  en: bb725ab25ff39f86
-  zh: d198514119b31a61
+  en: 95f0fef901c46c17
+  zh: a8d42207f1970df7
 /agent-note-defer-office-background-scheduling-until-a-consumer-needs-it/proposal:
   en: e33db390dbbcc86c
   zh: 890df8891260103a

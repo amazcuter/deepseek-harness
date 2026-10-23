@@ -2,7 +2,7 @@
  * Resource resolution for non-owner access decisions: the resources one call
  * or one forwarded event touches, read from Typert-validated arguments before
  * any lookup or Context resolves them.
- * @module @deepseek-ai/dsh-api-gateway/src/access
+ * @module @metaworkflow/api-gateway/src/access
  */
 
 import type {
@@ -10,7 +10,7 @@ import type {
   RemoteAccessResource,
   TypertRegistryContract,
   TypertResourceReader,
-} from '@deepseek-ai/dsh-typert-protocol'
+} from '@metaworkflow/typert-protocol'
 
 const GLOBAL: readonly RemoteAccessResource[] = Object.freeze([Object.freeze({ kind: 'global' })])
 

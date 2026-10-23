@@ -3,7 +3,7 @@ description: "Build and verify SSH helper executables with an embedded Node runt
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-ssh-helper-runtime
+# @metaworkflow/ssh-helper-runtime
 
 English | [中文](README.zh.md)
 
@@ -42,9 +42,9 @@ The builder requires Node 24, a C/C++ compiler and the development headers from 
 | `node24-macos-x64` | `macos-x64` | macOS 14 deployment target |
 | `node24-macos-arm64` | `macos-arm64` | macOS 14 deployment target |
 
-Outputs live under `dist-exe/ssh-helper/`. Each `dsh-ssh-helper-<version>-<platform>-<arch>.tar.gz` has a companion `.sha256` file. The archive contains `dsh-ssh-helper`, `native/system/`, licenses and `manifest.json`; macOS also includes `dsh-ssh-helper-spawn-helper`. The manifest records the source commit, whether the source tree was dirty, embedded Node version, protocol and every payload file’s digest and permissions.
+Outputs live under `dist-exe/ssh-helper/`. Each `mwf-ssh-helper-<version>-<platform>-<arch>.tar.gz` has a companion `.sha256` file. The archive contains `mwf-ssh-helper`, `native/system/`, licenses and `manifest.json`; macOS also includes `mwf-ssh-helper-spawn-helper`. The manifest records the source commit, whether the source tree was dirty, embedded Node version, protocol and every payload file’s digest and permissions.
 
-Verify the archive checksum, then extract the whole directory into a versioned runtime location outside the project and replaced temporary mounts. Keep the native resources beside the executable. The installation can be read-only; the helper user needs a writable temporary/cache location. Configure [`dsh-ssh`](../ssh/README.md) with `launch: { kind: "executable" }`, the absolute `helper` path and the executable’s SHA-256 from the manifest. The client obtains the embedded PTC invocation through `ctx.ssh.ptcLaunch`.
+Verify the archive checksum, then extract the whole directory into a versioned runtime location outside the project and replaced temporary mounts. Keep the native resources beside the executable. The installation can be read-only; the helper user needs a writable temporary/cache location. Configure [`mwf-ssh`](../ssh/README.md) with `launch: { kind: "executable" }`, the absolute `helper` path and the executable’s SHA-256 from the manifest. The client obtains the embedded PTC invocation through `ctx.ssh.ptcLaunch`.
 
 ### Verification and publication
 
@@ -52,7 +52,7 @@ The [artifact verifier](../../../scripts/verify-ssh-helper-artifact.ts) accepts 
 
 The [OpenSSH verifier](../../../scripts/verify-ssh-helper-ssh.ts) accepts a Linux `--archive`. It creates a temporary glibc 2.28 SSH server with no Node installation, mounts only the release and a disposable public key, and exercises the production connection. Its portability lane makes no kernel-confinement claim; the native host lane owns that check. Test identities, host keys, ports and workspaces are private to the run.
 
-Ordinary PR and master CI run source and build-script checks without building SSH executables. For changes to helper startup, native dependencies or packaging, manually run the [native workflow](../../../.github/workflows/build-exe-for-ssh-helper.yml) before merging; it accepts selected targets and defaults to all four. `CI master` also exposes the manual `ssh-helper` suite. [Release (SSH helper)](../../../.github/workflows/publish-ssh-helper.yml) defaults to `publish=false`: it builds all four targets from the selected ref and validates complete same-commit evidence from clean builds. With `publish=true`, it requires the matching `dsh-v<version>` tag and attaches the tested archives and `SHA256SUMS` to that GitHub release; a missing release is created as a draft. Native validation remains mandatory before publication. Deployment-target inspection alone does not establish execution on the oldest macOS version.
+Ordinary PR and master CI run source and build-script checks without building SSH executables. For changes to helper startup, native dependencies or packaging, manually run the [native workflow](../../../.github/workflows/build-exe-for-ssh-helper.yml) before merging; it accepts selected targets and defaults to all four. `CI master` also exposes the manual `ssh-helper` suite. [Release (SSH helper)](../../../.github/workflows/publish-ssh-helper.yml) defaults to `publish=false`: it builds all four targets from the selected ref and validates complete same-commit evidence from clean builds. With `publish=true`, it requires the matching `mwf-v<version>` tag and attaches the tested archives and `SHA256SUMS` to that GitHub release; a missing release is created as a draft. Native validation remains mandatory before publication. Deployment-target inspection alone does not establish execution on the oldest macOS version.
 
 -----
 

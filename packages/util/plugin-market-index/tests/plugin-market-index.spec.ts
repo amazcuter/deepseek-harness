@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { MarketIndexError, marketInstallTarget, parseMarketIndex } from '../src/index.ts'
 
-const INDEX_URL = 'https://market.example/dsh/index.json'
+const INDEX_URL = 'https://market.example/mwf/index.json'
 const COMMIT = '3f9c2e1d8a4b6c0e7f1a2b3c4d5e6f708192a3b4'
 
 function npmVersion(overrides: Record<string, unknown> = {}): Record<string, unknown> {
@@ -9,7 +9,7 @@ function npmVersion(overrides: Record<string, unknown> = {}): Record<string, unk
 }
 
 function entry(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return { name: '@scope/dsh-foo', versions: [npmVersion()], ...overrides }
+  return { name: '@scope/mwf-foo', versions: [npmVersion()], ...overrides }
 }
 
 function document(overrides: Record<string, unknown> = {}): Record<string, unknown> {
@@ -55,18 +55,18 @@ describe('parseMarketIndex', () => {
           description: 'Does foo',
           icon: 'icons/foo.svg',
           author: 'Jane Doe',
-          homepage: 'https://github.com/jane/dsh-foo#readme',
-          repository: { url: 'https://github.com/jane/dsh-plugins', directory: 'packages/foo', type: 'git' },
+          homepage: 'https://github.com/jane/mwf-foo#readme',
+          repository: { url: 'https://github.com/jane/mwf-plugins', directory: 'packages/foo', type: 'git' },
           metadata: { category: 'productivity', keywords: ['review'], labels: ['official', 'ui'], sortKeys: { downloads: 12 }, extra: 1 },
           unknown: 'ignored',
           versions: [
             npmVersion({ version: '1.2.3-rc.1', publishTimestamp: 1 }),
-            npmVersion({ source: { type: 'npm', registry: 'https://registry.example/', note: 'x' }, engines: { dsh: '>=0.2.0', node: '>=22' } }),
+            npmVersion({ source: { type: 'npm', registry: 'https://registry.example/', note: 'x' }, engines: { mwf: '>=0.2.0', node: '>=22' } }),
             npmVersion({ version: '1.10.0', publishTimestamp: 2, engines: {} }),
           ],
         }),
         {
-          name: 'dsh-bar',
+          name: 'mwf-bar',
           icon: 'data:image/png;base64,iVBORw==',
           versions: [{
             version: '1.0.0-rc.1+build.5', publishTimestamp: 0,
@@ -86,22 +86,22 @@ describe('parseMarketIndex', () => {
       },
       plugins: [
         {
-          name: '@scope/dsh-foo',
+          name: '@scope/mwf-foo',
           title: { en: 'Foo', 'zh-cn': '甲' },
           description: 'Does foo',
-          icon: 'https://market.example/dsh/icons/foo.svg',
+          icon: 'https://market.example/mwf/icons/foo.svg',
           author: 'Jane Doe',
-          homepage: 'https://github.com/jane/dsh-foo#readme',
-          repository: { url: 'https://github.com/jane/dsh-plugins', directory: 'packages/foo' },
+          homepage: 'https://github.com/jane/mwf-foo#readme',
+          repository: { url: 'https://github.com/jane/mwf-plugins', directory: 'packages/foo' },
           metadata: { category: 'productivity', keywords: ['review'], labels: ['official', 'ui'], sortKeys: { downloads: 12 } },
           versions: [
             { version: '1.10.0', publishTimestamp: 2, source: { type: 'npm' }, engines: {} },
-            { version: '1.2.3', publishTimestamp: 1790476800, source: { type: 'npm', registry: 'https://registry.example/' }, engines: { dsh: '>=0.2.0' } },
+            { version: '1.2.3', publishTimestamp: 1790476800, source: { type: 'npm', registry: 'https://registry.example/' }, engines: { mwf: '>=0.2.0' } },
             { version: '1.2.3-rc.1', publishTimestamp: 1, source: { type: 'npm' }, engines: {} },
           ],
         },
         {
-          name: 'dsh-bar',
+          name: 'mwf-bar',
           icon: 'data:image/png;base64,iVBORw==',
           metadata: { keywords: [], labels: [], sortKeys: {} },
           versions: [{
@@ -186,7 +186,7 @@ describe('parseMarketIndex', () => {
     expect(entryRejection({ versions: [] })).toBe('$.plugins[0].versions must be a non-empty array')
     expect(entryRejection({ versions: npmVersion() })).toBe('$.plugins[0].versions must be a non-empty array')
     expect(entryRejection({ versions: [npmVersion(), npmVersion({ publishTimestamp: 5 })] })).toBe('$.plugins[0].versions[1].version duplicates 1.2.3')
-    expect(rejection(document({ plugins: [entry(), entry()] })).message).toBe('$.plugins[1].name duplicates @scope/dsh-foo')
+    expect(rejection(document({ plugins: [entry(), entry()] })).message).toBe('$.plugins[1].name duplicates @scope/mwf-foo')
   })
 
   it('rejects version identity, time, and engine violations', () => {
@@ -197,10 +197,10 @@ describe('parseMarketIndex', () => {
       expect(versionRejection({ publishTimestamp })).toBe('$.plugins[0].versions[0].publishTimestamp must be an integer number of Unix seconds in [0, 10^11)')
     }
     expect(versionRejection({ engines: '>=1' })).toBe('$.plugins[0].versions[0].engines must be an object')
-    expect(versionRejection({ engines: { dsh: '' } })).toBe('$.plugins[0].versions[0].engines.dsh must be a string with a non-whitespace character')
-    expect(versionRejection({ engines: { dsh: 1 } })).toBe('$.plugins[0].versions[0].engines.dsh must be a string with a non-whitespace character')
-    expect(versionRejection({ engines: { dsh: 'workspace:*' } })).toBe('$.plugins[0].versions[0].engines.dsh must not be a workspace: range')
-    expect(versionRejection({ engines: { dsh: 'broken' } })).toBe('$.plugins[0].versions[0].engines.dsh must be a SemVer range')
+    expect(versionRejection({ engines: { mwf: '' } })).toBe('$.plugins[0].versions[0].engines.mwf must be a string with a non-whitespace character')
+    expect(versionRejection({ engines: { mwf: 1 } })).toBe('$.plugins[0].versions[0].engines.mwf must be a string with a non-whitespace character')
+    expect(versionRejection({ engines: { mwf: 'workspace:*' } })).toBe('$.plugins[0].versions[0].engines.mwf must not be a workspace: range')
+    expect(versionRejection({ engines: { mwf: 'broken' } })).toBe('$.plugins[0].versions[0].engines.mwf must be a SemVer range')
   })
 
   it('rejects malformed sources', () => {
@@ -268,9 +268,9 @@ describe('parseMarketIndex', () => {
 
 describe('marketInstallTarget', () => {
   it('pins npm versions to their exact version and registry', () => {
-    expect(marketInstallTarget('dsh-foo', { version: '1.2.3', source: { type: 'npm' } })).toEqual({ spec: 'dsh-foo@1.2.3' })
-    expect(marketInstallTarget('@s/dsh-foo', { version: '1.2.3', source: { type: 'npm', registry: 'https://r.example/' } }))
-      .toEqual({ spec: '@s/dsh-foo@1.2.3', registry: 'https://r.example/' })
+    expect(marketInstallTarget('mwf-foo', { version: '1.2.3', source: { type: 'npm' } })).toEqual({ spec: 'mwf-foo@1.2.3' })
+    expect(marketInstallTarget('@s/mwf-foo', { version: '1.2.3', source: { type: 'npm', registry: 'https://r.example/' } }))
+      .toEqual({ spec: '@s/mwf-foo@1.2.3', registry: 'https://r.example/' })
   })
 
   it('pins Git versions to their commit and package directory', () => {

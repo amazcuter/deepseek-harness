@@ -3,7 +3,7 @@ description: "用于在无提供方密钥的情况下测试 LLM（大语言模�
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-llm-mock-server
+# @metaworkflow/llm-mock-server
 
 [English](README.md) | 中文
 
@@ -44,7 +44,7 @@ pnpm run mock:llm \
 ```sh
 DEEPSEEK_BASE_URL=http://127.0.0.1:8000/v1 \
 DEEPSEEK_API_KEY=mock-key \
-pnpm dsh --profile headless "test provider recovery"
+pnpm mwf --profile headless "test provider recovery"
 ```
 
 仓库脚本将 JSONL 写入 stdout：`ready` 记录携带以 `/v1` 结尾的 base URL 与随机种子，后续请求/结果记录同时命名脚本行为与实际选中的具体行为。本包不公开可安装的二进制命令。

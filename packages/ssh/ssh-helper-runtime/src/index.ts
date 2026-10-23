@@ -25,15 +25,15 @@ export async function runSshHelperRuntime(): Promise<void> {
     },
   })
 
-  const selection = process.env.DSH_SUBPROCESS_RUNNER
-  Reflect.deleteProperty(process.env, 'DSH_SUBPROCESS_RUNNER')
-  if (process.env.DSH_PTC_RUNTIME_NODE === '1') {
-    Reflect.deleteProperty(process.env, 'DSH_PTC_RUNTIME_NODE')
-    await import('@deepseek-ai/dsh-ptc-runtime-node/process')
+  const selection = process.env.MWF_SUBPROCESS_RUNNER
+  Reflect.deleteProperty(process.env, 'MWF_SUBPROCESS_RUNNER')
+  if (process.env.MWF_PTC_RUNTIME_NODE === '1') {
+    Reflect.deleteProperty(process.env, 'MWF_PTC_RUNTIME_NODE')
+    await import('@metaworkflow/ptc-runtime-node/process')
   } else if (selection !== undefined) {
-    const { runSelectedSubprocessRunner } = await import('@deepseek-ai/dsh-subprocess-local/runner')
+    const { runSelectedSubprocessRunner } = await import('@metaworkflow/subprocess-local/runner')
     await runSelectedSubprocessRunner(selection)
   } else {
-    await import('@deepseek-ai/dsh-ssh/helper')
+    await import('@metaworkflow/ssh/helper')
   }
 }

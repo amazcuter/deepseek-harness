@@ -47,7 +47,7 @@ export async function startPrefixProxy(options: PrefixProxyOptions): Promise<Pre
     if (closing !== undefined) socket.destroy()
   }
   const mountPath = (raw: string): string | undefined => {
-    const url = new URL(raw, 'http://dsh.invalid')
+    const url = new URL(raw, 'http://mwf.invalid')
     if (!url.pathname.startsWith(prefix)) return undefined
     return `/${url.pathname.slice(prefix.length)}${url.search}`
   }

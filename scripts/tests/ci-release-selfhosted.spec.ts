@@ -45,7 +45,7 @@ function assertSharedPersistentStore(run: string | undefined): void {
 }
 
 const trustedPr = {
-  'vars.DSH_CI_FAILOVER_LINUX': 'selfhosted',
+  'vars.MWF_CI_FAILOVER_LINUX': 'selfhosted',
   'github.repository': repository,
   'github.actor': 'maintainer',
   'github.event_name': 'pull_request',
@@ -55,16 +55,16 @@ const trustedPr = {
   'github.event.pull_request.user.login': 'contributor',
 }
 const trustedPush = {
-  'vars.DSH_CI_FAILOVER_LINUX': 'selfhosted',
+  'vars.MWF_CI_FAILOVER_LINUX': 'selfhosted',
   'github.repository': repository,
   'github.actor': 'maintainer',
   'github.event_name': 'push',
   'github.ref': 'refs/heads/master',
 }
 const fallbackCases: Array<[string, Record<string, string | boolean>]> = [
-  ['unset switch', { ...trustedPr, 'vars.DSH_CI_FAILOVER_LINUX': '' }],
-  ['hosted switch', { ...trustedPr, 'vars.DSH_CI_FAILOVER_LINUX': 'hosted' }],
-  ['unknown switch', { ...trustedPr, 'vars.DSH_CI_FAILOVER_LINUX': 'true' }],
+  ['unset switch', { ...trustedPr, 'vars.MWF_CI_FAILOVER_LINUX': '' }],
+  ['hosted switch', { ...trustedPr, 'vars.MWF_CI_FAILOVER_LINUX': 'hosted' }],
+  ['unknown switch', { ...trustedPr, 'vars.MWF_CI_FAILOVER_LINUX': 'true' }],
   ['fork PR', { ...trustedPr, 'github.event.pull_request.head.repo.full_name': 'outsider/fork', 'github.event.pull_request.head.repo.fork': true }],
   ['different head repository', { ...trustedPr, 'github.event.pull_request.head.repo.full_name': 'outsider/repo' }],
   ['fork flag', { ...trustedPr, 'github.event.pull_request.head.repo.fork': true }],
@@ -96,7 +96,7 @@ for (const [file, jobIds] of [['release.yml', ['dependencies', 'pack']], ['relea
         it('routes trusted PRs and master pushes onto the existing Linux pool', () => {
           expect(evaluate(job['runs-on'], trustedPr)).toEqual(selfhosted)
           expect(evaluate(job['runs-on'], trustedPush)).toEqual(selfhosted)
-          expect(evaluate(job['runs-on'], { ...trustedPush, 'vars.DSH_CI_FAILOVER_LINUX': '' })).toBe(hosted)
+          expect(evaluate(job['runs-on'], { ...trustedPush, 'vars.MWF_CI_FAILOVER_LINUX': '' })).toBe(hosted)
         })
         it.each(fallbackCases)('keeps %s hosted', (_name, context) => {
           expect(evaluate(job['runs-on'], context)).toBe(hosted)
@@ -142,16 +142,16 @@ for (const [file, jobIds] of [['release.yml', ['dependencies', 'pack']], ['relea
             expect(commands).toContain('pnpm run verify-package-dependencies')
             expect(commands).toContain('pnpm run verify-npm-install-layout')
           } else {
-            const family = file === 'release.yml' ? 'dsh' : 'vendor'
-            const output = family === 'dsh' ? 'dist/npm' : 'dist/npm-vendor'
+            const family = file === 'release.yml' ? 'mwf' : 'vendor'
+            const output = family === 'mwf' ? 'dist/npm' : 'dist/npm-vendor'
             expect(job.steps[0]?.with?.['fetch-depth']).toBe(0)
             expect(commands).toContain('pnpm run release:verify --family ' + family)
-            expect(commands).toContain(family === 'dsh'
+            expect(commands).toContain(family === 'mwf'
               ? "${{ github.event_name == 'pull_request' && 'pnpm run build:artifacts --profile official' || 'pnpm run build:official' }}"
               : "${{ github.event_name == 'pull_request' && 'pnpm exec tsx scripts/compile-referenced-projects.ts host-libraries' || 'pnpm run build:lib:host' }}")
             expect(commands).toContain('pnpm run release:pack --family ' + family + ' --out ' + output + ' --concurrency 8')
             expect(commands).toContain('pnpm run release:verify-packed-install --family ' + family + ' --from ' + output
-              + (family === 'dsh' ? ' --from dist/npm-vendor --from dist/npm-landlock' : ''))
+              + (family === 'mwf' ? ' --from dist/npm-vendor --from dist/npm-landlock' : ''))
             expect(job.steps.at(-1)).toMatchObject({ uses: 'actions/upload-artifact@v7.0.1', with: { path: output + '/*', 'retention-days': 7 } })
           }
           expect(JSON.stringify(job)).not.toMatch(/secrets\.|release:publish|npm-publish/)

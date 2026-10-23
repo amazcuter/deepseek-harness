@@ -7,7 +7,7 @@ import type { Duplex } from 'node:stream'
 export const SUBPROCESS_CONTROL_FD = 7
 
 /** Private launch marker consumed before a Node child executes application code. */
-export const SUBPROCESS_CONTROL_ENV = 'DSH_SUBPROCESS_CONTROL' as const
+export const SUBPROCESS_CONTROL_ENV = 'MWF_SUBPROCESS_CONTROL' as const
 
 /**
  * Consume the launch marker and open the inherited control pipe at fd 7.

@@ -24,7 +24,7 @@ export interface ClientDeclaration {
   readonly dynamic: boolean
   readonly external: readonly string[]
   readonly runtimeSourceUses: Readonly<Record<string, readonly string[]>>
-  /** Exact runtime specifiers used to validate `dsh.client.external` declarations. */
+  /** Exact runtime specifiers used to validate `mwf.client.external` declarations. */
   readonly runtimeSourceSpecifiers: Readonly<Record<string, readonly string[]>>
   /** Informational package dependencies declared by the row. */
   readonly inject: readonly string[]
@@ -177,7 +177,7 @@ function collectSourceFileUses(
 /**
  * Read browser-module declarations from workspace manifests.
  * @param root - Absolute repository root.
- * @returns Declarations and malformed dsh.client fields.
+ * @returns Declarations and malformed mwf.client fields.
  */
 export function readClientDeclarations(root: string): ClientDeclarations {
   const malformed: string[] = []
@@ -208,7 +208,7 @@ interface ManifestDocument {
 }
 
 /**
- * Repair malformed or redundant `dsh.client` declaration entries.
+ * Repair malformed or redundant `mwf.client` declaration entries.
  * @param root - Absolute repository root.
  * @param facts - Facts used by the verification pass.
  * @returns Repository-relative manifests written by the fixer.
@@ -230,8 +230,8 @@ export function fixClientPackageManifests(root: string, facts: ClientPackageFact
   const baseline = new Set([...facts.platformModules, ...facts.preloadedExternals])
   for (const declaration of facts.declarations.filter(entry => entry.dynamic)) {
     const target = document(declaration.manifest)
-    const dsh = isRecord(target.manifest.dsh) ? target.manifest.dsh : undefined
-    const client = isRecord(dsh?.client) ? dsh.client : undefined
+    const mwf = isRecord(target.manifest.mwf) ? target.manifest.mwf : undefined
+    const client = isRecord(mwf?.client) ? mwf.client : undefined
     if (client === undefined) continue
     target.changed = normalizeClientArray(client, 'inject', () => false) || target.changed
     target.changed = normalizeClientArray(
@@ -277,13 +277,13 @@ function collectModeViolations(facts: ClientPackageFacts): string[] {
   for (const pkg of facts.packages) {
     if (pkg.dynamic && pkg.staticLinked) {
       violations.push(
-        pkg.manifest + ': ' + pkg.name + ' declares dsh.client and uses the staticLinked preset;'
+        pkg.manifest + ': ' + pkg.name + ' declares mwf.client and uses the staticLinked preset;'
         + ' a client package must be dynamic or statically linked, not both',
       )
     } else if (!pkg.dynamic && !pkg.staticLinked) {
       violations.push(
         pkg.manifest + ': ' + pkg.name + ' has no supported client package mode;'
-        + ' declare dsh.client or use the staticLinked preset',
+        + ' declare mwf.client or use the staticLinked preset',
       )
     }
   }
@@ -303,7 +303,7 @@ function collectModeViolations(facts: ClientPackageFacts): string[] {
     if (rowPackageOf(specifier, rows) === undefined) {
       violations.push(
         PLATFORM_SOURCE + ': parser-preloaded external ' + JSON.stringify(specifier)
-        + ' has no dynamic dsh.client row',
+        + ' has no dynamic mwf.client row',
       )
     }
     if (!facts.parserPreloadIds.includes(stripClientSuffix(specifier))) {
@@ -333,9 +333,9 @@ function collectModuleViolations(facts: ClientPackageFacts): string[] {
     for (const field of ['external', 'inject'] as const) {
       const seen = new Set<string>()
       for (const value of pkg[field]) {
-        if (value === '') violations.push(pkg.manifest + ': dsh.client.' + field + ' contains an empty value')
+        if (value === '') violations.push(pkg.manifest + ': mwf.client.' + field + ' contains an empty value')
         else if (seen.has(value)) {
-          violations.push(pkg.manifest + ': dsh.client.' + field + ' lists ' + JSON.stringify(value) + ' twice')
+          violations.push(pkg.manifest + ': mwf.client.' + field + ' lists ' + JSON.stringify(value) + ' twice')
         }
         seen.add(value)
       }
@@ -345,14 +345,14 @@ function collectModuleViolations(facts: ClientPackageFacts): string[] {
       if (specifier === '') continue
       if (baseline.has(specifier)) {
         violations.push(
-          pkg.manifest + ': dsh.client.external repeats baseline module ' + JSON.stringify(specifier)
+          pkg.manifest + ': mwf.client.external repeats baseline module ' + JSON.stringify(specifier)
           + '; remove the explicit declaration',
         )
         continue
       }
       const supplier = rowPackageOf(specifier, rows)
       if (supplier === pkg.name) {
-        violations.push(pkg.manifest + ': dsh.client.external names its own row ' + JSON.stringify(specifier))
+        violations.push(pkg.manifest + ': mwf.client.external names its own row ' + JSON.stringify(specifier))
       } else if (supplier !== undefined) {
         if (pkg.manifest.startsWith('packages/client/')) {
           violations.push(
@@ -363,7 +363,7 @@ function collectModuleViolations(facts: ClientPackageFacts): string[] {
         }
         if (pkg.runtimeSourceSpecifiers[specifier] === undefined) {
           violations.push(
-            pkg.manifest + ': dsh.client.external ' + JSON.stringify(specifier)
+            pkg.manifest + ': mwf.client.external ' + JSON.stringify(specifier)
             + ' has no runtime import or re-export in production source; remove the stale declaration',
           )
           continue
@@ -372,10 +372,10 @@ function collectModuleViolations(facts: ClientPackageFacts): string[] {
       } else {
         const owner = stripClientSuffix(specifier)
         violations.push(
-          pkg.manifest + ': dsh.client.external ' + JSON.stringify(specifier) + ' has no supplier;'
+          pkg.manifest + ': mwf.client.external ' + JSON.stringify(specifier) + ' has no supplier;'
           + (byName.has(owner)
             ? ' workspace package ' + owner
-              + ' declares no dynamic dsh.client row and the shell does not seed this specifier'
+              + ' declares no dynamic mwf.client row and the shell does not seed this specifier'
             : ' no dynamic row or PLATFORM_MODULES entry answers it'),
         )
       }
@@ -437,12 +437,12 @@ function formatCycle(
   const entry = cycle[0]
   const chain = cycle.map(edge => edge.from + ' --(' + edge.specifier + ')-->').join(' ')
   const manifest = entry === undefined ? 'packages/client' : byName.get(entry.from)?.manifest ?? entry.from
-  return manifest + ': synchronous dsh.client.external cycle: ' + chain + ' ' + (entry?.from ?? '')
+  return manifest + ': synchronous mwf.client.external cycle: ' + chain + ' ' + (entry?.from ?? '')
 }
 
 interface Manifest {
   name?: unknown
-  dsh?: unknown
+  mwf?: unknown
   dependencies?: Record<string, string>
   peerDependencies?: Record<string, string>
   devDependencies?: Record<string, string>
@@ -455,8 +455,8 @@ function readDeclaration(
 ): ClientDeclaration | undefined {
   const manifest = JSON.parse(readFileSync(resolve(root, manifestPath), 'utf8')) as Manifest
   if (typeof manifest.name !== 'string') return undefined
-  const dsh = isRecord(manifest.dsh) ? manifest.dsh : undefined
-  const rawClient = dsh?.client
+  const mwf = isRecord(manifest.mwf) ? manifest.mwf : undefined
+  const rawClient = mwf?.client
   if (rawClient === undefined) {
     return {
       name: manifest.name, manifest: manifestPath, dynamic: false, external: [], inject: [],
@@ -464,7 +464,7 @@ function readDeclaration(
     }
   }
   if (!isRecord(rawClient)) {
-    malformed.push(manifestPath + ': ' + manifest.name + ' dsh.client must be an object')
+    malformed.push(manifestPath + ': ' + manifest.name + ' mwf.client must be an object')
     return {
       name: manifest.name, manifest: manifestPath, dynamic: false, external: [], inject: [],
       runtimeSourceUses: {}, runtimeSourceSpecifiers: {},
@@ -490,7 +490,7 @@ function stringArray(
 ): readonly string[] {
   if (value === undefined) return []
   if (!Array.isArray(value) || value.some(entry => typeof entry !== 'string')) {
-    malformed.push(manifestPath + ': ' + packageName + ' dsh.client.' + field + ' must be a string array')
+    malformed.push(manifestPath + ': ' + packageName + ' mwf.client.' + field + ' must be a string array')
     return []
   }
   return value as string[]
@@ -508,7 +508,7 @@ async function readStaticLinkedRoster(root: string): Promise<Set<string>> {
     const loaded = await import(pathToFileURL(resolve(root, configPath)).href) as { default?: unknown }
     if (typeof loaded.default !== 'function') continue
     const configs = (loaded.default as (input: { env: Record<string, string> }) => unknown)({
-      env: { DSH_BUILD_FACE: 'client' },
+      env: { MWF_BUILD_FACE: 'client' },
     })
     if (!Array.isArray(configs) || !predicate(configs)) continue
     const manifest = JSON.parse(

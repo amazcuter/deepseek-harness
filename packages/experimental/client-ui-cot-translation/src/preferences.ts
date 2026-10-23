@@ -1,5 +1,5 @@
 /** Shared validation for Host configuration and browser preference drafts. */
-import type { TranslationProvider } from '@deepseek-ai/dsh-experimental-translator/types'
+import type { TranslationProvider } from '@metaworkflow/experimental-translator/types'
 
 export type { CotTranslationPreferences, CotTranslationSnapshot } from './types.ts'
 

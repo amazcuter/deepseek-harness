@@ -10,7 +10,7 @@
 - insert:
     # Keep pi-ai model preparation; only the recorded response stream is substituted.
     - id: llm-replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@metaworkflow/llm-replay'
 
     - id: dynamic-tool-prompt-updates
       name: '../../../packages/test-support/session-snapshot/tests/fixtures/dynamic-tool-prompt-updates.ts'

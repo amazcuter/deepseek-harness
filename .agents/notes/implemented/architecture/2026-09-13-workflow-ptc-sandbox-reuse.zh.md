@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决策
 
-`dsh-workflow-ptc` 通过共享的 Node `PtcRuntime` 实现 `WorkflowEngine`。每次运行在一个 PTC 进程中保留既有 VM 与工作流辅助函数。Host 绑定将 guest 连接到配置的 subagent 提供方及工作流观察器；Host 提供发起调用的 Agent，并解析其 Session 的常设文件策略与 cwd。
+`mwf-workflow-ptc` 通过共享的 Node `PtcRuntime` 实现 `WorkflowEngine`。每次运行在一个 PTC 进程中保留既有 VM 与工作流辅助函数。Host 绑定将 guest 连接到配置的 subagent 提供方及工作流观察器；Host 提供发起调用的 Agent，并解析其 Session 的常设文件策略与 cwd。
 
 VM 定义辅助 API，以及协作式并发、agent 总数和条目上限。它不是安全边界，这些计数器也不是 Host 强制的安全配额。文件强制、V8 堆限制、输出与控制限制、受管进程清理仍由 PTC 及其沙箱／子进程提供方负责。网络访问与提供方特有的约束限制保持与 PTC 相同。
 

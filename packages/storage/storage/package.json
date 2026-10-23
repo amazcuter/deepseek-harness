@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-storage",
+  "name": "@metaworkflow/storage",
   "description": "Storage hub (ctx.storage): named backend registry plus mounted data-form facilities for the DeepSeek Harness",
   "version": "0.2.1-rc.2",
   "publishConfig": {

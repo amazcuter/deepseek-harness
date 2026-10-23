@@ -1,6 +1,6 @@
 /** Browser-safe translation preferences and Remote metadata. */
-import type {} from '@deepseek-ai/dsh-typert-protocol'
-import type { TranslationProvider } from '@deepseek-ai/dsh-experimental-translator/types'
+import type {} from '@metaworkflow/typert-protocol'
+import type { TranslationProvider } from '@metaworkflow/experimental-translator/types'
 
 /** Translation choices; auto targets the active browser UI language. */
 export interface CotTranslationPreferences {
@@ -20,7 +20,7 @@ export interface CotTranslationSnapshot {
   availableProviders: readonly TranslationProvider[]
 }
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@metaworkflow/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** Provider or input failure, without original text or response details. */
     'cotTranslation/failed': Record<string, never>

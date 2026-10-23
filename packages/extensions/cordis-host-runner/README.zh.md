@@ -3,13 +3,13 @@ description: "动态 Cordis 包的 host 半说明，供选择、组合或排查�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-cordis-host-runner
+# @metaworkflow/cordis-host-runner
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-cordis-host-runner` 提供运行时检查，并为程序调用方和浏览器控件保留进程内动态定义。Host 部分在 `node:vm` 中运行；浏览器部分使用 Client runner 和审批 UI。定义在重启后消失。Agent 通过 `tool-cordis` 发现 API，通过 Plugin Manager 安装持久化 bundle；没有模型工具创建动态定义。
+`mwf-cordis-host-runner` 提供运行时检查，并为程序调用方和浏览器控件保留进程内动态定义。Host 部分在 `node:vm` 中运行；浏览器部分使用 Client runner 和审批 UI。定义在重启后消失。Agent 通过 `tool-cordis` 发现 API，通过 Plugin Manager 安装持久化 bundle；没有模型工具创建动态定义。
 
 ## 目录
 
@@ -30,7 +30,7 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@deepseek-ai/dsh-cordis-host-runner'
+- name: '@metaworkflow/cordis-host-runner'
   config:
     vmTimeoutMs: 5000
 ```
@@ -40,7 +40,7 @@ kind: "package-reference"
 | `vmTimeoutMs` | `5000` | host 半在 vm 中同步执行的那部分被中止求值前可运行的毫秒数 |
 | `clientInspectTimeoutMs` | `10000` | 等待有效 Client 检查响应的最长时间；1 到 2147483647 毫秒之间的整数 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-cordis-host-runner)是每个受支持字段的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#metaworkflowcordis-host-runner)是每个受支持字段的穷尽式真源。
 
 <a id="client-inspection"></a>
 ### Client 检查
@@ -89,7 +89,7 @@ runner 基于两项职责划分。**注册表与沙箱是同一个服务。** `D
 
 ### 一次 run 的流程
 
-`define` 对元数据做首尾去空白与必填校验，用编译预检每一半的语法（不执行任何代码），铸出插件与包标识，并把定义登记在发起调用的会话名下。`run` 对照 `currentPackageId` 与 `nextPackageId` 解析目标：纯 host 包在沙箱中求值并立即提交，带浏览器半的包则建立一次审批请求、emit `cordis/request-run` 并挂起。作答页面依次走 `runHostHalf`、`getClientCode` 与 `resolveRequestRun`；命名存活 revision 的成功会提交激活、设置 `currentPackageId`，`cordis/request-run-resolved` 让其他每个页面撤下待作答入口。`stop` 回退存活下发——handler disposer、fiber dispose（资源释放）与 `cordis/dynamic-retract` 广播——并让定义保持可运行。四条转发事件（`cordis/request-run`、`cordis/request-run-resolved`、`cordis/dynamic-package`、`cordis/dynamic-retract`）声明在 client 安全的 `./types` 子路径上，并由 `@deepseek-ai/dsh-api-remotes` 的白名单准许投递——正是这一点让浏览器能经 `ctx.remote.$on` 收到它们。
+`define` 对元数据做首尾去空白与必填校验，用编译预检每一半的语法（不执行任何代码），铸出插件与包标识，并把定义登记在发起调用的会话名下。`run` 对照 `currentPackageId` 与 `nextPackageId` 解析目标：纯 host 包在沙箱中求值并立即提交，带浏览器半的包则建立一次审批请求、emit `cordis/request-run` 并挂起。作答页面依次走 `runHostHalf`、`getClientCode` 与 `resolveRequestRun`；命名存活 revision 的成功会提交激活、设置 `currentPackageId`，`cordis/request-run-resolved` 让其他每个页面撤下待作答入口。`stop` 回退存活下发——handler disposer、fiber dispose（资源释放）与 `cordis/dynamic-retract` 广播——并让定义保持可运行。四条转发事件（`cordis/request-run`、`cordis/request-run-resolved`、`cordis/dynamic-package`、`cordis/dynamic-retract`）声明在 client 安全的 `./types` 子路径上，并由 `@metaworkflow/api-remotes` 的白名单准许投递——正是这一点让浏览器能经 `ctx.remote.$on` 收到它们。
 
 </details>
 
@@ -103,7 +103,7 @@ runner 基于两项职责划分。**注册表与沙箱是同一个服务。** `D
 - [工具包](../tool-cordis/README.zh.md)——使用其检查注册表的只读工具。
 - [Client runner](../cordis-client-runner/README.zh.md)——应答运行请求并装载浏览器半代码的浏览器半。
 - [UI 包](../ui-cordis/README.zh.md)——用户批准并操作运行的面板。
-- [生成的配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-cordis-host-runner)——每个受支持配置字段。
+- [生成的配置目录](../../../docs/config-catalog.zh.md#metaworkflowcordis-host-runner)——每个受支持配置字段。
 - [extensions 子系统](../../../docs/subsystems/extensions.zh.md)——生成的 `ctx.cordisInspect` 与 `ctx.dynamicCordisRunner` API 及 `cordis/*` 事件。
 - [历史自引用 Cordis 工具集 Agent Note](../../../.agents/notes/archived/feature/2026-07-08-self-referential-cordis-toolset.md)——沙箱语义、生命周期与组合的理由。
 

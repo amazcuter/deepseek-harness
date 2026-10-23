@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/defensive-patterns/general.md
 /defensive-patterns:
-  en: 324de84cf5239e89
-  zh: b3bdfb17d01e5a6c
+  en: d02e6ef88344d905
+  zh: 7aa5d17b39c18044
 /defensive-patterns/report-orthogonal-outcomes-independently:
   en: c16f636f8f522db4
   zh: 94c523b536df786d
@@ -21,8 +21,8 @@
   en: 243e275fee74f54e
   zh: a58e04b6e3ac0e7a
 /defensive-patterns/one-value-states-one-fact:
-  en: 598d9041ccfaba7c
-  zh: 2ac9f98c97015f66
+  en: fd49c648544cfbf4
+  zh: 965674db0e217d9e
 /defensive-patterns/a-new-active-current-singleton-is-refused:
   en: 8bf36acf96fa4c33
   zh: bb6db31a63bcf383

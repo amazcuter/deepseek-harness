@@ -19,7 +19,7 @@ it('keeps settings and expanded plugin dialogs clear of the Windows caption acro
       await page.waitForSelector('[class*="frame"]')
       await page.evaluate(() => {
         document.documentElement.setAttribute('data-windows-titlebar', '')
-        document.documentElement.style.setProperty('--dsh-windows-titlebar-height', '40px')
+        document.documentElement.style.setProperty('--mwf-windows-titlebar-height', '40px')
       })
       const reopenSidebar = page.getByRole('button', { name: '打开侧边栏', exact: true })
       if (await reopenSidebar.isVisible()) await reopenSidebar.click()

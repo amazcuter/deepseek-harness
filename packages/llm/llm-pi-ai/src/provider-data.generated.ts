@@ -1,7 +1,7 @@
 /** Generated from the installed pi-ai catalog. Run pnpm gen-provider-data; do not edit. */
 
 import type { BuiltinProvider } from '@earendil-works/pi-ai/providers/all'
-import type { LlmConfigurableProvider } from '@deepseek-ai/dsh-llm'
+import type { LlmConfigurableProvider } from '@metaworkflow/llm'
 
 type ProviderData = Pick<LlmConfigurableProvider, 'defaultBaseURL' | 'baseURLEnv'> & { env: readonly string[] }
 

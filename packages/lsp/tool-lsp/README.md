@@ -3,13 +3,13 @@ description: "The model-facing lsp tool: four read-only code-navigation operatio
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tool-lsp
+# @metaworkflow/tool-lsp
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-tool-lsp` lets a model navigate code through one read-only `lsp` tool: open a symbol's definition, find references and implementations, or read hover documentation. Requests use one-based UTF-16 line and character positions. Navigation results are bounded, grouped by file, and labeled when locations are omitted or text is truncated; hover results are normalized and distinguish missing information from errors. The package requires a configured LSP provider and a session workspace root. Choose it when textual search is ambiguous or a change needs precise symbol relationships; ordinary navigation should continue to use `search` and `read`.
+`mwf-tool-lsp` lets a model navigate code through one read-only `lsp` tool: open a symbol's definition, find references and implementations, or read hover documentation. Requests use one-based UTF-16 line and character positions. Navigation results are bounded, grouped by file, and labeled when locations are omitted or text is truncated; hover results are normalized and distinguish missing information from errors. The package requires a configured LSP provider and a session workspace root. Choose it when textual search is ambiguous or a change needs precise symbol relationships; ordinary navigation should continue to use `search` and `read`.
 
 ## Table of Contents
 
@@ -43,9 +43,9 @@ Navigation returns `path:line:character` locations grouped by file (one-based); 
 |---|---|---|
 | `maxLocations` | `100` | Largest number of rendered locations before an omission marker |
 | `maxResultChars` | `16000` | Largest complete rendered result, including truncation metadata |
-| `timeoutMs` | `60000` | Tool-call timeout budget enforced by `dsh-tool-call-timeout-policy`; covers the complete queued open/query/close lifecycle and is not model-configurable |
+| `timeoutMs` | `60000` | Tool-call timeout budget enforced by `mwf-tool-call-timeout-policy`; covers the complete queued open/query/close lifecycle and is not model-configurable |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-lsp) is the exhaustive source for every accepted field.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowtool-lsp) is the exhaustive source for every accepted field.
 
 ### Failures and recovery
 
@@ -87,8 +87,8 @@ This section explains the design decisions behind the tool and where the code re
 Read these pages when the package-level contract is not enough. They move from the model-facing surface to the seam and the provider.
 
 - [LSP navigation subsystem](../../../docs/subsystems/lsp.md) — operations, coordinates, requests and results, and `LspError` codes.
-- [dsh-lsp](../lsp/README.md) — the seam this tool queries.
-- [dsh-lsp-stdio](../lsp-stdio/README.md) — the stdio provider that answers these queries.
+- [mwf-lsp](../lsp/README.md) — the seam this tool queries.
+- [mwf-lsp-stdio](../lsp-stdio/README.md) — the stdio provider that answers these queries.
 - [lsp group map](../README.md) — the three-package family and its related documentation.
 
 -----
@@ -120,7 +120,7 @@ Prefix-stable while the plugin scope and guidance text are unchanged; activation
 
 #### What the model sees
 
-The model sees the generated [`lsp` schema](../../../docs/tool-catalog.md#deepseek-aidsh-tool-lsp).
+The model sees the generated [`lsp` schema](../../../docs/tool-catalog.md#metaworkflowtool-lsp).
 
 #### Token effect
 

@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-10-11-process-specific-prompt-values-in-runtime-context.md
 /agent-note-process-specific-checkout-path-and-web-url-move-to-runtime-context:
-  en: 711ce3e3afb1f905
-  zh: 2d4e4aea44043c4a
+  en: ab11ebea40d575ba
+  zh: d7a97364e300e1b9
 /agent-note-process-specific-checkout-path-and-web-url-move-to-runtime-context/problem:
-  en: f4e050c7dbf645da
-  zh: 722bcdc409d09bec
+  en: ac31c5612a3e1122
+  zh: 44a960b53ad59dfc
 /agent-note-process-specific-checkout-path-and-web-url-move-to-runtime-context/decision:
   en: 5222f00fd05d3801
   zh: fcfa430a0fa5588c
 /agent-note-process-specific-checkout-path-and-web-url-move-to-runtime-context/decision/ownership:
-  en: c23d5c27f1f160f0
-  zh: 5c2464666f1e6c29
+  en: ede3a220dd1f3c6c
+  zh: 9a773f8a790ccd9d
 /agent-note-process-specific-checkout-path-and-web-url-move-to-runtime-context/decision/new-sessions:
   en: 1ee144c39905bb89
   zh: a6669d7ad394e41c
@@ -21,11 +21,11 @@
   en: 27c11e7ced286898
   zh: 944d051494b1498d
 /agent-note-process-specific-checkout-path-and-web-url-move-to-runtime-context/alternatives-considered:
-  en: c324412be4034c40
-  zh: 923ad612fc884be1
+  en: e747dc2b4572ad63
+  zh: b2214a2dbbbb843d
 /agent-note-process-specific-checkout-path-and-web-url-move-to-runtime-context/consequences:
-  en: 8aa41ff08b848916
-  zh: bc1c1647ca0eb86a
+  en: 9df8dc45f9599ecd
+  zh: ff13d89b8e39a8f6
 /agent-note-process-specific-checkout-path-and-web-url-move-to-runtime-context/testing:
   en: 9667d1749bdf1547
   zh: 598dc39120c91228

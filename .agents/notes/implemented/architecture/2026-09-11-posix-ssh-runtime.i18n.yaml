@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-11-posix-ssh-runtime.md
 /agent-note-posix-ssh-execution-providers:
-  en: 416e4093259a80aa
-  zh: a04797294e6af446
+  en: 988dc00d566ef2d1
+  zh: 69026825c59eeb98
 /agent-note-posix-ssh-execution-providers/problem:
-  en: f67f6add03a36e85
-  zh: 656be288f8b2e1d2
+  en: d9b63642cc23abff
+  zh: 4008824229a5b7fe
 /agent-note-posix-ssh-execution-providers/decision:
   en: bc22949098fc3028
   zh: 76618180bc0bac56
 /agent-note-posix-ssh-execution-providers/decision/helper-deployment:
-  en: c479fdb58ed617f1
-  zh: 17cfefa778e3fd71
+  en: d855be02ef656f3b
+  zh: 4a9009c640d5ed3b
 /agent-note-posix-ssh-execution-providers/alternatives-considered:
   en: 4efffb3edba91689
   zh: 40100a70e5f55a42
@@ -24,5 +24,5 @@
   en: ee72e88fd40d6769
   zh: 56f0e0c8f3365973
 /agent-note-posix-ssh-execution-providers/deferred-work:
-  en: f300f112c9a09f7e
-  zh: b4708a0b7f596420
+  en: 71060725561f8157
+  zh: 5cb0a24e71263fd3

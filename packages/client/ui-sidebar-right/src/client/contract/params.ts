@@ -2,7 +2,7 @@
  * Navigation parameters, typed by what is being opened.
  *
  * Two declaration-merged maps. `SidebarRightResourceParamsMap` is keyed by
- * resource type — the segment after `dsh-resource://` — and filled by the
+ * resource type — the segment after `mwf-resource://` — and filled by the
  * package that owns that type (the `file` provider adds `file: { line?: number }`);
  * `SidebarRightTabParamsMap` is keyed by tab kind and filled by a page type that
  * takes parameters (the Browser page adds `browser: { url?: string }`). Values are JSON-shaped by

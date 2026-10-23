@@ -11,7 +11,7 @@ const request = { argv: ['true'], cwd: '/tmp', graceMs: 100, stdio: { stdin: 'ig
 
 describe.skipIf(process.platform === 'win32')('SSH helper allocation ownership', () => {
   it('joins directory and listener allocation before completing close', async () => {
-    const root = await mkdtemp('/tmp/dsh-ssh-life-')
+    const root = await mkdtemp('/tmp/mwf-ssh-life-')
     const owner = new RemoteProcesses(new Context(), root, 1, 5000)
     try {
       const prepared = owner.prepare(request)
@@ -24,7 +24,7 @@ describe.skipIf(process.platform === 'win32')('SSH helper allocation ownership',
   })
 
   it('reserves capacity before asynchronous listener allocation', async () => {
-    const root = await mkdtemp('/tmp/dsh-ssh-life-')
+    const root = await mkdtemp('/tmp/mwf-ssh-life-')
     const owner = new RemoteProcesses(new Context(), root, 1, 5000)
     try {
       const first = owner.prepare(request)
@@ -34,7 +34,7 @@ describe.skipIf(process.platform === 'win32')('SSH helper allocation ownership',
   })
 
   it('does not publish a process after termination interrupts cwd resolution', async () => {
-    const root = await mkdtemp('/tmp/dsh-ssh-life-')
+    const root = await mkdtemp('/tmp/mwf-ssh-life-')
     const ctx = new Context()
     const resolving = Promise.withResolvers<undefined>()
     const releaseCwd = Promise.withResolvers<never>()

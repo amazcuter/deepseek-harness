@@ -7,9 +7,9 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, onTestFinished, vi } from 'vitest'
-import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { LlmAdapter } from '@deepseek-ai/dsh-llm'
-import type {} from '@deepseek-ai/dsh-webhook'
+import type { GenerateOptions, StreamChunk } from '@metaworkflow/llm'
+import { LlmAdapter } from '@metaworkflow/llm'
+import type {} from '@metaworkflow/webhook'
 import {
   captureExpandedTurnProcessAria,
   captureStableAria,
@@ -86,11 +86,11 @@ describe.skipIf(MODE === 'record')('web e2e: GitHub ready-for-review', () => {
   const adapter = new ReviewAdapter()
 
   beforeAll(async () => {
-    previousPort = process.env.DSH_GITHUB_WEBHOOK_PORT
-    previousSecret = process.env.DSH_GITHUB_WEBHOOK_SECRET
+    previousPort = process.env.MWF_GITHUB_WEBHOOK_PORT
+    previousSecret = process.env.MWF_GITHUB_WEBHOOK_SECRET
     const port = await freePort()
-    process.env.DSH_GITHUB_WEBHOOK_PORT = String(port)
-    process.env.DSH_GITHUB_WEBHOOK_SECRET = SECRET
+    process.env.MWF_GITHUB_WEBHOOK_PORT = String(port)
+    process.env.MWF_GITHUB_WEBHOOK_SECRET = SECRET
     webhookOrigin = `http://127.0.0.1:${String(port)}`
     scaffold = await launchWebScaffold({
       extraOverlayPath: OVERLAY,
@@ -107,7 +107,7 @@ describe.skipIf(MODE === 'record')('web e2e: GitHub ready-for-review', () => {
 
     browser = await chromium.launch()
     page = await browser.newPage({ viewport: { width: 1680, height: 1000 }, locale: 'en-US' })
-    await page.addInitScript(() => { localStorage.setItem('dsh.locale', 'en') })
+    await page.addInitScript(() => { localStorage.setItem('mwf.locale', 'en') })
     tripwire = watchConsole(page)
     await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
     await page.waitForSelector('[class*="frame"]', { timeout: 30_000 })
@@ -116,10 +116,10 @@ describe.skipIf(MODE === 'record')('web e2e: GitHub ready-for-review', () => {
   afterAll(async () => {
     await browser?.close()
     await scaffold?.close()
-    if (previousPort === undefined) Reflect.deleteProperty(process.env, 'DSH_GITHUB_WEBHOOK_PORT')
-    else process.env.DSH_GITHUB_WEBHOOK_PORT = previousPort
-    if (previousSecret === undefined) Reflect.deleteProperty(process.env, 'DSH_GITHUB_WEBHOOK_SECRET')
-    else process.env.DSH_GITHUB_WEBHOOK_SECRET = previousSecret
+    if (previousPort === undefined) Reflect.deleteProperty(process.env, 'MWF_GITHUB_WEBHOOK_PORT')
+    else process.env.MWF_GITHUB_WEBHOOK_PORT = previousPort
+    if (previousSecret === undefined) Reflect.deleteProperty(process.env, 'MWF_GITHUB_WEBHOOK_SECRET')
+    else process.env.MWF_GITHUB_WEBHOOK_SECRET = previousSecret
   })
 
   it('isolates ingress and creates a browsable Workspace Session', async () => {

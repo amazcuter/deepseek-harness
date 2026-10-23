@@ -8,7 +8,7 @@ Status: implemented
 
 放在 surface 之外的系统提示词，其持久化表示与模型读到的其他所有消息都不同。对话消息是 surface 事件（`user/message`、`assistant/message`、`tool/result`），由 `Session.deriveMessages()` 按 seq 顺序折叠；而存放在仅记日志的 `request/header` 快照 `system` 字段中的提示词，必须由每个序列化器前置为协议消息 0。[可重建请求 Agent Note](2026-07-05-reconstructable-requests.zh.md) 让两半都成为持久数据，但这种布局让一个模型可见的事实拥有两个归属：surface 拥有消息，header 拥有排在这些消息之前的那条消息。
 
-这种拆分迫使每个想知道「模型看到了什么」的读取方都要合并两个来源：压缩（compaction）摘要器把 header 中的提示词复制到区域派生消息之前，`dsh-token-meter` 从 header 估算系统提示词却从 surface 为其他每条消息计价，Web 请求提示词卡片、轨迹视图和快照归一化器的 `{{system}}` 占位符各自单独读取 header。变更检测同样被拆开：在 `config` 和 `tools` 旁边逐字节比较 `system` 的 `headerEquals`，让提示词变更与工具变更在日志中无法区分（`request/header` 的 reason 都是 `change`），尽管它们是对对话的两种不同操作。
+这种拆分迫使每个想知道「模型看到了什么」的读取方都要合并两个来源：压缩（compaction）摘要器把 header 中的提示词复制到区域派生消息之前，`mwf-token-meter` 从 header 估算系统提示词却从 surface 为其他每条消息计价，Web 请求提示词卡片、轨迹视图和快照归一化器的 `{{system}}` 占位符各自单独读取 header。变更检测同样被拆开：在 `config` 和 `tools` 旁边逐字节比较 `system` 的 `headerEquals`，让提示词变更与工具变更在日志中无法区分（`request/header` 的 reason 都是 `change`），尽管它们是对对话的两种不同操作。
 
 这种拆分还阻塞了下一步。一个把对话中途的 `system` 消息当作提示词替换来接受的模型，需要 harness 向历史追加一条 system 角色消息；当提示词住在 header 里时，没有可追加的 surface 表示，header 也只能靠特例被冻结。[历史内替换决定](../feature/2026-09-02-in-history-system-prompt-replacement.zh.md) 依赖本 Agent Note。
 
@@ -34,21 +34,21 @@ Status: implemented
 
 ### 循环中的归属
 
-`dsh-agent-loop` 在 `packages/core/agent-loop/src/runtime-context.ts` 中与 `RuntimeContextProjection` 并列拥有 `SystemPromptProjection`。它在每次投影时从当前 surface 读取存活的 `system/message` 节点，因此同一步骤中更早运行的压缩或替换已经反映在内。`project(rendered, { inHistory, startsSeries })` 返回 `{ message, intent }`——没有系统节点存活或[历史内规则](../feature/2026-09-02-in-history-system-prompt-replacement.zh.md)适用时 `intent` 为 `{ surfaceOp: 'append' }`，否则是对最新存活系统节点的精确替换——最新节点已持有渲染文本时返回 `undefined`。
+`mwf-agent-loop` 在 `packages/core/agent-loop/src/runtime-context.ts` 中与 `RuntimeContextProjection` 并列拥有 `SystemPromptProjection`。它在每次投影时从当前 surface 读取存活的 `system/message` 节点，因此同一步骤中更早运行的压缩或替换已经反映在内。`project(rendered, { inHistory, startsSeries })` 返回 `{ message, intent }`——没有系统节点存活或[历史内规则](../feature/2026-09-02-in-history-system-prompt-replacement.zh.md)适用时 `intent` 为 `{ surfaceOp: 'append' }`，否则是对最新存活系统节点的精确替换——最新节点已持有渲染文本时返回 `undefined`。
 
 在 `packages/core/agent-loop/src/agent.ts` 中，`preStep` 用 `renderPrompt(assembly)` 渲染提示词，并在 `agent/pre-step` waterfall 之后投影它，因此压缩提供者在该 waterfall 内做出的替换对决定可见；`turn()` 紧接在 `step/start` 之后、该步骤的 `user/message` 事件之前提交 `system/message`，因此日志顺序即协议顺序。`buildRequest` 不在请求上设置 `system`：请求由 `header.config`、`session.deriveMessages()`（系统消息在先）和 `header.tools` 构成。循环步骤顺序为：领取收件箱 → `systemPrompt.assemble()` → 投影运行时上下文 → `agent/pre-step` waterfall → 投影系统提示词 → `step/start` → 提交 `system/message`（有变化时） → 提交各条 `user/message` → `agent/request` waterfall → `request/header` → `request/context` → 流式请求。
 
-`dsh-token-meter` 把用量锚定到成功的 `assistant/message` 之前的已计价 surface，而不是 `step/start`。循环在步骤开始之后接纳系统提示词与用户消息，重试恢复还可能在重建请求之前替换节点。捕获当前 surface 会让每个已接纳输入恰好计入一次；内嵌的提供方输出仍单独计价，因此持久 assistant 改写保留其带符号增量。开放步骤只保存 turn 与 step 以验证生命周期，不保存第二份节点快照。
+`mwf-token-meter` 把用量锚定到成功的 `assistant/message` 之前的已计价 surface，而不是 `step/start`。循环在步骤开始之后接纳系统提示词与用户消息，重试恢复还可能在重建请求之前替换节点。捕获当前 surface 会让每个已接纳输入恰好计入一次；内嵌的提供方输出仍单独计价，因此持久 assistant 改写保留其带符号增量。开放步骤只保存 turn 与 step 以验证生命周期，不保存第二份节点快照。
 
 ### 消费方
 
 | 消费方 | 读取内容 |
 |---|---|
 | DeepSeek 序列化器（`serializeRequest`、`serializeRequestWithImages`） | `options.messages`，把 `role: 'system'` 的历史消息作为协议消息 0 透传；`GenerateOptions.system` 为标题提供方等直接单次调用方保留 |
-| `dsh-llm-pi-ai` | 开头的 system 历史消息映射为 pi-ai 的 `systemPrompt` |
+| `mwf-llm-pi-ai` | 开头的 system 历史消息映射为 pi-ai 的 `systemPrompt` |
 | `compaction-basic` 的 `buildSummarizationInput` | 第 0 号节点的派生消息前置于 `SummarizationInput.messages` 中的区域消息，无单独的 `system` 字段；空内容头节点不投影为消息，但仍受保护而不能被压缩 |
 | `compaction-basic` 的 `selectCompactableRange` | 锚定在首个非系统节点；第 0 号节点永不落入压缩范围 |
-| `dsh-token-meter` | 系统节点作为 surface 节点计价，归入 `systemTokens` 明细 |
+| `mwf-token-meter` | 系统节点作为 surface 节点计价，归入 `systemTokens` 明细 |
 | Web 请求提示词卡片、轨迹请求节点、请求检视 | `system/message` 节点；被替换的第 0 号节点显示为提示词变更，追加的历史内节点显示为提示词更新，各自以折叠可检视的卡片呈现，永不作为聊天气泡 |
 | 快照归一化器的 `{{system}}` 占位符、plan-mode 测试 | 系统节点的文本 |
 | TypeScript 与 Python SDK 预期输出 | 包含 `system/message` 事件 |
@@ -78,7 +78,7 @@ Status: implemented
 
 - 单一表示：每个想知道「模型看到了什么」的读取方都折叠 surface；没有消费方需要把 header 与消息列表合并。`EpochHeader` 没有 `system` 字段，因此期望该字段的读取方在编译期失败。
 - 提示词变更与工具或 config 变更在日志中可以区分：前者是对第 0 号节点的 `system/message` 替换加随后的 `series` header，后者是 reason 为 `change` 的 `request/header`。
-- 压缩带有一条不变量：第 0 号节点永不被压缩。`dsh-session` 的 surface 管理器在替换操作本身中强制它，因此除 `compaction-basic` 以外的压缩提供方无法通过锚定在 `surfaceNodes[0]` 来遮蔽提示词。更后位置的系统节点按设计不受保护。
+- 压缩带有一条不变量：第 0 号节点永不被压缩。`mwf-session` 的 surface 管理器在替换操作本身中强制它，因此除 `compaction-basic` 以外的压缩提供方无法通过锚定在 `surfaceNodes[0]` 来遮蔽提示词。更后位置的系统节点按设计不受保护。
 - `replaceGeneration` 在提示词替换时和压缩时一样推进；需要区分两者的读取方检查替换事件的类型。
 - 历史中途的系统节点拥有 surface 表示，这正是[历史内替换决定](../feature/2026-09-02-in-history-system-prompt-replacement.zh.md)所依赖的基础。
 - 初始空提示词占据受保护的头部，但不贡献协议消息；在替换模式下，后来的非空提示词替换它，并保持为开头的系统消息。

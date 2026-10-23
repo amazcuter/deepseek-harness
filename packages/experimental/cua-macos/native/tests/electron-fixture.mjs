@@ -11,7 +11,7 @@ for (const name of ['userData', 'sessionData', 'logs']) {
   mkdirSync(directory, { recursive: true, mode: 0o700 })
   app.setPath(name, directory)
 }
-app.setName('DSH CUA Electron fixture')
+app.setName('MWF CUA Electron fixture')
 let window
 let visible = false
 let hasState = false
@@ -30,12 +30,12 @@ void app.whenReady().then(async () => {
     { label: 'Edit', submenu: [{ role: 'selectAll' }] },
   ]))
   window = new BrowserWindow({
-    title: 'DSH CUA Electron fixture', width: 600, height: 540, useContentSize: true,
+    title: 'MWF CUA Electron fixture', width: 600, height: 540, useContentSize: true,
     show: false, resizable: false, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false },
   })
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
   window.webContents.on('console-message', ({ message }) => {
-    const prefix = 'DSH_CUA_STATE '
+    const prefix = 'MWF_CUA_STATE '
     if (!message.startsWith(prefix)) return
     const state = JSON.parse(message.slice(prefix.length))
     const temporary = join(root, 'state.next.json')

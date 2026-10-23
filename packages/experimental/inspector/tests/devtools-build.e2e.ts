@@ -25,7 +25,7 @@ async function sourceHash(root: string): Promise<string> {
 }
 
 it('builds from fixed installed sources with network APIs blocked and includes Memory and injected entries', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-devtools-build-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-devtools-build-'))
   onTestFinished(() => rm(root, { recursive: true, force: true }))
   const source = await frontendSourceRoot()
   const before = await sourceHash(source)

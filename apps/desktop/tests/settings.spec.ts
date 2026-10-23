@@ -11,7 +11,7 @@ beforeEach(() => { vi.spyOn(console, 'warn').mockImplementation(() => {}) })
 afterEach(() => { vi.restoreAllMocks() })
 
 function fixture() {
-  const userData = mkdtempSync(join(tmpdir(), 'dsh-desktop-settings-'))
+  const userData = mkdtempSync(join(tmpdir(), 'mwf-desktop-settings-'))
   onTestFinished(() => { rmSync(userData, { recursive: true, force: true }) })
   const directory = join(userData, 'desktop')
   mkdirSync(directory)

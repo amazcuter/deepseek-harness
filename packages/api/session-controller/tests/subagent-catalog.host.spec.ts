@@ -1,10 +1,10 @@
 import { Context } from '@deepseek-ai/cordis'
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import SessionStore, { SESSION_FORMAT_VERSION, SessionSeq, SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
+import { provideWorkingDirectoryFixture } from '@metaworkflow/agent-loop-testkit'
+import AgentRegistry from '@metaworkflow/agent'
+import type { Agent } from '@metaworkflow/agent'
+import SessionStore, { SESSION_FORMAT_VERSION, SessionSeq, SessionId } from '@metaworkflow/session'
+import type { SessionEvent, SessionHeader } from '@metaworkflow/session'
+import SubagentRuntime from '@metaworkflow/subagent'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   createSessionTestController,

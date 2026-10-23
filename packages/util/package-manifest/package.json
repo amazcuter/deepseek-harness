@@ -1,6 +1,6 @@
 {
-  "name": "@deepseek-ai/dsh-package-manifest",
-  "description": "Shared type declarations for package.json.dsh configuration fields",
+  "name": "@metaworkflow/package-manifest",
+  "description": "Shared type declarations for package.json.mwf configuration fields",
   "version": "0.2.1-rc.2",
   "publishConfig": {
     "access": "public"

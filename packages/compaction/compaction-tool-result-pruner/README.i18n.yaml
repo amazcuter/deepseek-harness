@@ -5,63 +5,63 @@
 /:
   en: 9ed7a84c51988fdb
   zh: 4df60a349c2be7dc
-/deepseek-ai-dsh-compaction-tool-result-pruner:
-  en: d1e83d1d335479f8
-  zh: 747c5b2af42365a3
-/deepseek-ai-dsh-compaction-tool-result-pruner/summary:
-  en: a711510ce8293003
-  zh: 0150d10c05bc2e59
-/deepseek-ai-dsh-compaction-tool-result-pruner/table-of-contents:
+/metaworkflow-compaction-tool-result-pruner:
+  en: 7b19c5654e295248
+  zh: 67ecad27ec3d9aea
+/metaworkflow-compaction-tool-result-pruner/summary:
+  en: 2290f1fae5e81c06
+  zh: 5df5cf4b8d23ed6a
+/metaworkflow-compaction-tool-result-pruner/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-compaction-tool-result-pruner/use-this-package:
-  en: 03aed6a1e84dad5f
-  zh: e9a62ff6294041a6
-/deepseek-ai-dsh-compaction-tool-result-pruner/use-this-package/smallest-working-composition:
+/metaworkflow-compaction-tool-result-pruner/use-this-package:
+  en: b40ae89c884b7bb0
+  zh: cefe02fd253f1ad7
+/metaworkflow-compaction-tool-result-pruner/use-this-package/smallest-working-composition:
   en: 55eadf840a54d2f8
   zh: cc6bf82f58058c7b
-/deepseek-ai-dsh-compaction-tool-result-pruner/use-this-package/what-gets-trimmed:
+/metaworkflow-compaction-tool-result-pruner/use-this-package/what-gets-trimmed:
   en: a5cb5c94edcd91e3
   zh: ed95adc91d11bbda
-/deepseek-ai-dsh-compaction-tool-result-pruner/use-this-package/setting-the-size-limits:
-  en: 9a357040ff261f6e
-  zh: 7434bb64ca9bd094
-/deepseek-ai-dsh-compaction-tool-result-pruner/use-this-package/when-trimming-runs:
-  en: d72e0074faebe148
-  zh: dfb484a385a7ebbf
-/deepseek-ai-dsh-compaction-tool-result-pruner/understand-the-implementation:
+/metaworkflow-compaction-tool-result-pruner/use-this-package/setting-the-size-limits:
+  en: 8b239560d337622d
+  zh: 957bdc190deaeec4
+/metaworkflow-compaction-tool-result-pruner/use-this-package/when-trimming-runs:
+  en: a45aba79282c8831
+  zh: efa5ce37b03c04f5
+/metaworkflow-compaction-tool-result-pruner/understand-the-implementation:
   en: 57aaa53880042873
   zh: 667f54624411c37d
-/deepseek-ai-dsh-compaction-tool-result-pruner/understand-the-implementation/design-philosophy:
+/metaworkflow-compaction-tool-result-pruner/understand-the-implementation/design-philosophy:
   en: 5adff8207c6294e0
   zh: ccba42d804989abb
-/deepseek-ai-dsh-compaction-tool-result-pruner/understand-the-implementation/pruning-mechanics:
+/metaworkflow-compaction-tool-result-pruner/understand-the-implementation/pruning-mechanics:
   en: 9813749e4f016897
   zh: f2b2b5d6e5e8977a
-/deepseek-ai-dsh-compaction-tool-result-pruner/understand-the-implementation/source-map:
+/metaworkflow-compaction-tool-result-pruner/understand-the-implementation/source-map:
   en: 4544e91902960a0e
   zh: 0b07cb7e3d96267b
-/deepseek-ai-dsh-compaction-tool-result-pruner/further-exploration:
-  en: 3253e154e7610bbd
-  zh: ba28c7411fd5c8bb
-/deepseek-ai-dsh-compaction-tool-result-pruner/model-experience:
+/metaworkflow-compaction-tool-result-pruner/further-exploration:
+  en: ec788a047942bbcb
+  zh: 56a97b3e2c43016b
+/metaworkflow-compaction-tool-result-pruner/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-compaction-tool-result-pruner/model-experience/pruned-tool-result:
+/metaworkflow-compaction-tool-result-pruner/model-experience/pruned-tool-result:
   en: 0b0dfb7ec1bf906f
   zh: 68f70bde796751cd
-/deepseek-ai-dsh-compaction-tool-result-pruner/model-experience/pruned-tool-result/what-the-model-sees:
+/metaworkflow-compaction-tool-result-pruner/model-experience/pruned-tool-result/what-the-model-sees:
   en: 8514b5a6586bd65d
   zh: 2a0648bea6cb81b6
-/deepseek-ai-dsh-compaction-tool-result-pruner/model-experience/pruned-tool-result/token-effect:
+/metaworkflow-compaction-tool-result-pruner/model-experience/pruned-tool-result/token-effect:
   en: 1b11d405468e8d5d
   zh: 06dc9aef281c776d
-/deepseek-ai-dsh-compaction-tool-result-pruner/model-experience/pruned-tool-result/kv-cache-effect:
+/metaworkflow-compaction-tool-result-pruner/model-experience/pruned-tool-result/kv-cache-effect:
   en: aac7de507412ba39
   zh: bdd8f391ad9c9a81
-/deepseek-ai-dsh-compaction-tool-result-pruner/known-limitations-and-deferred-work:
+/metaworkflow-compaction-tool-result-pruner/known-limitations-and-deferred-work:
   en: 2a7be98dc032e9bc
   zh: d6710b1130722d12
-/deepseek-ai-dsh-compaction-tool-result-pruner/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-compaction-tool-result-pruner/known-limitations-and-deferred-work/dev-note:
   en: 19120c19286532da
   zh: 49187f1e83b31007

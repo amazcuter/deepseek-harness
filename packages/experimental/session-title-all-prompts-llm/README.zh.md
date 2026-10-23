@@ -3,13 +3,13 @@ description: "面向用户与维护者的全消息 LLM（大语言模型）会�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-title-all-prompts-llm
+# @metaworkflow/session-title-all-prompts-llm
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-session-title-all-prompts-llm` 作为可选的 `ctx.sessionTitle` 提供方，通过 `ctx.llm` 总结所有符合条件的用户消息。它注册 `all-prompts` 节奏，并在每条新用户提示词后启动新修订，使用预置历史与子会话提示词。较新的修订会中止并取代旧工作，即使提供方忽略取消，也无法提交陈旧输出。它同时拥有初始生成提示词与修订提示词，只与首消息提供方共享 `dsh-session-title-llm` 的[执行模块](../../session/session-title-llm/README.zh.md)。本文优先介绍自动行为与配置；实现是建立在该执行器之上的小型提供方策略。
+`mwf-session-title-all-prompts-llm` 作为可选的 `ctx.sessionTitle` 提供方，通过 `ctx.llm` 总结所有符合条件的用户消息。它注册 `all-prompts` 节奏，并在每条新用户提示词后启动新修订，使用预置历史与子会话提示词。较新的修订会中止并取代旧工作，即使提供方忽略取消，也无法提交陈旧输出。它同时拥有初始生成提示词与修订提示词，只与首消息提供方共享 `mwf-session-title-llm` 的[执行模块](../../session/session-title-llm/README.zh.md)。本文优先介绍自动行为与配置；实现是建立在该执行器之上的小型提供方策略。
 
 ## 目录
 
@@ -35,7 +35,7 @@ kind: "package-reference"
 
 ### 配置
 
-插件要求 `targetWords` 与 `targetCjkCharacters`，外加共享的[执行控制](../../session/session-title-llm/README.zh.md#configuration)：`maxInputBytes`、`maxOutputTokens`、`timeoutMs`，以及可选成对的 `provider`/`model` 路由。同时省略二者，会继承每个当前已记录主请求的确切路由；同时设置二者，则让标题生成使用独立路由。生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-session-title-all-prompts-llm)是每个受支持字段的穷尽式真源。
+插件要求 `targetWords` 与 `targetCjkCharacters`，外加共享的[执行控制](../../session/session-title-llm/README.zh.md#configuration)：`maxInputBytes`、`maxOutputTokens`、`timeoutMs`，以及可选成对的 `provider`/`model` 路由。同时省略二者，会继承每个当前已记录主请求的确切路由；同时设置二者，则让标题生成使用独立路由。生成的[配置目录](../../../docs/config-catalog.zh.md#metaworkflowsession-title-all-prompts-llm)是每个受支持字段的穷尽式真源。
 
 ### 失败与恢复
 

@@ -9,15 +9,15 @@ import { join, dirname } from 'node:path'
 import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
-import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
+import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@metaworkflow/loader-smoke'
 import {
   SESSION_FORMAT_VERSION,
   SessionId,
   SessionSeq,
   type SessionEvent,
   type SessionHeader,
-} from '@deepseek-ai/dsh-session'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+} from '@metaworkflow/session'
+import * as JsonlSessionPersistence from '@metaworkflow/session-persistence-jsonl'
 import {
   generationLogFilename,
   generationLogPath,
@@ -33,8 +33,8 @@ const tsconfigPath = fileURLToPath(new URL('../../../../../../tsconfig.json', im
 // The resumed-agent fixture in the shared config resumes exactly this id.
 const sessionId = SessionId('workspace-context-resume')
 const fixtureEnv = {
-  DSH_SNAPSHOT_FILE: replayFixture,
-  DSH_LOADER_SMOKE_REQUIRED_ENTRY_ID: 'resumed-agent',
+  MWF_SNAPSHOT_FILE: replayFixture,
+  MWF_LOADER_SMOKE_REQUIRED_ENTRY_ID: 'resumed-agent',
 }
 
 /** Persist one session with the given header version and events, returning its log path. */
@@ -82,7 +82,7 @@ describe('session format guard through the assembled app', () => {
     let sourceIdentity: { readonly dev: bigint; readonly ino: bigint } | undefined
     await runLoaderSmoke({
       label: 'v0 migration before resume',
-      tempDirPrefix: 'dsh-format-migrate-v0-',
+      tempDirPrefix: 'mwf-format-migrate-v0-',
       binScript,
       libBinScript: binScript,
       configPath,
@@ -122,7 +122,7 @@ describe('session format guard through the assembled app', () => {
     let sessionPath = ''
     const result = await runLoaderSmoke({
       label: 'newer-format resume refusal',
-      tempDirPrefix: 'dsh-format-guard-version-',
+      tempDirPrefix: 'mwf-format-guard-version-',
       binScript,
       libBinScript: binScript,
       configPath,
@@ -149,7 +149,7 @@ describe('session format guard through the assembled app', () => {
     let sourceIdentity: { readonly dev: bigint; readonly ino: bigint } | undefined
     const result = await runLoaderSmoke({
       label: 'unaudited V2 content resume refusal',
-      tempDirPrefix: 'dsh-format-guard-content-',
+      tempDirPrefix: 'mwf-format-guard-content-',
       binScript,
       libBinScript: binScript,
       configPath,
@@ -195,7 +195,7 @@ describe('session format guard through the assembled app', () => {
     let sessionPath = ''
     const result = await runLoaderSmoke({
       label: 'unknown-event resume refusal',
-      tempDirPrefix: 'dsh-format-guard-event-',
+      tempDirPrefix: 'mwf-format-guard-event-',
       binScript,
       libBinScript: binScript,
       configPath,

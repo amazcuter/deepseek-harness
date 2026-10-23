@@ -1,7 +1,7 @@
 # Opt-in Windows Task Scheduler acceptance: isolated fake runner, no GitHub registration or signing access.
 $ErrorActionPreference = 'Stop'
 if (-not $IsWindows) { throw 'Requires PowerShell 7 on Windows.' }
-$root = Join-Path ([IO.Path]::GetTempPath()) ('dsh-runner-task-' + [guid]::NewGuid().ToString('N'))
+$root = Join-Path ([IO.Path]::GetTempPath()) ('mwf-runner-task-' + [guid]::NewGuid().ToString('N'))
 $null = New-Item -ItemType Directory -Path $root
 $source = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../scripts'))
 $runner = Join-Path $root 'runner with spaces'
@@ -36,11 +36,11 @@ function Wait-Condition([scriptblock]$Condition, [string]$Description, [int]$Sec
 $installed = $false
 $primaryFailure = $null
 $digest = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($runner.ToUpperInvariant())))
-$taskName = 'DSH-Packaging-' + $digest.Substring(0,16)
+$taskName = 'MWF-Packaging-' + $digest.Substring(0,16)
 try {
     Invoke-Manager install
     $installed = $true
-    $config = Get-Content -LiteralPath (Join-Path $runner 'dsh-task/config.json') -Raw | ConvertFrom-Json
+    $config = Get-Content -LiteralPath (Join-Path $runner 'mwf-task/config.json') -Raw | ConvertFrom-Json
     $task = Get-ScheduledTask -TaskName $config.TaskName -TaskPath '\'
     if ($task.State -ne 'Disabled' -or $task.Settings.ExecutionTimeLimit -ne 'PT0S' -or $task.Settings.MultipleInstances -ne 'IgnoreNew') { throw 'Unexpected task scheduling settings.' }
     Invoke-Manager install -ExpectFailure
@@ -53,7 +53,7 @@ try {
     Invoke-Manager status
     if (@(Get-Content -LiteralPath $starts).Count -ne 2) { throw 'Duplicate runner started.' }
     Invoke-Manager uninstall -ExpectFailure
-    $recordFile = Join-Path $runner 'dsh-task/process.json'
+    $recordFile = Join-Path $runner 'mwf-task/process.json'
     $originalRecord = Get-Content -LiteralPath $recordFile -Raw
     $record = $originalRecord | ConvertFrom-Json
     $record.Started = 0
@@ -69,12 +69,12 @@ try {
     $child = Get-Process -Id ([int]@(Get-Content -LiteralPath $starts)[-1])
     Invoke-Manager stop
     Wait-Condition { $child.Refresh(); $child.HasExited } 'restarted child termination'
-    Set-Content -LiteralPath (Join-Path $runner 'dsh-task/attempts.txt') -Value '3'
+    Set-Content -LiteralPath (Join-Path $runner 'mwf-task/attempts.txt') -Value '3'
     $null = Enable-ScheduledTask -TaskName $config.TaskName -TaskPath '\'
     Start-ScheduledTask -TaskName $config.TaskName -TaskPath '\'
     Wait-Condition { (Get-ScheduledTask -TaskName $config.TaskName -TaskPath '\').State -eq 'Disabled' } 'exhausted restart budget disables task'
     if (@(Get-Content -LiteralPath $starts).Count -ne 3) { throw 'Exhausted budget launched another runner.' }
-    Set-Content -LiteralPath (Join-Path $runner 'dsh-task/attempts.txt') -Value 'invalid'
+    Set-Content -LiteralPath (Join-Path $runner 'mwf-task/attempts.txt') -Value 'invalid'
     $null = Enable-ScheduledTask -TaskName $config.TaskName -TaskPath '\'
     Start-ScheduledTask -TaskName $config.TaskName -TaskPath '\'
     Wait-Condition { (Get-ScheduledTask -TaskName $config.TaskName -TaskPath '\').State -eq 'Disabled' } 'invalid restart budget disables task'

@@ -28,7 +28,7 @@ const CATALOG_BUDGET_MS = Math.ceil(EXPECTED_CATALOG_CI_MS * PERFORMANCE_BUDGET_
 /** Reviewed hosted limit: floor(238 × 1.25); calibration records the original reference. */
 const REQUEST_HISTORY_BUDGET_MS = 297
 const EXPECTED_RETAINED_HEAP_MB = 23
-const WORKERS = join(import.meta.dirname, '..', '.dsh-build', 'agent-continuation')
+const WORKERS = join(import.meta.dirname, '..', '.mwf-build', 'agent-continuation')
 /** Estimated storage wait of the SDK profile case, whose worker does not report CPU time: it reads files and appends synchronized log records. */
 const PROFILE_IO_SHARE = 0.15
 const CASES: Readonly<Record<Scenario, BenchmarkCase>> = {
@@ -40,7 +40,7 @@ const CASES: Readonly<Record<Scenario, BenchmarkCase>> = {
   'tool-continuation': {
     id: 'agent-continuation/tool-continuation',
     measures: 'Cold resume of the 800-turn Session, then 20 turns with 8 synthetic tool calls each through the real tool pipeline.',
-    affects: 'Continuing a long tool-heavy Session after restarting DSH.',
+    affects: 'Continuing a long tool-heavy Session after restarting MWF.',
   },
   'catalog': {
     id: 'agent-continuation/catalog',
@@ -162,7 +162,7 @@ describe('continuing tool-heavy Sessions with large histories', () => {
   const sources = new Map<Scenario, string>()
 
   beforeAll(async () => {
-    scratch = await mkdtemp(join(tmpdir(), 'dsh-agent-continuation-bench-'))
+    scratch = await mkdtemp(join(tmpdir(), 'mwf-agent-continuation-bench-'))
     for (const scenario of ['request-history', 'catalog'] as const) {
       const root = join(scratch, 'source-' + scenario)
       await run(root, scenario, 'seed')

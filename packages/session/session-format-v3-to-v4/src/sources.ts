@@ -1,7 +1,7 @@
 /** Released V3 plugin-source conversion and declared message traversal. */
 
-import { SessionFormatError, isSessionFormatJsonObject } from '@deepseek-ai/dsh-session-format'
-import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@deepseek-ai/dsh-session-format'
+import { SessionFormatError, isSessionFormatJsonObject } from '@metaworkflow/session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@metaworkflow/session-format'
 
 /**
  * Visit only messages carried by first-party event payloads.

@@ -8,7 +8,7 @@ import { beginWindowsSigningAttempt } from '../scripts/windows-signing-state.mjs
 
 describe('persistent Windows signing interlock', () => {
   it('admits one independent process and retains its slot after that process exits', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-signing-interlock-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-signing-interlock-'))
     const env = Object.fromEntries(Object.entries(process.env).filter(([name]) => !/KEY|SECRET|TOKEN|PASSWORD|^NODE_OPTIONS$/iu.test(name)))
     const stateDirectory = join(root, 'state')
     const acquire = async () => {
@@ -36,7 +36,7 @@ describe('persistent Windows signing interlock', () => {
   })
 
   it('releases only successful attempts and records both operations before completion', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-signing-success-'))
+    const root = await mkdtemp(join(tmpdir(), 'mwf-signing-success-'))
     try {
       const run = createPackagingRun(root, {})
       const options = { runDirectory: run.directory, stateDirectory: join(root, 'state'), target: 'fixture.exe' }

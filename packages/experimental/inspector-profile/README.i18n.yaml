@@ -5,30 +5,30 @@
 /:
   en: aa49ff99ef11a495
   zh: f84909651e2f37a7
-/deepseek-ai-dsh-experimental-inspector-profile:
-  en: a83fef9afaa2d5c3
-  zh: 95ff381e7be3afe6
-/deepseek-ai-dsh-experimental-inspector-profile/summary:
+/metaworkflow-experimental-inspector-profile:
+  en: 691480c11fcc2be0
+  zh: 372f1bb3ede2431b
+/metaworkflow-experimental-inspector-profile/summary:
   en: 959f9bb18e5e99ad
   zh: f0b00539b5ab40fd
-/deepseek-ai-dsh-experimental-inspector-profile/table-of-contents:
+/metaworkflow-experimental-inspector-profile/table-of-contents:
   en: 76368b6b1da79c80
   zh: 52384aee991ac542
-/deepseek-ai-dsh-experimental-inspector-profile/use-this-package:
-  en: 919c4baad08a10a6
-  zh: 0f0c82abda2f3630
-/deepseek-ai-dsh-experimental-inspector-profile/understand-the-implementation:
-  en: c9afee7b01eff431
-  zh: c2d1209c14a42088
-/deepseek-ai-dsh-experimental-inspector-profile/model-experience:
+/metaworkflow-experimental-inspector-profile/use-this-package:
+  en: e57fcd9a16ecbdb0
+  zh: 05bd412c49d89053
+/metaworkflow-experimental-inspector-profile/understand-the-implementation:
+  en: d05cc311b19f7e90
+  zh: 53f311f7d6bf4d2b
+/metaworkflow-experimental-inspector-profile/model-experience:
   en: 315bc90149039d2d
   zh: 047edcb035f61b74
-/deepseek-ai-dsh-experimental-inspector-profile/model-experience/kv-cache-effect:
+/metaworkflow-experimental-inspector-profile/model-experience/kv-cache-effect:
   en: 5204b2605806c13d
   zh: b6a76f5152f7f503
-/deepseek-ai-dsh-experimental-inspector-profile/known-limitations-and-deferred-work:
-  en: 309c542ad0a9de41
-  zh: d2a3ac173d11afa6
-/deepseek-ai-dsh-experimental-inspector-profile/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-experimental-inspector-profile/known-limitations-and-deferred-work:
+  en: 2bb0c2c7c422e1b5
+  zh: d330cb4ad3979b97
+/metaworkflow-experimental-inspector-profile/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 8ec3e73528ddb1a6

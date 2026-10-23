@@ -5,15 +5,15 @@ import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
-import RemoteAccessService from '@deepseek-ai/dsh-api-remote-access'
-import SessionController from '@deepseek-ai/dsh-api-session-controller'
-import Translator from '@deepseek-ai/dsh-experimental-translator'
-import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
-import * as JsonlPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import SessionQuery from '@deepseek-ai/dsh-session-query'
-import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@metaworkflow/agent-loop-testkit'
+import RemoteAccessService from '@metaworkflow/api-remote-access'
+import SessionController from '@metaworkflow/api-session-controller'
+import Translator from '@metaworkflow/experimental-translator'
+import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@metaworkflow/session'
+import * as JsonlPersistence from '@metaworkflow/session-persistence-jsonl'
+import SessionQuery from '@metaworkflow/session-query'
+import TypertRegistry from '@metaworkflow/typert-registry'
+import { RemoteError } from '@metaworkflow/typert-protocol'
 import { afterEach, expect, it, vi } from 'vitest'
 import CotTranslationController from '../src/index.ts'
 
@@ -30,7 +30,7 @@ afterEach(async () => {
 })
 
 async function fixture(origin?: 'subagent') {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-cot-activation-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-cot-activation-'))
   cleanups.push(async () => { await rm(root, { recursive: true, force: true }) })
   const requests: string[] = []
   const server = createServer((request, response) => {

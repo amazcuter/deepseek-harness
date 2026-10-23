@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-07-28-portable-execution-world-consumers.md
 /agent-note-portable-consumers-over-filesystem-and-subprocess-execution-worlds:
-  en: 42609904ffe19d80
-  zh: fcacbf7912df216c
+  en: 7277c70529796b7f
+  zh: 7b7d2a661a3981fa
 /agent-note-portable-consumers-over-filesystem-and-subprocess-execution-worlds/problem:
-  en: 959a378a04f28e89
-  zh: ff496169735b4d7b
+  en: 54500d1aafda9409
+  zh: 5e2fa43cafa71ffd
 /agent-note-portable-consumers-over-filesystem-and-subprocess-execution-worlds/decision:
-  en: 69e97b0a63117d33
-  zh: 3c4188c40166264b
+  en: e24ed6b01c19adf5
+  zh: 4cce6e8ff0cb92af
 /agent-note-portable-consumers-over-filesystem-and-subprocess-execution-worlds/remote-provider-ownership:
-  en: bde2e1fa8f3aeee0
-  zh: 42a13bb4cf540d6d
+  en: 06aec024d2bbbfaa
+  zh: ddba19a27fa36ee1
 /agent-note-portable-consumers-over-filesystem-and-subprocess-execution-worlds/verification:
   en: b34540c3548ea98f
   zh: 79e53bda3981802c
 /agent-note-portable-consumers-over-filesystem-and-subprocess-execution-worlds/alternatives-considered:
-  en: a5f455ad35d0615c
-  zh: df4f501a6d723838
+  en: d0ddb666093bd009
+  zh: e2ff048f877bb3b7
 /agent-note-portable-consumers-over-filesystem-and-subprocess-execution-worlds/consequences:
   en: 3e8426e4a6788505
   zh: 143b8c07d21d95d1

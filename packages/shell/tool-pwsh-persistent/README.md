@@ -3,13 +3,13 @@ description: "The model-facing persistent pwsh tool for users and maintainers ch
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tool-pwsh-persistent
+# @metaworkflow/tool-pwsh-persistent
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-tool-pwsh-persistent` gives each agent a `pwsh` tool that preserves its current directory, environment variables, functions, and background jobs across calls. Commands for one agent run sequentially, while different agents keep separate shell state. Choose it for multi-step PowerShell work; use `dsh-tool-pwsh` when every command should start clean, and use a terminal tool when commands require interactive stdin. Configure a pwsh-capable backend and per-command timeout; timeout or explicit `exit` discards the shell, so the next call starts fresh.
+`mwf-tool-pwsh-persistent` gives each agent a `pwsh` tool that preserves its current directory, environment variables, functions, and background jobs across calls. Commands for one agent run sequentially, while different agents keep separate shell state. Choose it for multi-step PowerShell work; use `mwf-tool-pwsh` when every command should start clean, and use a terminal tool when commands require interactive stdin. Configure a pwsh-capable backend and per-command timeout; timeout or explicit `exit` discards the shell, so the next call starts fresh.
 
 ## Table of Contents
 
@@ -27,22 +27,22 @@ English | [中文](README.zh.md)
 
 A new shell starts in the Session's current working directory. Once created, its directory and environment remain independent of later Session directory changes.
 
-Load this plugin in any composition where the agent should keep PowerShell state between commands — the persistent counterpart of `dsh-tool-pwsh` for work that needs cross-call state. It registers the `pwsh` tool and requires the `ctx.tools` and `ctx.terminals` services plus an owning agent session at execution time.
+Load this plugin in any composition where the agent should keep PowerShell state between commands — the persistent counterpart of `mwf-tool-pwsh` for work that needs cross-call state. It registers the `pwsh` tool and requires the `ctx.tools` and `ctx.terminals` services plus an owning agent session at execution time.
 
 ### When to choose it
 
-Choose the persistent tool when work depends on cross-call PowerShell state, and choose `dsh-tool-pwsh` when every command should start from a known, clean environment. Commands that need interactive stdin are unsupported here — a foreground child that reads input blocks until the command timeout, which resets the shell — so interactive work belongs to the terminal tools.
+Choose the persistent tool when work depends on cross-call PowerShell state, and choose `mwf-tool-pwsh` when every command should start from a known, clean environment. Commands that need interactive stdin are unsupported here — a foreground child that reads input blocks until the command timeout, which resets the shell — so interactive work belongs to the terminal tools.
 
 ### Minimal configuration
 
-The default `shell` backend starts a PowerShell shell through a `dsh-terminal-bash` instance configured with `shellDialect: pwsh`; deployments may register another pwsh-dialect PTY backend and select it by name.
+The default `shell` backend starts a PowerShell shell through a `mwf-terminal-bash` instance configured with `shellDialect: pwsh`; deployments may register another pwsh-dialect PTY backend and select it by name.
 
 ```yaml
-- name: '@deepseek-ai/dsh-terminal'
-- name: '@deepseek-ai/dsh-terminal-bash'
+- name: '@metaworkflow/terminal'
+- name: '@metaworkflow/terminal-bash'
   config:
     shellDialect: pwsh
-- name: '@deepseek-ai/dsh-tool-pwsh-persistent'
+- name: '@metaworkflow/tool-pwsh-persistent'
 ```
 
 | Field | Default | Meaning |
@@ -52,7 +52,7 @@ The default `shell` backend starts a PowerShell shell through a `dsh-terminal-ba
 | `maxOutputChars` | `16,000` | Maximum retained command-output characters; fixed diagnostics are added afterward |
 | `description` | `Run commands in a persistent PowerShell shell. State, including the current directory and exported environment variables, persists across calls for this agent.` | Model-facing environment contract; deployments may describe their environment |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-pwsh-persistent) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#metaworkflowtool-pwsh-persistent) is the exhaustive source for every accepted field and its JSDoc.
 
 ### What the agent can rely on
 
@@ -74,7 +74,7 @@ This section explains the design decisions behind the tool and points at the cod
 
 ### Design philosophy
 
-- **A deliberate twin of `dsh-tool-bash-persistent`.** The session registry, polling loop, and reset contract mirror the persistent bash tool by design ([pwsh persistent PTY Agent Note](../../../.agents/notes/archived/architecture/2026-08-11-pwsh-persistent-pty.md)).
+- **A deliberate twin of `mwf-tool-bash-persistent`.** The session registry, polling loop, and reset contract mirror the persistent bash tool by design ([pwsh persistent PTY Agent Note](../../../.agents/notes/archived/architecture/2026-08-11-pwsh-persistent-pty.md)).
 - **Backend-owned prompt readiness.** The shell's `prompt` function belongs to the backend: it prints a BEL-terminated OSC marker plus the controlled printable prompt. The backend accepts recognized prompt text through its fast path and otherwise uses its own readiness checks or silence tier. The tool neither installs nor matches a prompt of its own.
 - **Readiness after scrolling and restart.** The [Loader composition test](tests/loader-composition.spec.ts) checks the complete send-settlement sequence, including a command on the same shell after large output and the first command after `exit`. Its failure timeline distinguishes the bundled OpenConsole used on Windows from the unused system conhost.
 - **PSReadLine echo stripped by anchoring.** PowerShell renders submitted input back into the stream; the marker-anchored extraction and a wrapper-source strip remove the echo, and a wrapper that wraps across the terminal width may leave a partial echo in partial-output results.
@@ -104,8 +104,8 @@ Read these pages when the package-level contract is not enough. They move from t
 - [terminal-bash backend](../../terminal/terminal-bash/README.md) — the default backend, configured with `shellDialect: pwsh`.
 - [pwsh persistent PTY Agent Note](../../../.agents/notes/archived/architecture/2026-08-11-pwsh-persistent-pty.md) — the pwsh-side session design and its rationale.
 - [Persistent PTY sessions Agent Note](../../../.agents/notes/implemented/feature/2026-07-16-persistent-pty-sessions.md) — the owner-scoped session design and its rationale.
-- [Generated tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-tool-pwsh-persistent) — the exact `pwsh` argument schema.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-pwsh-persistent) — every accepted config field and its source declaration.
+- [Generated tool catalog](../../../docs/tool-catalog.md#metaworkflowtool-pwsh-persistent) — the exact `pwsh` argument schema.
+- [Generated configuration catalog](../../../docs/config-catalog.md#metaworkflowtool-pwsh-persistent) — every accepted config field and its source declaration.
 
 -----
 
@@ -116,7 +116,7 @@ Read these pages when the package-level contract is not enough. They move from t
 
 #### What the model sees
 
-The generated [`pwsh` schema](../../../docs/tool-catalog.md#deepseek-aidsh-tool-pwsh-persistent), including the configured `description`. The plugin contributes no standalone system-prompt section; the deployment owns persona and environment guidance.
+The generated [`pwsh` schema](../../../docs/tool-catalog.md#metaworkflowtool-pwsh-persistent), including the configured `description`. The plugin contributes no standalone system-prompt section; the deployment owns persona and environment guidance.
 
 #### Token effect
 

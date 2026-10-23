@@ -50,7 +50,7 @@ final class SharedHelperLifetime: @unchecked Sendable {
 }
 
 final class NativeSignals {
-    private let queue = DispatchQueue(label: "dsh.cua.signals")
+    private let queue = DispatchQueue(label: "mwf.cua.signals")
     private var sources: [DispatchSourceSignal] = []
 
     init(onSignal: @escaping @Sendable (Int32) -> Void) {

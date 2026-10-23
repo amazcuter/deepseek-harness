@@ -1,7 +1,7 @@
 /** Owner Peers for Gateway specs: every in-process call names its Peer explicitly. */
 import type { Context } from '@deepseek-ai/cordis'
-import { Peer } from '@deepseek-ai/dsh-client-connection'
-import type { PeerScope, Principal } from '@deepseek-ai/dsh-typert-protocol'
+import { Peer } from '@metaworkflow/client-connection'
+import type { PeerScope, Principal } from '@metaworkflow/typert-protocol'
 
 const owners = new WeakMap<Context, PeerScope>()
 

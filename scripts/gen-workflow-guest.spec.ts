@@ -5,7 +5,7 @@ import { expect, it, onTestFinished } from 'vitest'
 import { bundleWorkflowGuest, generateWorkflowGuest } from './gen-workflow-guest.ts'
 
 async function fixture(source: string): Promise<{ root: string; entry: string; output: string }> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-workflow-guest-'))
+  const root = await mkdtemp(join(tmpdir(), 'mwf-workflow-guest-'))
   onTestFinished(() => rm(root, { recursive: true, force: true }))
   const directory = join(root, 'packages/workflow/workflow-ptc/src')
   await mkdir(directory, { recursive: true })
@@ -26,7 +26,7 @@ it('bundles source imports into a module that loads without their files', async 
 })
 
 it('rejects unresolved imports instead of shipping an unavailable guest dependency', async () => {
-  const { root } = await fixture('import "dsh-nonexistent-workflow-dependency";')
+  const { root } = await fixture('import "mwf-nonexistent-workflow-dependency";')
   await expect(bundleWorkflowGuest(root)).rejects.toThrow('workflow guest has an unresolved import')
 })
 

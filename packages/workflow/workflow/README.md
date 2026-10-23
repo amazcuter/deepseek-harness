@@ -3,7 +3,7 @@ description: "The workflow orchestration capability: run a model-written script 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-workflow
+# @metaworkflow/workflow
 
 English | [中文](README.zh.md)
 
@@ -29,7 +29,7 @@ Run a workflow when a task decomposes into many independent pieces that one scri
 
 ### The model-facing path
 
-The model reaches the capability through the `workflow` tool from `dsh-tool-workflow`, which owns the call schema and result envelope; the engine supplies the execution underneath. A tool call submits `meta`, `script`, and optional `args` and returns `{ runId, agentsStarted, result }` when the run completes. The tool blocks the parent turn until the whole workflow settles, so the model sees one final outcome, never intermediate child messages.
+The model reaches the capability through the `workflow` tool from `mwf-tool-workflow`, which owns the call schema and result envelope; the engine supplies the execution underneath. A tool call submits `meta`, `script`, and optional `args` and returns `{ runId, agentsStarted, result }` when the run completes. The tool blocks the parent turn until the whole workflow settles, so the model sees one final outcome, never intermediate child messages.
 
 ### Running a workflow script
 
@@ -110,7 +110,7 @@ Read these pages when the package-level contract is not enough. They move from t
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through its consumer `dsh-tool-workflow` and a workflow engine, which render the parent tool result and the child-agent requests.
+Indirectly, through its consumer `mwf-tool-workflow` and a workflow engine, which render the parent tool result and the child-agent requests.
 
 #### KV Cache effect
 

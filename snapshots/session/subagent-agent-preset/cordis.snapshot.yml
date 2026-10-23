@@ -2,7 +2,7 @@
 # script comes from the scenario's committed session JSONL.
 
 - id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+  name: '@metaworkflow/llm-deepseek-api-key'
   disabled: true
 
 - id: plugin-package-inventory-deepseek
@@ -12,13 +12,13 @@
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@deepseek-ai/dsh-session-persistence-jsonl'
+  name: '@metaworkflow/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
+    root: !!js mwfHomePath('sessions')
     compression: none
 
 - id: sandbox
-  name: '@deepseek-ai/dsh-sandbox-local'
+  name: '@metaworkflow/sandbox-local'
   config:
     runnerCommand:
       - bash
@@ -30,7 +30,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@metaworkflow/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -41,33 +41,33 @@
 
 - insert:
     - id: subagent-model-selection-settings
-      name: '@deepseek-ai/dsh-tool-subagent/model-selection-settings'
+      name: '@metaworkflow/tool-subagent/model-selection-settings'
     - id: agent-preset-registry
-      name: '@deepseek-ai/dsh-agent-preset-registry'
+      name: '@metaworkflow/agent-preset-registry'
       config:
         default: parent
     - id: preset-parent
-      name: '@deepseek-ai/dsh-agent-preset'
+      name: '@metaworkflow/agent-preset'
       config:
         id: parent
         name: Parent
         description: Headless parent tools.
         plugins: []
     - id: preset-reviewer
-      name: '@deepseek-ai/dsh-agent-preset'
+      name: '@metaworkflow/agent-preset'
       config:
         id: reviewer
         name: Reviewer
         description: File review.
         plugins:
           - id: persona
-            name: '@deepseek-ai/dsh-persona'
+            name: '@metaworkflow/persona'
             config:
               prefix: You are a file reviewer. Inspect the requested files and report your findings.
           - id: tool-fs
-            name: '@deepseek-ai/dsh-tool-fs'
+            name: '@metaworkflow/tool-fs'
           - id: tool-subagent
-            name: '@deepseek-ai/dsh-tool-subagent'
+            name: '@metaworkflow/tool-subagent'
             config:
               provider: spawn
               toolName: reviewer_delegate
@@ -76,7 +76,7 @@
       name: '../../../packages/test-support/session-snapshot/tests/fixtures/parent-agent-preset.ts'
 
 - id: tool-subagent
-  name: '@deepseek-ai/dsh-tool-subagent'
+  name: '@metaworkflow/tool-subagent'
   inject: [agentPresets]
   config:
     provider: spawn

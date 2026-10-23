@@ -3,7 +3,7 @@ description: "Enable experimental custom plugin markets from the plugin manager.
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-plugin-market-bundle
+# @metaworkflow/experimental-plugin-market-bundle
 
 English | [中文](README.zh.md)
 
@@ -43,7 +43,7 @@ The static `cordis.patch.yml` inserts the `plugin-market` service row, disabled 
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through the `pluginMarket` service: with the bundle switched on, the Creator preset gains the read-only `plugin_market` tool documented in [`dsh-plugin-market`](../../boot/plugin-market/README.md#model-experience).
+Indirectly, through the `pluginMarket` service: with the bundle switched on, the Creator preset gains the read-only `plugin_market` tool documented in [`mwf-plugin-market`](../../boot/plugin-market/README.md#model-experience).
 
 #### KV Cache effect
 

@@ -3,7 +3,7 @@ description: "对展开的思考内容进行机器翻译，同时保留原文和
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-client-ui-cot-translation
+# @metaworkflow/experimental-client-ui-cot-translation
 
 [English](README.md) | 中文
 

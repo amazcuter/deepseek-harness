@@ -22,7 +22,7 @@ permissions:
 env:
   # CI runs must never report to the production telemetry endpoint baked
   # into apps/cli/cordis.yml (AppCLIEntry disables the row when set).
-  DSH_TELEMETRY_DISABLED: '1'
+  MWF_TELEMETRY_DISABLED: '1'
 
 jobs:
   # Keyless real-kernel sandbox proofs (sandbox Agent Note § Testing): each ladder
@@ -61,7 +61,7 @@ jobs:
             runner: seatbelt
     name: sandbox e2e (${{ matrix.runner }}, ${{ matrix.os }})
     runs-on: >-
-      ${{ matrix.runner == 'bwrap' && vars.DSH_CI_FAILOVER_LINUX == 'blacksmith'
+      ${{ matrix.runner == 'bwrap' && vars.MWF_CI_FAILOVER_LINUX == 'blacksmith'
           && 'blacksmith-4vcpu-ubuntu-2404'
           || matrix.os }}
     timeout-minutes: 20
@@ -164,5 +164,5 @@ jobs:
       # `pnpm run test` through the path that consumes the variable.
       - name: Unit tests (darwin parity)
         env:
-          DSH_COVERAGE_TEST_TIMEOUT_MS: '90000'
+          MWF_COVERAGE_TEST_TIMEOUT_MS: '90000'
         run: pnpm run check:ci:unit

@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-30-structured-draft-initialization.md
 /agent-note-initial-draft-content-and-structured-reference-restoration:
-  en: 88202480bcf49e10
-  zh: 3f2aff8ad2be0faa
+  en: 6815b7c0a1b076b4
+  zh: 9ab8b5dca3679fde
 /agent-note-initial-draft-content-and-structured-reference-restoration/problem:
   en: 6aa396e12264ee48
   zh: 56849a18acaf830a
@@ -12,8 +12,8 @@
   en: 9cf2afd9d5e663e9
   zh: ad59b1bec6ec4666
 /agent-note-initial-draft-content-and-structured-reference-restoration/decision/data-model:
-  en: 7f33895364a9f5cc
-  zh: f1c79ea15f5c151e
+  en: 1304f530255654a0
+  zh: aea36ed6be193607
 /agent-note-initial-draft-content-and-structured-reference-restoration/decision/classes-and-methods:
   en: ca81423a57f898a0
   zh: 98962cc1c6bce113
@@ -30,5 +30,5 @@
   en: 341f4f36936f686a
   zh: 479fbe04e810f640
 /agent-note-initial-draft-content-and-structured-reference-restoration/consequences:
-  en: ff4f9527db80f790
-  zh: f3e57093c058f643
+  en: 572c54c200818c6c
+  zh: e7ee81bc0b43bd18

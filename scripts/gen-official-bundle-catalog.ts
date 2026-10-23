@@ -27,26 +27,26 @@ export function generateOfficialBundleCatalog(root: string, names: readonly stri
       dependencies?: Record<string, string>
       optionalDependencies?: Record<string, string>
       peerDependencies?: Record<string, string>
-      dsh?: { bundle?: { patch?: unknown } }
+      mwf?: { bundle?: { patch?: unknown } }
     }
     if (manifests.has(manifest.name)) throw new Error(`duplicate workspace package ${manifest.name}`)
     const runtime = ['dependencies', 'optionalDependencies', 'peerDependencies'] as const
-    manifests.set(manifest.name, { path, private: manifest.private === true, bundle: manifest.dsh?.bundle?.patch !== undefined,
+    manifests.set(manifest.name, { path, private: manifest.private === true, bundle: manifest.mwf?.bundle?.patch !== undefined,
       runtime: runtime.flatMap(section => Object.keys(manifest[section] ?? {})) })
   }
   const visited = new Set<string>()
   const checkInstallation = (name: string): void => {
     if (visited.has(name)) return
     visited.add(name)
-    if (names.includes(name)) throw new Error(`${name}: on-demand providers must not be installed by the DSH distribution`)
+    if (names.includes(name)) throw new Error(`${name}: on-demand providers must not be installed by the MWF distribution`)
     for (const dependency of manifests.get(name)?.runtime ?? []) checkInstallation(dependency)
   }
-  if (!manifests.has('@deepseek-ai/dsh')) throw new Error('Official catalog requires the DSH installation manifest')
-  checkInstallation('@deepseek-ai/dsh')
+  if (!manifests.has('@metaworkflow/cli')) throw new Error('Official catalog requires the MWF installation manifest')
+  checkInstallation('@metaworkflow/cli')
   return names.map((packageName) => {
     const entry = manifests.get(packageName)
-    if (entry === undefined || !entry.path.startsWith('packages/') || !packageName.startsWith('@deepseek-ai/dsh-') || entry.private || !entry.bundle) {
-      throw new Error(`${packageName}: Official catalog entries must be public DSH bundle packages`)
+    if (entry === undefined || !entry.path.startsWith('packages/') || !packageName.startsWith('@metaworkflow/') || entry.private || !entry.bundle) {
+      throw new Error(`${packageName}: Official catalog entries must be public MWF bundle packages`)
     }
     const parentURL = pathToFileURL(resolve(root, entry.path)).href
     for (const language of ['en', 'zh']) {

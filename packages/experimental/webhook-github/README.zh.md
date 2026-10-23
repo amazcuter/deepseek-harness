@@ -3,13 +3,13 @@ description: "面向把已认证 JSON 事件路由到 webhook 运行时的部署
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-webhook-github
+# @metaworkflow/webhook-github
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-webhook-github` 会在注入的 `ctx.webServer` 上注册一条精确 HTTP 路由。它限制并验证 GitHub 原始 JSON body，投影提供方无关的交付，调用 `ctx.webhookRuntime.dispatch()`，并在不等待规则或会话的情况下返回 `202`。部署需要为通用 webhook 运行时提供经过身份验证的 GitHub 入口时，请使用它。
+`mwf-webhook-github` 会在注入的 `ctx.webServer` 上注册一条精确 HTTP 路由。它限制并验证 GitHub 原始 JSON body，投影提供方无关的交付，调用 `ctx.webhookRuntime.dispatch()`，并在不等待规则或会话的情况下返回 `202`。部署需要为通用 webhook 运行时提供经过身份验证的 GitHub 入口时，请使用它。
 
 ## 目录
 
@@ -54,14 +54,14 @@ kind: "package-reference"
 <a id="dedicated-listener-composition"></a>
 ## 专用监听器组合
 
-普通 Web profile 已经拥有 `ctx.webServer`。把另一个 `dsh-host-webserver` 和此适配器挂载到仅隔离 `webServer` 的 group 内；适配器仍会继承凭据与 `webhookRuntime`。[GitHub 评审指南](../../../docs/user/guide/github-review.zh.md)在 TLS 反向代理后使用 `127.0.0.1:3081/github`，而 UI 继续位于端口 3080。
+普通 Web profile 已经拥有 `ctx.webServer`。把另一个 `mwf-host-webserver` 和此适配器挂载到仅隔离 `webServer` 的 group 内；适配器仍会继承凭据与 `webhookRuntime`。[GitHub 评审指南](../../../docs/user/guide/github-review.zh.md)在 TLS 反向代理后使用 `127.0.0.1:3081/github`，而 UI 继续位于端口 3080。
 
-示例的 overlay 与规则模块随本包发布，位于 `examples/github-review/`。先将本包及其 `dsh-webhook` peer 安装到 profile，再从该安装目录加载 overlay；[指南](../../../docs/user/guide/github-review.zh.md)给出完整命令。
+示例的 overlay 与规则模块随本包发布，位于 `examples/github-review/`。先将本包及其 `mwf-webhook` peer 安装到 profile，再从该安装目录加载 overlay；[指南](../../../docs/user/guide/github-review.zh.md)给出完整命令。
 
 <a id="model-experience"></a>
 ## 模型体验
 
-通过 `dsh-webhook` 间接产生影响：此适配器不贡献提示词或工具 schema；匹配规则拥有会话请求与模型可见文本。
+通过 `mwf-webhook` 间接产生影响：此适配器不贡献提示词或工具 schema；匹配规则拥有会话请求与模型可见文本。
 
 #### KV Cache 影响
 

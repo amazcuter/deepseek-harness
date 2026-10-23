@@ -29,13 +29,13 @@ def main():
     transcript = []
     processes = []
     helper = None
-    with tempfile.TemporaryDirectory(prefix="dsh-cua-paste-") as directory:
+    with tempfile.TemporaryDirectory(prefix="mwf-cua-paste-") as directory:
         root = Path(directory)
         binary = root / "paste-fixture"
         subprocess.run(["swiftc", str(ROOT / "tests/PasteFixture.swift"), "-o", str(binary)], check=True)
         try:
             for label in ["target", "foreground"]:
-                process = subprocess.Popen([str(binary), str(root / f"{label}.json"), f"DSH paste {label}"],
+                process = subprocess.Popen([str(binary), str(root / f"{label}.json"), f"MWF paste {label}"],
                                            stdout=subprocess.PIPE, text=True)
                 processes.append(process)
                 assert line(process).strip() == "READY"

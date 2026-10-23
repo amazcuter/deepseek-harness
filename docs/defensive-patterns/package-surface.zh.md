@@ -47,7 +47,7 @@ import { isSurfaceEligibleType } from '../../core/session/src/surface.ts'
 新增包要么是 Host 包，要么是 Host + Client 包，两类都是动态插件包；没有第三种形态可选，也没有例外。shell 经 [packages/client/web/src/platform.ts](../../packages/client/web/src/platform.ts) 的 `PLATFORM_MODULES` 播种的静态客户端库——`client-store`、`ui-slots`、`ui-primitives`、`ui-dockkit`——以及 [packages/util/](../../packages/util/) 下的零依赖库先于本条规则存在，且**已关闭**：它们照原样继续工作，新增包永不加入其中。只有真正的双面包才拆编译面，生成物进 `lib`，`include`、`external` 与 roster 清单由扫描 workspace 得出，不手写。手写清单或新造编译面会让构建产物与清单不再一致，此后每个新增包都得各自维护清单。
 
 - 判定条件：新增包未按动态插件包形态构建（static link 打包、手写的全 external 清单）；出现第三种 `tsconfig` 变体；手写 `include`、`external` 或 roster 清单。
-- 形态不要照抄数字，就地复算：先列 `packages/*/*` 下的 `tsconfig.json`，再列同时带 `tsconfig.client.json` 与 `tsconfig.host.json` 的包，最后列声明 `dsh.client` 的包。
+- 形态不要照抄数字，就地复算：先列 `packages/*/*` 下的 `tsconfig.json`，再列同时带 `tsconfig.client.json` 与 `tsconfig.host.json` 的包，最后列声明 `mwf.client` 的包。
 - 边界：双面包允许被 `include` 或 `exclude`。
 - 例外：无；没有审批通道。包的形态或编译面变更须先改正家文档，并须经对应领域专家确认。
 - 正家：[development.zh.md](../development.zh.md#typescript-project-layout) 管编译面，[packages/README.zh.md](../../packages/README.zh.md) 管包分组，[adding-a-package.zh.md](../cookbook/adding-a-package.zh.md) 管步骤。
@@ -56,7 +56,7 @@ import { isSurfaceEligibleType } from '../../core/session/src/surface.ts'
 
 ```json
 {
-  "name": "@deepseek-ai/dsh-example",
+  "name": "@metaworkflow/example",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
@@ -69,14 +69,14 @@ import { isSurfaceEligibleType } from '../../core/session/src/surface.ts'
 手写的 `external` 清单——以及在它旁边为单个包新造的 `tsconfig.foo.json`——让扫描无从推导，构建产物与清单随之不再一致。
 
 ```json
-{ "name": "@deepseek-ai/dsh-example", "external": ["@deepseek-ai/*"] }
+{ "name": "@metaworkflow/example", "external": ["@deepseek-ai/*"] }
 ```
 
 ## `package.json` `exports` 使用标准键集合
 
 `package.json` 的 `exports` 只使用标准键集合，集合中每个键在全仓已经只有一个含义，包不得为自己的局部用途开键。只有少数几个包在用、又没有文档正家的键不构成先例：把某个键正式化（包括下面那些未记录在案的键）意味着在同一次改动里改正家文档与检查。键集合小且共享，消费者才能从键名推断用途，扫描也才有可能判定导出映射。
 
-- 标准键，每个键在全仓只有一个含义，统计口径是 `packages/*/*/package.json` 与 `apps/*/package.json`：`.`（包主入口）、`./package.json`（工具链访问，不是语义导出）、`./src/*`（测试与工具的源码透传，文档状态仍待定）、`./client`（浏览器入口，与 `dsh.client` 声明配对）、`./types`（类型入口）、`./typert`（typert 类型运行时）、`./remote`（`@Remote` 调用面）、`./locale/*.json`（本地化资源）、`./cordis.patch.yml`（`dsh.bundle` 声明的 bundle 补丁层）。这里不列各键的包数，因为下一个包就会让它过期；下面的复算命令会打印当前数字。
+- 标准键，每个键在全仓只有一个含义，统计口径是 `packages/*/*/package.json` 与 `apps/*/package.json`：`.`（包主入口）、`./package.json`（工具链访问，不是语义导出）、`./src/*`（测试与工具的源码透传，文档状态仍待定）、`./client`（浏览器入口，与 `mwf.client` 声明配对）、`./types`（类型入口）、`./typert`（typert 类型运行时）、`./remote`（`@Remote` 调用面）、`./locale/*.json`（本地化资源）、`./cordis.patch.yml`（`mwf.bundle` 声明的 bundle 补丁层）。这里不列各键的包数，因为下一个包就会让它过期；下面的复算命令会打印当前数字。
 - 集合之外的键（`./brand` 5 个包、`./worker` 4 个、`./startup`、`./runner`、`./protocol` 各 2 个，另有大量一次性键）没有文档含义，属待核项，不是可照抄的先例。
 - 判定条件：改动是否新增了标准集合以外的 export 键？
 - 例外：无默认例外；新增键须先改正家文档与检查，并取得对应领域专家确认。
@@ -129,10 +129,10 @@ python3 -c "import json,glob,collections; c=collections.Counter(); [c.update(jso
 pnpm run verify-package-dependencies
 
 # 2. The diagnostic names the manifest, the section, the dependency, and the expected range
-#    packages/example/package.json: dependencies.@deepseek-ai/dsh-base must use workspace:*, found workspace:~
+#    packages/example/package.json: dependencies.@metaworkflow/base must use workspace:*, found workspace:~
 
 # 3. The fix goes into the manifest, never into the policy file or the scan
-#    "dependencies": { "@deepseek-ai/dsh-base": "workspace:*" }
+#    "dependencies": { "@metaworkflow/base": "workspace:*" }
 
 # 4. Re-run the scan until every package matches the published policy
 pnpm run verify-package-dependencies
@@ -147,9 +147,9 @@ Restating a required-devDependency package list or the field rules on this page 
 
 ## 内部依赖写法按包族保证
 
-内部依赖写法按包族决定：`@deepseek-ai/dsh` 与 `@deepseek-ai/dsh-*` 用 `workspace:*`，其余内部包用 `workspace:~`，`workspace:^` 已退出。同一个依赖名在所有 workspace 内写法一致，不一致是扫描硬失败，不是评审可以放行的警告。写法统一才能保持一条解析路径，避免同一个依赖出现重复实例以及随之而来的解析差异。
+内部依赖写法按包族决定：`@metaworkflow/cli` 与 `@metaworkflow/*` 用 `workspace:*`，其余内部包用 `workspace:~`，`workspace:^` 已退出。同一个依赖名在所有 workspace 内写法一致，不一致是扫描硬失败，不是评审可以放行的警告。写法统一才能保持一条解析路径，避免同一个依赖出现重复实例以及随之而来的解析差异。
 
-- 判定在 [verify-package-dependencies.ts](../../scripts/verify-package-dependencies.ts) 的 `workspaceRange()`：`@deepseek-ai/dsh` 与 `@deepseek-ai/dsh-*` 包族取 `workspace:*`，其余内部包取 `workspace:~`；扫描遍历受管清单，比对同一依赖名的每一处声明。
+- 判定在 [verify-package-dependencies.ts](../../scripts/verify-package-dependencies.ts) 的 `workspaceRange()`：`@metaworkflow/cli` 与 `@metaworkflow/*` 包族取 `workspace:*`，其余内部包取 `workspace:~`；扫描遍历受管清单，比对同一依赖名的每一处声明。
 - 边界：同命名空间但不是 workspace 成员的包按普通第三方版本范围声明，不受包族规则约束——`@deepseek-ai/libreoffice-kit` 在 `apps/desktop-host/package.json`（dependencies）、`packages/bundle/web-app/package.json`（devDependencies）、`packages/document/office-to-pdf/package.json`（dependencies）、`packages/skill/skill-office/package.json`（dependencies）中声明为 `^0.1.5`。
 - 分布不在此复述；下面的复算命令会打印 `workspace:*`、`workspace:~`、`workspace:^` 的当前数量，以及族规则之外的精确版本声明。
 - 例外：门禁机械判定；确需例外意味着修改扫描与策略文件，并须经对应领域专家确认、在改动上说明理由。
@@ -164,22 +164,22 @@ python3 -c "import json,glob,collections; c=collections.Counter(); [c.update([r]
 ```json
 {
   "dependencies": {
-    "@deepseek-ai/dsh-base": "workspace:*",
+    "@metaworkflow/base": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
     "@deepseek-ai/libreoffice-kit": "^0.1.5"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-typert-registry": "workspace:*"
+    "@metaworkflow/typert-registry": "workspace:*"
   }
 }
 ```
 
-`dsh-*` 包写成 `workspace:~`，以及把 workspace 成员钉到外部版本范围——两者都是扫描硬失败，已退出的「一律钉精确版本」旧口径不能作为替代写法。
+`mwf-*` 包写成 `workspace:~`，以及把 workspace 成员钉到外部版本范围——两者都是扫描硬失败，已退出的「一律钉精确版本」旧口径不能作为替代写法。
 
 ```json
 {
   "dependencies": {
-    "@deepseek-ai/dsh-base": "workspace:~",
+    "@metaworkflow/base": "workspace:~",
     "@deepseek-ai/cordis": "^4.0.0"
   }
 }
@@ -191,7 +191,7 @@ python3 -c "import json,glob,collections; c=collections.Counter(); [c.update([r]
 
 - 判定条件：改动是否新增 `resolve` 钩子，包括包装既有钩子、改写同一批 specifier 的等价写法？
 - 边界：本条只管能否新增钩子；解析、热更新与插件管理三者的职责划分另行治理，并不因此允许新增钩子。
-- 唯一的解析路径是 `dsh` 源码启动注册的 tsx ESM 钩子，其理由见[源码启动 Agent Note](../../.agents/notes/implemented/architecture/2026-07-29-dsh-source-launch-tsx-esm.zh.md)。
+- 唯一的解析路径是 `mwf` 源码启动注册的 tsx ESM 钩子，其理由见[源码启动 Agent Note](../../.agents/notes/implemented/architecture/2026-07-29-dsh-source-launch-tsx-esm.zh.md)。
 - 例外：只有上述两个前置条件，且都要记录在改动上。
 
 确有新的解析需求时的合规路径，按顺序。
@@ -213,7 +213,7 @@ not a confirmation.
 ```ts ignore-check
 // Added so one specifier resolves to the local source copy
 export async function resolve(specifier: string, parentURL: string, importAttributes: object) {
-  if (specifier === '@deepseek-ai/dsh-example') return { url: localSourceUrl, shortCircuit: true }
+  if (specifier === '@metaworkflow/example') return { url: localSourceUrl, shortCircuit: true }
   return defaultResolve(specifier, parentURL, importAttributes)
 }
 

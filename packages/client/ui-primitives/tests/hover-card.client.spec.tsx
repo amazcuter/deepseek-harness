@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { HoverCard, Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
+import { HoverCard, Tooltip } from '@metaworkflow/client-ui-primitives'
 import { POINTER_GRACE_MS } from '../src/pointer-grace.ts'
 
 afterEach(cleanup)
@@ -219,9 +219,9 @@ describe('HoverCard', () => {
   })
 
   it('keeps previews below the desktop frame clearance', () => {
-    const prior = document.documentElement.style.getPropertyValue('--dsh-frame-top-clearance')
-    const priority = document.documentElement.style.getPropertyPriority('--dsh-frame-top-clearance')
-    document.documentElement.style.setProperty('--dsh-frame-top-clearance', '100px')
+    const prior = document.documentElement.style.getPropertyValue('--mwf-frame-top-clearance')
+    const priority = document.documentElement.style.getPropertyPriority('--mwf-frame-top-clearance')
+    document.documentElement.style.setProperty('--mwf-frame-top-clearance', '100px')
     try {
       const { wrapper } = mount({ variant: 'preview' })
       wrapper.getBoundingClientRect = () => DOMRect.fromRect({ x: 100, y: 600, width: 600, height: 32 })
@@ -234,8 +234,8 @@ describe('HoverCard', () => {
       expect(card.style.top).toBe('120px')
       expect(card.style.maxHeight).toBe('322px')
     } finally {
-      if (prior === '') document.documentElement.style.removeProperty('--dsh-frame-top-clearance')
-      else document.documentElement.style.setProperty('--dsh-frame-top-clearance', prior, priority)
+      if (prior === '') document.documentElement.style.removeProperty('--mwf-frame-top-clearance')
+      else document.documentElement.style.setProperty('--mwf-frame-top-clearance', prior, priority)
     }
   })
 

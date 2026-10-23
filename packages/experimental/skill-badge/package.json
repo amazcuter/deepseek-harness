@@ -1,6 +1,6 @@
 {
-  "name": "@deepseek-ai/dsh-skill-badge",
-  "description": "Bundled dsh badge skill provider for DeepSeek Harness",
+  "name": "@metaworkflow/skill-badge",
+  "description": "Bundled mwf badge skill provider for DeepSeek Harness",
   "version": "0.2.1-rc.2",
   "publishConfig": {
     "access": "public"
@@ -31,11 +31,11 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-skill": "workspace:*",
+    "@metaworkflow/skill": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-skill": "workspace:*",
+    "@metaworkflow/skill": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   }
 }

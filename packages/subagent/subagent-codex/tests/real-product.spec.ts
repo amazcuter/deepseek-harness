@@ -16,15 +16,15 @@ import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { Context } from '@deepseek-ai/cordis'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import type { Agent } from '@metaworkflow/agent'
+import SubagentRuntime from '@metaworkflow/subagent'
+import SessionProjectionRegistry from '@metaworkflow/session-projection'
 import type {
   SubprocessHandle,
   SubprocessOutcome,
   SubprocessSpawnSpec,
-} from '@deepseek-ai/dsh-subprocess'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
+} from '@metaworkflow/subprocess'
+import LocalSubprocessRuntime from '@metaworkflow/subprocess-local'
 import * as codex from '../src/index.ts'
 import type { CodexPermissionMode } from '../src/run.ts'
 import {
@@ -71,7 +71,7 @@ type ResponsesScript = readonly ResponsesBehavior[] | ((workspace: string) => re
 async function realInstanceFixture(
   script: ResponsesScript,
 ): Promise<RealInstanceFixture> {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-codex-real-'))
+  const root = mkdtempSync(join(tmpdir(), 'mwf-codex-real-'))
   roots.push(root)
   const workspace = join(root, 'workspace')
   const codexHome = join(root, 'codex-home')
@@ -99,7 +99,7 @@ async function realInstanceFixture(
     '',
   ].join('\n'))
   const env = {
-    OPENAI_API_KEY: 'dsh-fake-openai-key',
+    OPENAI_API_KEY: 'mwf-fake-openai-key',
     CODEX_HOME: codexHome,
     HOME: root,
     XDG_CONFIG_HOME: join(root, 'xdg'),
@@ -223,7 +223,7 @@ describe('real @openai/codex 0.153.4 product', () => {
       env: { ...process.env, ...harness.env },
     })
     expect(version.stdout.trim()).toBe('codex-cli 0.153.4')
-    const schemaRoot = mkdtempSync(join(tmpdir(), 'dsh-codex-schema-'))
+    const schemaRoot = mkdtempSync(join(tmpdir(), 'mwf-codex-schema-'))
     roots.push(schemaRoot)
     await execFileAsync(process.execPath, [
       codexEntry,
@@ -267,14 +267,14 @@ describe('real @openai/codex 0.153.4 product', () => {
     const recorded = fixture.requests[0]!
     expect(recorded.method).toBe('POST')
     expect(recorded.path).toBe('/v1/responses')
-    expect(recorded.headers.authorization).toBe('Bearer dsh-fake-openai-key')
+    expect(recorded.headers.authorization).toBe('Bearer mwf-fake-openai-key')
     expect(recorded.body.model).toBe('fixture-model')
     expect(responseInputTexts(recorded.body)).toContain(task)
     await expectQuiescent(harness.handles)
   }, 60_000)
 
   it('fails a missing platform payload without falling back to a host codex', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-codex-missing-payload-'))
+    const root = mkdtempSync(join(tmpdir(), 'mwf-codex-missing-payload-'))
     roots.push(root)
     const isolatedPackage = join(root, 'node_modules', '@openai', 'codex')
     mkdirSync(dirname(isolatedPackage), { recursive: true })
@@ -426,7 +426,7 @@ describe('real @openai/codex 0.153.4 product', () => {
       tool.type === 'function' && tool.name === call.name
     )))).toBe(true)
     expect(fixture.requests.every(requestEntry =>
-      requestEntry.headers.authorization === 'Bearer dsh-fake-openai-key',
+      requestEntry.headers.authorization === 'Bearer mwf-fake-openai-key',
     )).toBe(true)
     await expectQuiescent(harness.handles)
   }, 60_000)

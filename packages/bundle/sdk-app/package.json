@@ -1,6 +1,6 @@
 {
-  "name": "@deepseek-ai/dsh-sdk-app",
-  "description": "The dsh SDK profile bundle: stdio JSON-RPC serving and process lifecycle over dsh-base",
+  "name": "@metaworkflow/sdk-app",
+  "description": "The mwf SDK profile bundle: stdio JSON-RPC serving and process lifecycle over mwf-base",
   "version": "0.2.1-rc.2",
   "publishConfig": {
     "access": "public"
@@ -28,18 +28,18 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
-  "dsh": {
+  "mwf": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-cmdline": "workspace:*",
-    "@deepseek-ai/dsh-sdk-jsonrpc-server": "workspace:*",
+    "@metaworkflow/cmdline": "workspace:*",
+    "@metaworkflow/sdk-jsonrpc-server": "workspace:*",
     "@deepseek-ai/schemastery": "workspace:~",
     "commander": "^15.0.0",
-    "@deepseek-ai/dsh-skill-office": "workspace:*",
-    "@deepseek-ai/dsh-tool-workspace-dependencies": "workspace:*"
+    "@metaworkflow/skill-office": "workspace:*",
+    "@metaworkflow/tool-workspace-dependencies": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~"

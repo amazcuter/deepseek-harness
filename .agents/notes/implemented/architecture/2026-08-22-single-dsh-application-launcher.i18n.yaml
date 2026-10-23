@@ -2,39 +2,39 @@
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-22-single-dsh-application-launcher.md
-/agent-note-one-dsh-launcher-for-application-profiles:
-  en: c0b608af89f3a9b4
-  zh: 2995eef6243889d5
-/agent-note-one-dsh-launcher-for-application-profiles/problem:
-  en: 34b82725480cf15b
-  zh: 83cff42d5a38e64f
-/agent-note-one-dsh-launcher-for-application-profiles/decision:
+/agent-note-one-mwf-launcher-for-application-profiles:
+  en: c730c38f8c0adc29
+  zh: 593b1b0bc866eec3
+/agent-note-one-mwf-launcher-for-application-profiles/problem:
+  en: 36f91a2d7bf88c28
+  zh: 95b9b4b3803b62b7
+/agent-note-one-mwf-launcher-for-application-profiles/decision:
   en: a15c7c13f167e5ac
   zh: a15c7c13f167e5ac
-/agent-note-one-dsh-launcher-for-application-profiles/decision/launch-scope:
-  en: 9cea027468d5d37c
-  zh: 359c6cb7842b8b7f
-/agent-note-one-dsh-launcher-for-application-profiles/decision/profile-applications:
-  en: b2f0ae09c3343874
-  zh: 189ce711cd3138b3
-/agent-note-one-dsh-launcher-for-application-profiles/decision/typescript-sdk-customization:
-  en: 8ee88035cf64eeb3
-  zh: 6184e50fc4d47348
-/agent-note-one-dsh-launcher-for-application-profiles/decision/python-runtime:
-  en: 4b4cf5071b740c85
-  zh: 595e5fe8127f9067
-/agent-note-one-dsh-launcher-for-application-profiles/decision/enforcement:
-  en: 9ce8d86b65064f38
-  zh: 27b8ad426cb319a2
-/agent-note-one-dsh-launcher-for-application-profiles/existing-decisions-and-supersession:
-  en: 0db3a51bbdbd7dcd
-  zh: 5c1f3cfc6b7ee07f
-/agent-note-one-dsh-launcher-for-application-profiles/alternatives-considered:
-  en: 763d9f86e10af3db
-  zh: e87b35f1f7425da7
-/agent-note-one-dsh-launcher-for-application-profiles/verification:
-  en: 0b883651974d3ac3
-  zh: 8ed0bb3ee97a25f8
-/agent-note-one-dsh-launcher-for-application-profiles/consequences:
-  en: 8453d34835bf6ada
-  zh: 86308a497c969b81
+/agent-note-one-mwf-launcher-for-application-profiles/decision/launch-scope:
+  en: 670b3500b1703189
+  zh: 5e73480cd9635a35
+/agent-note-one-mwf-launcher-for-application-profiles/decision/profile-applications:
+  en: 324df1d94fdf979a
+  zh: ff07ea90f2c7db15
+/agent-note-one-mwf-launcher-for-application-profiles/decision/typescript-sdk-customization:
+  en: faca0b7c00863972
+  zh: bef43386de8e8bfd
+/agent-note-one-mwf-launcher-for-application-profiles/decision/python-runtime:
+  en: 86c014b9d16b965b
+  zh: e119a8b392cbe2a0
+/agent-note-one-mwf-launcher-for-application-profiles/decision/enforcement:
+  en: 044ebf1d25dc9a28
+  zh: b987d96d59a4ae49
+/agent-note-one-mwf-launcher-for-application-profiles/existing-decisions-and-supersession:
+  en: 374634b801e92d63
+  zh: 1db4dc9f03646f9c
+/agent-note-one-mwf-launcher-for-application-profiles/alternatives-considered:
+  en: 5fd752ec94b19512
+  zh: 0fcd912fe4d6959e
+/agent-note-one-mwf-launcher-for-application-profiles/verification:
+  en: 04e2e76a70e4b465
+  zh: df6cd67cc75b654b
+/agent-note-one-mwf-launcher-for-application-profiles/consequences:
+  en: 7202d59e38a836a0
+  zh: e9b386b429c9a000

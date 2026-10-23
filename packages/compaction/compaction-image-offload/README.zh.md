@@ -3,7 +3,7 @@ description: "面向组合 compaction 的部署的图片省略执行器说明：
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-compaction-image-offload
+# @metaworkflow/compaction-image-offload
 
 [English](README.md) | 中文
 
@@ -25,12 +25,12 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-凡是运行 agent loop（智能体循环）并带有支持图片的路由的组合，都应挂载本插件，随附的 `dsh` 基础配置已经挂载。没有它，`IMAGE_OFFLOAD_REQUIRED` 失败会进入普通恢复并以错误结束该轮次。本插件没有配置：DeepSeek 适配器执行其 file 模式和内联回退预算，pi-ai 适配器执行其 base64 上限，各自上报需要省略的数量。
+凡是运行 agent loop（智能体循环）并带有支持图片的路由的组合，都应挂载本插件，随附的 `mwf` 基础配置已经挂载。没有它，`IMAGE_OFFLOAD_REQUIRED` 失败会进入普通恢复并以错误结束该轮次。本插件没有配置：DeepSeek 适配器执行其 file 模式和内联回退预算，pi-ai 适配器执行其 base64 上限，各自上报需要省略的数量。
 
 ### 最小可用组合
 
 ```yaml
-- name: '@deepseek-ai/dsh-compaction-image-offload'
+- name: '@metaworkflow/compaction-image-offload'
 ```
 
 ### 你可以观察到什么
@@ -65,7 +65,7 @@ kind: "package-reference"
 - [独立的图片省略事件](../../../.agents/notes/implemented/architecture/2026-09-10-image-offload-events.zh.md)，记录持久选择、职责和被否决的方案。
 - [compaction seam](../compaction/README.zh.md)，相邻的摘要和文本剪枝操作。
 - [compaction-tool-result-pruner](../compaction-tool-result-pruner/README.zh.md)，保留图片选择并修剪工具输出的兄弟执行器。
-- [dsh-llm](../../llm/llm/README.zh.md)——`ImageBlock.offloaded`、`IMAGE_OFFLOAD_REQUIRED` 与占位投影。
+- [mwf-llm](../../llm/llm/README.zh.md)——`ImageBlock.offloaded`、`IMAGE_OFFLOAD_REQUIRED` 与占位投影。
 - [llm-deepseek 适配器](../../llm/llm-deepseek/README.zh.md)与 [llm-pi-ai 适配器](../../llm/llm-pi-ai/README.zh.md)——上报省略数量的路由预算。
 
 -----

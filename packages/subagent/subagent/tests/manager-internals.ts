@@ -1,7 +1,7 @@
 /** Package-private manager state used to place deterministic lifecycle races. */
 
 import type { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session'
+import type { SessionId } from '@metaworkflow/session'
 import type SubagentManager from '../src/manager.ts'
 
 /** Return the service's bound subagent manager. */

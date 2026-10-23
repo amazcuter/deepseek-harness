@@ -5,27 +5,27 @@
 /:
   en: 8805672f8507e16d
   zh: 07696ec60f8d86e8
-/deepseek-ai-dsh-deepseek-llm-api-extensions:
-  en: f49157e80e6436e6
-  zh: 7dd755bd83603393
-/deepseek-ai-dsh-deepseek-llm-api-extensions/summary:
-  en: 2ee01d6439e60359
-  zh: a1fb7c4c0d686895
-/deepseek-ai-dsh-deepseek-llm-api-extensions/table-of-contents:
+/metaworkflow-deepseek-llm-api-extensions:
+  en: f7e434f28ab32c7b
+  zh: 4e3975a7b975263c
+/metaworkflow-deepseek-llm-api-extensions/summary:
+  en: 8bcc3bbf36ea6804
+  zh: 04504487d952600b
+/metaworkflow-deepseek-llm-api-extensions/table-of-contents:
   en: 6b7f62c318c9aad6
   zh: 5e22d58884e60c87
-/deepseek-ai-dsh-deepseek-llm-api-extensions/service:
-  en: d9782207ffab7c50
-  zh: 22c2a10a5f0de61f
-/deepseek-ai-dsh-deepseek-llm-api-extensions/model-experience:
-  en: 88a785350ced5c14
-  zh: 755349be023a3f5c
-/deepseek-ai-dsh-deepseek-llm-api-extensions/model-experience/kv-cache-effect:
+/metaworkflow-deepseek-llm-api-extensions/service:
+  en: 0303e8948fddcb3b
+  zh: 15fa768ea2dc7596
+/metaworkflow-deepseek-llm-api-extensions/model-experience:
+  en: 4b27127d87d119e1
+  zh: b4e0030d34d82394
+/metaworkflow-deepseek-llm-api-extensions/model-experience/kv-cache-effect:
   en: 83eb7f1e6ce80b45
   zh: 516811171411ffca
-/deepseek-ai-dsh-deepseek-llm-api-extensions/known-limitations-and-deferred-work:
+/metaworkflow-deepseek-llm-api-extensions/known-limitations-and-deferred-work:
   en: 440169524f1a1323
   zh: 935424afe40201b7
-/deepseek-ai-dsh-deepseek-llm-api-extensions/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-deepseek-llm-api-extensions/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

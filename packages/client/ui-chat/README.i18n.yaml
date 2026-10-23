@@ -5,48 +5,48 @@
 /:
   en: d88f75fc0178ba53
   zh: 52bc7ae9551ab1cf
-/deepseek-ai-dsh-client-ui-chat:
-  en: 02bd72c12ada3218
-  zh: 331b3a38b3ddfc6e
-/deepseek-ai-dsh-client-ui-chat/summary:
+/metaworkflow-client-ui-chat:
+  en: b5cc34109215a64d
+  zh: 16082f8c2f654360
+/metaworkflow-client-ui-chat/summary:
   en: fba5b2fb8080e2dd
   zh: 32c337123b7dfbcb
-/deepseek-ai-dsh-client-ui-chat/table-of-contents:
+/metaworkflow-client-ui-chat/table-of-contents:
   en: 41cd21266011d571
   zh: 3172d1a2acbb27b7
-/deepseek-ai-dsh-client-ui-chat/reference-previews:
-  en: aa6b1abec265bf1b
-  zh: 7260ce78afba2584
-/deepseek-ai-dsh-client-ui-chat/hidden-chat-rows:
+/metaworkflow-client-ui-chat/reference-previews:
+  en: ec4774428d5f7150
+  zh: b73f94ff6e209d0f
+/metaworkflow-client-ui-chat/hidden-chat-rows:
   en: cbf1f0a2205046a5
   zh: 2e59d0815351349f
-/deepseek-ai-dsh-client-ui-chat/command-and-failure-rows:
-  en: 41dcd70e14ebe9cc
-  zh: ededead572b59037
-/deepseek-ai-dsh-client-ui-chat/turn-token-usage:
-  en: bb20da372b144302
-  zh: 75a8c5ab7ec8d665
-/deepseek-ai-dsh-client-ui-chat/completed-turn-footer:
+/metaworkflow-client-ui-chat/command-and-failure-rows:
+  en: fdf7d775cae842e1
+  zh: 9eb978560a1d6713
+/metaworkflow-client-ui-chat/turn-token-usage:
+  en: 5808a0cb0eddfe6b
+  zh: 61040e25e568cdf9
+/metaworkflow-client-ui-chat/completed-turn-footer:
   en: b4cd36e7ab91281e
   zh: 8ccf412b9dde61d5
-/deepseek-ai-dsh-client-ui-chat/turn-process-folding:
-  en: 4cd7c81d70d2f365
-  zh: 18eca6d16e44b6c2
-/deepseek-ai-dsh-client-ui-chat/grouped-rendering:
-  en: 81d7ca7595c34d39
-  zh: 29eb8248c75e9ea6
-/deepseek-ai-dsh-client-ui-chat/scroll-ownership:
+/metaworkflow-client-ui-chat/turn-process-folding:
+  en: 6fc8417ff26b5e6e
+  zh: 2dca6d93ca2934e8
+/metaworkflow-client-ui-chat/grouped-rendering:
+  en: 8e50e0abe19cc2ec
+  zh: e4efe29dc8bc412a
+/metaworkflow-client-ui-chat/scroll-ownership:
   en: 284737900cb75668
   zh: 12e0844082ff79ce
-/deepseek-ai-dsh-client-ui-chat/model-experience:
+/metaworkflow-client-ui-chat/model-experience:
   en: c17b4dd43a61c569
   zh: f7414309810c3a08
-/deepseek-ai-dsh-client-ui-chat/model-experience/kv-cache-effect:
+/metaworkflow-client-ui-chat/model-experience/kv-cache-effect:
   en: 15a7151ff9268f15
   zh: 6eae68c718be579b
-/deepseek-ai-dsh-client-ui-chat/known-limitations-and-deferred-work:
-  en: 811787a5d2feaa90
-  zh: 3f1697bbc1fc7691
-/deepseek-ai-dsh-client-ui-chat/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-client-ui-chat/known-limitations-and-deferred-work:
+  en: 7b8ad70caa1509b9
+  zh: a894ce49b7d8eff5
+/metaworkflow-client-ui-chat/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

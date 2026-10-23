@@ -60,7 +60,7 @@ jobs:
       label: ${{ steps.check.outputs.label }}
     env:
       DESKTOP_PACKAGE_SELECTION: ${{ needs.route.outputs.selection }}
-      DSH_TELEMETRY_DISABLED: '1'
+      MWF_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -101,7 +101,7 @@ jobs:
     env:
       DESKTOP_APPROVED_PACKAGE: ${{ needs.prepare.outputs.approval }}
       DESKTOP_PUBLISH_ROUTE: ${{ needs.prepare.outputs.route }}
-      DSH_TELEMETRY_DISABLED: '1'
+      MWF_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@v7.0.1
         with:

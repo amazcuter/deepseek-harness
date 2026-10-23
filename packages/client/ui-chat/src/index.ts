@@ -1,5 +1,5 @@
 /** Host registration for browser Chat preferences. */
-import type {} from '@deepseek-ai/dsh-settings'
+import type {} from '@metaworkflow/settings'
 
 import type { Volatile, Context } from '@deepseek-ai/cordis'
 import type { ChatSettings, CollapseTiming, LinkOpening, PerformanceUsageMode } from './chat-settings.ts'

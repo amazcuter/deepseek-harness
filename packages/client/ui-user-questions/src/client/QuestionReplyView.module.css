@@ -14,8 +14,8 @@
   background: var(--dsw-specific-bubble);
   color: var(--dsw-alias-label-primary);
   cursor: pointer;
-  font-size: var(--dsh-content-font-size, 14px);
-  line-height: calc(22px + var(--dsh-content-font-delta, 0px));
+  font-size: var(--mwf-content-font-size, 14px);
+  line-height: calc(22px + var(--mwf-content-font-delta, 0px));
   text-align: left;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -60,15 +60,15 @@
 .label {
   color: var(--dsw-alias-label-secondary);
   display: block;
-  font-size: var(--dsh-content-font-size-secondary, 13px);
-  line-height: calc(18px + var(--dsh-content-font-delta-secondary, 0px));
+  font-size: var(--mwf-content-font-size-secondary, 13px);
+  line-height: calc(18px + var(--mwf-content-font-delta-secondary, 0px));
 }
 
 .summary {
   display: block;
   margin-top: 3px;
   color: var(--dsw-alias-label-primary);
-  font-size: var(--dsh-content-font-size, 14px);
+  font-size: var(--mwf-content-font-size, 14px);
 }
 
 .text {

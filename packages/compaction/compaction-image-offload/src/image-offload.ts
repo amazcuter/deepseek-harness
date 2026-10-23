@@ -1,7 +1,7 @@
 /** Select and log permanent image omissions in current model-request order. */
 
-import type { ContentBlock } from '@deepseek-ai/dsh-llm'
-import type { Session, SessionSeq } from '@deepseek-ai/dsh-session'
+import type { ContentBlock } from '@metaworkflow/llm'
+import type { Session, SessionSeq } from '@metaworkflow/session'
 import type { ImageOffloadTarget } from './projection.ts'
 
 /**

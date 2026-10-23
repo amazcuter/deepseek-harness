@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 @contextmanager
-def workspace(artifacts: Path | None = None, *, prefix: str = "dsh-office-render-") -> Iterator[Path]:
+def workspace(artifacts: Path | None = None, *, prefix: str = "mwf-office-render-") -> Iterator[Path]:
     """Retain only Office inputs, PNG batches, and errors before cleaning the temporary root."""
     if artifacts is not None:
         artifacts.mkdir(parents=True, exist_ok=False)

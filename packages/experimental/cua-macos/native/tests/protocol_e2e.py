@@ -190,7 +190,7 @@ def main():
     # A complete final frame remains valid when the writer closes without a newline.
     payload = b"\n".join(case[0] for case in expected)
     malformed = [(b'{"id":"broken-tail","method":', None, "INVALID_REQUEST", None)]
-    with tempfile.TemporaryDirectory(prefix="dsh-cua-protocol-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="mwf-cua-protocol-") as temporary:
         root = Path(temporary)
         for name, wire, replies in [
             ("ordered", payload, expected),

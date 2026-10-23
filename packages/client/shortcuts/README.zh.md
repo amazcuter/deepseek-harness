@@ -3,7 +3,7 @@ description: "为每台设备自定义应用键盘命令"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-shortcuts
+# @metaworkflow/client-shortcuts
 
 [English](README.md) | 中文
 
@@ -31,7 +31,7 @@ Web 应用 bundle 自动挂载此包。功能插件在 `ctx.effect()` 中通过 
 
 功能插件通过 `registerFixed()` 贡献只读序列，通过 `observeFixedInput()` 观察局部控件处理后的输入。固定操作行随所属注册和语言变化；owner 可使用 `application` 展示分组，操作仍不可编辑。每个操作至少声明一个物理按键组合，不保存覆盖配置。这些组合参与冲突校验，不能分配给可编辑命令。Host 的 `stopSequenceMs` 配置控制连续两次 Esc 的最大间隔，默认为 500 毫秒，只接受 1 至 2,147,483,646 的整数，确保过期计时不超过浏览器定时器上限；页面加载时采用已校验的值。
 
-偏好只保存覆盖：缺少命令表示继承默认，`null` 表示清除绑定，恢复默认则删除覆盖。全部恢复只影响当前运行端／平台配置。Web 使用同 origin 的 `dsh.keybindings.v1` 存储；Desktop 使用 Electron 设备本地的 `userData/keybindings.json`，与 Harness home 和工作区设置独立。其 schema 版本与 Session 数据无关。 macOS 和 Windows Desktop 读取版本 1 时不重写，在下次成功编辑时保存为版本 2；版本 2 增加可选的 `secondCode`。Web 和 Linux 保留原有绑定限制。
+偏好只保存覆盖：缺少命令表示继承默认，`null` 表示清除绑定，恢复默认则删除覆盖。全部恢复只影响当前运行端／平台配置。Web 使用同 origin 的 `mwf.keybindings.v1` 存储；Desktop 使用 Electron 设备本地的 `userData/keybindings.json`，与 Harness home 和工作区设置独立。其 schema 版本与 Session 数据无关。 macOS 和 Windows Desktop 读取版本 1 时不重写，在下次成功编辑时保存为版本 2；版本 2 增加可选的 `secondCode`。Web 和 Linux 保留原有绑定限制。
 
 Windows 和 macOS Desktop 接受一至两个不同的受支持非修饰键，可搭配零至四个修饰键。双键绑定要求按住时间重叠，顺序不限；先后按键不匹配。仅含修饰键的绑定会被拒绝。同一修饰键集合下，单键与包含该键的双键组合冲突，包括固定操作占用的按键。已保存的绑定若与当前挂载的固定操作冲突，会保留显示但不能执行。包括 Command+C 和 Ctrl+C 在内的所有有效绑定优先于原生操作、编辑器、终端、内嵌页面和模态控件。录制和输入法组合状态仍受保护。只有两个键都按住时，双键组合才优先接管；第一个键仍正常处理，可能输入一个字符。
 

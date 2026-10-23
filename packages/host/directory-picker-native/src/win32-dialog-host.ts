@@ -14,7 +14,7 @@ import type { Win32DialogWorkerData } from './win32-dialog-worker.ts'
 /**
  * Spawn the dialog child process. Built consumers launch the bundled CJS
  * entry next to this module under plain node; unbuilt (source) consumers
- * bootstrap tsx first, mirroring the dsh CLI's source launch. The child
+ * bootstrap tsx first, mirroring the mwf CLI's source launch. The child
  * opens its dialog as foreground on its own: `runFolderDialog` synthesizes
  * an Alt press before `Show`, which matters when a background host spawned
  * the child.
@@ -22,7 +22,7 @@ import type { Win32DialogWorkerData } from './win32-dialog-worker.ts'
  * @returns the spawned child process.
  */
 export function spawnDialogWorker(data: Win32DialogWorkerData): ReturnType<typeof spawn> {
-  const env = { ...process.env, DSH_DIALOG_TITLE: data.title }
+  const env = { ...process.env, MWF_DIALOG_TITLE: data.title }
   const stdio: StdioOptions = ['ignore', 'inherit', 'inherit', 'ipc']
   /* v8 ignore next 3 -- the built-output arm: tests always run unbuilt (src/) */
   if (!import.meta.url.endsWith('.ts')) {

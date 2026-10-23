@@ -50,7 +50,7 @@ export class ModuleFiles {
   now(): number {
     let directory: string
     try {
-      directory = mkdtempSync(join(tmpdir(), 'dsh-hmr-clock-'))
+      directory = mkdtempSync(join(tmpdir(), 'mwf-hmr-clock-'))
     } catch (_error) {
       // An unwritable temporary directory leaves the less precise system clock.
       return Date.now()

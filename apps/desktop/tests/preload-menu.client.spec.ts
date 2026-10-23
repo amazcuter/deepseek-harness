@@ -19,7 +19,7 @@ it('keeps caption menus absent until the application frame replaces loading', as
   document.body.replaceChildren()
   menu = installWindowsMenu()
   const loading = document.createElement('div')
-  loading.dataset.dshBoot = ''
+  loading.dataset.mwfBoot = ''
   document.body.append(loading)
   await new Promise<void>((resolve) => { queueMicrotask(resolve) })
   expect(document.querySelector('[data-windows-menu]')).toBeNull()

@@ -45,7 +45,7 @@ export interface MandatoryUpdateWindowOptions {
 }
 
 // main.ts's protocol.handle shell route serves this document and its renderer assets; the modal requires that route.
-const page = 'dsh-app://shell/mandatory-update.html'
+const page = 'mwf-app://shell/mandatory-update.html'
 
 /** Shell-owned update presentation; Windows embeds it in the main document without a child window. */
 export class DesktopMandatoryUpdateWindow {

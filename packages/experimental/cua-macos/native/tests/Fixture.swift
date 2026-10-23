@@ -87,7 +87,7 @@ final class Fixture: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
         menu.addItem(editItem)
         NSApplication.shared.mainMenu = menu
         window = NSWindow(contentRect: NSRect(x: 100, y: 100, width: 420, height: 500), styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        window.title = "DSH CUA primary fixture"
+        window.title = "MWF CUA primary fixture"
         window.isReleasedWhenClosed = false
         window.animationBehavior = .none
         window.acceptsMouseMovedEvents = true
@@ -96,7 +96,7 @@ final class Fixture: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
         let content = window.contentView!
         field = NSTextField(frame: NSRect(x: 30, y: 425, width: 350, height: 28))
         field.placeholderString = "Test text"
-        field.setAccessibilityIdentifier("dsh-cua-test-text")
+        field.setAccessibilityIdentifier("mwf-cua-test-text")
         field.setAccessibilityLabel("Fixture text")
         field.delegate = self
         content.addSubview(field)
@@ -105,7 +105,7 @@ final class Fixture: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
         content.addSubview(overlayButton)
         let button = NSButton(title: "Increment primary", target: self, action: #selector(increment))
         button.frame = NSRect(x: 30, y: 365, width: 200, height: 32)
-        button.setAccessibilityIdentifier("dsh-cua-test-button")
+        button.setAccessibilityIdentifier("mwf-cua-test-button")
         content.addSubview(button)
         countLabel = NSTextField(labelWithString: "Count: 0")
         countLabel.frame = NSRect(x: 260, y: 371, width: 130, height: 24)
@@ -131,7 +131,7 @@ final class Fixture: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(scrolled), name: NSView.boundsDidChangeNotification, object: scroll.contentView)
         content.addSubview(scroll)
         second = NSWindow(contentRect: NSRect(x: 560, y: 100, width: 320, height: 180), styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        second.title = "DSH CUA secondary fixture"
+        second.title = "MWF CUA secondary fixture"
         second.isReleasedWhenClosed = false
         second.animationBehavior = .none
         second.collectionBehavior = [.canJoinAllApplications, .stationary]

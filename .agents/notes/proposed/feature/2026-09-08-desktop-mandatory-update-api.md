@@ -33,7 +33,7 @@ x-client-locale: zh_CN
 x-client-timezone-offset: 28800
 x-client-arch: x64
 x-client-update-channel: nightly
-x-client-bundled-dsh-version: 0.1.3-rc.2
+x-client-bundled-mwf-version: 0.1.3-rc.2
 ```
 
 All listed headers are required on every Desktop request; a required header may still carry an empty value, as `x-client-bundle-id` does. The values describing installed software come from the application and its release metadata, not editable UI fields.
@@ -41,13 +41,13 @@ All listed headers are required on every Desktop request; a required header may 
 | Header | Meaning and allowed values |
 |---|---|
 | `x-client-platform` | `desktop-win` or `desktop-mac` |
-| `x-client-version` | Shared client build version, inlined as `DSH_CLIENT_VERSION` at packaging; full SemVer retaining prerelease identifiers, initially equal to the bundled dsh version |
+| `x-client-version` | Shared client build version, inlined as `MWF_CLIENT_VERSION` at packaging; full SemVer retaining prerelease identifiers, initially equal to the bundled mwf version |
 | `x-client-bundle-id` | Platform uses this field to identify the Chat application; the field does not apply to Harness, so Desktop sends it empty |
 | `x-client-locale` | `zh_CN` or `en_US`, taken from the active UI language's primary subtag; selects localized content, not region |
 | `x-client-timezone-offset` | Whole-second offset from UTC, positive east of Greenwich, sampled from the shell for every request |
 | `x-client-arch` | Windows `x64`; macOS `x64` or `arm64` |
 | `x-client-update-channel` | Initially always `nightly`, independent of version suffix |
-| `x-client-bundled-dsh-version` | Full bundled dsh version from release metadata |
+| `x-client-bundled-mwf-version` | Full bundled mwf version from release metadata |
 
 | Query | Client behavior | Initial backend behavior |
 |---|---|---|
@@ -104,7 +104,7 @@ Do not add `mode`, `force_update`, `show_key`, `target_version`, button copy, or
 
 Missing required headers, invalid SemVer, and unsupported platform/architecture/channel combinations return explicit parameter errors, not no-force success or a mandatory policy. Prefer the existing business meanings of `biz_code = 1` for a missing version and `biz_code = 2` for an invalid version; final error allocation belongs to the backend. Service failures must not masquerade as success because success may remove an existing block.
 
-Match platform, architecture, Desktop version, bundled dsh version, and channel using server-owned ranges and precedence. Use complete SemVer, not lexical sorting or truncated prerelease values. Initially the two versions are equal and channel is fixed Nightly; independent revisions and channel switching are deferred. Do not require a downgrade or stop returning `40005` merely because a client has queried or displayed it before.
+Match platform, architecture, Desktop version, bundled mwf version, and channel using server-owned ranges and precedence. Use complete SemVer, not lexical sorting or truncated prerelease values. Initially the two versions are equal and channel is fixed Nightly; independent revisions and channel switching are deferred. Do not require a downgrade or stop returning `40005` merely because a client has queried or displayed it before.
 
 ### Policy publication and current decisions
 
@@ -123,7 +123,7 @@ Capacity and rate limits must account for recurring guest requests, client-side 
 
 ## Alternatives considered
 
-**Relying on remote business interception.** Local dsh requests need not reach the remote gateway; an independent guest query is necessary.
+**Relying on remote business interception.** Local mwf requests need not reach the remote gateway; an independent guest query is necessary.
 
 **Reusing the mobile nested payload for Desktop.** The backend agreement flattens Desktop fields. Preserve mobile compatibility by platform, without making new Desktop clients support an undistributed nested variant.
 
@@ -138,7 +138,7 @@ Capacity and rate limits must account for recurring guest requests, client-side 
 | No policy match | `code = 0`, `biz_code = 0`, `biz_data = null` |
 | Policy match | Top-level `40005`, direct content and page under `data` |
 | Changed or omitted query parameters | Same decision for otherwise identical conditions |
-| Equal prerelease Desktop/dsh versions, fixed Nightly | Full SemVer matching, no downgrade or channel-switch requirement |
+| Equal prerelease Desktop/mwf versions, fixed Nightly | Full SemVer matching, no downgrade or channel-switch requirement |
 | Client no longer matches, including after upgrading | No-force success; does not invalidate updater artifacts |
 | Unavailable resolving release, page, or applicable feed | Policy activation rejected |
 | Invalid required fields or service failure | Explicit error, not false no-force success |

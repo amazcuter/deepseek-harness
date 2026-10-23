@@ -1,6 +1,6 @@
 /** Browser-local recently selected IANA time zones. */
 
-const STORAGE_KEY = 'dsh.schedule.recent-time-zones.v1'
+const STORAGE_KEY = 'mwf.schedule.recent-time-zones.v1'
 const LIMIT = 5
 
 /** First-run choices follow the device rather than guessing location from UI language. */

@@ -5,51 +5,51 @@
 /:
   en: 09cb25e4bcf56851
   zh: a0a5913941d23eff
-/deepseek-ai-dsh-sdk-client:
-  en: b786affe03adf63c
-  zh: aacb5d4af10ca477
-/deepseek-ai-dsh-sdk-client/summary:
-  en: 05b18f61ad4c2f54
-  zh: 19f88d7bcd2cca0f
-/deepseek-ai-dsh-sdk-client/table-of-contents:
+/metaworkflow-sdk-client:
+  en: 09fef74ab40e06f7
+  zh: 398daa7607a189bd
+/metaworkflow-sdk-client/summary:
+  en: 2b3cf191c201712c
+  zh: c5c1b4adceda46b8
+/metaworkflow-sdk-client/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/deepseek-ai-dsh-sdk-client/use-this-package:
-  en: ff421f12a5db28a4
-  zh: 2ca9b71a3458b5e0
-/deepseek-ai-dsh-sdk-client/use-this-package/running-agent-turns-with-deepseekharness:
+/metaworkflow-sdk-client/use-this-package:
+  en: 79569323056e5ada
+  zh: 2ae5be6f01d7ea15
+/metaworkflow-sdk-client/use-this-package/running-agent-turns-with-deepseekharness:
   en: 01c58dddd7e62de2
   zh: 6dbd46e244f3f135
-/deepseek-ai-dsh-sdk-client/use-this-package/lower-level-control-with-harnessclient:
-  en: 8778901987da6e59
-  zh: 3d09fe4b0b393a15
-/deepseek-ai-dsh-sdk-client/understand-the-implementation:
+/metaworkflow-sdk-client/use-this-package/lower-level-control-with-harnessclient:
+  en: ccf24019a5e94815
+  zh: f173177218a82747
+/metaworkflow-sdk-client/understand-the-implementation:
   en: 8773f50c51da85f0
   zh: 4649ebc69357deb0
-/deepseek-ai-dsh-sdk-client/understand-the-implementation/design-concept:
-  en: 6632c06d819233cc
-  zh: 207d55d8217ec6b1
-/deepseek-ai-dsh-sdk-client/understand-the-implementation/source-map:
+/metaworkflow-sdk-client/understand-the-implementation/design-concept:
+  en: eaac35e83e4b470f
+  zh: c45abe9d737275bf
+/metaworkflow-sdk-client/understand-the-implementation/source-map:
   en: a3c7978a80f5aba3
   zh: fdc4dfdafd2eccfa
-/deepseek-ai-dsh-sdk-client/understand-the-implementation/owned-activity-flow:
+/metaworkflow-sdk-client/understand-the-implementation/owned-activity-flow:
   en: 94a42babac5f1c7d
   zh: df9e42ed02f7d002
-/deepseek-ai-dsh-sdk-client/understand-the-implementation/errors-and-teardown:
+/metaworkflow-sdk-client/understand-the-implementation/errors-and-teardown:
   en: 165364de2cee0a9f
   zh: c4dc37b44e1e621e
-/deepseek-ai-dsh-sdk-client/further-exploration:
-  en: 1048b6b2c0954717
-  zh: 7ce29dd1ca545e06
-/deepseek-ai-dsh-sdk-client/model-experience:
+/metaworkflow-sdk-client/further-exploration:
+  en: 8d7bac431f200269
+  zh: 512872f181aa3046
+/metaworkflow-sdk-client/model-experience:
   en: e82a55513d3cd30e
   zh: ecd8c0875ff2fb87
-/deepseek-ai-dsh-sdk-client/model-experience/kv-cache-effect:
+/metaworkflow-sdk-client/model-experience/kv-cache-effect:
   en: 7abe0be104a791e7
   zh: 445311f78b1069ca
-/deepseek-ai-dsh-sdk-client/known-limitations-and-deferred-work:
-  en: 3f51394ef0699943
-  zh: 6d4c3180fced8db1
-/deepseek-ai-dsh-sdk-client/known-limitations-and-deferred-work/dev-note:
+/metaworkflow-sdk-client/known-limitations-and-deferred-work:
+  en: 4c9a456fb6db22f7
+  zh: 0b0e9263d901d39f
+/metaworkflow-sdk-client/known-limitations-and-deferred-work/dev-note:
   en: 6177a56f053936a4
   zh: 0f4b20228c2d15da

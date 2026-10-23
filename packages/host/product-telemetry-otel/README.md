@@ -3,7 +3,7 @@ description: "Configure explicit product usage events, OTLP/HTTP routing, batchi
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-host-product-telemetry-otel
+# @metaworkflow/host-product-telemetry-otel
 
 English | [中文](README.zh.md)
 
@@ -25,24 +25,24 @@ Send selected product usage events to an OTLP/HTTP collector. Events carry a nam
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the plugin in a Cordis composition with the application identity; override the collector endpoint when needed. The Desktop composition mounts it when [product analytics](../../client/product-analytics/README.md) is enabled; ordinary Web does not. The standalone example below reads `DSH_APP_VERSION`; Desktop supplies `DSH_CLIENT_VERSION` through its native launcher. Both must name the running release; the schema rejects an absent version.
+Mount the plugin in a Cordis composition with the application identity; override the collector endpoint when needed. The Desktop composition mounts it when [product analytics](../../client/product-analytics/README.md) is enabled; ordinary Web does not. The standalone example below reads `MWF_APP_VERSION`; Desktop supplies `MWF_CLIENT_VERSION` through its native launcher. Both must name the running release; the schema rejects an absent version.
 
 ```yaml
-- name: '@deepseek-ai/dsh-otel'
-- name: '@deepseek-ai/dsh-host-product-telemetry-otel'
+- name: '@metaworkflow/otel'
+- name: '@metaworkflow/host-product-telemetry-otel'
   config:
-    endpoint: https://dsh-otel-collector.deepseeksvc.com/v1/logs
+    endpoint: https://mwf-otel-collector.deepseeksvc.com/v1/logs
     serviceName: deepseek-harness
-    serviceVersion: !!js process.env.DSH_APP_VERSION
+    serviceVersion: !!js process.env.MWF_APP_VERSION
     compression: gzip
     scheduledDelayMillis: 30000
 ```
 
 | Field | Default | Meaning |
 |---|---|---|
-| `endpoint` | `https://dsh-otel-collector.deepseeksvc.com/v1/logs` | Full HTTP(S) logs URL |
+| `endpoint` | `https://mwf-otel-collector.deepseeksvc.com/v1/logs` | Full HTTP(S) logs URL |
 | `serviceName`, `serviceVersion` | required | Application identity on the OTel resource |
-| `channel` | `dsh_otel_report` | Collector `x-channel` header |
+| `channel` | `mwf_otel_report` | Collector `x-channel` header |
 | `compression` | SDK environment | `gzip` or `none`; omission honors OTel compression environment variables |
 | `maxExportBatchSize`, `maxQueueSize` | `512`, `2048` | Record-count limits; batch size cannot exceed queue size |
 | `scheduledDelayMillis` | `30000` | Partial-batch export interval |

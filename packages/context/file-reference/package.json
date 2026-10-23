@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-file-reference",
+  "name": "@metaworkflow/file-reference",
   "description": "File-reference discovery contract and shared @file grammar",
   "version": "0.2.1-rc.2",
   "publishConfig": {
@@ -36,11 +36,11 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@metaworkflow/agent": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~"
   }
 }

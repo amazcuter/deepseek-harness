@@ -34,7 +34,7 @@ def main():
             raise RuntimeError('Unlock the macOS console session before running this interactive check')
         if capabilities['permissions'] != {'accessibility': True, 'screenRecording': True}:
             raise RuntimeError('Accessibility and Screen Recording grants are required')
-        with tempfile.TemporaryDirectory(prefix='dsh-cua-axless-') as directory:
+        with tempfile.TemporaryDirectory(prefix='mwf-cua-axless-') as directory:
             root = Path(directory)
             state_path = root / 'state.json'
             def app_binary(name, state_file):
@@ -43,7 +43,7 @@ def main():
                 (contents / 'Info.plist').write_bytes(plistlib.dumps({
                     'CFBundleIdentifier': 'org.deepseek-harness.cua.' + root.name + '.' + name,
                     'CFBundleExecutable': 'fixture', 'CFBundleName': name, 'CFBundlePackageType': 'APPL',
-                    'DSHFixtureStatePath': str(state_file),
+                    'MWFFixtureStatePath': str(state_file),
                 }))
                 return contents / 'MacOS/fixture'
 

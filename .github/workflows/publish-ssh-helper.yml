@@ -1,11 +1,11 @@
 name: Release (SSH helper)
 
-# Validation accepts any ref; publication requires the matching dsh-v<version> tag.
+# Validation accepts any ref; publication requires the matching mwf-v<version> tag.
 on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish verified archives to GitHub Release. Must run from the matching dsh-v<version> tag.
+        description: Publish verified archives to GitHub Release. Must run from the matching mwf-v<version> tag.
         type: boolean
         required: true
         default: false
@@ -36,7 +36,7 @@ jobs:
           import { readFileSync, appendFileSync } from 'node:fs';
           import { execFileSync } from 'node:child_process';
           const {version} = JSON.parse(readFileSync('package.json', 'utf8'));
-          if (process.env.PUBLISH === 'true' && (process.env.GITHUB_REF_TYPE !== 'tag' || process.env.GITHUB_REF_NAME !== `dsh-v${version}`)) throw new Error('Publication requires the matching dsh-v<version> tag');
+          if (process.env.PUBLISH === 'true' && (process.env.GITHUB_REF_TYPE !== 'tag' || process.env.GITHUB_REF_NAME !== `mwf-v${version}`)) throw new Error('Publication requires the matching mwf-v<version> tag');
           const commit = execFileSync('git', ['rev-parse', 'HEAD'], {encoding:'utf8'}).trim();
           appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\ncommit=${commit}\n`);
           JS
