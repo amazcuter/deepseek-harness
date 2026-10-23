@@ -1,0 +1,259 @@
+/* Project workbench: the canvas and the node inspector stack in the middle
+   column with the coordinator beside them. A narrow frame collapses to one
+   column and shows only the section the segmented control selected. */
+
+.page {
+  /* Anonymous inline-size container (CSS modules hash container names per
+     module). The three sections react to the panel's own width, not the
+     window's, so the sidebar's presence cannot squeeze them. */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  height: 100%;
+  padding: 28px clamp(16px, 4vw, 48px) 40px;
+  overflow: auto;
+  color: var(--dsw-alias-label-primary);
+  container-type: inline-size;
+}
+
+.page > * {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.identity {
+  display: flex;
+  flex: 1 1 240px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  overflow: hidden;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 28px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.path {
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The segmented control belongs to the narrow frame alone; a wide frame shows
+   all three sections at once. */
+.sections {
+  display: none;
+}
+
+.notice {
+  margin: 0;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  border: 1px solid var(--dsw-alias-state-warn-primary);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-settings-card-fill);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.errorDetail {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-caption);
+  overflow-wrap: anywhere;
+}
+
+.grid {
+  display: grid;
+  grid-template-areas:
+    'canvas chat'
+    'details chat';
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  align-items: start;
+  gap: 12px;
+}
+
+.canvas,
+.details,
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--dsw-alias-settings-card-stroke);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-settings-card-fill);
+}
+
+.canvas {
+  grid-area: canvas;
+}
+
+.details {
+  grid-area: details;
+}
+
+.chat {
+  grid-area: chat;
+  align-self: stretch;
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.runControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-caption);
+}
+
+.canvasSurface {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 180px;
+  padding: 16px;
+  border: 1px dashed var(--dsw-alias-settings-card-stroke);
+  border-radius: var(--dsw-radius-sm);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.emptyDescription {
+  max-width: 420px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.emptyActions {
+  display: flex;
+  justify-content: center;
+}
+
+.detailTabs {
+  margin: 4px 0;
+}
+
+.tabPanel {
+  outline: none;
+}
+
+.tabPanel:focus-visible {
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline-offset: 2px;
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.label {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+/* The locked composer keeps its action at the trailing edge, where the
+   enabled one will sit, instead of stretching across the card. */
+.send {
+  align-self: flex-end;
+  min-width: 72px;
+}
+
+/* One column, one section at a time: the narrow frame trades the three-column
+   comparison for a switch, so nothing squeezes. */
+@container (max-width: 880px) {
+  .sections {
+    display: block;
+  }
+
+  .grid {
+    grid-template-areas:
+      'canvas'
+      'details'
+      'chat';
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .grid > [data-active='false'] {
+    display: none;
+  }
+
+  /* The tab strip divides the card evenly, so the longest node tab wraps. Let
+     the pill grow and balance the break instead of overflowing 34px or
+     leaving one character on its own line. */
+  .detailTabs button {
+    height: auto;
+    min-height: 34px;
+    padding: 4px 4px;
+    line-height: 18px;
+    white-space: normal;
+    text-wrap: balance;
+  }
+}

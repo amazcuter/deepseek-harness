@@ -9,10 +9,11 @@ import { SlotRegistry } from '@metaworkflow/client-ui-renderer/client'
 import { resolveSlotLabel } from '@metaworkflow/client-ui-slots'
 import { RemoteError, TestRemote, allowAllAccess, usePinnedBrowserLanguages } from '@metaworkflow/client-test-runtime'
 import { ok, RemoteMock } from '@metaworkflow/remote-mock'
-import { apply, inject, PROJECTS_PANEL_ID } from '../src/client/index.ts'
+import { apply, inject, PROJECTS_PANEL_ID, PROJECT_PANEL_ID } from '../src/client/index.ts'
 import { ProjectsPage, type ProjectsPageInjected } from '../src/client/ProjectsPage.tsx'
 import type { ProjectId, ProjectSummary, ProjectsSnapshot } from '../src/client/projects.ts'
 import { ProjectsPanelIcon } from '../src/client/ProjectsPanelIcon.tsx'
+import { WorkbenchPage, type WorkbenchPageInjected } from '../src/client/WorkbenchPage.tsx'
 
 usePinnedBrowserLanguages('zh-CN')
 
@@ -71,15 +72,22 @@ async function bench() {
   return { ctx, slots, locale, panelInfo, selectPanel, mock }
 }
 
-/** The dashboard's injected face as the registered panel exposes it. */
-function injectedOf(slots: SlotRegistry): ProjectsPageInjected {
-  const entry = slots.entries('main')[0]
-  if (entry?.inject === undefined) throw new Error('dashboard inject face was not declared')
-  const injected: object = entry.inject()
-  return injected as ProjectsPageInjected
+/** The injected face of the main panel registered under `key`. */
+function injectedOf(slots: SlotRegistry, key: string): object {
+  const entry = slots.entries('main').find(candidate => candidate.options.key === key)
+  if (entry?.inject === undefined) throw new Error(`main panel "${key}" declared no inject face`)
+  return entry.inject()
 }
 
-function snapshotOf(face: ProjectsPageInjected): ProjectsSnapshot {
+function dashboardOf(slots: SlotRegistry): ProjectsPageInjected {
+  return injectedOf(slots, PROJECTS_PANEL_ID) as ProjectsPageInjected
+}
+
+function workbenchOf(slots: SlotRegistry): WorkbenchPageInjected {
+  return injectedOf(slots, PROJECT_PANEL_ID) as WorkbenchPageInjected
+}
+
+function snapshotOf(face: { readonly hooks: { readonly projects: { getSnapshot(): ProjectsSnapshot } } }): ProjectsSnapshot {
   return face.hooks.projects.getSnapshot()
 }
 
@@ -93,16 +101,74 @@ describe('ui-mw-projects browser plugin', () => {
     expect(b.ctx.get('sessionRestorePolicy')).toBeUndefined()
   })
 
-  it('registers the dashboard as the profile home panel and opens it once', async () => {
+  it('registers the dashboard as the profile home panel beside the workbench, and opens the dashboard once', async () => {
     const b = await bench()
     declareRoot(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const [entry] = b.slots.entries('main')
-    expect(entry?.options.key).toBe(PROJECTS_PANEL_ID)
-    expect(entry?.locale).toBe('mw.projects')
-    expect(entry?.component).toBe(ProjectsPage)
+    const [dashboard, workbench] = b.slots.entries('main')
+    expect(dashboard?.options.key).toBe(PROJECTS_PANEL_ID)
+    expect(dashboard?.locale).toBe('mw.projects')
+    expect(dashboard?.component).toBe(ProjectsPage)
+    expect(workbench?.options.key).toBe(PROJECT_PANEL_ID)
+    expect(workbench?.locale).toBe('mw.projects')
+    expect(workbench?.component).toBe(WorkbenchPage)
+    // Only the home surface claims the screen on activation.
     expect(b.selectPanel).toHaveBeenCalledExactlyOnceWith(PROJECTS_PANEL_ID)
     expect(b.panelInfo.getSnapshot().activePanelId).toBe(PROJECTS_PANEL_ID)
+  })
+
+  it('switches to the project workbench once the Host opens a project', async () => {
+    const b = await bench()
+    b.mock.unary('projects/open', (request: { readonly id: string }) => ok({ project: project(request.id) }))
+    declareRoot(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const face = dashboardOf(b.slots)
+    face.openProject('长夜航线' as ProjectId)
+    await vi.waitFor(() => { expect(b.selectPanel).toHaveBeenLastCalledWith(PROJECT_PANEL_ID) })
+    expect(b.panelInfo.getSnapshot().activePanelId).toBe(PROJECT_PANEL_ID)
+    expect(snapshotOf(face).openedProjectId).toBe('长夜航线')
+  })
+
+  it('leaves the dashboard on screen when the Host refuses the open', async () => {
+    const b = await bench()
+    b.mock.unary('projects/open', () => ({ ok: false, error: new RemoteError('project/not-found', 'gone', {}) }))
+    declareRoot(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const face = dashboardOf(b.slots)
+    face.openProject('gone' as ProjectId)
+    await vi.waitFor(() => { expect(snapshotOf(face).mutationError).not.toBeNull() })
+    expect(b.selectPanel).toHaveBeenCalledExactlyOnceWith(PROJECTS_PANEL_ID)
+    expect(b.panelInfo.getSnapshot().activePanelId).toBe(PROJECTS_PANEL_ID)
+  })
+
+  it('never selects the workbench for an open that settles after the panels are gone', async () => {
+    const b = await bench()
+    let settle!: (result: { readonly ok: true; readonly value: { readonly project: ProjectSummary } }) => void
+    b.mock.unary('projects/open', () => new Promise((resolve) => { settle = resolve }))
+    declareRoot(b.slots)
+    const fiber = b.ctx.plugin({ inject: [...inject], apply })
+    await fiber.await()
+    dashboardOf(b.slots).openProject('长夜航线' as ProjectId)
+    await fiber.dispose()
+    settle(ok({ project: project('长夜航线') }))
+    await vi.waitFor(() => { expect(b.mock.remote.projects.open).toHaveBeenCalledTimes(1) })
+    expect(b.selectPanel).toHaveBeenCalledExactlyOnceWith(PROJECTS_PANEL_ID)
+  })
+
+  it('gives the workbench its own way back and its own project switch', async () => {
+    const b = await bench()
+    b.mock.unary('projects/open', (request: { readonly id: string }) => ok({ project: project(request.id) }))
+    declareRoot(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const face = workbenchOf(b.slots)
+    face.backToProjects()
+    expect(b.selectPanel).toHaveBeenLastCalledWith(PROJECTS_PANEL_ID)
+
+    face.openProject('行业研究周报' as ProjectId)
+    await vi.waitFor(() => { expect(snapshotOf(face).openedProjectId).toBe('行业研究周报') })
+    expect(b.selectPanel).toHaveBeenLastCalledWith(PROJECT_PANEL_ID)
+    // Both panels read the one snapshot the controller publishes.
+    expect(snapshotOf(dashboardOf(b.slots))).toBe(snapshotOf(face))
   })
 
   it('loads the Host registry with the composition and exposes the rows to the panel', async () => {
@@ -110,7 +176,7 @@ describe('ui-mw-projects browser plugin', () => {
     b.mock.unary('projects/list', () => ok({ items: [project('长夜航线'), project('行业研究周报')] }))
     declareRoot(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const face = injectedOf(b.slots)
+    const face = dashboardOf(b.slots)
     await vi.waitFor(() => { expect(snapshotOf(face).view.status).toBe('ready') })
     expect(snapshotOf(face).projects.map(entry => entry.title)).toEqual(['长夜航线', '行业研究周报'])
     expect(b.mock.remote.projects.list).toHaveBeenCalledTimes(1)
@@ -136,7 +202,7 @@ describe('ui-mw-projects browser plugin', () => {
     })
     declareRoot(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const face = injectedOf(b.slots)
+    const face = dashboardOf(b.slots)
     await vi.waitFor(() => { expect(snapshotOf(face).view.status).toBe('ready') })
 
     face.createProject('未命名项目')
@@ -163,7 +229,7 @@ describe('ui-mw-projects browser plugin', () => {
     b.mock.unary('projects/list', () => ({ ok: false, error: new RemoteError('project/not-found', 'gone', {}) }))
     declareRoot(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const face = injectedOf(b.slots)
+    const face = dashboardOf(b.slots)
     await vi.waitFor(() => { expect(snapshotOf(face).view.status).toBe('error') })
     expect(snapshotOf(face).view).toEqual({
       status: 'error',
@@ -204,6 +270,6 @@ describe('ui-mw-projects browser plugin', () => {
     removeRoot()
     declareRoot(b.slots)
     expect(b.selectPanel).toHaveBeenCalledTimes(1)
-    expect(b.slots.entries('main')).toHaveLength(1)
+    expect(b.slots.entries('main')).toHaveLength(2)
   })
 })

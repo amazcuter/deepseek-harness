@@ -154,21 +154,24 @@ describe('ProjectsPage project list', () => {
     expect(b.actions.createProject).toHaveBeenCalledExactlyOnceWith(zh['project.untitled'])
   })
 
-  it('opens a row, marks it current, and shows the placeholder workbench', () => {
+  it('opens a row and marks it current for the workbench the composition switches to', () => {
     const b = bench(ready({ projects: [project('a', 'A'), project('b', 'B')] }))
     fireEvent.click(screen.getByRole('button', { name: zh['action.openLabel'].replace('{name}', 'A') }))
     expect(b.actions.openProject).toHaveBeenCalledExactlyOnceWith('a')
     b.rerender(ready({ projects: [project('a', 'A'), project('b', 'B')], openedProjectId: 'a' as ProjectId }))
-    const [first] = within(screen.getByRole('list', { name: zh['dashboard.listCaption'] })).getAllByRole('listitem')
+    const [first, second] = within(screen.getByRole('list', { name: zh['dashboard.listCaption'] })).getAllByRole('listitem')
     expect(first?.getAttribute('aria-current')).toBe('true')
-    const workbench = screen.getByRole('region', { name: zh['workbench.title'] })
-    expect(within(workbench).getByText(zh['workbench.selected'].replace('{name}', 'A'))).toBeTruthy()
-    expect(within(workbench).getByText(zh['workbench.placeholder'])).toBeTruthy()
+    expect(second?.getAttribute('aria-current')).toBeNull()
+    // The dashboard names the opened project so returning from the workbench
+    // reads which one it belongs to.
+    expect(screen.getByText(zh['dashboard.opened'].replace('{name}', 'A'))).toBeTruthy()
   })
 
-  it('renders no workbench when the selected project left the list', () => {
+  it('names no opened project when the selection left the list', () => {
     bench(ready({ projects: [project('a', 'A')], openedProjectId: 'gone' as ProjectId }))
-    expect(screen.queryByRole('region', { name: zh['workbench.title'] })).toBeNull()
+    expect(screen.queryByText(zh['dashboard.opened'].replace('{name}', 'A'))).toBeNull()
+    const [first] = within(screen.getByRole('list', { name: zh['dashboard.listCaption'] })).getAllByRole('listitem')
+    expect(first?.getAttribute('aria-current')).toBeNull()
   })
 
   it('disables every row action while a mutation is in flight', () => {

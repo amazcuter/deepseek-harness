@@ -128,9 +128,19 @@ describe('ProjectsController', () => {
     b.list.mockResolvedValue(ok({ items: [summary('a', 'A')] }))
     await b.controller.load()
     b.open.mockResolvedValueOnce(ok({ project: summary('a', 'A', { definitionRevision: 3, sessionCount: 2 }) }))
-    await b.controller.open('a' as ProjectId)
+    await expect(b.controller.open('a' as ProjectId)).resolves.toBe(true)
     expect(b.controller.list.getSnapshot().openedProjectId).toBe('a')
     expect(b.controller.list.getSnapshot().projects[0]).toMatchObject({ definitionRevision: 3, sessionCount: 2 })
+  })
+
+  it('reports a refused open so the workbench never claims the screen', async () => {
+    const b = bench()
+    b.list.mockResolvedValue(ok({ items: [summary('a', 'A')] }))
+    await b.controller.load()
+    b.open.mockResolvedValueOnce(fail(new RemoteError('project/not-found', 'gone', {})))
+    await expect(b.controller.open('a' as ProjectId)).resolves.toBe(false)
+    expect(b.controller.list.getSnapshot().openedProjectId).toBeNull()
+    expect(b.controller.list.getSnapshot().mutationError).toEqual({ code: 'project/not-found', message: 'gone' })
   })
 
   it('renames the listed row from the Host echo', async () => {

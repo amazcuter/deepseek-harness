@@ -114,10 +114,11 @@ export class ProjectsController {
   /**
    * Open one project on the Host and mark its row selected.
    * @param id - project to open.
-   * @returns a promise settled once the selection or the failure is published.
+   * @returns whether the Host opened it: false once the failure is published as
+   * the `mutationError`, which leaves the previous selection in place.
    */
-  async open(id: ProjectId): Promise<void> {
-    await this.mutate(() => this.remote.open({ id }), (value) => {
+  async open(id: ProjectId): Promise<boolean> {
+    return await this.mutate(() => this.remote.open({ id }), (value) => {
       this.patch({
         projects: upsertProject(this.current().projects, value.project),
         openedProjectId: value.project.id,
@@ -164,11 +165,14 @@ export class ProjectsController {
     this.store.set({ ...this.current(), ...next })
   }
 
-  /** Run one mutation, publishing its in-flight state and its echo. */
+  /**
+   * Run one mutation, publishing its in-flight state and its echo.
+   * @returns whether the Host call succeeded.
+   */
   private async mutate<Value>(
     call: () => Promise<RemoteResult<Value>>,
     accept: (value: Value) => void,
-  ): Promise<void> {
+  ): Promise<boolean> {
     this.inFlight += 1
     this.patch({ busy: true, mutationError: null })
     const outcome = await this.settle(call)
@@ -176,9 +180,10 @@ export class ProjectsController {
     this.patch({ busy: this.inFlight > 0 })
     if (!outcome.ok) {
       this.patch({ mutationError: outcome.failure })
-      return
+      return false
     }
     accept(outcome.value)
+    return true
   }
 
   /**

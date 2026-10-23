@@ -50,7 +50,6 @@
 
 .empty,
 .error,
-.workbench,
 .notice {
   box-sizing: border-box;
   padding: 16px 20px;
@@ -70,8 +69,7 @@
 }
 
 .emptyTitle,
-.errorTitle,
-.workbenchTitle {
+.errorTitle {
   margin: 0;
   font-size: 15px;
   font-weight: 500;
@@ -120,16 +118,6 @@
 .notice {
   margin: 0;
   border-color: var(--dsw-alias-state-warn-primary);
-  font-size: 13px;
-  line-height: 20px;
-}
-
-.workbench {
-  border-color: var(--dsw-alias-state-business-primary);
-}
-
-.workbenchSelected {
-  margin: 0;
   font-size: 13px;
   line-height: 20px;
 }

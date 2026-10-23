@@ -9,9 +9,9 @@
  */
 import { clsx } from 'clsx'
 import { useState, type FormEvent, type ReactNode } from 'react'
-import type { RemoteErrorCode } from '@metaworkflow/api-remotes/client'
 import { Button, Input } from '@metaworkflow/client-ui-primitives'
 import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@metaworkflow/client-ui-slots'
+import { failureText } from './failures.ts'
 import type { ProjectsKey } from './locales.ts'
 import type {
   ProjectFailure, ProjectId, ProjectStatus, ProjectSummary, ProjectsSnapshot,
@@ -28,17 +28,6 @@ const STATUS_KEY: Readonly<Record<ProjectStatus, ProjectsKey>> = {
 const STATUS_CLASS: Readonly<Record<ProjectStatus, string | undefined>> = {
   'ok': css.statusOk,
   'missing-dir': css.statusMissing,
-}
-
-/**
- * Localized message per failure code the project namespace raises. Any other
- * code reads the generic carrier copy.
- */
-const FAILURE_KEY: Readonly<Partial<Record<RemoteErrorCode, ProjectsKey>>> = {
-  'project/not-found': 'error.project-not-found',
-  'project/invalid-path': 'error.project-invalid-path',
-  'project/path-in-use': 'error.project-path-in-use',
-  'gateway/bad-request': 'error.bad-request',
 }
 
 /** Callbacks the dashboard needs from the composition that mounts it. */
@@ -73,16 +62,6 @@ type Translate = ProjectsPageProps['t']
 interface RenameDraft {
   readonly id: ProjectId
   readonly title: string
-}
-
-/**
- * Localized copy for one failure.
- * @param t - bound translator.
- * @param failure - the failed call, as the controller published it.
- * @returns the message to render.
- */
-function failureText(t: Translate, failure: ProjectFailure): string {
-  return t(FAILURE_KEY[failure.code] ?? 'error.unknown')
 }
 
 /**
@@ -303,20 +282,6 @@ function ProjectList({ t, snapshot, actions }: {
   )
 }
 
-/** The placeholder workbench for the project the user opened. */
-function Workbench({ t, project }: {
-  readonly t: Translate
-  readonly project: ProjectSummary
-}): ReactNode {
-  return (
-    <section className={css.workbench} aria-label={t('workbench.title')}>
-      <h2 className={css.workbenchTitle}>{t('workbench.title')}</h2>
-      <p className={css.workbenchSelected}>{t('workbench.selected', { name: project.title })}</p>
-      <p className={css.hint}>{t('workbench.placeholder')}</p>
-    </section>
-  )
-}
-
 /** The panel body for the current list state. */
 function ProjectsBody({ t, snapshot, actions }: {
   readonly t: Translate
@@ -378,7 +343,7 @@ export function ProjectsPage({
           <span className={css.errorDetail}>{snapshot.mutationError.message}</span>
         </p>
       )}
-      {opened !== undefined && <Workbench t={t} project={opened} />}
+      {opened !== undefined && <p className={css.hint}>{t('dashboard.opened', { name: opened.title })}</p>}
       <ProjectsBody t={t} snapshot={snapshot} actions={actions} />
     </section>
   )

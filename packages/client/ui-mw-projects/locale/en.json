@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Projects",
-    "description": "The MetaWorkFlow home page: list the Host's registered workflow projects and create, open, rename, or delete one; importing a Mermaid flowchart is still a placeholder."
+    "description": "The MetaWorkFlow home page: list the Host's registered workflow projects and create, open, rename, or delete one. Opening a project shows its workbench: canvas, node details, coordinator placeholder, and disabled run controls; importing a Mermaid flowchart is still a placeholder."
   }
 }
