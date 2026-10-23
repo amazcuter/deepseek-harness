@@ -1,6 +1,6 @@
 {
   "name": "@metaworkflow/workspace",
-  "description": "Workspace entity registry (ctx.workspaceRegistry): durable workspace records with validated session attachment over the domain data form for the DeepSeek Harness",
+  "description": "Workspace registry (ctx.workspaceRegistry): workflow projects as session groups \u2014 ordered session accounts, display order, first-use identity, and the archive and pin sets over ctx.mwfProjectStore",
   "version": "0.2.1-rc.2",
   "publishConfig": {
     "access": "public"
@@ -39,11 +39,13 @@
     "@metaworkflow/session-persistence": "workspace:*",
     "@metaworkflow/storage": "workspace:*",
     "@metaworkflow/storage-domain": "workspace:*",
-    "@metaworkflow/typert-protocol": "workspace:*"
+    "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/workflow-project-store": "workspace:*"
   },
   "dependencies": {
     "@metaworkflow/brand": "workspace:*",
-    "zod": "4.4.3"
+    "zod": "4.4.3",
+    "@metaworkflow/workflow-project-store": "workspace:*"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
@@ -51,6 +53,7 @@
     "@metaworkflow/session-persistence": "workspace:*",
     "@metaworkflow/storage": "workspace:*",
     "@metaworkflow/storage-domain": "workspace:*",
-    "@metaworkflow/typert-protocol": "workspace:*"
+    "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/workflow-project-store": "workspace:*"
   }
 }

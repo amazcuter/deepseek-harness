@@ -88,6 +88,12 @@
     - id: ui-open-in-app
       name: '@metaworkflow/client-ui-open-in-app'
 
+    # Workflow project persistence: the global project registry plus one SQLite
+    # database per project. The workspace registry below reads project identity
+    # from it, so this row loads first.
+    - id: workflow-project-store
+      name: '@metaworkflow/workflow-project-store'
+
     - id: workspace
       name: '@metaworkflow/workspace'
 

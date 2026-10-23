@@ -2,7 +2,7 @@
 
 [English](workspace.md) | 中文
 
-工作区（workspace）是用户工作目录的持久记录：一个建立在规范路径之上的稳定 id、一个显示标题，以及归属于它的会话的有序账本。该子系统是单个包（package）（[mwf-workspace](../../packages/workspace/workspace)，`ctx.workspaceRegistry`）——一项宿主侧可选能力，不属于 agent loop（智能体循环）主干，并且对模型不可见（没有工具、没有提示词文本、没有会话事件）。它通过[存储领域数据形式](storage.zh.md)存储自己的记录，并对照 [`SessionHeader.cwd`](persistence.zh.md#sessionheader--metadata-beside-the-log) 校验会话成员资格，因此 `storageDomain` 与 `sessionPersistence` 是必需的启动依赖：持久化这一依赖不可用时，插件保持 pending，而不是把这种不可用误当作空历史。设计记录：[领域 KV 存储 Agent Note（agent 决策记录）](../../.agents/notes/proposed/architecture/2026-07-24-domain-kv-storage-and-workspace.zh.md)；引导与 GUI 顺序：[Workspace UI 产品流程 Agent Note](../../.agents/notes/archived/feature/2026-07-25-workspace-ui-product-flow.md)。
+工作区（workspace）是作为一个会话分组看待的、已注册的工作流项目：项目身份、目录与显示标题归项目存储（project store）所有，工作区再加上归属于它的会话有序账本与目录实时状态。该子系统是单个包（package）（[mwf-workspace](../../packages/workspace/workspace)，`ctx.workspaceRegistry`）——一项宿主侧可选能力，不属于 agent loop（智能体循环）主干，并且对模型不可见（没有工具、没有提示词文本、没有会话事件）。它通过[存储领域数据形式](storage.zh.md)存储自己的记录，并对照 [`SessionHeader.cwd`](persistence.zh.md#sessionheader--metadata-beside-the-log) 校验会话成员资格，因此 `storageDomain` 与 `sessionPersistence` 是必需的启动依赖：持久化这一依赖不可用时，插件保持 pending，而不是把这种不可用误当作空历史。设计记录：[领域 KV 存储 Agent Note（agent 决策记录）](../../.agents/notes/proposed/architecture/2026-07-24-domain-kv-storage-and-workspace.zh.md)；引导与 GUI 顺序：[Workspace UI 产品流程 Agent Note](../../.agents/notes/archived/feature/2026-07-25-workspace-ui-product-flow.md)。
 
 源码：[`packages/workspace/workspace/src/types.ts`](../../packages/workspace/workspace/src/types.ts)
 
@@ -10,10 +10,12 @@
 
 ```ts type-equiv
 /**
- * Identifies one workspace record. A generated uuid, never the path: path
- * normalization rewrites paths, and a reference anchor must stay stable.
+ * Identifies one workspace: the identity of the workflow project it groups.
+ * A generated uuid, never the path: path normalization rewrites paths, and a
+ * reference anchor must stay stable. The brand is the project store's
+ * {@link ProjectId}, so a project id and a workspace id are the same value.
  */
-type WorkspaceId = Branded<'WorkspaceId'>
+type WorkspaceId = ProjectId
 ```
 
 `WorkspaceId` 是[品牌化 id](core.zh.md#branded-ids)。路径标识与之分离：`realpathNormalize`（`fs.realpath`；尾部斜杠、`..` 与符号链接全部解析）是唯一的一套唯一性规范——工作区路径以规范化形式存储，唯一性即规范路径的字符串相等（指向已被拥有目录的符号链接会与之冲突），attach 时的会话 cwd 检查也走同一套规范。
@@ -24,30 +26,32 @@ type WorkspaceId = Branded<'WorkspaceId'>
 
 ```ts type-equiv
 /**
- * One workspace: a stable id over an existing directory, a display title, and
- * an ordered candidate account of sessions. Membership validates header cwd
- * against the workspace path, but preserves an existing account when its
- * fully qualified cwd is missing. Consumers only see this interface; the
- * implementation stays private.
+ * One workspace: a registered workflow project seen as a session group. The
+ * project store owns the identity, directory, and title; this interface adds
+ * the ordered session account and the live directory state. Membership
+ * validates header cwd against the project directory, but preserves an
+ * existing account when its fully qualified cwd is missing. Consumers only see
+ * this interface; the implementation stays private.
  */
 interface Workspace {
-  /** Stable record id (generated uuid). */
+  /** Stable project id. */
   readonly id: WorkspaceId
 
   /**
-   * Canonical directory path: the `fs.realpath` of the path given at create
-   * time (trailing slashes, `..`, and symlinks all resolved). Never rewritten
-   * afterwards, even when the directory disappears (see {@link status}).
+   * Canonical project directory: the `fs.realpath` of the path given at create
+   * time (trailing slashes, `..`, and symlinks all resolved). Owned by the
+   * project store and never rewritten afterwards, even when the directory
+   * disappears (see {@link status}).
    */
   readonly path: string
 
-  /** Display title. Defaults to the final path segment, or a filesystem root's own spelling; duplicates are allowed. */
+  /** Display title, owned by the project registry. Duplicates are allowed. */
   readonly title: string
 
-  /** ISO-8601 creation instant, stamped at create and never rewritten. */
+  /** ISO-8601 registration instant of the underlying project, never rewritten. */
   readonly createdAt: string
 
-  /** ISO-8601 instant of the last durable mutation (create counts as one). */
+  /** ISO-8601 instant of the last durable change to the project or its session account. */
   readonly updatedAt: string
 
   /**
@@ -64,14 +68,14 @@ interface Workspace {
   readonly sessionIds: readonly SessionId[]
 
   /**
-   * Replace the display title durably.
-   * @param title - New title; any string, duplicates across workspaces allowed.
+   * Replace the display title durably in the project registry.
+   * @param title - New title; any non-blank string, duplicates across projects allowed.
    * @returns resolution after durability.
    */
   setTitle(title: string): Promise<void>
 
   /**
-   * Prepend a session to this workspace's candidate account. An already
+   * Prepend a session to this project's candidate account. An already
    * accounted id resolves without writing, aside from the durable
    * filtered-candidate prune every accepted mutation performs. A new id's
    * live or persisted
@@ -98,7 +102,7 @@ interface Workspace {
   insertSessionBefore(sessionId: SessionId, beforeSessionId?: SessionId): Promise<void>
 
   /**
-   * Remove a session from this workspace's account. Idempotent: an id not on
+   * Remove a session from this project's account. Idempotent: an id not on
    * the account resolves without writing, aside from the durable
    * filtered-candidate prune every accepted mutation performs; decided on
    * the domain write chain like attach. Never touches the session's own stored log.
@@ -168,7 +172,7 @@ interface SessionActivity {
 
 ## 消费方
 
-[`mwf-workspace-controller`](../../packages/api/workspace-controller) 经 `ctx.workspaceRegistry` 向 GUI 客户端提供工作区 CRUD，[`mwf-session-controller`](../../packages/api/session-controller) 执行上文「先建会话再 attach」的流程。[mwf-agent-instructions](../../packages/context/agent-instructions) 尽管名字如此，却**不是**消费方：它在 agent 自己的 cwd 下发现 AGENTS.md 风格的指令文件，从不触碰 `ctx.workspaceRegistry`——两者共用的这个词指的是用户的工作目录，而非本注册表的实体。
+[`mwf-workspace-controller`](../../packages/api/workspace-controller) 经 `ctx.workspaceRegistry` 向 GUI 客户端提供工作区 CRUD，并经同一注册表提供首页所用的 `projects` 命名空间，[`mwf-session-controller`](../../packages/api/session-controller) 执行上文「先建会话再 attach」的流程。[mwf-agent-instructions](../../packages/context/agent-instructions) 尽管名字如此，却**不是**消费方：它在 agent 自己的 cwd 下发现 AGENTS.md 风格的指令文件，从不触碰 `ctx.workspaceRegistry`——两者共用的这个词指的是用户的工作目录，而非本注册表的实体。
 
 <!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
 
@@ -227,6 +231,52 @@ Host service backing the generated `ctx.remote.directoryPicker` namespace. The s
 ```
 
 Source: [`packages/api/workspace-controller/src/directory-picker.ts`](../../packages/api/workspace-controller/src/directory-picker.ts)
+
+<a id="ctxmwprojectcontroller--mwprojectcontroller"></a>
+
+### `ctx.mwProjectController` — `MwProjectController`
+
+Host service backing the generated `ctx.remote.projects` namespace. It serves the dashboard: list what is registered, create, open, rename, and remove — never a directory-tree deletion.
+
+```ts cordis-catalog
+/**
+ * List every registered project in registry display order.
+ * @returns one row per project, with its live directory state.
+ */
+@Remote('list') async list(): Promise<ProjectListValue>
+
+/**
+ * Register a project and its session group.
+ * @param request - title and optional existing directory.
+ * @returns the registered project.
+ */
+@Remote('create') async create(request: ProjectCreateRequest): Promise<ProjectValue>
+
+/**
+ * Open one project, materializing its database when the directory exists
+ * without one.
+ * @param request - project identity.
+ * @returns the opened project.
+ */
+@Remote('open') async open(request: ProjectTargetRequest): Promise<ProjectValue>
+
+/**
+ * Rename one project.
+ * @param request - project identity and proposed title.
+ * @returns the updated project.
+ */
+@Remote('rename') async rename(request: ProjectRenameRequest): Promise<ProjectValue>
+
+/**
+ * Remove one project registration. The directory and every Session are
+ * retained.
+ * @param request - project identity.
+ * @returns deletion confirmation.
+ */
+@Remote('delete') async delete(request: ProjectTargetRequest): Promise<ProjectRemoveValue>
+```
+
+Source: [`packages/api/workspace-controller/src/projects.ts`](../../packages/api/workspace-controller/src/projects.ts)
 
 <a id="ctxterminalcontroller--terminalcontroller"></a>
 
@@ -465,7 +515,7 @@ Source: [`packages/api/workspace-files/src/index.ts`](../../packages/api/workspa
 
 ### `ctx.workspaceRegistry` — `WorkspaceRegistry`
 
-Durable workspace registry. Startup waits for `sessionPersistence`, builds one canonical-cwd header index, and completes the one-time history bootstrap before the service becomes active. The persistence dependency is mandatory so an unavailable peer can never be mistaken for an empty history and commit the initialized marker.
+Durable workspace registry over the project store and the session-account domain. Startup waits for `sessionPersistence` and `mwfProjectStore`, imports the legacy v2 registry once, completes the one-time grouping bootstrap, and reconciles its display order with the registered projects before the service becomes active. Both dependencies are mandatory so an unavailable peer can never be mistaken for an empty history.
 
 ```ts cordis-catalog
 /**
@@ -473,13 +523,25 @@ Durable workspace registry. Startup waits for `sessionPersistence`, builds one c
  * path is canonicalized through `fs.realpath`; a relative, nonexistent, or
  * non-directory path rejects. Repeated calls for the same canonical path
  * return the existing entity without changing its title.
- * A newly created workspace is prepended to the durable registry order.
+ * A newly created workspace is prepended to the durable display order.
  * Different canonical paths may share a display title.
  * @param path - Existing directory to own, in a fully qualified path spelling.
- * @param title - Display title used only when a new record is created.
+ * @param title - Display title used only when a new project is registered.
  * @returns the existing or newly durable workspace.
  */
-async create(path: string, title?: string): Promise<Workspace>
+create(path: string, title?: string): Promise<Workspace>
+
+/**
+ * Register one workflow project and its session group.
+ *
+ * Identity comes from the project store, which also rejects a directory
+ * another project already claims; a registration racing this call for the
+ * same directory resolves the winner instead of failing. A repeated
+ * canonical path returns the existing workspace without retitling it.
+ * @param request - title and optional existing project directory.
+ * @returns the existing or newly registered workspace.
+ */
+createProject(request: CreateWorkspaceProjectRequest): Promise<Workspace>
 
 /**
  * Initialize the default Workspace only while both the registry and Session
@@ -503,20 +565,23 @@ initializeDefault(resolveDirectory: () => Promise<string>): Promise<Workspace | 
 get(id: WorkspaceId): Workspace | undefined
 
 /**
- * Synchronous workspace projection in durable registry order. Every
- * entity's `sessionIds` getter is already filtered by the startup/live
- * canonical-cwd header index; this method performs no persistence reads.
+ * Synchronous workspace projection in durable display order. An entry whose
+ * project registration is gone is skipped: the project store owns existence,
+ * and the next startup reconciles the durable order. Every entity's
+ * `sessionIds` getter is already filtered by the startup/live canonical-cwd
+ * header index, so this method performs no persistence reads.
  * @returns a fresh ordered array of workspace entities.
  */
 list(): Workspace[]
 
 /**
  * Delete one workspace registration while retaining its directory and every
- * session log. The durable order is updated before the table deletion; a
- * failed table write restores the prior order and keeps the entity
- * published. Unknown ids are an idempotent no-op for domain callers.
+ * session log. The project registry row is removed first; the durable order
+ * and session account follow, and a follow-up write that still fails is
+ * logged because the requested state is already true — the next startup
+ * reconciles both.
  * @param id - Workspace registration to remove.
- * @returns `true` when a record was deleted, `false` when it was unknown.
+ * @returns `true` when a registration was deleted, `false` when it was unknown.
  */
 delete(id: WorkspaceId): Promise<boolean>
 
@@ -531,7 +596,7 @@ insertBefore(id: WorkspaceId, beforeId?: WorkspaceId): Promise<readonly Workspac
 
 /**
  * Archive one session durably. The session must exist (live or in session
- * persistence); its workspace accounting — or lack of one — is irrelevant.
+ * persistence); its project accounting — or lack of one — is irrelevant.
  * Without `stopActivity` the session must also be inactive: the
  * `workspace/session-activity` waterfall is asked once, and any reported
  * activity rejects with {@link WorkspaceActiveSessionError} before anything
@@ -580,9 +645,9 @@ pinSession(sessionId: SessionId): Promise<void>
 unpinSession(sessionId: SessionId): Promise<void>
 
 /**
- * Resolve by canonical directory path without creating or mutating a
- * workspace. A missing path rejects during `realpath`; an existing unowned
- * directory returns `undefined`.
+ * Resolve one workspace by canonical directory path without creating or
+ * mutating a registration. A missing path rejects during `realpath`; an
+ * existing unowned directory returns `undefined`.
  * @param path - Existing directory path in a fully qualified spelling.
  * @returns the workspace owning the canonical path, when one exists.
  */
@@ -596,6 +661,27 @@ Source: [`packages/workspace/workspace/src/index.ts`](../../packages/workspace/w
 <a id="workspace-events"></a>
 
 ### `workspace/*` events
+
+<a id="workspacechanged--emit"></a>
+
+#### `workspace/changed` — emit
+
+One workspace projection changed: a rename replaced the project title, or a committed session-account write replaced its members. The entity that commits the change has already published it, so a listener reads the new value from the registry. Change streams use this instead of waiting for the durable write they may observe before the snapshot moves.
+
+```ts cordis-catalog
+/**
+ * One workspace projection changed: a rename replaced the project title, or
+ * a committed session-account write replaced its members. The entity that
+ * commits the change has already published it, so a listener reads the new
+ * value from the registry. Change streams use this instead of waiting for
+ * the durable write they may observe before the snapshot moves.
+ * @param change - the workspace whose projection changed.
+ * @mode emit
+ */
+'workspace/changed'(change: WorkspaceChanged): void
+```
+
+Source: [`packages/workspace/workspace/src/index.ts`](../../packages/workspace/workspace/src/index.ts)
 
 <a id="workspacesession-activity--waterfall"></a>
 

@@ -1,19 +1,22 @@
 /**
- * Public type vocabulary of the workspace entity: the `WorkspaceId` brand and
- * the `Workspace` consumer interface. Types only — the `WorkspaceId` factory
- * lives in `index.ts` (this file carries no runtime code).
+ * Public type vocabulary of the workspace entity: the `WorkspaceId` brand (the
+ * project identity's brand) and the `Workspace` consumer interface. Types only
+ * — the `WorkspaceId` factory lives in `index.ts` (this file carries no runtime
+ * code).
  * @module @metaworkflow/workspace/src/types
  */
 
-import type { Branded } from '@metaworkflow/brand'
 import type { SessionId } from '@metaworkflow/session/types'
 import type { TypertResource } from '@metaworkflow/typert-protocol'
+import type { ProjectId } from '@metaworkflow/workflow-project-store'
 
 /**
- * Identifies one workspace record. A generated uuid, never the path: path
- * normalization rewrites paths, and a reference anchor must stay stable.
+ * Identifies one workspace: the identity of the workflow project it groups.
+ * A generated uuid, never the path: path normalization rewrites paths, and a
+ * reference anchor must stay stable. The brand is the project store's
+ * {@link ProjectId}, so a project id and a workspace id are the same value.
  */
-export type WorkspaceId = Branded<'WorkspaceId'>
+export type WorkspaceId = ProjectId
 
 declare module '@metaworkflow/typert-protocol' {
   interface TypertResourceMap {
@@ -60,30 +63,32 @@ export interface SessionActivity {
 }
 
 /**
- * One workspace: a stable id over an existing directory, a display title, and
- * an ordered candidate account of sessions. Membership validates header cwd
- * against the workspace path, but preserves an existing account when its
- * fully qualified cwd is missing. Consumers only see this interface; the
- * implementation stays private.
+ * One workspace: a registered workflow project seen as a session group. The
+ * project store owns the identity, directory, and title; this interface adds
+ * the ordered session account and the live directory state. Membership
+ * validates header cwd against the project directory, but preserves an
+ * existing account when its fully qualified cwd is missing. Consumers only see
+ * this interface; the implementation stays private.
  */
 export interface Workspace {
-  /** Stable record id (generated uuid). */
+  /** Stable project id. */
   readonly id: WorkspaceId
 
   /**
-   * Canonical directory path: the `fs.realpath` of the path given at create
-   * time (trailing slashes, `..`, and symlinks all resolved). Never rewritten
-   * afterwards, even when the directory disappears (see {@link status}).
+   * Canonical project directory: the `fs.realpath` of the path given at create
+   * time (trailing slashes, `..`, and symlinks all resolved). Owned by the
+   * project store and never rewritten afterwards, even when the directory
+   * disappears (see {@link status}).
    */
   readonly path: string
 
-  /** Display title. Defaults to the final path segment, or a filesystem root's own spelling; duplicates are allowed. */
+  /** Display title, owned by the project registry. Duplicates are allowed. */
   readonly title: string
 
-  /** ISO-8601 creation instant, stamped at create and never rewritten. */
+  /** ISO-8601 registration instant of the underlying project, never rewritten. */
   readonly createdAt: string
 
-  /** ISO-8601 instant of the last durable mutation (create counts as one). */
+  /** ISO-8601 instant of the last durable change to the project or its session account. */
   readonly updatedAt: string
 
   /**
@@ -100,14 +105,14 @@ export interface Workspace {
   readonly sessionIds: readonly SessionId[]
 
   /**
-   * Replace the display title durably.
-   * @param title - New title; any string, duplicates across workspaces allowed.
+   * Replace the display title durably in the project registry.
+   * @param title - New title; any non-blank string, duplicates across projects allowed.
    * @returns resolution after durability.
    */
   setTitle(title: string): Promise<void>
 
   /**
-   * Prepend a session to this workspace's candidate account. An already
+   * Prepend a session to this project's candidate account. An already
    * accounted id resolves without writing, aside from the durable
    * filtered-candidate prune every accepted mutation performs. A new id's
    * live or persisted
@@ -134,7 +139,7 @@ export interface Workspace {
   insertSessionBefore(sessionId: SessionId, beforeSessionId?: SessionId): Promise<void>
 
   /**
-   * Remove a session from this workspace's account. Idempotent: an id not on
+   * Remove a session from this project's account. Idempotent: an id not on
    * the account resolves without writing, aside from the durable
    * filtered-candidate prune every accepted mutation performs; decided on
    * the domain write chain like attach. Never touches the session's own stored log.

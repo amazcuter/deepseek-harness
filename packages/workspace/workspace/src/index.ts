@@ -1,42 +1,55 @@
 /**
- * Workspace entity registry (`ctx.workspaceRegistry`): durable workspace records,
- * stable registry order, and header-validated session membership over the
- * domain data form.
+ * Workspace entity registry (`ctx.workspaceRegistry`): registered workflow
+ * projects seen as session groups. Project identity — id, directory, title —
+ * belongs to `ctx.mwfProjectStore`; this registry owns the ordered session
+ * account of each project, the display order, the first-use identity, and the
+ * registry-global archive and pin sets.
  * @module @metaworkflow/workspace
  */
 
-import { randomUUID } from 'node:crypto'
 import { mkdir, stat } from 'node:fs/promises'
 import { Context, Service } from '@deepseek-ai/cordis'
+import { brandString } from '@metaworkflow/brand'
 import type { SessionHeader, SessionId } from '@metaworkflow/session'
 import type {} from '@metaworkflow/session-persistence'
 import type { DomainGlobal, KvTable } from '@metaworkflow/storage-domain'
+import { WorkflowProjectStoreError } from '@metaworkflow/workflow-project-store'
+import type { CreateProjectRequest, ProjectId, ProjectRecord } from '@metaworkflow/workflow-project-store'
 import { WorkspaceEntity } from './entity.ts'
 import type { WorkspaceEntityHost } from './entity.ts'
 
 export { WorkspaceMoveInvalidError } from './entity.ts'
 import { defaultWorkspaceTitle, fullyQualifiedWorkspacePath, realpathNormalize } from './paths.ts'
-import { workspaceDomainSpec } from './spec.ts'
-import type { WorkspaceDomainState, WorkspaceRecord } from './spec.ts'
+import { legacyWorkspaceDomainSpec, workspaceDomainSpec } from './spec.ts'
+import type {
+  LegacyWorkspaceRecord,
+  LegacyWorkspaceState,
+  WorkspaceGroupRecord,
+  WorkspaceProjectState,
+} from './spec.ts'
 import type { SessionActivity, Workspace, WorkspaceId as WorkspaceIdBrand } from './types.ts'
 
 export type {
   SessionActivity, SessionActivityItem, SessionActivityKind, SessionActivityKindMap, Workspace,
 } from './types.ts'
-export { workspaceDomainState, workspaceRecord, workspaceDomainSpec } from './spec.ts'
-export type { WorkspaceDomainState, WorkspaceRecord } from './spec.ts'
+export {
+  legacyWorkspaceDomainSpec, legacyWorkspaceRecord, workspaceDomainSpec, workspaceGroupRecord, workspaceProjectState,
+} from './spec.ts'
+export type {
+  LegacyWorkspaceRecord, LegacyWorkspaceState, WorkspaceGroupRecord, WorkspaceProjectState,
+} from './spec.ts'
 export { realpathNormalize } from './paths.ts'
 
-/** Identifies one workspace record (see `src/types.ts` for the brand rationale). */
+/** Identifies one workspace: the project identity it groups (see `src/types.ts`). */
 export type WorkspaceId = WorkspaceIdBrand
 
 /**
  * Brand a string as a {@link WorkspaceId}.
- * @param id - Raw workspace id string.
+ * @param id - Raw project id string.
  * @returns the same string, branded at compile time.
  */
 export function WorkspaceId(id: string): WorkspaceId {
-  return id as WorkspaceId
+  return brandString<ProjectId>(id)
 }
 
 /**
@@ -93,7 +106,6 @@ export class WorkspaceOrderInvalidError extends Error {
   }
 }
 
-
 /** The session an archive request is about to write into the archive set. */
 export interface SessionActivityRequest {
   readonly sessionId: SessionId
@@ -108,6 +120,23 @@ export interface ArchiveSessionOptions {
    * a provider failure is logged without undoing the archive.
    */
   readonly stopActivity?: boolean
+}
+
+/** Request to register one workflow project and its session group. */
+export interface CreateWorkspaceProjectRequest {
+  /** Display title of a newly registered project. */
+  readonly title: string
+  /**
+   * Existing directory to own, in a fully qualified path spelling. Omitted
+   * registers a project in the project store's own project root; a repeated
+   * canonical path resolves the existing registration instead of creating one.
+   */
+  readonly path?: string
+}
+
+/** The project identity whose registry record changed. */
+export interface WorkspaceChanged {
+  readonly workspaceId: WorkspaceId
 }
 
 declare module '@deepseek-ai/cordis' {
@@ -145,6 +174,16 @@ declare module '@deepseek-ai/cordis' {
      * @mode parallel
      */
     'workspace/session-stop'(request: SessionActivityRequest): Promise<void> | void
+    /**
+     * One workspace projection changed: a rename replaced the project title, or
+     * a committed session-account write replaced its members. The entity that
+     * commits the change has already published it, so a listener reads the new
+     * value from the registry. Change streams use this instead of waiting for
+     * the durable write they may observe before the snapshot moves.
+     * @param change - the workspace whose projection changed.
+     * @mode emit
+     */
+    'workspace/changed'(change: WorkspaceChanged): void
   }
 }
 
@@ -154,26 +193,28 @@ interface BootstrapGroup {
   readonly newestAt: number
 }
 
-const sameIds = (left: readonly WorkspaceId[], right: readonly WorkspaceId[]): boolean =>
+const sameIds = (left: readonly ProjectId[], right: readonly ProjectId[]): boolean =>
   left.length === right.length && left.every((id, index) => id === right[index])
 
 const compareHeaders = (left: SessionHeader, right: SessionHeader): number =>
   right.createdAt - left.createdAt || String(left.id).localeCompare(String(right.id))
 
 /**
- * Durable workspace registry. Startup waits for `sessionPersistence`, builds
- * one canonical-cwd header index, and completes the one-time history
- * bootstrap before the service becomes active. The persistence dependency is
- * mandatory so an unavailable peer can never be mistaken for an empty
- * history and commit the initialized marker.
+ * Durable workspace registry over the project store and the session-account
+ * domain. Startup waits for `sessionPersistence` and `mwfProjectStore`, imports
+ * the legacy v2 registry once, completes the one-time grouping bootstrap, and
+ * reconciles its display order with the registered projects before the service
+ * becomes active. Both dependencies are mandatory so an unavailable peer can
+ * never be mistaken for an empty history.
  */
 export class WorkspaceRegistry extends Service {
-  static inject = ['storageDomain', 'sessionPersistence']
+  static inject = ['storageDomain', 'sessionPersistence', 'mwfProjectStore']
 
-  private table?: KvTable<WorkspaceId, WorkspaceRecord>
-  private global?: DomainGlobal<WorkspaceDomainState>
-  private state?: WorkspaceDomainState
-  private readonly entities = new Map<WorkspaceId, WorkspaceEntity>()
+  private table?: KvTable<ProjectId, WorkspaceGroupRecord>
+  private global?: DomainGlobal<WorkspaceProjectState>
+  private state?: WorkspaceProjectState
+  private readonly projects = new Map<ProjectId, ProjectRecord>()
+  private readonly entities = new Map<ProjectId, WorkspaceEntity>()
   private readonly headers = new Map<SessionId, SessionHeader>()
   private readonly sessionPaths = new Map<SessionId, string>()
   private readonly missingSessionPaths = new Set<SessionId>()
@@ -181,7 +222,15 @@ export class WorkspaceRegistry extends Service {
   private operationTail: Promise<void> = Promise.resolve()
 
   private readonly host: WorkspaceEntityHost = {
-    table: () => this.requireTable(),
+    renameProject: async (id, title) => {
+      const record = await this.ctx.mwfProjectStore.renameProject(id, title)
+      this.projects.set(id, record)
+      return record
+    },
+    projectChanged: (id) => {
+      this.ctx.emit('workspace/changed', { workspaceId: id })
+    },
+    groupTable: () => this.requireTable(),
     candidateMatches: (id, path) => this.sessionPaths.get(id) === path || this.missingSessionPaths.has(id),
     readSessionHeader: id => this.readSessionHeader(id),
     rememberSessionPath: (id, path) => {
@@ -195,17 +244,17 @@ export class WorkspaceRegistry extends Service {
     super(ctx, 'workspaceRegistry')
   }
 
-  /** Open the domain, finish bootstrap when required, and rebuild the ordered cache. */
+  /** Open the domain, import or bootstrap once, reconcile, and rebuild the ordered cache. */
   protected async [Service.init](): Promise<void> {
     const domain = await this.ctx.storageDomain.open(workspaceDomainSpec)
     this.ctx.effect(() => () => domain.close(), 'workspace.domainClose')
-    this.table = domain.table('workspaces')
+    this.table = domain.table('projects')
     this.global = domain.global
     this.state = domain.global.get()
 
-    await this.recoverPendingMutation()
-    this.validateStoredState(this.state)
-    if (!this.state.initialized) {
+    await this.loadProjects()
+    await this.importLegacyRegistry()
+    if (!this.requireState().initialized) {
       const headers = await this.listStoredHeaders()
       await this.replaceHeaderIndex(headers)
       await this.bootstrap(headers)
@@ -213,8 +262,9 @@ export class WorkspaceRegistry extends Service {
       await this.replaceHeaderIndex(await this.listStoredHeaders())
     }
 
+    await this.reconcile()
     await this.indexLiveSessions()
-    this.validateStoredState(this.requireState())
+    this.validateStoredState()
     this.rebuildEntities()
     this.reportFilteredCandidates()
   }
@@ -224,23 +274,35 @@ export class WorkspaceRegistry extends Service {
    * path is canonicalized through `fs.realpath`; a relative, nonexistent, or
    * non-directory path rejects. Repeated calls for the same canonical path
    * return the existing entity without changing its title.
-   * A newly created workspace is prepended to the durable registry order.
+   * A newly created workspace is prepended to the durable display order.
    * Different canonical paths may share a display title.
    * @param path - Existing directory to own, in a fully qualified path spelling.
-   * @param title - Display title used only when a new record is created.
+   * @param title - Display title used only when a new project is registered.
    * @returns the existing or newly durable workspace.
    */
-  // TODO: `title` lost its last production caller when the gateway's
-  // create-by-name branch was deleted
-  // (.agents/notes/archived/simplification/2026-07-31-one-route-to-add-a-workspace.md);
-  // drop the parameter with its @param clause and the `create(path, title?)`
-  // lines in this package's README pair.
-  async create(path: string, title?: string): Promise<Workspace> {
-    const canonical = await realpathNormalize(path)
-    if (!(await stat(canonical)).isDirectory()) {
-      throw new Error(`cannot create a workspace at '${canonical}': path is not a directory`)
-    }
-    return await this.enqueueOperation(() => this.createCanonical(canonical, title))
+  create(path: string, title?: string): Promise<Workspace> {
+    return this.enqueueOperation(async () => {
+      const canonical = await this.canonicalDirectory(path)
+      return await this.createProjectCanonical(canonical, title ?? defaultWorkspaceTitle(canonical), false)
+    })
+  }
+
+  /**
+   * Register one workflow project and its session group.
+   *
+   * Identity comes from the project store, which also rejects a directory
+   * another project already claims; a registration racing this call for the
+   * same directory resolves the winner instead of failing. A repeated
+   * canonical path returns the existing workspace without retitling it.
+   * @param request - title and optional existing project directory.
+   * @returns the existing or newly registered workspace.
+   */
+  createProject(request: CreateWorkspaceProjectRequest): Promise<Workspace> {
+    const requestedPath = request.path
+    return this.enqueueOperation(async () => {
+      const canonical = requestedPath === undefined ? undefined : await this.canonicalDirectory(requestedPath)
+      return await this.createProjectCanonical(canonical, request.title, false)
+    })
   }
 
   /**
@@ -258,10 +320,10 @@ export class WorkspaceRegistry extends Service {
   initializeDefault(resolveDirectory: () => Promise<string>): Promise<Workspace | undefined> {
     return this.enqueueOperation(async () => {
       const state = this.requireState()
-      if (state.defaultWorkspaceId !== undefined) return this.entities.get(state.defaultWorkspaceId)
+      if (state.defaultProjectId !== undefined) return this.entities.get(state.defaultProjectId)
       const sessions = this.ctx.get('sessions')
       if (sessions === undefined) throw new Error('default Workspace initialization requires the Session store')
-      if (state.workspaceIds.length > 0 || state.archivedSessionIds.length > 0
+      if (state.projectIds.length > 0 || this.projects.size > 0 || state.archivedSessionIds.length > 0
         || sessions.list().length > 0 || (await this.listStoredHeaders()).length > 0) return undefined
 
       const path = await resolveDirectory()
@@ -270,7 +332,7 @@ export class WorkspaceRegistry extends Service {
       const canonical = await realpathNormalize(path)
       // A Session can start outside the registry queue while directory preparation awaits I/O.
       if ((await this.listStoredHeaders()).length > 0 || sessions.list().length > 0) return undefined
-      return this.createCanonical(canonical, defaultWorkspaceTitle(path), true)
+      return this.createProjectCanonical(canonical, defaultWorkspaceTitle(path), true)
     })
   }
 
@@ -284,28 +346,25 @@ export class WorkspaceRegistry extends Service {
   }
 
   /**
-   * Synchronous workspace projection in durable registry order. Every
-   * entity's `sessionIds` getter is already filtered by the startup/live
-   * canonical-cwd header index; this method performs no persistence reads.
+   * Synchronous workspace projection in durable display order. An entry whose
+   * project registration is gone is skipped: the project store owns existence,
+   * and the next startup reconciles the durable order. Every entity's
+   * `sessionIds` getter is already filtered by the startup/live canonical-cwd
+   * header index, so this method performs no persistence reads.
    * @returns a fresh ordered array of workspace entities.
    */
   list(): Workspace[] {
-    return this.requireState().workspaceIds.map((id) => {
-      const entity = this.entities.get(id)
-      if (entity === undefined) {
-        throw new Error(`workspace registry order references missing workspace '${id}'`)
-      }
-      return entity
-    })
+    return this.visibleOrder().map(id => this.requireEntity(id))
   }
 
   /**
    * Delete one workspace registration while retaining its directory and every
-   * session log. The durable order is updated before the table deletion; a
-   * failed table write restores the prior order and keeps the entity
-   * published. Unknown ids are an idempotent no-op for domain callers.
+   * session log. The project registry row is removed first; the durable order
+   * and session account follow, and a follow-up write that still fails is
+   * logged because the requested state is already true — the next startup
+   * reconciles both.
    * @param id - Workspace registration to remove.
-   * @returns `true` when a record was deleted, `false` when it was unknown.
+   * @returns `true` when a registration was deleted, `false` when it was unknown.
    */
   delete(id: WorkspaceId): Promise<boolean> {
     return this.enqueueOperation(() => this.deleteKnown(id))
@@ -321,23 +380,24 @@ export class WorkspaceRegistry extends Service {
   insertBefore(id: WorkspaceId, beforeId?: WorkspaceId): Promise<readonly WorkspaceId[]> {
     return this.enqueueOperation(async () => {
       const state = this.requireState()
-      if (!state.workspaceIds.includes(id)) throw new WorkspaceOrderInvalidError(id)
-      if (beforeId !== undefined && !state.workspaceIds.includes(beforeId)) {
+      const order = this.visibleOrder()
+      if (!order.includes(id)) throw new WorkspaceOrderInvalidError(id)
+      if (beforeId !== undefined && !order.includes(beforeId)) {
         throw new WorkspaceOrderInvalidError(beforeId)
       }
-      if (beforeId === id) return state.workspaceIds
-      const without = state.workspaceIds.filter(workspaceId => workspaceId !== id)
+      if (beforeId === id) return order
+      const without = order.filter(workspaceId => workspaceId !== id)
       const at = beforeId === undefined ? without.length : without.indexOf(beforeId)
-      const workspaceIds = [...without.slice(0, at), id, ...without.slice(at)]
-      if (sameIds(workspaceIds, state.workspaceIds)) return state.workspaceIds
-      await this.setState({ ...state, workspaceIds })
-      return workspaceIds
+      const projectIds = [...without.slice(0, at), id, ...without.slice(at)]
+      if (sameIds(projectIds, state.projectIds)) return projectIds
+      await this.setState({ ...state, projectIds })
+      return projectIds
     })
   }
 
   /**
    * The registry-global archive set: sessions hidden from every grouping
-   * surface. Archiving never touches workspace accounting — an archived
+   * surface. Archiving never touches project accounting — an archived
    * session keeps its `sessionIds` slot so unarchiving restores its position.
    * @returns the archived session ids in archive order.
    */
@@ -347,7 +407,7 @@ export class WorkspaceRegistry extends Service {
 
   /**
    * Archive one session durably. The session must exist (live or in session
-   * persistence); its workspace accounting — or lack of one — is irrelevant.
+   * persistence); its project accounting — or lack of one — is irrelevant.
    * Without `stopActivity` the session must also be inactive: the
    * `workspace/session-activity` waterfall is asked once, and any reported
    * activity rejects with {@link WorkspaceActiveSessionError} before anything
@@ -411,7 +471,7 @@ export class WorkspaceRegistry extends Service {
 
   /**
    * The registry-global pin set: sessions surfaced ahead of every unpinned
-   * session on grouping surfaces. Pinning never touches workspace accounting.
+   * session on grouping surfaces. Pinning never touches project accounting.
    * @returns Session ids in pin order (most recently pinned first).
    */
   get pinnedSessionIds(): readonly SessionId[] {
@@ -466,11 +526,19 @@ export class WorkspaceRegistry extends Service {
   }
 
   /**
-   * Whether a session is live, header-indexed, or present in a fresh
-   * persistence listing. Only a definite miss returns false — a failing
-   * `sessionPersistence.list()` propagates so storage faults never
-   * masquerade as an unknown session.
+   * Resolve one workspace by canonical directory path without creating or
+   * mutating a registration. A missing path rejects during `realpath`; an
+   * existing unowned directory returns `undefined`.
+   * @param path - Existing directory path in a fully qualified spelling.
+   * @returns the workspace owning the canonical path, when one exists.
    */
+  async resolveByPath(path: string): Promise<Workspace | undefined> {
+    const canonical = await realpathNormalize(path)
+    const project = this.projectByPath(canonical)
+    return project === undefined ? undefined : this.entities.get(project.id)
+  }
+
+  /** Whether a session is live, header-indexed, or present in a fresh persistence listing. */
   private async sessionKnown(id: SessionId): Promise<boolean> {
     if (this.ctx.get('sessions')?.get(id) !== undefined) return true
     if (this.headers.has(id)) return true
@@ -493,163 +561,84 @@ export class WorkspaceRegistry extends Service {
   }
 
   /**
-   * Resolve by canonical directory path without creating or mutating a
-   * workspace. A missing path rejects during `realpath`; an existing unowned
-   * directory returns `undefined`.
-   * @param path - Existing directory path in a fully qualified spelling.
-   * @returns the workspace owning the canonical path, when one exists.
+   * Import the shipped v2 `workspace` domain once: every stored workspace
+   * becomes a project registration (reusing a project that already claims its
+   * directory), its session account moves to the project, and the default
+   * identity plus the global session sets carry over. The legacy medium is
+   * opened read-only and closed; it is never rewritten or deleted.
+   *
+   * Idempotent and re-entrant: a project directory already registered is
+   * reused rather than duplicated, a session account is rebuilt from the same
+   * legacy record, and `migratedFromV2` is written only after every project and
+   * account is durable. A crash anywhere before that write repeats the same
+   * work on the next start.
    */
-  async resolveByPath(path: string): Promise<Workspace | undefined> {
-    const canonical = await realpathNormalize(path)
-    for (const entity of this.entities.values()) {
-      if (entity.path === canonical) return entity
-    }
-    return undefined
-  }
-
-  private async createCanonical(canonical: string, title?: string, firstUse = false): Promise<WorkspaceEntity> {
-    for (const entity of this.entities.values()) {
-      if (entity.path === canonical) return entity
-    }
-
-    const workspaceName = title ?? defaultWorkspaceTitle(canonical)
-    const table = this.requireTable()
+  private async importLegacyRegistry(): Promise<void> {
     const state = this.requireState()
-    const id = WorkspaceId(randomUUID())
-    const now = new Date().toISOString()
-    const record: WorkspaceRecord = {
-      path: canonical,
-      title: workspaceName,
-      sessionIds: [],
-      createdAt: now,
-      updatedAt: now,
-    }
-    const entity = new WorkspaceEntity(this.host, id, record)
-    this.entities.set(id, entity)
-    const pendingState: WorkspaceDomainState = {
-      ...state,
-      pendingMutation: { operation: 'create', workspaceId: id },
-    }
+    if (state.migratedFromV2) return
+    const legacy = await this.ctx.storageDomain.open(legacyWorkspaceDomainSpec)
+    let records: [string, LegacyWorkspaceRecord][]
+    let legacyState: LegacyWorkspaceState
     try {
-      await this.setState(pendingState)
-    } catch (error) {
-      this.entities.delete(id)
-      throw error
-    }
-    try {
-      await table.put(id, record)
-    } catch (error) {
-      this.entities.delete(id)
-      try {
-        await this.setState(state)
-      } catch (rollbackError) {
-        throw new AggregateError(
-          [error, rollbackError],
-          `workspace '${id}' record write and pending-marker rollback both failed`,
-        )
-      }
-      throw error
+      records = [...legacy.table('workspaces').entries()]
+      legacyState = legacy.global.get()
+    } finally {
+      await legacy.close()
     }
 
-    try {
-      await this.setState({
-        ...state,
-        pendingMutation: undefined,
-        initialized: true,
-        ...(firstUse ? { defaultWorkspaceId: id } : {}),
-        workspaceIds: [id, ...state.workspaceIds],
-      })
-    } catch (error) {
-      this.entities.delete(id)
-      try {
-        await table.delete(id)
-      } catch (rollbackError) {
-        throw new AggregateError(
-          [error, rollbackError],
-          `workspace '${id}' order write and record rollback both failed; the pending marker remains recoverable`,
-        )
-      }
-      try {
-        await this.setState(state)
-      } catch (rollbackError) {
-        throw new AggregateError(
-          [error, rollbackError],
-          `workspace '${id}' order write and pending-marker rollback both failed`,
-        )
-      }
-      throw error
+    const byLegacyId = new Map(records)
+    const ordered: [string, LegacyWorkspaceRecord][] = []
+    for (const legacyId of legacyState.workspaceIds) {
+      const record = byLegacyId.get(legacyId)
+      if (record === undefined) continue
+      ordered.push([legacyId, record])
+      byLegacyId.delete(legacyId)
     }
-    return entity
-  }
+    for (const entry of [...byLegacyId].sort(([, left], [, right]) =>
+      left.createdAt.localeCompare(right.createdAt))) ordered.push(entry)
 
-  private async deleteKnown(id: WorkspaceId): Promise<boolean> {
-    const entity = this.entities.get(id)
-    if (entity === undefined) return false
-    const state = this.requireState()
-    const nextState = {
-      ...state,
-      pendingMutation: undefined,
-      initialized: true,
-      workspaceIds: state.workspaceIds.filter(workspaceId => workspaceId !== id),
+    const migrated: ProjectId[] = []
+    const legacyToProject = new Map<string, ProjectId>()
+    const accounted = new Set<SessionId>()
+    for (const [legacyId, record] of ordered) {
+      const project = await this.adoptProject(record.path, record.title)
+      legacyToProject.set(legacyId, project.id)
+      const current = this.requireTable().get(project.id)
+      const sessionIds = [...(current?.sessionIds ?? [])]
+      for (const sessionId of record.sessionIds) {
+        if (accounted.has(sessionId) || sessionIds.includes(sessionId)) continue
+        sessionIds.push(sessionId)
+      }
+      for (const sessionId of sessionIds) accounted.add(sessionId)
+      if (current === undefined || sessionIds.length !== current.sessionIds.length) {
+        await this.requireTable().put(project.id, {
+          sessionIds,
+          updatedAt: Date.parse(record.updatedAt) || Date.now(),
+        })
+      }
+      if (!migrated.includes(project.id)) migrated.push(project.id)
     }
+
+    const defaultProjectId = legacyState.defaultWorkspaceId === undefined
+      ? state.defaultProjectId
+      : legacyToProject.get(legacyState.defaultWorkspaceId) ?? state.defaultProjectId
     await this.setState({
-      ...nextState,
-      pendingMutation: { operation: 'delete', workspaceId: id },
+      initialized: legacyState.initialized,
+      migratedFromV2: true,
+      ...defaultProjectId === undefined ? {} : { defaultProjectId },
+      projectIds: [...migrated, ...state.projectIds.filter(id => !migrated.includes(id))],
+      archivedSessionIds: mergeSessionIds(state.archivedSessionIds, legacyState.archivedSessionIds),
+      pinnedSessionIds: mergeSessionIds(state.pinnedSessionIds, legacyState.pinnedSessionIds),
     })
-    this.entities.delete(id)
-    try {
-      await this.requireTable().delete(id)
-    } catch (error) {
-      this.entities.set(id, entity)
-      try {
-        await this.setState(state)
-      } catch (rollbackError) {
-        // The durable marker still says to finish deletion, so the cache must
-        // agree with that recoverable direction rather than republish a row
-        // absent from the persisted order.
-        this.entities.delete(id)
-        throw new AggregateError(
-          [error, rollbackError],
-          `workspace '${id}' record deletion and registry-order rollback both failed`,
-        )
-      }
-      throw error
-    }
-    try {
-      await this.setState(nextState)
-    } catch (error) {
-      // The deletion committed at the table write and was already published
-      // to Host streams. Keep the durable marker for startup recovery rather
-      // than reporting failure after the requested state became true.
-      this.ctx.logger.warn(
-        `workspace '${id}' was deleted but its pending marker could not be cleared: ${String(error)}`,
-      )
-    }
-    return true
   }
 
   /**
-   * Complete the one mutation explicitly named by durable state. Unexplained
-   * order/table divergence still reaches {@link validateStoredState} and
-   * fails loud; this path never guesses which operation created a row from its shape alone.
+   * Account the stored session history by canonical cwd the first time a
+   * profile starts without one. Each cwd group becomes a project registration
+   * in newest-session order; already-accounted sessions are never re-homed, so
+   * a partially completed bootstrap repeats safely.
    */
-  private async recoverPendingMutation(): Promise<void> {
-    const state = this.requireState()
-    const pending = state.pendingMutation
-    if (pending === undefined) return
-    if (state.workspaceIds.includes(pending.workspaceId)) {
-      throw new Error(
-        `workspace domain is inconsistent: pending ${pending.operation} workspace `
-        + `'${pending.workspaceId}' is still present in registry order`,
-      )
-    }
-    await this.requireTable().delete(pending.workspaceId)
-    await this.setState({ ...state, pendingMutation: undefined })
-  }
-
   private async bootstrap(headers: readonly SessionHeader[]): Promise<void> {
-    const table = this.requireTable()
-    const state = this.requireState()
     const groupsByPath = new Map<string, SessionHeader[]>()
     for (const header of headers) {
       const path = this.sessionPaths.get(header.id)
@@ -665,113 +654,72 @@ export class WorkspaceRegistry extends Service {
     }).sort((left, right) =>
       right.newestAt - left.newestAt || left.path.localeCompare(right.path))
 
-    const byPath = new Map<string, WorkspaceId>()
-    const accounted = new Map<SessionId, WorkspaceId>()
-    for (const [id, record] of table.entries()) {
-      byPath.set(record.path, id)
-      for (const sessionId of record.sessionIds) accounted.set(sessionId, id)
-    }
-
+    const accounted = this.accountedSessions()
+    const created: ProjectId[] = []
     for (const group of groups) {
-      let id = byPath.get(group.path)
-      if (id === undefined) {
-        const sessionIds = group.headers
-          .map(header => header.id)
-          .filter(sessionId => !accounted.has(sessionId))
-        if (sessionIds.length === 0) continue
-        id = WorkspaceId(randomUUID())
-        const createdAt = new Date(group.newestAt).toISOString()
-        const record: WorkspaceRecord = {
-          path: group.path,
-          title: defaultWorkspaceTitle(group.path),
-          sessionIds,
-          createdAt,
-          updatedAt: createdAt,
-        }
-        await table.put(id, record)
-        byPath.set(group.path, id)
-        for (const sessionId of sessionIds) accounted.set(sessionId, id)
-        continue
-      }
-
-      const current = table.get(id) as WorkspaceRecord
-      const historical = group.headers
+      const existing = this.projectByPath(group.path)
+      const sessionIds = group.headers
         .map(header => header.id)
-        .filter(sessionId => accounted.get(sessionId) === undefined || accounted.get(sessionId) === id)
-      const historicalSet = new Set(historical)
-      const sessionIds = [
-        ...historical,
-        ...current.sessionIds.filter(sessionId => !historicalSet.has(sessionId)),
-      ]
-      if (sameSessionIds(current.sessionIds, sessionIds)) continue
-      await table.update(id, record => ({
-        ...record,
-        sessionIds,
-        updatedAt: new Date().toISOString(),
-      }))
-      for (const sessionId of historical) accounted.set(sessionId, id)
+        .filter(sessionId => !accounted.has(sessionId))
+      if (sessionIds.length === 0) continue
+      const project = existing ?? await this.adoptProject(group.path, defaultWorkspaceTitle(group.path))
+      const current = this.requireTable().get(project.id)
+      const merged = [...sessionIds, ...(current?.sessionIds ?? [])]
+      await this.requireTable().put(project.id, {
+        sessionIds: merged,
+        updatedAt: Date.now(),
+      })
+      for (const sessionId of sessionIds) accounted.add(sessionId)
+      if (existing === undefined) created.push(project.id)
     }
 
-    const groupRank = new Map(groups.map(group => [group.path, group.newestAt]))
-    const priorRank = new Map(state.workspaceIds.map((id, index) => [id, index]))
-    const workspaceIds = [...table.entries()]
-      .sort(([leftId, left], [rightId, right]) => {
-        const leftTime = groupRank.get(left.path) ?? Date.parse(left.createdAt)
-        const rightTime = groupRank.get(right.path) ?? Date.parse(right.createdAt)
-        return rightTime - leftTime
-          || (priorRank.get(leftId) ?? Number.MAX_SAFE_INTEGER)
-            - (priorRank.get(rightId) ?? Number.MAX_SAFE_INTEGER)
-          || String(leftId).localeCompare(String(rightId))
-      })
-      .map(([id]) => id)
-
-    if (!sameIds(state.workspaceIds, workspaceIds)) {
-      await this.setState({
-        initialized: false,
-        workspaceIds,
-        archivedSessionIds: state.archivedSessionIds,
-        pinnedSessionIds: state.pinnedSessionIds,
-      })
-    }
+    const state = this.requireState()
     await this.setState({
+      ...state,
       initialized: true,
-      workspaceIds,
-      archivedSessionIds: state.archivedSessionIds,
-      pinnedSessionIds: state.pinnedSessionIds,
+      projectIds: [...created, ...state.projectIds.filter(id => !created.includes(id))],
     })
   }
 
-  private validateStoredState(state: WorkspaceDomainState): void {
+  /**
+   * Make the durable order and the session accounts agree with the project
+   * registry, which owns existence: an account whose project row is gone is
+   * dropped, a registered project without an account starts empty, and the
+   * order lists exactly the registered projects — keeping the durable relative
+   * order and prepending projects registered outside this registry.
+   */
+  private async reconcile(): Promise<void> {
     const table = this.requireTable()
-    const order = new Set<WorkspaceId>()
-    for (const id of state.workspaceIds) {
-      if (order.has(id)) {
-        throw new Error(`workspace domain is inconsistent: registry order repeats workspace '${id}'`)
-      }
-      if (table.get(id) === undefined) {
-        throw new Error(`workspace domain is inconsistent: registry order references missing workspace '${id}'`)
-      }
-      order.add(id)
+    for (const id of [...table.keys()]) {
+      if (!this.projects.has(id)) await table.delete(id)
     }
-    if (state.initialized && order.size !== table.size) {
-      const orphan = [...table.keys()].find(id => !order.has(id))
-      throw new Error(
-        `workspace domain is inconsistent: workspace '${orphan as WorkspaceId}' is absent from registry order`,
-      )
+    for (const project of this.projects.values()) {
+      if (table.get(project.id) === undefined) {
+        await table.put(project.id, { sessionIds: [], updatedAt: Date.now() })
+      }
     }
 
-    const paths = new Map<string, WorkspaceId>()
-    const accounted = new Map<SessionId, WorkspaceId>()
-    for (const [id, record] of table.entries()) {
-      const pathHolder = paths.get(record.path)
-      if (pathHolder !== undefined) {
-        throw new Error(
-          `workspace domain is inconsistent: path '${record.path}' is claimed `
-          + `by both workspace '${pathHolder}' and workspace '${id}'`,
-        )
-      }
-      paths.set(record.path, id)
-      for (const sessionId of record.sessionIds) {
+    const state = this.requireState()
+    const ordered = new Set<ProjectId>()
+    const projectIds: ProjectId[] = []
+    for (const id of state.projectIds) {
+      if (!this.projects.has(id) || ordered.has(id)) continue
+      ordered.add(id)
+      projectIds.push(id)
+    }
+    const unlisted = [...this.projects.values()]
+      .filter(project => !ordered.has(project.id))
+      .sort((left, right) => right.createdAt - left.createdAt || String(left.id).localeCompare(String(right.id)))
+      .map(project => project.id)
+    const next: ProjectId[] = [...unlisted, ...projectIds]
+    if (!sameIds(next, state.projectIds)) await this.setState({ ...state, projectIds: next })
+  }
+
+  /** Fail loud on the one invariant the registry itself maintains; existence and order are reconciled. */
+  private validateStoredState(): void {
+    const accounted = new Map<SessionId, ProjectId>()
+    for (const [id, group] of this.requireTable().entries()) {
+      for (const sessionId of group.sessionIds) {
         const holder = accounted.get(sessionId)
         if (holder !== undefined) {
           throw new Error(
@@ -784,11 +732,156 @@ export class WorkspaceRegistry extends Service {
     }
   }
 
+  /** Canonical existing directory for one requested project path; anything else rejects. */
+  private async canonicalDirectory(path: string): Promise<string> {
+    const canonical = await realpathNormalize(path)
+    if (!(await stat(canonical)).isDirectory()) {
+      throw new Error(`cannot create a workspace at '${canonical}': path is not a directory`)
+    }
+    return canonical
+  }
+
+  /** Register one project and its group, or reuse the registration that already claims the directory. */
+  private async createProjectCanonical(
+    canonical: string | undefined,
+    title: string,
+    firstUse: boolean,
+  ): Promise<WorkspaceEntity> {
+    if (canonical !== undefined) {
+      const existing = this.projectByPath(canonical)
+      if (existing !== undefined) return this.requireEntity(existing.id)
+    }
+
+    const record = await this.registerProject(canonical === undefined
+      ? { title }
+      : { title, path: canonical })
+    this.projects.set(record.id, record)
+    let groupWritten = false
+    let entity: WorkspaceEntity
+    try {
+      await this.requireTable().put(record.id, { sessionIds: [], updatedAt: Date.now() })
+      groupWritten = true
+      // Published before the order write so a change listener observes the new
+      // project while handling that write.
+      entity = new WorkspaceEntity(this.host, record.id, record, this.requireGroup(record.id))
+      this.entities.set(record.id, entity)
+      const state = this.requireState()
+      await this.setState({
+        ...state,
+        initialized: true,
+        ...(firstUse ? { defaultProjectId: record.id } : {}),
+        projectIds: [record.id, ...state.projectIds.filter(id => id !== record.id)],
+      })
+    } catch (error) {
+      this.projects.delete(record.id)
+      this.entities.delete(record.id)
+      const failures: unknown[] = [error]
+      if (groupWritten) {
+        try {
+          await this.requireTable().delete(record.id)
+        } catch (rollbackError) {
+          failures.push(rollbackError)
+        }
+      }
+      try {
+        await this.ctx.mwfProjectStore.removeProject(record.id)
+      /* v8 ignore start -- a failed registry-row delete is a storage fault the store reports itself. */
+      } catch (rollbackError) {
+        failures.push(rollbackError)
+      }
+      /* v8 ignore stop */
+      if (failures.length > 1) {
+        throw new AggregateError(
+          failures,
+          `workspace '${record.id}' registration rollback did not complete; its directory is kept`,
+        )
+      }
+      throw error
+    }
+    return entity
+  }
+
+  /** Register a project in the project store, resolving the registration that won a racing create for the same directory. */
+  private async registerProject(request: CreateProjectRequest): Promise<ProjectRecord> {
+    try {
+      return await this.ctx.mwfProjectStore.createProject(request)
+    } catch (error) {
+      if (!(error instanceof WorkflowProjectStoreError) || error.code !== 'project-path-in-use') throw error
+      const requestedPath = request.path
+      /* v8 ignore next -- a path-less registration allocates its own directory and cannot collide. */
+      if (requestedPath === undefined) throw error
+      await this.loadProjects()
+      const winner = this.projectByPath(requestedPath)
+      /* v8 ignore next -- a caller only reaches `project-path-in-use` when a row claims that directory. */
+      if (winner === undefined) throw error
+      return winner
+    }
+  }
+
+  /** Register the project a legacy record or a bootstrap group names, or reuse the one that owns the directory. */
+  private async adoptProject(path: string, title: string): Promise<ProjectRecord> {
+    const existing = this.projectByPath(path)
+    if (existing !== undefined) return existing
+    const record = await this.registerProject({ title, path })
+    this.projects.set(record.id, record)
+    return record
+  }
+
+  /** Delete one registration; the directory and every session log stay. */
+  private async deleteKnown(id: ProjectId): Promise<boolean> {
+    if (!this.projects.has(id)) return false
+    await this.ctx.mwfProjectStore.removeProject(id)
+    this.projects.delete(id)
+    this.entities.delete(id)
+    const state = this.requireState()
+    try {
+      await this.setState({ ...state, projectIds: state.projectIds.filter(projectId => projectId !== id) })
+    } catch (error) {
+      // The requested state is already true; the next startup reconciles the order.
+      this.ctx.logger.warn(`workspace '${id}' was deleted but its display order could not be updated: ${String(error)}`)
+    }
+    try {
+      await this.requireTable().delete(id)
+    } catch (error) {
+      this.ctx.logger.warn(`workspace '${id}' was deleted but its session account could not be removed: ${String(error)}`)
+    }
+    return true
+  }
+
+  /** Reload every registered project, newest first, as the registry's identity cache. */
+  private async loadProjects(): Promise<void> {
+    this.projects.clear()
+    for (const record of await this.ctx.mwfProjectStore.listProjects()) {
+      this.projects.set(record.id, record)
+    }
+  }
+
+  /** The durable display order restricted to registered projects. */
+  private visibleOrder(): ProjectId[] {
+    return this.requireState().projectIds.filter(id => this.projects.has(id))
+  }
+
+  private projectByPath(path: string): ProjectRecord | undefined {
+    for (const project of this.projects.values()) {
+      if (project.path === path) return project
+    }
+    return undefined
+  }
+
+  private accountedSessions(): Set<SessionId> {
+    const accounted = new Set<SessionId>()
+    for (const [, group] of this.requireTable().entries()) {
+      for (const sessionId of group.sessionIds) accounted.add(sessionId)
+    }
+    return accounted
+  }
+
   private rebuildEntities(): void {
     this.entities.clear()
-    for (const id of this.requireState().workspaceIds) {
-      const record = this.requireTable().get(id) as WorkspaceRecord
-      this.entities.set(id, new WorkspaceEntity(this.host, id, record))
+    for (const id of this.visibleOrder()) {
+      this.entities.set(id, new WorkspaceEntity(
+        this.host, id, this.requireProject(id), this.requireGroup(id),
+      ))
     }
   }
 
@@ -843,13 +936,14 @@ export class WorkspaceRegistry extends Service {
 
   private reportFilteredCandidates(): void {
     for (const entity of this.entities.values()) {
-      const record = this.requireTable().get(entity.id) as WorkspaceRecord
-      for (const sessionId of record.sessionIds) {
-        if (this.host.candidateMatches(sessionId, record.path)) continue
+      const project = this.requireProject(entity.id)
+      const group = this.requireGroup(entity.id)
+      for (const sessionId of group.sessionIds) {
+        if (this.host.candidateMatches(sessionId, project.path)) continue
         const path = this.sessionPaths.get(sessionId)
         const reason = this.invalidSessionPaths.get(sessionId)
           ?? (this.headers.has(sessionId)
-            ? `canonical cwd '${path}' differs from workspace path '${record.path}'`
+            ? `canonical cwd '${path}' differs from workspace path '${project.path}'`
             : 'session header is missing')
         this.ctx.logger.warn(
           `workspace '${entity.id}' filtered session '${sessionId}' from membership: ${reason}`,
@@ -876,34 +970,58 @@ export class WorkspaceRegistry extends Service {
     return header
   }
 
-  private requireTable(): KvTable<WorkspaceId, WorkspaceRecord> {
+  private requireEntity(id: ProjectId): WorkspaceEntity {
+    const entity = this.entities.get(id)
+    /* v8 ignore next -- the visible order and the entity cache are rebuilt from one project snapshot. */
+    if (entity === undefined) throw new Error(`workspace registry order references missing workspace '${id}'`)
+    return entity
+  }
+
+  private requireProject(id: ProjectId): ProjectRecord {
+    const project = this.projects.get(id)
+    /* v8 ignore next -- callers name ids the visible order already filtered to registered projects. */
+    if (project === undefined) throw new Error(`workspace '${id}' has no registered project`)
+    return project
+  }
+
+  private requireGroup(id: ProjectId): WorkspaceGroupRecord {
+    const group = this.requireTable().get(id)
+    /* v8 ignore next -- startup reconciliation materializes one account per registered project. */
+    if (group === undefined) throw new Error(`workspace '${id}' has no session account`)
+    return group
+  }
+
+  private requireTable(): KvTable<ProjectId, WorkspaceGroupRecord> {
+    /* v8 ignore next -- the service publishes only after its initialization await. */
     if (this.table === undefined) throw new Error('workspace registry is not started yet')
     return this.table
   }
 
-  private requireState(): WorkspaceDomainState {
+  private requireState(): WorkspaceProjectState {
+    /* v8 ignore next -- the service publishes only after its initialization await. */
     if (this.state === undefined) throw new Error('workspace registry is not started yet')
     return this.state
   }
 
-  private async setState(state: WorkspaceDomainState): Promise<void> {
-    await (this.global as DomainGlobal<WorkspaceDomainState>).set(state)
+  private async setState(state: WorkspaceProjectState): Promise<void> {
+    await (this.global as DomainGlobal<WorkspaceProjectState>).set(state)
     this.state = state
   }
 
   private enqueueOperation<T>(operation: () => Promise<T>): Promise<T> {
-    const result = this.operationTail.then(async () => {
-      // A committed delete may leave only its marker cleanup pending. Retry
-      // recovery before another create/delete can overwrite that pending operation record.
-      await this.recoverPendingMutation()
-      return await operation()
-    })
+    const result = this.operationTail.then(operation)
     this.operationTail = result.then(() => {}, () => {})
     return result
   }
 }
 
-const sameSessionIds = (left: readonly SessionId[], right: readonly SessionId[]): boolean =>
-  left.length === right.length && left.every((id, index) => id === right[index])
+/** Union two ordered id lists, keeping the first list's order and appending unseen ids. */
+function mergeSessionIds(left: readonly SessionId[], right: readonly SessionId[]): SessionId[] {
+  const merged = [...left]
+  for (const id of right) {
+    if (!merged.includes(id)) merged.push(id)
+  }
+  return merged
+}
 
 export default WorkspaceRegistry

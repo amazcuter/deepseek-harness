@@ -3,12 +3,8 @@
 import type { Context } from '@deepseek-ai/cordis'
 import { Deque } from '@metaworkflow/deque'
 import type { DomainChanged } from '@metaworkflow/storage-domain'
-import type { Workspace, WorkspaceRecord } from '@metaworkflow/workspace'
-import {
-  workspaceDomainState,
-  workspaceRecord,
-  WorkspaceId,
-} from '@metaworkflow/workspace'
+import type { Workspace, WorkspaceChanged } from '@metaworkflow/workspace'
+import { workspaceProjectState, WorkspaceId } from '@metaworkflow/workspace'
 import type {
   WorkspaceBaseline,
   WorkspaceFollowFrame,
@@ -34,18 +30,6 @@ export function workspaceView(workspace: Workspace): WorkspaceView {
   }
 }
 
-function changedWorkspaceView(workspaceId: string, value: unknown): WorkspaceView {
-  const record: WorkspaceRecord = workspaceRecord.parse(value)
-  return {
-    workspaceId: WorkspaceId(workspaceId),
-    path: record.path,
-    title: record.title,
-    sessionIds: [...record.sessionIds],
-    createdAt: record.createdAt,
-    updatedAt: record.updatedAt,
-  }
-}
-
 /** Owns Workspace domain observation and all active follow generations. */
 export class WorkspaceFeed {
   private readonly followers = new Set<WorkspaceFollower>()
@@ -62,6 +46,7 @@ export class WorkspaceFeed {
     this.archived = ctx.workspaceRegistry.archivedSessionIds.map(String)
     this.pinned = ctx.workspaceRegistry.pinnedSessionIds.map(String)
     ctx.on('domain/changed', (change: DomainChanged) => { this.changed(change) })
+    ctx.on('workspace/changed', (change: WorkspaceChanged) => { this.projectChanged(change) })
     ctx.effect(() => () => {
       for (const follower of this.followers) follower.close()
       this.followers.clear()
@@ -70,7 +55,7 @@ export class WorkspaceFeed {
 
   /**
    * Read the complete current projection synchronously.
-   * @returns all active Workspaces plus archived and pinned Session identities.
+   * @returns all registered Workspaces plus archived and pinned Session identities.
    */
   baseline(): WorkspaceBaseline {
     return {
@@ -98,24 +83,41 @@ export class WorkspaceFeed {
     }
   }
 
+  /** Publish a fresh projection of one renamed or re-registered project. */
+  private projectChanged(change: WorkspaceChanged): void {
+    const id = String(change.workspaceId)
+    if (!this.knownIds.has(id)) return
+    const workspace = this.ctx.workspaceRegistry.get(change.workspaceId)
+    /* v8 ignore next -- a change names a project the registry still holds. */
+    if (workspace === undefined) return
+    this.publish({ type: 'upsert', workspace: workspaceView(workspace) })
+  }
+
   private changed(change: DomainChanged): void {
-    if (change.domain !== 'workspace') return
+    if (change.domain !== 'workspace_projects') return
+    // The registry global carries the display order and the two Session sets;
+    // it is written after a project's account, so one pass publishes both.
     if (change.table === '') {
       if (change.operation !== 'put') return
-      const state = workspaceDomainState.parse(change.value)
-      const nextOrder = state.workspaceIds.map(String)
+      const state = workspaceProjectState.parse(change.value)
+      // The registry publishes a project entity before it writes the durable
+      // order, and updates its own snapshot after the write, so the committed
+      // value is the source of the order while each view comes from the entity.
+      const visible: Workspace[] = []
+      for (const id of state.projectIds) {
+        const workspace = this.ctx.workspaceRegistry.get(WorkspaceId(id))
+        if (workspace !== undefined) visible.push(workspace)
+      }
+      const nextOrder = visible.map(workspace => String(workspace.id))
       const orderChanged = !sameStrings(this.order, nextOrder)
-      for (const id of state.workspaceIds) {
+      for (const workspace of visible) {
+        const id = String(workspace.id)
         if (this.knownIds.has(id)) continue
-        const workspace = this.ctx.workspaceRegistry.get(id)
-        if (workspace === undefined) {
-          throw new Error(`committed Workspace registry references missing Workspace "${id}"`)
-        }
         this.knownIds.add(id)
         this.publish({ type: 'upsert', workspace: workspaceView(workspace) })
       }
       this.order = nextOrder
-      if (orderChanged) this.publish({ type: 'order', workspaceIds: [...state.workspaceIds] })
+      if (orderChanged) this.publish({ type: 'order', workspaceIds: nextOrder.map(WorkspaceId) })
       const nextArchived = state.archivedSessionIds.map(String)
       if (!sameStrings(this.archived, nextArchived)) {
         this.archived = nextArchived
@@ -128,17 +130,11 @@ export class WorkspaceFeed {
       }
       return
     }
-    if (change.table !== 'workspaces') return
-    if (change.operation === 'deleted') {
-      if (!this.knownIds.delete(change.key)) return
-      this.publish({ type: 'remove', workspaceId: WorkspaceId(change.key) })
-      return
-    }
-    if (!this.knownIds.has(change.key)) return
-    this.publish({
-      type: 'upsert',
-      workspace: changedWorkspaceView(change.key, change.value),
-    })
+    if (change.table !== 'projects') return
+    /* v8 ignore next -- an account write for a known project also emits `workspace/changed`, which carries the fresh view. */
+    if (change.operation !== 'deleted') return
+    if (!this.knownIds.delete(change.key)) return
+    this.publish({ type: 'remove', workspaceId: WorkspaceId(change.key) })
   }
 
   private publish(frame: Exclude<WorkspaceFeedFrame, { readonly type: 'baseline' }>): void {

@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/workspace/workspace/README.md
 /:
-  en: d112c03aefc9a73d
-  zh: e2ea3f0a9c814a23
+  en: 2fd10ed05333d281
+  zh: 0150beda87acdbd7
 /metaworkflow-workspace:
   en: c66d10a4cf1cccb3
   zh: 8495f01bdfe21d3f
 /metaworkflow-workspace/summary:
-  en: 30aea62cabd8e8a8
-  zh: b22b30ef08fd4713
+  en: 3b1a54e1e54e0cd5
+  zh: a0a0fbc18c865083
 /metaworkflow-workspace/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -21,8 +21,8 @@
   en: f24dd905d5bcac3e
   zh: 16b91b99fdaf5add
 /metaworkflow-workspace/use-this-package/setting-up:
-  en: f4611634be527eb0
-  zh: 89d35d640a2c1cc4
+  en: d8ad4cbb1632d00c
+  zh: 145db68116dae5ae
 /metaworkflow-workspace/use-this-package/creating-and-ordering-projects:
   en: a092fc7b0db9c299
   zh: 6d7ed93e34237773
@@ -48,14 +48,14 @@
   en: 6899c50041c3d1ef
   zh: ea70fda89cc50465
 /metaworkflow-workspace/understand-the-implementation/durable-shape:
-  en: 056a266f4a15b29d
-  zh: e1589f5750662887
+  en: 9e1826bd0bafd3c0
+  zh: b7d77423e2579762
 /metaworkflow-workspace/understand-the-implementation/lifecycle:
-  en: e41db10d48acbf9a
-  zh: 457d329fe37ba33c
+  en: 03d60feaeec76f47
+  zh: 057e7966b17eb6d7
 /metaworkflow-workspace/understand-the-implementation/failure-and-recovery:
-  en: 8b53b9369bea6f67
-  zh: 612fd3439a23e035
+  en: 108341d8f14a2f7b
+  zh: 721de9a93c343980
 /metaworkflow-workspace/further-exploration:
   en: 5354b008316d709f
   zh: cbeb5c7905bfd5ef

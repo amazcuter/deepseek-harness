@@ -8,7 +8,7 @@ kind: "package-reference"
 
 ## 概述
 
-`@metaworkflow/api-workspace-controller` 拥有 Host 的 `ctx.workspaceController` 服务和生成的 Client `ctx.remote.workspace` namespace。它的 Remote 方法负责创建、重命名、移除和重排 Workspace，在 Workspace 内重排 Session，归档与取消归档 Session，以及跟随完整的 Workspace 投影。当 Client 必须修改或跟随 Workspace 导航时，请通过 API 网关使用它。本包同时拥有 `ctx.directoryPickerController` 与生成的 `ctx.remote.directoryPicker` namespace，因为它承载的选目录 seam 是抽象的，自身从不作为 Loader entry。
+`@metaworkflow/api-workspace-controller` 拥有 Host 的 `ctx.workspaceController` 服务和生成的 Client `ctx.remote.workspace` namespace。它的 Remote 方法负责创建、重命名、移除和重排 Workspace，在 Workspace 内重排 Session，归档与取消归档 Session，以及跟随完整的 Workspace 投影。当 Client 必须修改或跟随 Workspace 导航时，请通过 API 网关使用它。本包同时拥有带生成 `ctx.remote.directoryPicker` namespace 的 `ctx.directoryPickerController`（它承载的选目录 seam 是抽象的，自身从不作为 Loader entry），以及带生成 `ctx.remote.projects` namespace 的 `ctx.mwProjectController`——项目首页通过后者完成列出、新建、打开、重命名与删除。
 
 ## 目录
 
@@ -43,6 +43,25 @@ Client 入口提供 `ClientWorkspaceModel` 和 `createWorkspaceStateStream()`。
 | `documentsLookupTimeoutMs` | `10000` | 操作系统目录查询的正数最大时长，单位为毫秒 |
 
 Documents 查询占用注册表变更队列，因此其他 Workspace 变更（包括登记已选目录）最多可能等待 `documentsLookupTimeoutMs`。取消可以停止查询；解析成功后，取消不会回滚创建或登记。
+
+<a id="the-projects-namespace"></a>
+### projects 命名空间
+
+`ctx.mwProjectController` 通过生成的 `ctx.remote.projects` 命名空间服务项目首页。它自身不持有项目数据：`ctx.mwfProjectStore` 拥有项目身份、目录、标题与定义版本，`ctx.workspaceRegistry` 拥有会话账本与显示顺序，因此一行列表由两者组合而成，存储失败会被映射为 Remote 错误码而不是直接泄漏。
+
+| 动词 | 请求 | 响应 |
+| --- | --- | --- |
+| `projects.list()` | 无 | `{ items }`，每个已注册项目一条 `ProjectSummary`，按注册表显示顺序排列 |
+| `projects.create({ title, path? })` | 非空 `title`；可选的已存在 `path` | `{ project }` |
+| `projects.open({ id })` | 项目 id | `{ project }`，当目录存在但还没有数据库时物化项目数据库 |
+| `projects.rename({ id, title })` | 项目 id 与非空 `title` | `{ project }` |
+| `projects.delete({ id })` | 项目 id | `{ deleted: true }`；只移除注册，目录与其会话保留 |
+
+`ProjectSummary` 携带 `id`（即 `workspace` 命名空间所称的 `workspaceId`）、`title`、`path`、目录实时 `status`、`sessionCount`，以及 `definitionRevision`——项目存储的最新定义版本；注册表没有对应记录时为 `0`。
+
+失败码是稳定的：没有任何注册携带该 id 时为 `project/not-found`，请求目录无法注册时为携带 `details.path` 的 `project/invalid-path`，目录已被另一个注册占用时为携带 `details.path` 的 `project/path-in-use`，标题为空是 `gateway/bad-request`，存储自身的其余故障是 `gateway/internal`。
+
+Remote 方法名不得与它所在 namespace service 的成员冲突：`install`、`remove`、`has` 与 `empty` 已经位于该原型上，网关会拒绝复用这些名字的动词，因此注销动词是 `projects.delete` 而不是 `projects.remove`；Client 控制器仍为这次调用暴露 `remove()`。
 
 -----
 

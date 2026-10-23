@@ -8,7 +8,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`@metaworkflow/api-workspace-controller` owns the Host `ctx.workspaceController` service and the generated Client `ctx.remote.workspace` namespace. Its Remote methods create, rename, remove, and reorder Workspaces, reorder Sessions within a Workspace, archive and unarchive Sessions from Workspace navigation, and follow the complete Workspace projection. Use it through API Gateway when a Client must change or follow Workspace navigation. The package also owns `ctx.directoryPickerController` and the generated `ctx.remote.directoryPicker` namespace, because the directory-picking seam it carries is abstract and never a Loader entry of its own.
+`@metaworkflow/api-workspace-controller` owns the Host `ctx.workspaceController` service and the generated Client `ctx.remote.workspace` namespace. Its Remote methods create, rename, remove, and reorder Workspaces, reorder Sessions within a Workspace, archive and unarchive Sessions from Workspace navigation, and follow the complete Workspace projection. Use it through API Gateway when a Client must change or follow Workspace navigation. The package also owns `ctx.directoryPickerController` with the generated `ctx.remote.directoryPicker` namespace, because the directory-picking seam it carries is abstract and never a Loader entry of its own, and `ctx.mwProjectController` with the generated `ctx.remote.projects` namespace the project dashboard reads for its list, create, open, rename, and delete.
 
 ## Table of Contents
 
@@ -43,6 +43,25 @@ The [Workspace registry](../../workspace/workspace/README.md#first-use-workspace
 | `documentsLookupTimeoutMs` | `10000` | Positive maximum duration of OS directory lookup, in milliseconds |
 
 Documents lookup holds the registry mutation queue, so other Workspace mutations, including registration of a picked directory, can wait up to `documentsLookupTimeoutMs`. Cancellation can stop the lookup; after resolution succeeds, it does not roll back creation or registration.
+
+<a id="the-projects-namespace"></a>
+### The projects namespace
+
+`ctx.mwProjectController` serves the project dashboard through the generated `ctx.remote.projects` namespace. It holds no project data of its own: `ctx.mwfProjectStore` owns project identity, directory, title, and definition revisions, and `ctx.workspaceRegistry` owns the session account and the display order, so one row composes the two and a store failure is mapped onto the Remote error codes instead of leaking.
+
+| Verb | Request | Response |
+| --- | --- | --- |
+| `projects.list()` | none | `{ items }`, one `ProjectSummary` per registered project in registry display order |
+| `projects.create({ title, path? })` | non-blank `title`; optional existing `path` | `{ project }` |
+| `projects.open({ id })` | project id | `{ project }`, materializing the project database when the directory exists without one |
+| `projects.rename({ id, title })` | project id and non-blank `title` | `{ project }` |
+| `projects.delete({ id })` | project id | `{ deleted: true }`; the registration goes, the directory and its Sessions stay |
+
+A `ProjectSummary` carries `id` (the value the `workspace` namespace calls `workspaceId`), `title`, `path`, the live directory `status`, `sessionCount`, and `definitionRevision` — the project store's latest revision, or `0` while the registry lists no record for it.
+
+Failures are stable codes: `project/not-found` for an id no registration carries, `project/invalid-path` with `details.path` when the requested directory cannot be registered, `project/path-in-use` with `details.path` when another registration claims that directory, `gateway/bad-request` for a blank title, and `gateway/internal` for the store's remaining storage faults.
+
+A Remote method name may not collide with a member of its namespace service: `install`, `remove`, `has`, and `empty` already sit on that prototype, and the Gateway refuses a verb that reuses one, so deregistration is `projects.delete` rather than `projects.remove`. The Client controller still exposes `remove()` for that call.
 
 -----
 

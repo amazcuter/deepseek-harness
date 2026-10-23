@@ -357,6 +357,13 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Owns Workspace commands and reconnect-safe Workspace state delivery through the generated Remote namespace.',
   },
   {
+    key: 'mwProjectController',
+    pkg: 'api-workspace-controller',
+    title: 'Host project Remote controller',
+    mode: 'core',
+    note: 'Serves the dashboard project namespace: list, create, open, rename, and remove over the project store and the workspace registry.',
+  },
+  {
     key: 'directoryPickerController',
     pkg: 'api-workspace-controller',
     title: 'Host directory-picking Remote controller',

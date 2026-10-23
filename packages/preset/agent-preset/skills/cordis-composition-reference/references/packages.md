@@ -85,6 +85,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@metaworkflow/client-ui-layout` | no | Shell plugin: three-column AppFrame with drag handles, ctx.layout viewing-state service (navigation + panels) |
 | `@metaworkflow/client-ui-message-feedback` | no | The Web feedback surface: per-message Like/Dislike in the assistant-message action strip and the feedback dialog behind both ratings and /feedback, backed by the messageFeedback and sessionFeedback Host Remotes |
 | `@metaworkflow/client-ui-model-selection` | no | Model selection over the shared model catalog, Session projection, and session.selectModel |
+| `@metaworkflow/client-ui-mw-projects` | no | MetaWorkFlow project dashboard: the home main panel and sidebar entry that list the Host's registered workflow projects, create, open, rename, and remove one, and start a project from a new or imported Mermaid workflow |
 | `@metaworkflow/client-ui-open-in-app` | no | Web "Open In..." controls: the Session-header split button opening the workspace directory in an installed application, and the document preview's default-application controls for one file |
 | `@metaworkflow/client-ui-permission-presets` | no | Permission surfaces: a new-session default in General settings and a current-session /permission popup over the permissions projection |
 | `@metaworkflow/client-ui-plan` | no | Plan mode controls, persistent transcript plan cards, and sidebar Markdown previews |
@@ -506,10 +507,11 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | Package | Config | Description |
 |---|---|---|
 | `@metaworkflow/tool-workflow` | yes | Model-facing workflow tool: run a JavaScript orchestration script over ctx.workflowEngine |
+| `@metaworkflow/workflow-project-store` | yes | Workflow project persistence (ctx.mwfProjectStore): the global project registry and one SQLite database per project for definitions, runs, activations, attempts, artifacts, decisions, and the session outbox |
 | `@metaworkflow/workflow-ptc` | yes | Workflow orchestration in the shared sandboxed Node PTC runtime |
 
 ## workspace
 
 | Package | Config | Description |
 |---|---|---|
-| `@metaworkflow/workspace` | no | Workspace entity registry (ctx.workspaceRegistry): durable workspace records with validated session attachment over the domain data form for the DeepSeek Harness |
+| `@metaworkflow/workspace` | no | Workspace registry (ctx.workspaceRegistry): workflow projects as session groups — ordered session accounts, display order, first-use identity, and the archive and pin sets over ctx.mwfProjectStore |

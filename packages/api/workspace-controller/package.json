@@ -84,6 +84,7 @@
     "@metaworkflow/session": "workspace:*",
     "@metaworkflow/storage-domain": "workspace:*",
     "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/workflow-project-store": "workspace:*",
     "@metaworkflow/workspace": "workspace:*"
   },
   "devDependencies": {
@@ -98,6 +99,7 @@
     "@metaworkflow/session": "workspace:*",
     "@metaworkflow/storage-domain": "workspace:*",
     "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/workflow-project-store": "workspace:*",
     "@metaworkflow/workspace": "workspace:*"
   }
 }

@@ -1597,23 +1597,30 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
       },
       {
         signature: 'async createProject(request: CreateProjectRequest): Promise<ProjectRecord>',
-        description: 'Register a new project and materialize its project database.\n\nThe registry row is written first, so a directory already claimed by another project fails before any file is created; a project database that then fails to open removes the row it just wrote.',
-        parameters: [{ name: 'request', description: 'title and optional project directory.' }],
+        description: 'Register a new project and materialize its working directory and database.\n\nThe registry row is written first, so a directory already claimed by another project fails before any file is created; a working directory or database that then fails to materialize removes the row it just wrote. The database always lands in the store\'s own project directory, whatever directory the caller asked for, so the working directory never holds a store file.',
+        parameters: [{ name: 'request', description: 'title and optional working directory.' }],
         returns: 'the registered project record.',
-        throws: ['{@link WorkflowProjectStoreError} `invalid-request` for an empty title, `project-path-in-use` when another project claims the directory, and `open-failed` when the project database cannot be created.'],
+        throws: ['{@link WorkflowProjectStoreError} `invalid-request` for an empty title, `project-path-in-use` when another project claims the directory, and `open-failed` when the working directory or project database cannot be created.'],
       },
       {
         signature: 'async openProject(projectId: ProjectId): Promise<ProjectRecord>',
-        description: 'Open one project: resolve its registry row and materialize its database when the directory exists without one.',
+        description: 'Open one project: require its working directory, and materialize its database when the file is absent or still sits in an older library.',
         parameters: [{ name: 'projectId', description: 'registered project to open.' }],
         returns: 'the registry record of the opened project.',
-        throws: ['{@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`, or the project database\'s open failure.'],
+        throws: ['{@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`, `project-directory-missing` when the working directory is gone, `relocation-failed` when an older database cannot be moved out of it, or the project database\'s open failure.'],
+      },
+      {
+        signature: 'async renameProject(projectId: ProjectId, title: string): Promise<ProjectRecord>',
+        description: 'Replace one project\'s display title.\n\nThe registry row is the title\'s only owner, so a renaming consumer never keeps a second title store. Titles may repeat across projects; the directory stays the registry\'s uniqueness key.',
+        parameters: [{ name: 'projectId', description: 'registered project to rename.' }, { name: 'title', description: 'the new display title; surrounding whitespace is trimmed and an empty result is refused.' }],
+        returns: 'the updated registry record.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`, or `invalid-request` for a blank title.'],
       },
       {
         signature: 'async removeProject(projectId: ProjectId, options: RemoveProjectOptions = {}): Promise<string>',
-        description: 'Remove one project from the registry.\n\nThe project\'s connection is closed first; its directory keeps every file unless `deleteDirectory` asks for removal. The returned directory is what a caller shows the human before deciding.',
-        parameters: [{ name: 'projectId', description: 'registered project to remove.' }, { name: 'options', description: 'whether to delete the project directory tree.' }],
-        returns: 'the absolute project directory that is no longer registered.',
+        description: 'Remove one project from the registry.\n\nThe project\'s connection is closed first; its working directory keeps every file unless `deleteDirectory` asks for removal. Removing the directory also removes the project\'s database, which the registration owns and nothing else references. The returned directory is what a caller shows the human before deciding.',
+        parameters: [{ name: 'projectId', description: 'registered project to remove.' }, { name: 'options', description: 'whether to delete the working directory and the project database.' }],
+        returns: 'the absolute working directory that is no longer registered.',
         throws: ['{@link WorkflowProjectStoreError} `invalid-project-id` or `project-not-found`.'],
       },
       {
@@ -1660,6 +1667,43 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Close every open connection and refuse further work. Idempotent.',
         parameters: [],
         returns: 'resolution once every queued write settled and every handle closed.',
+      },
+    ],
+  },
+  {
+    key: 'mwProjectController',
+    summary: 'Host service backing the generated `ctx.remote.projects` namespace.',
+    description: 'Host service backing the generated `ctx.remote.projects` namespace. It serves the dashboard: list what is registered, create, open, rename, and remove — never a directory-tree deletion.',
+    methods: [
+      {
+        signature: '@Remote(\'list\') async list(): Promise<ProjectListValue>',
+        description: 'List every registered project in registry display order.',
+        parameters: [],
+        returns: 'one row per project, with its live directory state.',
+      },
+      {
+        signature: '@Remote(\'create\') async create(request: ProjectCreateRequest): Promise<ProjectValue>',
+        description: 'Register a project and its session group.',
+        parameters: [{ name: 'request', description: 'title and optional existing directory.' }],
+        returns: 'the registered project.',
+      },
+      {
+        signature: '@Remote(\'open\') async open(request: ProjectTargetRequest): Promise<ProjectValue>',
+        description: 'Open one project, materializing its database when the directory exists without one.',
+        parameters: [{ name: 'request', description: 'project identity.' }],
+        returns: 'the opened project.',
+      },
+      {
+        signature: '@Remote(\'rename\') async rename(request: ProjectRenameRequest): Promise<ProjectValue>',
+        description: 'Rename one project.',
+        parameters: [{ name: 'request', description: 'project identity and proposed title.' }],
+        returns: 'the updated project.',
+      },
+      {
+        signature: '@Remote(\'delete\') async delete(request: ProjectTargetRequest): Promise<ProjectRemoveValue>',
+        description: 'Remove one project registration. The directory and every Session are retained.',
+        parameters: [{ name: 'request', description: 'project identity.' }],
+        returns: 'deletion confirmation.',
       },
     ],
   },
@@ -3988,14 +4032,20 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   },
   {
     key: 'workspaceRegistry',
-    summary: 'Durable workspace registry.',
-    description: 'Durable workspace registry. Startup waits for `sessionPersistence`, builds one canonical-cwd header index, and completes the one-time history bootstrap before the service becomes active. The persistence dependency is mandatory so an unavailable peer can never be mistaken for an empty history and commit the initialized marker.',
+    summary: 'Durable workspace registry over the project store and the session-account domain.',
+    description: 'Durable workspace registry over the project store and the session-account domain. Startup waits for `sessionPersistence` and `mwfProjectStore`, imports the legacy v2 registry once, completes the one-time grouping bootstrap, and reconciles its display order with the registered projects before the service becomes active. Both dependencies are mandatory so an unavailable peer can never be mistaken for an empty history.',
     methods: [
       {
-        signature: 'async create(path: string, title?: string): Promise<Workspace>',
-        description: 'Create or reuse a workspace for an existing directory. The fully qualified path is canonicalized through `fs.realpath`; a relative, nonexistent, or non-directory path rejects. Repeated calls for the same canonical path return the existing entity without changing its title. A newly created workspace is prepended to the durable registry order. Different canonical paths may share a display title.',
-        parameters: [{ name: 'path', description: 'Existing directory to own, in a fully qualified path spelling.' }, { name: 'title', description: 'Display title used only when a new record is created.' }],
+        signature: 'create(path: string, title?: string): Promise<Workspace>',
+        description: 'Create or reuse a workspace for an existing directory. The fully qualified path is canonicalized through `fs.realpath`; a relative, nonexistent, or non-directory path rejects. Repeated calls for the same canonical path return the existing entity without changing its title. A newly created workspace is prepended to the durable display order. Different canonical paths may share a display title.',
+        parameters: [{ name: 'path', description: 'Existing directory to own, in a fully qualified path spelling.' }, { name: 'title', description: 'Display title used only when a new project is registered.' }],
         returns: 'the existing or newly durable workspace.',
+      },
+      {
+        signature: 'createProject(request: CreateWorkspaceProjectRequest): Promise<Workspace>',
+        description: 'Register one workflow project and its session group.\n\nIdentity comes from the project store, which also rejects a directory another project already claims; a registration racing this call for the same directory resolves the winner instead of failing. A repeated canonical path returns the existing workspace without retitling it.',
+        parameters: [{ name: 'request', description: 'title and optional existing project directory.' }],
+        returns: 'the existing or newly registered workspace.',
       },
       {
         signature: 'initializeDefault(resolveDirectory: () => Promise<string>): Promise<Workspace | undefined>',
@@ -4011,15 +4061,15 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
       },
       {
         signature: 'list(): Workspace[]',
-        description: 'Synchronous workspace projection in durable registry order. Every entity\'s `sessionIds` getter is already filtered by the startup/live canonical-cwd header index; this method performs no persistence reads.',
+        description: 'Synchronous workspace projection in durable display order. An entry whose project registration is gone is skipped: the project store owns existence, and the next startup reconciles the durable order. Every entity\'s `sessionIds` getter is already filtered by the startup/live canonical-cwd header index, so this method performs no persistence reads.',
         parameters: [],
         returns: 'a fresh ordered array of workspace entities.',
       },
       {
         signature: 'delete(id: WorkspaceId): Promise<boolean>',
-        description: 'Delete one workspace registration while retaining its directory and every session log. The durable order is updated before the table deletion; a failed table write restores the prior order and keeps the entity published. Unknown ids are an idempotent no-op for domain callers.',
+        description: 'Delete one workspace registration while retaining its directory and every session log. The project registry row is removed first; the durable order and session account follow, and a follow-up write that still fails is logged because the requested state is already true — the next startup reconciles both.',
         parameters: [{ name: 'id', description: 'Workspace registration to remove.' }],
-        returns: '`true` when a record was deleted, `false` when it was unknown.',
+        returns: '`true` when a registration was deleted, `false` when it was unknown.',
       },
       {
         signature: 'insertBefore(id: WorkspaceId, beforeId?: WorkspaceId): Promise<readonly WorkspaceId[]>',
@@ -4029,7 +4079,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
       },
       {
         signature: 'archiveSession(sessionId: SessionId, options: ArchiveSessionOptions = {}): Promise<void>',
-        description: 'Archive one session durably. The session must exist (live or in session persistence); its workspace accounting — or lack of one — is irrelevant. Without `stopActivity` the session must also be inactive: the `workspace/session-activity` waterfall is asked once, and any reported activity rejects with WorkspaceActiveSessionError before anything is written. With `stopActivity` the archive is written without an activity check, and the `workspace/session-stop` providers are then asked to stop the session\'s work: the durable archive set is what a provider\'s `agent/pre-step` gate reads, so every wake the stops induce is already blocked. Archiving drops the session\'s pin in the same durable write (pinning and archival are mutually exclusive). An already archived id resolves without writing, asking, or stopping.',
+        description: 'Archive one session durably. The session must exist (live or in session persistence); its project accounting — or lack of one — is irrelevant. Without `stopActivity` the session must also be inactive: the `workspace/session-activity` waterfall is asked once, and any reported activity rejects with WorkspaceActiveSessionError before anything is written. With `stopActivity` the archive is written without an activity check, and the `workspace/session-stop` providers are then asked to stop the session\'s work: the durable archive set is what a provider\'s `agent/pre-step` gate reads, so every wake the stops induce is already blocked. Archiving drops the session\'s pin in the same durable write (pinning and archival are mutually exclusive). An already archived id resolves without writing, asking, or stopping.',
         parameters: [{ name: 'sessionId', description: 'The session to archive.' }, { name: 'options', description: 'Whether running work is stopped instead of refusing.' }],
         returns: 'resolution after durability and, with `stopActivity`, after every stop request was issued.',
       },
@@ -4053,7 +4103,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
       },
       {
         signature: 'async resolveByPath(path: string): Promise<Workspace | undefined>',
-        description: 'Resolve by canonical directory path without creating or mutating a workspace. A missing path rejects during `realpath`; an existing unowned directory returns `undefined`.',
+        description: 'Resolve one workspace by canonical directory path without creating or mutating a registration. A missing path rejects during `realpath`; an existing unowned directory returns `undefined`.',
         parameters: [{ name: 'path', description: 'Existing directory path in a fully qualified spelling.' }],
         returns: 'the workspace owning the canonical path, when one exists.',
       },
@@ -4717,6 +4767,14 @@ export const EVENT_API: readonly EventApiEntry[] = [
     parameters: [{ name: 'info', description: 'the run\'s identity snapshot (id + meta).' }],
   },
   {
+    name: 'workspace/changed',
+    mode: 'emit',
+    signature: '\'workspace/changed\'(change: WorkspaceChanged): void',
+    summary: 'One workspace projection changed: a rename replaced the project title, or a committed session-account write replaced its members.',
+    description: 'One workspace projection changed: a rename replaced the project title, or a committed session-account write replaced its members. The entity that commits the change has already published it, so a listener reads the new value from the registry. Change streams use this instead of waiting for the durable write they may observe before the snapshot moves.',
+    parameters: [{ name: 'change', description: 'the workspace whose projection changed.' }],
+  },
+  {
     name: 'workspace/session-activity',
     mode: 'waterfall',
     signature: '\'workspace/session-activity\'( request: SessionActivityRequest, next: () => Promise<readonly SessionActivity[]>, ): Promise<readonly SessionActivity[]>',
@@ -5355,6 +5413,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'CreateTeamTaskRequest',
     declaration: 'export interface CreateTeamTaskRequest {\n    readonly subject: string;\n    readonly description: string;\n    readonly blockedBy?: readonly TeamTaskId[];\n    readonly writeScopes?: readonly string[];\n}',
+  },
+  {
+    name: 'CreateWorkspaceProjectRequest',
+    declaration: 'export interface CreateWorkspaceProjectRequest {\n    readonly title: string;\n    readonly path?: string;\n}',
   },
   {
     name: 'CreateWorktreeRequest',
@@ -6617,6 +6679,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ProfileReconciliation {\n    warnings: string[];\n    pending: PendingModule[];\n    restartReason?: \'module-comparison\' | \'package-moved\';\n}',
   },
   {
+    name: 'ProjectCreateRequest',
+    declaration: 'export interface ProjectCreateRequest {\n    readonly title: string;\n    readonly path?: string;\n}',
+  },
+  {
     name: 'ProjectionChangeListener',
     declaration: 'export type ProjectionChangeListener = (session: Session, key: Extract<keyof SessionProjectionMap, string>, value: unknown, seq: SessionSeq) => void;',
   },
@@ -6637,8 +6703,32 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ProjectionSnapshot {\n    asOfSeq: SessionSeqCursor;\n    values: Partial<SessionProjectionMap>;\n}',
   },
   {
+    name: 'ProjectListValue',
+    declaration: 'export interface ProjectListValue {\n    readonly items: readonly ProjectSummary[];\n}',
+  },
+  {
     name: 'ProjectRecord',
-    declaration: 'export interface ProjectRecord {\n    readonly id: ProjectId;\n    readonly path: string;\n    readonly title: string;\n    readonly createdAt: number;\n    readonly updatedAt: number;\n    readonly definitionRevision: number;\n}',
+    declaration: 'export interface ProjectRecord {\n    readonly id: ProjectId;\n    readonly path: string;\n    readonly dbPath: string;\n    readonly title: string;\n    readonly createdAt: number;\n    readonly updatedAt: number;\n    readonly definitionRevision: number;\n}',
+  },
+  {
+    name: 'ProjectRemoveValue',
+    declaration: 'export interface ProjectRemoveValue {\n    readonly deleted: true;\n}',
+  },
+  {
+    name: 'ProjectRenameRequest',
+    declaration: 'export interface ProjectRenameRequest {\n    readonly id: WorkspaceId;\n    readonly title: string;\n}',
+  },
+  {
+    name: 'ProjectSummary',
+    declaration: 'export interface ProjectSummary {\n    readonly id: WorkspaceId;\n    readonly title: string;\n    readonly path: string;\n    readonly status: \'ok\' | \'missing-dir\';\n    readonly definitionRevision: number;\n    readonly sessionCount: number;\n}',
+  },
+  {
+    name: 'ProjectTargetRequest',
+    declaration: 'export interface ProjectTargetRequest {\n    readonly id: WorkspaceId;\n}',
+  },
+  {
+    name: 'ProjectValue',
+    declaration: 'export interface ProjectValue {\n    readonly project: ProjectSummary;\n}',
   },
   {
     name: 'PromptAssembly',
@@ -8867,6 +8957,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'WorkspaceByteReadOptions',
     declaration: 'export interface WorkspaceByteReadOptions {\n    readonly range?: WorkspaceByteRange;\n    readonly baseFile?: string;\n}',
+  },
+  {
+    name: 'WorkspaceChanged',
+    declaration: 'export interface WorkspaceChanged {\n    readonly workspaceId: WorkspaceId;\n}',
   },
   {
     name: 'WorkspaceChangedFile',

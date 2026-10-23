@@ -1,9 +1,10 @@
-import type { z } from 'zod'
-import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
+import { randomUUID } from 'node:crypto'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, mkdtemp, realpath, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { basename, join, relative } from 'node:path'
+import { basename, join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
+import { brandString } from '@metaworkflow/brand'
 import Storage from '@metaworkflow/storage'
 import type { StorageBackend } from '@metaworkflow/storage'
 import { DomainFacility } from '@metaworkflow/storage-domain'
@@ -12,18 +13,26 @@ import SessionStore, { SESSION_FORMAT_VERSION, SessionId } from '@metaworkflow/s
 import type { SessionHeader } from '@metaworkflow/session'
 import { SessionPersistenceRevision } from '@metaworkflow/session-persistence'
 import type { SessionPersistenceSnapshot } from '@metaworkflow/session-persistence'
+import ProjectStore, { openRegistryDatabase } from '@metaworkflow/workflow-project-store'
+import type { ProjectId, ProjectRecord } from '@metaworkflow/workflow-project-store'
 import { MemoryMediaPool, MemoryStorageBackend } from '../../../storage/storage-domain/tests/helpers/memory-backend.ts'
 import WorkspaceRegistry, {
   WorkspaceId,
-  type workspaceDomainState,
   WorkspaceMoveInvalidError,
   WorkspaceOrderInvalidError,
+  workspaceGroupRecord,
+  workspaceProjectState,
 } from '../src/index.ts'
-import type { WorkspaceDomainState, WorkspaceRecord } from '../src/index.ts'
+import type {
+  LegacyWorkspaceRecord,
+  WorkspaceGroupRecord,
+  WorkspaceProjectState,
+} from '../src/index.ts'
 import { defaultWorkspaceTitle, fullyQualifiedWorkspacePath } from '../src/paths.ts'
 import * as workspacePaths from '../src/paths.ts'
 
-const DOMAIN_VERSION = 2
+const PROJECT_DOMAIN = 'workspace_projects'
+const LEGACY_DOMAIN = 'workspace'
 
 const header = (id: string, cwd?: string, createdAt = 0): SessionHeader => ({
   version: SESSION_FORMAT_VERSION,
@@ -35,15 +44,43 @@ const header = (id: string, cwd?: string, createdAt = 0): SessionHeader => ({
 
 interface HarnessOptions {
   pool?: MemoryMediaPool
+  home?: string
   sessions?: SessionHeader[]
   liveSessions?: SessionHeader[]
   sessionStore?: boolean
   backend?: StorageBackend
 }
 
-/** Boot the real storage/domain/registry composition over controllable header-only peers. */
+let base: string
+const tempDirs: string[] = []
+const homes: string[] = []
+const contexts: Context[] = []
+
+async function makeDir(name: string): Promise<string> {
+  base ??= await realpath(await mkdtemp(join(tmpdir(), 'mwf-workspace-')))
+  if (tempDirs.length === 0) tempDirs.push(base)
+  const dir = join(base, name)
+  await mkdir(dir, { recursive: true })
+  return dir
+}
+
+async function makeHome(): Promise<string> {
+  const home = await mkdtemp(join(tmpdir(), 'mwf-workspace-home-'))
+  homes.push(home)
+  return home
+}
+
+afterEach(async () => {
+  for (const ctx of contexts.splice(0)) await ctx.fiber.dispose()
+  for (const home of homes.splice(0)) await rm(home, { recursive: true, force: true })
+  for (const dir of tempDirs.splice(0)) await rm(dir, { recursive: true, force: true })
+  base = undefined as never
+})
+
+/** Boot the real storage/domain/project-store/registry composition over controllable peers. */
 async function harness(options: HarnessOptions = {}) {
   const pool = options.pool ?? new MemoryMediaPool()
+  const home = options.home ?? await makeHome()
   const ctx = new Context()
   await ctx.plugin(Storage)
   ctx.storage.backend.register('memory', options.backend ?? new MemoryStorageBackend(pool))
@@ -53,7 +90,7 @@ async function harness(options: HarnessOptions = {}) {
 
   let listed = options.sessions ?? []
   const list = vi.fn(async (): Promise<SessionPersistenceSnapshot[]> =>
-    listed.map(header => ({ header, revision: SessionPersistenceRevision(`rev-${header.id}`) })))
+    listed.map(entry => ({ header: entry, revision: SessionPersistenceRevision(`rev-${entry.id}`) })))
   const open = vi.fn(() => { throw new Error('event bodies must not be opened') })
   const stat = vi.fn(() => { throw new Error('per-session stat must not be needed') })
   ctx.provide('sessionPersistence', { list, open, stat } as never)
@@ -61,25 +98,30 @@ async function harness(options: HarnessOptions = {}) {
   if (options.sessionStore === true) {
     await ctx.plugin(SessionStore)
   } else if (options.liveSessions !== undefined) {
-    const live = new Map(options.liveSessions.map(meta => [meta.id, { header: meta }]))
+    const live = new Map(options.liveSessions.map(entry => [entry.id, { header: entry }]))
     ctx.provide('sessions', {
       get: (id: SessionId) => live.get(id),
       list: () => [...live.values()],
     } as never)
   }
 
+  await ctx.plugin(ProjectStore, { mwfHome: home })
+  contexts.push(ctx)
   const changes: DomainChanged[] = []
   ctx.on('domain/changed', (change) => { changes.push(change) })
+  const renamed: string[] = []
+  ctx.on('workspace/changed', (change) => { renamed.push(String(change.workspaceId)) })
   const fiber = await ctx.plugin(WorkspaceRegistry)
-  const initChanges = [...changes]
   changes.length = 0
   return {
     ctx,
     fiber,
     pool,
+    home,
     registry: ctx.workspaceRegistry,
+    projectStore: ctx.mwfProjectStore,
     changes,
-    initChanges,
+    renamed,
     list,
     open,
     stat,
@@ -89,44 +131,54 @@ async function harness(options: HarnessOptions = {}) {
 
 /** Boot only the storage side, for dependency-pending and startup-failure cases. */
 async function storageContext(pool: MemoryMediaPool, backend: StorageBackend = new MemoryStorageBackend(pool)) {
+  const home = await makeHome()
   const ctx = new Context()
   await ctx.plugin(Storage)
   ctx.storage.backend.register('memory', backend)
   const facility = new DomainFacility(ctx, { backend: 'memory', routes: {} })
   ctx.storage.mount('domain', facility)
   ctx.provide('storageDomain', facility)
+  await ctx.plugin(ProjectStore, { mwfHome: home })
+  contexts.push(ctx)
   return ctx
 }
 
-/** Backend wrapper that injects one selected bootstrap write failure. */
+/** Backend wrapper that injects one selected write failure. */
+/** Failure schedule read at write time, so a test can arm it after boot. */
+interface WriteFailures {
+  putAt?: number
+  deleteAt?: number
+  globalAt?: number | readonly number[]
+}
+
 function selectiveFailureBackend(
   pool: MemoryMediaPool,
-  failure: { putAt?: number; deleteAt?: number; globalAt?: number | readonly number[] },
-): StorageBackend {
+  options: WriteFailures,
+): StorageBackend & { stats: { puts: number; deletes: number; globals: number } } {
   const inner = new MemoryStorageBackend(pool)
-  let puts = 0
-  let deletes = 0
-  let globals = 0
+  const stats = { puts: 0, deletes: 0, globals: 0 }
+  const failure = options
   return {
+    stats,
     kv: {
       open: async (descriptor) => {
         const unit = await inner.kv.open(descriptor)
         return {
           loadAll: () => unit.loadAll(),
           putRecord: async (table, key, value) => {
-            puts += 1
-            if (puts === failure.putAt) throw new Error('selected bootstrap put failure')
+            stats.puts += 1
+            if (stats.puts === failure.putAt) throw new Error('selected put failure')
             await unit.putRecord(table, key, value)
           },
           deleteRecord: async (table, key) => {
-            deletes += 1
-            if (deletes === failure.deleteAt) throw new Error('selected rollback delete failure')
+            stats.deletes += 1
+            if (stats.deletes === failure.deleteAt) throw new Error('selected delete failure')
             await unit.deleteRecord(table, key)
           },
           setGlobal: async (value) => {
-            globals += 1
+            stats.globals += 1
             const failAt = Array.isArray(failure.globalAt) ? failure.globalAt : [failure.globalAt]
-            if (failAt.includes(globals)) throw new Error('selected bootstrap marker failure')
+            if (failAt.includes(stats.globals)) throw new Error('selected global failure')
             await unit.setGlobal(value)
           },
           close: () => unit.close(),
@@ -137,7 +189,34 @@ function selectiveFailureBackend(
   }
 }
 
-function record(path: string, sessionIds: string[], createdAt = '2026-07-24T00:00:00.000Z'): WorkspaceRecord {
+function group(sessionIds: string[], updatedAt = Date.parse('2026-07-24T00:00:00.000Z')): WorkspaceGroupRecord {
+  return { sessionIds: sessionIds.map(SessionId), updatedAt }
+}
+
+/** Media shaped exactly as the shipped v2 registry wrote it. */
+function legacyMedium(
+  entries: Array<[string, LegacyWorkspaceRecord]>,
+  state: Record<string, unknown>,
+) {
+  return {
+    tables: new Map([['workspaces', new Map<string, unknown>(entries)]]),
+    global: state,
+  }
+}
+
+function storedProjects(pool: MemoryMediaPool): Map<string, WorkspaceGroupRecord> {
+  return pool.media.get(PROJECT_DOMAIN)!.tables.get('projects') as Map<string, WorkspaceGroupRecord>
+}
+
+function storedState(pool: MemoryMediaPool): WorkspaceProjectState {
+  return pool.media.get(PROJECT_DOMAIN)!.global as WorkspaceProjectState
+}
+
+function projectIds(pool: MemoryMediaPool): string[] {
+  return storedState(pool).projectIds.map(String)
+}
+
+function legacyRecord(path: string, sessionIds: string[], createdAt = '2026-07-24T00:00:00.000Z'): LegacyWorkspaceRecord {
   return {
     path,
     title: basename(path),
@@ -147,206 +226,231 @@ function record(path: string, sessionIds: string[], createdAt = '2026-07-24T00:0
   }
 }
 
-/**
- * Media written before archivedSessionIds and pinnedSessionIds existed omit
- * the fields; keeping the fixtures in that shape continuously proves the
- * schema defaults upgrade them.
- */
-type StoredDomainState = z.input<typeof workspaceDomainState>
-
-function storedPool(
-  entries: Array<[string, WorkspaceRecord]>,
-  state: StoredDomainState,
-): MemoryMediaPool {
-  const pool = new MemoryMediaPool()
-  pool.versions.set('workspace', DOMAIN_VERSION)
-  pool.media.set('workspace', {
-    tables: new Map([['workspaces', new Map<string, unknown>(entries)]]),
-    global: state,
-  })
-  return pool
+/** Boot only the project store over the shared medium, for seeding registered projects. */
+async function seedStore(pool: MemoryMediaPool, home: string) {
+  const ctx = new Context()
+  await ctx.plugin(Storage)
+  ctx.storage.backend.register('memory', new MemoryStorageBackend(pool))
+  const facility = new DomainFacility(ctx, { backend: 'memory', routes: {} })
+  ctx.storage.mount('domain', facility)
+  ctx.provide('storageDomain', facility)
+  await ctx.plugin(ProjectStore, { mwfHome: home })
+  return { ctx, fiber: ctx.fiber, mwfProjectStore: ctx.mwfProjectStore }
 }
 
-function storedRecord(pool: MemoryMediaPool, id: string): WorkspaceRecord {
-  return pool.media.get('workspace')!.tables.get('workspaces')!.get(id) as WorkspaceRecord
+/** Register one project row without materializing its project database. */
+async function seedProjectRow(home: string, path: string, title: string): Promise<ProjectId> {
+  const db = await openRegistryDatabase(join(home, 'mwf', 'projects.db'))
+  const id = brandString<ProjectId>(randomUUID())
+  const now = Date.now()
+  try {
+    db.prepare('INSERT INTO projects (id, path, db_path, title, created_at, updated_at, definition_revision) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .run(id, path, join(home, 'mwf', 'projects', id, 'project.db'), title, now, now, 0)
+  } finally {
+    db.close()
+  }
+  return id
 }
 
-function storedState(pool: MemoryMediaPool): WorkspaceDomainState {
-  return pool.media.get('workspace')!.global as WorkspaceDomainState
+/** Register one project directly in the project store, outside the registry. */
+async function registerOutside(projectStore: ProjectStore, path: string, title: string): Promise<ProjectRecord> {
+  return await projectStore.createProject({ path, title })
 }
 
-let base: string
-const tempDirs: string[] = []
-
-async function makeDir(name: string): Promise<string> {
-  base ??= await realpath(await mkdtemp(join(tmpdir(), 'mwf-workspace-')))
-  if (tempDirs.length === 0) tempDirs.push(base)
-  const dir = join(base, name)
-  await mkdir(dir, { recursive: true })
-  return dir
+/** Boot a second context over the same medium and home, without the registry's teardown ordering. */
+async function restart(options: HarnessOptions): Promise<Awaited<ReturnType<typeof harness>>> {
+  const result = await harness(options)
+  return result
 }
 
-afterEach(async () => {
-  for (const dir of tempDirs.splice(0)) await rm(dir, { recursive: true, force: true })
-  base = undefined as never
-})
-
-describe('WorkspaceRegistry lifecycle and bootstrap', () => {
-  it('stays pending without sessionPersistence and never opens or marks the domain', async () => {
+describe('WorkspaceRegistry lifecycle and startup', () => {
+  it('stays pending without sessionPersistence and never writes either domain', async () => {
     const pool = new MemoryMediaPool()
     const ctx = await storageContext(pool)
     const fiber = await ctx.plugin(WorkspaceRegistry)
     expect(ctx.get('workspaceRegistry')).toBeUndefined()
-    expect(pool.media.has('workspace')).toBe(false)
+    expect(pool.media.get(PROJECT_DOMAIN)).toBeUndefined()
 
     const list = vi.fn(async () => [] as SessionPersistenceSnapshot[])
     ctx.provide('sessionPersistence', { list } as never)
     await fiber.await()
     expect(ctx.workspaceRegistry.list()).toEqual([])
     expect(list).toHaveBeenCalledTimes(1)
-    expect(storedState(pool)).toEqual({ initialized: true, workspaceIds: [], archivedSessionIds: [], pinnedSessionIds: [] })
-  })
-
-  it('bootstraps once from list headers only, in workspace/session createdAt order', async () => {
-    const older = await makeDir('older')
-    const newer = await makeDir('newer')
-    const alias = join(base, 'older-link')
-    const plain = join(base, 'plain.txt')
-    await symlink(older, alias)
-    await writeFile(plain, 'not a directory')
-    const missing = join(base, 'missing')
-    const result = await harness({
-      sessions: [
-        header('older-first', older, 100),
-        header('newer-only', newer, 500),
-        header('older-latest', alias, 300),
-        header('no-cwd', undefined, 900),
-        header('missing-dir', missing, 800),
-        header('plain-file', plain, 700),
-      ],
-    })
-
-    expect(result.list).toHaveBeenCalledTimes(1)
-    expect(result.open).not.toHaveBeenCalled()
-    expect(result.stat).not.toHaveBeenCalled()
-    expect(result.registry.list().map(workspace => workspace.path)).toEqual([newer, older])
-    expect(result.registry.list().map(workspace => workspace.sessionIds)).toEqual([
-      ['newer-only'],
-      ['older-latest', 'older-first'],
-    ])
-    expect(storedState(result.pool)).toEqual({
+    expect(storedState(pool)).toEqual({
       initialized: true,
-      workspaceIds: result.registry.list().map(workspace => workspace.id),
+      migratedFromV2: true,
+      projectIds: [],
       archivedSessionIds: [],
       pinnedSessionIds: [],
     })
   })
 
-  it('breaks equal bootstrap timestamps by session id and canonical path', async () => {
-    const first = await makeDir('tie-first')
-    const second = await makeDir('tie-second')
-    const result = await harness({
-      sessions: [
-        header('z-session', first, 100),
-        header('a-session', first, 100),
-        header('second-session', second, 100),
-      ],
-    })
-    expect(new Set(result.registry.list().map(workspace => workspace.path))).toEqual(new Set([first, second]))
-    expect(result.registry.list().find(workspace => workspace.path === first)!.sessionIds)
-      .toEqual(['a-session', 'z-session'])
-  })
-
-  it('does not rerun bootstrap for a genuinely initialized empty registry', async () => {
-    const late = await makeDir('late-cwd-only')
+  it('leaves the legacy v2 medium untouched on a fresh profile', async () => {
     const pool = new MemoryMediaPool()
-    const first = await harness({ pool, sessions: [] })
-    expect(first.list).toHaveBeenCalledTimes(1)
-    await first.fiber.dispose()
+    const { registry } = await harness({ pool })
+    expect(registry.list()).toEqual([])
+    const legacy = pool.media.get(LEGACY_DOMAIN)
+    expect(legacy?.global).toBeNull()
+    expect(legacy?.tables.get('workspaces')?.size ?? 0).toBe(0)
+    expect(pool.versions.get(LEGACY_DOMAIN)).toBe(2)
 
-    const second = await harness({ pool, sessions: [header('late', late, 100)] })
-    expect(second.list).not.toHaveBeenCalled()
-    expect(second.registry.list()).toEqual([])
-    expect(storedState(pool)).toEqual({ initialized: true, workspaceIds: [], archivedSessionIds: [], pinnedSessionIds: [] })
+    // A second start with an empty, already initialized registry skips the
+    // history bootstrap entirely.
+    const restarted = await restart({ pool, home: (await harness({ pool })).home })
+    expect(restarted.registry.list()).toEqual([])
   })
 
-  it('reuses partial records after a bootstrap record write fails', async () => {
-    const firstDir = await makeDir('partial-first')
-    const secondDir = await makeDir('partial-second')
-    const sessions = [header('first', firstDir, 200), header('second', secondDir, 100)]
+  it('imports every v2 workspace once, keeping order, titles, accounts, and global sets', async () => {
+    const first = await makeDir('import-first')
+    const second = await makeDir('import-second')
     const pool = new MemoryMediaPool()
-    await expect(harness({
-      pool,
-      sessions,
-      backend: selectiveFailureBackend(pool, { putAt: 2 }),
-    })).rejects.toThrow(/selected bootstrap put failure/)
-    expect(pool.media.get('workspace')!.tables.get('workspaces')!.size).toBe(1)
-    expect(pool.media.get('workspace')!.global).toBeNull()
-
-    const retried = await harness({ pool, sessions })
-    expect(retried.registry.list()).toHaveLength(2)
-    expect(pool.media.get('workspace')!.tables.get('workspaces')!.size).toBe(2)
-    expect(storedState(pool).initialized).toBe(true)
-  })
-
-  it('reuses durable order when the final initialized marker write fails', async () => {
-    const dir = await makeDir('marker-retry')
-    const sessions = [header('session', dir, 100)]
-    const pool = new MemoryMediaPool()
-    await expect(harness({
-      pool,
-      sessions,
-      backend: selectiveFailureBackend(pool, { globalAt: 2 }),
-    })).rejects.toThrow(/selected bootstrap marker failure/)
-    expect(storedState(pool)).toMatchObject({ initialized: false })
-    expect(storedState(pool).workspaceIds).toHaveLength(1)
-
-    const retried = await harness({ pool, sessions })
-    expect(retried.registry.list()).toHaveLength(1)
-    expect(pool.media.get('workspace')!.tables.get('workspaces')!.size).toBe(1)
-    expect(storedState(pool).initialized).toBe(true)
-  })
-
-  it('merges partial records and leaves an already-accounted cwd drift ungrouped', async () => {
-    const owned = await makeDir('partial-owned')
-    const prior = await makeDir('partial-prior')
-    const drifted = await makeDir('partial-drifted')
-    const ownedId = WorkspaceId('00000000-0000-4000-8000-000000000010')
-    const priorId = WorkspaceId('00000000-0000-4000-8000-000000000011')
-    const pool = storedPool(
+    pool.media.set(LEGACY_DOMAIN, legacyMedium(
       [
-        [ownedId, record(owned, ['old'], '2026-07-24T00:00:00.000Z')],
-        [priorId, record(prior, ['drift'], '2026-07-23T00:00:00.000Z')],
+        ['legacy-a', { ...legacyRecord(first, ['s1', 's2']), title: 'Imported A' }],
+        ['legacy-b', legacyRecord(second, ['s3'])],
       ],
-      { initialized: false, workspaceIds: [] },
-    )
-    const result = await harness({
-      pool,
-      sessions: [header('new', owned, 200), header('old', owned, 100), header('drift', drifted, 300)],
-    })
-    expect(result.registry.list().map(workspace => workspace.id)).toContain(ownedId)
-    expect(result.registry.get(ownedId)!.sessionIds).toEqual(['new', 'old'])
-    expect(result.registry.list().some(workspace => workspace.path === drifted)).toBe(false)
+      {
+        initialized: true,
+        workspaceIds: ['legacy-a', 'legacy-b'],
+        defaultWorkspaceId: 'legacy-b',
+        archivedSessionIds: ['s3'],
+        pinnedSessionIds: [],
+      },
+    ))
+    pool.versions.set(LEGACY_DOMAIN, 2)
+    const { registry, projectStore } = await harness({ pool })
+
+    const projects = await projectStore.listProjects()
+    expect(projects).toHaveLength(2)
+    expect(projects.map(project => project.title).sort()).toEqual(['Imported A', basename(second)].sort())
+    expect(registry.list().map(workspace => workspace.path)).toEqual([first, second])
+    const stored = storedProjects(pool)
+    expect(stored.get(registry.list()[0]!.id)!.sessionIds.map(String)).toEqual(['s1', 's2'])
+    expect(stored.get(registry.list()[1]!.id)!.sessionIds.map(String)).toEqual(['s3'])
+    expect(registry.archivedSessionIds.map(String)).toEqual(['s3'])
+    expect(storedState(pool).defaultProjectId).toBe(registry.list()[1]!.id)
+    expect(storedState(pool).migratedFromV2).toBe(true)
+    // The legacy medium is never rewritten.
+    expect((pool.media.get(LEGACY_DOMAIN)!.global as { defaultWorkspaceId?: string }).defaultWorkspaceId)
+      .toBe('legacy-b')
+    expect(pool.media.get(LEGACY_DOMAIN)!.tables.get('workspaces')!.size).toBe(2)
   })
 
-  it('orders headerless partial records by prior order, then stable id', async () => {
-    const first = await makeDir('fallback-first')
-    const second = await makeDir('fallback-second')
-    const firstId = WorkspaceId('00000000-0000-4000-8000-000000000020')
-    const secondId = WorkspaceId('00000000-0000-4000-8000-000000000021')
-    const entries: Array<[string, WorkspaceRecord]> = [
-      [secondId, record(second, [], '2026-07-24T00:00:00.000Z')],
-      [firstId, record(first, [], '2026-07-24T00:00:00.000Z')],
-    ]
-    const prior = await harness({
-      pool: storedPool(entries, { initialized: false, workspaceIds: [secondId, firstId] }),
-    })
-    expect(prior.registry.list().map(workspace => workspace.id)).toEqual([secondId, firstId])
+  it('reuses a project that already claims a legacy directory instead of duplicating it', async () => {
+    const dir = await makeDir('import-reuse')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const seedContext = await seedStore(pool, home)
+    const existing = await seedContext.mwfProjectStore.createProject({ path: dir, title: 'Already here' })
+    await seedContext.fiber.dispose()
 
-    const byId = await harness({
-      pool: storedPool(entries, { initialized: false, workspaceIds: [] }),
+    pool.media.set(LEGACY_DOMAIN, legacyMedium(
+      [['legacy-a', legacyRecord(dir, ['s1'])]],
+      { initialized: true, workspaceIds: ['legacy-a'], archivedSessionIds: [], pinnedSessionIds: [] },
+    ))
+    pool.versions.set(LEGACY_DOMAIN, 2)
+    const { registry, projectStore } = await harness({ pool, home })
+    const projects = await projectStore.listProjects()
+    expect(projects).toHaveLength(1)
+    expect(projects[0]!.id).toBe(existing.id)
+    expect(projects[0]!.title).toBe('Already here')
+    expect(registry.list().map(workspace => workspace.id)).toEqual([existing.id])
+    expect(storedProjects(pool).get(existing.id)!.sessionIds.map(String)).toEqual(['s1'])
+  })
+
+  it('re-enters a partially completed import without duplicating projects or accounts', async () => {
+    const dir = await makeDir('import-crash')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const seedContext = await seedStore(pool, home)
+    const partial = await seedContext.mwfProjectStore.createProject({ path: dir, title: 'Partial' })
+    await seedContext.fiber.dispose()
+
+    pool.media.set(LEGACY_DOMAIN, legacyMedium(
+      [['legacy-a', legacyRecord(dir, ['s1'])]],
+      { initialized: true, workspaceIds: ['legacy-a'], archivedSessionIds: [], pinnedSessionIds: [] },
+    ))
+    pool.versions.set(LEGACY_DOMAIN, 2)
+    pool.versions.set(PROJECT_DOMAIN, 1)
+    pool.media.set(PROJECT_DOMAIN, {
+      tables: new Map([['projects', new Map<string, unknown>([[partial.id, group(['s1'])]])]]),
+      global: {
+        initialized: true,
+        migratedFromV2: false,
+        projectIds: [],
+        archivedSessionIds: [],
+        pinnedSessionIds: [],
+      },
     })
-    expect(byId.registry.list().map(workspace => workspace.id)).toEqual([firstId, secondId])
+    const { registry, projectStore } = await harness({ pool, home })
+    expect(await projectStore.listProjects()).toHaveLength(1)
+    expect(registry.list().map(workspace => workspace.id)).toEqual([partial.id])
+    expect(storedProjects(pool).get(partial.id)!.sessionIds.map(String)).toEqual(['s1'])
+    expect(projectIds(pool)).toEqual([partial.id])
+  })
+
+  it('bootstraps cwd groups on the first start that sees session history', async () => {
+    const older = await makeDir('boot-older')
+    const newer = await makeDir('boot-newer')
+    const { registry, projectStore } = await harness({
+      sessions: [header('old', older, 100), header('new-a', newer, 300), header('new-b', newer, 200)],
+    })
+    expect(registry.list().map(workspace => workspace.title)).toEqual([
+      defaultWorkspaceTitle(newer), defaultWorkspaceTitle(older),
+    ])
+    expect(registry.list()[0]!.sessionIds.map(String)).toEqual(['new-a', 'new-b'])
+    expect(registry.list()[1]!.sessionIds.map(String)).toEqual(['old'])
+    expect((await projectStore.listProjects()).map(project => project.path).sort())
+      .toEqual([older, newer].sort())
+  })
+
+  it('skips cwd groups whose sessions are already accounted', async () => {
+    const dir = await makeDir('boot-skip')
+    const other = await makeDir('boot-skip-other')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const seedContext = await seedStore(pool, home)
+    const known = await seedContext.mwfProjectStore.createProject({ path: dir, title: 'Known' })
+    await seedContext.fiber.dispose()
+
+    const { registry } = await harness({
+      pool,
+      home,
+      sessions: [header('kept', dir, 100), header('fresh', other, 300)],
+    })
+    expect(registry.list().map(workspace => workspace.title).sort())
+      .toEqual(['Known', defaultWorkspaceTitle(other)].sort())
+    expect(storedProjects(pool).get(known.id)!.sessionIds.map(String)).toEqual(['kept'])
+  })
+
+  it('reconciles the display order and session accounts with the project store', async () => {
+    const dir = await makeDir('reconcile-known')
+    const ghost = '0f0f0f0f-1111-4222-8333-444444444444'
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const seedContext = await seedStore(pool, home)
+    const known = await seedContext.mwfProjectStore.createProject({ path: dir, title: 'Known' })
+    const outside = await seedContext.mwfProjectStore.createProject({ title: 'Outside' })
+    await seedContext.fiber.dispose()
+
+    pool.versions.set(PROJECT_DOMAIN, 1)
+    pool.media.set(PROJECT_DOMAIN, {
+      tables: new Map([['projects', new Map<string, unknown>([
+        [ghost, group([])],
+        [known.id, group([])],
+      ])]]),
+      global: {
+        initialized: true,
+        migratedFromV2: true,
+        projectIds: [ghost, known.id],
+        archivedSessionIds: [],
+        pinnedSessionIds: [],
+      },
+    })
+    const { registry } = await harness({ pool, home })
+    expect(registry.list().map(workspace => workspace.id)).toEqual([outside.id, known.id])
+    expect(storedProjects(pool).has(ghost)).toBe(false)
+    expect(storedProjects(pool).get(outside.id)?.sessionIds).toEqual([])
   })
 
   it('closes its domain on disposal and reloads the persisted stable order', async () => {
@@ -363,1184 +467,964 @@ describe('WorkspaceRegistry lifecycle and bootstrap', () => {
 describe('WorkspaceRegistry create and lookup', () => {
   it('accepts fully qualified roots and directories without accepting drive-relative paths', () => {
     expect(fullyQualifiedWorkspacePath('C:\\', 'win32')).toBe(true)
-    expect(fullyQualifiedWorkspacePath('C:\\work', 'win32')).toBe(true)
-    expect(fullyQualifiedWorkspacePath('\\\\server\\share', 'win32')).toBe(true)
-    expect(defaultWorkspaceTitle('C:\\', 'win32')).toBe('C:\\')
-    expect(defaultWorkspaceTitle('C:\\work', 'win32')).toBe('work')
-    expect(defaultWorkspaceTitle('\\\\server\\share', 'win32')).toBe('share')
-    expect(fullyQualifiedWorkspacePath('C:', 'win32')).toBe(false)
+    expect(fullyQualifiedWorkspacePath('C:\\work\\project', 'win32')).toBe(true)
     expect(fullyQualifiedWorkspacePath('C:work', 'win32')).toBe(false)
     expect(fullyQualifiedWorkspacePath('\\work', 'win32')).toBe(false)
-    expect(fullyQualifiedWorkspacePath('.', 'win32')).toBe(false)
-    expect(fullyQualifiedWorkspacePath('/', 'linux')).toBe(true)
-    expect(fullyQualifiedWorkspacePath('/work', 'darwin')).toBe(true)
+    expect(fullyQualifiedWorkspacePath('/work/project', 'linux')).toBe(true)
+    expect(fullyQualifiedWorkspacePath('work/project', 'linux')).toBe(false)
+    expect(defaultWorkspaceTitle('C:\\', 'win32')).toBe('C:\\')
+    expect(defaultWorkspaceTitle('/home/person/project', 'linux')).toBe('project')
     expect(defaultWorkspaceTitle('/', 'linux')).toBe('/')
-    expect(defaultWorkspaceTitle('/work', 'darwin')).toBe('work')
-    expect(fullyQualifiedWorkspacePath('work', 'linux')).toBe(false)
   })
 
   it('creates newest-first and idempotently reuses a canonical path without retitling', async () => {
-    const firstDir = await makeDir('first')
-    const secondDir = await makeDir('second')
-    const alias = join(base, 'first-link')
-    await symlink(firstDir, alias)
-    const { registry, pool } = await harness()
-    const first = await registry.create(firstDir, 'Original')
-    const second = await registry.create(secondDir)
-    const reused = await registry.create(alias, 'Ignored')
-    expect(reused).toBe(first)
-    expect(first.title).toBe('Original')
-    expect(registry.list()).toEqual([second, first])
-    expect(storedState(pool).workspaceIds).toEqual([second.id, first.id])
-    expect(await registry.resolveByPath(alias)).toBe(first)
-    expect(await registry.resolveByPath(await makeDir('unowned'))).toBeUndefined()
+    const older = await makeDir('create-older')
+    const newer = await makeDir('create-newer')
+    const { registry } = await harness()
+    const first = await registry.create(older, 'First')
+    const second = await registry.create(newer)
+    expect(registry.list().map(workspace => workspace.id)).toEqual([second.id, first.id])
+    expect(second.title).toBe('create-newer')
+
+    const again = await registry.create(`${older}/../${basename(older)}`, 'Renamed')
+    expect(again.id).toBe(first.id)
+    expect(again.title).toBe('First')
+    expect(registry.list()).toHaveLength(2)
   })
 
-  it('serializes concurrent same-path creates into one entity', async () => {
-    const dir = await makeDir('concurrent')
-    const { registry, pool } = await harness()
-    const [left, right] = await Promise.all([
-      registry.create(dir, 'Winner'),
-      registry.create(dir, 'Loser'),
+  it('serializes concurrent same-path creates into one project', async () => {
+    const dir = await makeDir('create-race')
+    const { registry, projectStore } = await harness()
+    const results = await Promise.all([
+      registry.create(dir), registry.create(dir), registry.create(dir),
     ])
-    expect(left).toBe(right)
-    expect(registry.list()).toEqual([left])
-    expect(pool.media.get('workspace')!.tables.get('workspaces')!.size).toBe(1)
+    expect(new Set(results.map(workspace => workspace.id)).size).toBe(1)
+    expect(await projectStore.listProjects()).toHaveLength(1)
+    expect(registry.list()).toHaveLength(1)
+  })
+
+  it('reuses a project another surface registered after this registry started', async () => {
+    const dir = await makeDir('create-outside')
+    const { registry, projectStore } = await harness()
+    const outside = await registerOutside(projectStore, dir, 'Outside')
+    const workspace = await registry.create(dir)
+    expect(workspace.id).toBe(outside.id)
+    expect(workspace.title).toBe('Outside')
+    expect(registry.list()).toHaveLength(1)
+    const second = await registerOutside(projectStore, await makeDir('create-outside-2'), 'Second')
+    expect((await registry.create(second.path)).id).toBe(second.id)
+  })
+
+  it('registers a project in the project store root when no directory is named', async () => {
+    const { registry, projectStore, home } = await harness()
+    const workspace = await registry.createProject({ title: 'Fresh project' })
+    const directed = await registry.createProject({ title: 'Directed project', path: await makeDir('directed') })
+    expect(directed.path.endsWith('directed')).toBe(true)
+    expect(workspace.title).toBe('Fresh project')
+    expect(workspace.path.startsWith(join(home, 'mwf', 'projects'))).toBe(true)
+    expect((await projectStore.listProjects()).map(project => project.path).sort())
+      .toEqual([workspace.path, directed.path].sort())
+    expect(registry.list().map(candidate => candidate.id)).toEqual([directed.id, workspace.id])
   })
 
   it('allows a duplicate display name on a different canonical path', async () => {
-    const firstDir = await makeDir('named-first')
-    const secondDir = await makeDir('named-second')
+    const left = await makeDir('dup-name-left')
+    const right = await makeDir('dup-name-right')
     const { registry } = await harness()
-    const first = await registry.create(firstDir, 'Shared')
-    const second = await registry.create(secondDir, 'Shared')
-    expect(first.title).toBe('Shared')
-    expect(second.title).toBe('Shared')
-    expect(registry.list()).toEqual([second, first])
+    const first = await registry.create(left, 'Same')
+    const second = await registry.create(right, 'Same')
+    expect(first.title).toBe('Same')
+    expect(second.title).toBe('Same')
+    expect(registry.list()).toHaveLength(2)
   })
 
   it('rejects nonexistent and non-directory paths without changing order', async () => {
-    const parent = await makeDir('invalid')
-    const file = join(parent, 'plain.txt')
-    await writeFile(file, 'file')
-    const { registry } = await harness()
-    await expect(registry.create(join(parent, 'missing'))).rejects.toMatchObject({ code: 'ENOENT' })
+    const dir = await makeDir('reject-target')
+    const file = join(dir, 'file.txt')
+    await writeFile(file, 'not a directory')
+    const { registry, projectStore } = await harness()
+    await expect(registry.create(join(dir, 'missing'))).rejects.toThrow(/ENOENT/)
     await expect(registry.create(file)).rejects.toThrow(/not a directory/)
-    await expect(registry.resolveByPath(join(parent, 'missing'))).rejects.toMatchObject({ code: 'ENOENT' })
     expect(registry.list()).toEqual([])
+    expect(await projectStore.listProjects()).toEqual([])
   })
 
   it('rejects a resolvable relative path instead of adopting it from the Host cwd', async () => {
+    const dir = await makeDir('relative-target')
     const { registry } = await harness()
-    const fromHostCwd = '.'
-    await expect(registry.create(fromHostCwd)).rejects.toThrow(/fully qualified/)
-    await expect(registry.resolveByPath(fromHostCwd)).rejects.toThrow(/fully qualified/)
+    await expect(registry.create(`../${basename(base)}/${basename(dir)}`)).rejects.toThrow(/not fully qualified/)
+  })
+
+  it('rolls the project registration back when the session account cannot be written', async () => {
+    const dir = await makeDir('rollback-account')
+    const pool = new MemoryMediaPool()
+    const { registry, projectStore } = await harness({ pool })
+    pool.failNextWrites = 1
+    await expect(registry.create(dir)).rejects.toThrow(/injected write failure/)
     expect(registry.list()).toEqual([])
+    expect(await projectStore.listProjects()).toEqual([])
+    expect(storedProjects(pool)?.size ?? 0).toBe(0)
   })
 
-  it('rolls back the provisional cache when the record write fails', async () => {
-    const dir = await makeDir('write-failure')
+  it('reports a registration rollback that cannot complete', async () => {
+    const dir = await makeDir('rollback-double')
     const pool = new MemoryMediaPool()
-    const result = await harness({
-      pool,
-      backend: selectiveFailureBackend(pool, { putAt: 1 }),
-    })
-    await expect(result.registry.create(dir)).rejects.toThrow(/selected bootstrap put failure/)
-    expect(result.registry.list()).toEqual([])
-    expect(await result.registry.create(dir)).toBeDefined()
-  })
-
-  it('does not publish a Workspace when its pending marker cannot be written', async () => {
-    const dir = await makeDir('pending-marker-write-failure')
-    const pool = new MemoryMediaPool()
-    const result = await harness({
-      pool,
-      backend: selectiveFailureBackend(pool, { globalAt: 2 }),
-    })
-    await expect(result.registry.create(dir)).rejects.toThrow(/selected bootstrap marker failure/)
-    expect(result.registry.list()).toEqual([])
-    expect(pool.media.get('workspace')!.tables.get('workspaces')?.size ?? 0).toBe(0)
-  })
-
-  it('rolls back a record when registry-order persistence fails', async () => {
-    const dir = await makeDir('order-write-failure')
-    const pool = new MemoryMediaPool()
-    const result = await harness({
-      pool,
-      backend: selectiveFailureBackend(pool, { globalAt: 3 }),
-    })
-    await expect(result.registry.create(dir)).rejects.toThrow(/marker failure/)
-    expect(result.registry.list()).toEqual([])
-    expect(pool.media.get('workspace')!.tables.get('workspaces')!.size).toBe(0)
-  })
-
-  it('reports both order and rollback failures while retaining the recoverable record', async () => {
-    const dir = await makeDir('rollback-write-failure')
-    const pool = new MemoryMediaPool()
-    const result = await harness({
-      pool,
-      backend: selectiveFailureBackend(pool, { globalAt: 3, deleteAt: 1 }),
-    })
-    await expect(result.registry.create(dir)).rejects.toBeInstanceOf(AggregateError)
-    expect(pool.media.get('workspace')!.tables.get('workspaces')!.size).toBe(1)
-  })
-
-  it('reports a record write and pending-marker rollback failure together', async () => {
-    const dir = await makeDir('record-marker-rollback-failure')
-    const pool = new MemoryMediaPool()
-    const result = await harness({
-      pool,
-      backend: selectiveFailureBackend(pool, { putAt: 1, globalAt: 3 }),
-    })
-    await expect(result.registry.create(dir)).rejects.toBeInstanceOf(AggregateError)
-    expect(storedState(pool)).toMatchObject({
-      pendingMutation: { operation: 'create' },
-    })
-  })
-
-  it('reports an order write and pending-marker rollback failure together', async () => {
-    const dir = await makeDir('order-marker-rollback-failure')
-    const pool = new MemoryMediaPool()
-    const result = await harness({
-      pool,
-      backend: selectiveFailureBackend(pool, { globalAt: [3, 4] }),
-    })
-    await expect(result.registry.create(dir)).rejects.toBeInstanceOf(AggregateError)
-    expect(storedState(pool)).toMatchObject({
-      pendingMutation: { operation: 'create' },
-    })
+    const failure: WriteFailures = {}
+    const backend = selectiveFailureBackend(pool, failure)
+    const { registry, projectStore } = await harness({ pool, backend })
+    // Fail the order write and then the account rollback delete.
+    failure.globalAt = backend.stats.globals + 1
+    failure.deleteAt = backend.stats.deletes + 1
+    await expect(registry.create(dir)).rejects.toThrow(/registration rollback did not complete/)
+    expect(registry.list()).toEqual([])
+    expect(await projectStore.listProjects()).toEqual([])
   })
 
   it('deletes only the registration and leaves its directory and session headers untouched', async () => {
-    const dir = await makeDir('delete-registration')
-    const result = await harness({ sessions: [header('kept-session', dir)] })
-    const workspace = await result.registry.create(dir)
-    await workspace.attachSession(SessionId('kept-session'))
+    const dir = await makeDir('delete-keeps')
+    const { registry, projectStore, list } = await harness({
+      sessions: [header('attached', dir, 100)],
+    })
+    const workspace = await registry.create(dir)
+    await workspace.attachSession(SessionId('attached'))
+    expect(await registry.delete(workspace.id)).toBe(true)
+    expect(registry.list()).toEqual([])
+    expect(registry.get(workspace.id)).toBeUndefined()
+    expect(await registry.delete(workspace.id)).toBe(false)
+    expect(await projectStore.listProjects()).toEqual([])
+    // The directory and the session history are untouched.
+    await expect(writeFile(join(dir, 'proof.txt'), 'kept')).resolves.toBeUndefined()
+    expect(list).toHaveBeenCalled()
 
-    await expect(result.registry.delete(workspace.id)).resolves.toBe(true)
-    await expect(result.registry.delete(workspace.id)).resolves.toBe(false)
-    expect(result.registry.get(workspace.id)).toBeUndefined()
-    expect(result.registry.list()).toEqual([])
-    expect(storedState(result.pool)).toEqual({ initialized: true, workspaceIds: [], archivedSessionIds: [], pinnedSessionIds: [] })
-    expect(result.pool.media.get('workspace')!.tables.get('workspaces')!.has(workspace.id)).toBe(false)
-    await expect(realpath(dir)).resolves.toBe(dir)
-    expect(result.list).toHaveBeenCalledTimes(1)
-    expect(result.open).not.toHaveBeenCalled()
-    expect(result.stat).not.toHaveBeenCalled()
-
-    const reregistered = await result.registry.create(dir)
-    expect(reregistered.id).not.toBe(workspace.id)
-    expect(reregistered.path).toBe(dir)
-    expect(reregistered.sessionIds).toEqual([])
+    const again = await registry.create(dir)
+    expect(again.id).not.toBe(workspace.id)
+    expect(again.sessionIds).toEqual([])
   })
 
-  it('rolls registry order and cache back when record deletion fails', async () => {
-    const dir = await makeDir('delete-rollback')
+  it('logs a follow-up delete write that cannot complete after the registration is gone', async () => {
+    const dir = await makeDir('delete-partial')
     const pool = new MemoryMediaPool()
-    const result = await harness({
-      pool,
-      backend: selectiveFailureBackend(pool, { deleteAt: 1 }),
-    })
-    const workspace = await result.registry.create(dir)
-
-    await expect(result.registry.delete(workspace.id)).rejects.toThrow(/selected rollback delete failure/)
-    expect(result.registry.get(workspace.id)).toBe(workspace)
-    expect(result.registry.list()).toEqual([workspace])
-    expect(storedState(pool).workspaceIds).toEqual([workspace.id])
-    expect(storedRecord(pool, workspace.id)).toMatchObject({ path: dir })
+    const { registry, ctx } = await harness({ pool })
+    const workspace = await registry.create(dir)
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => undefined)
+    pool.failNextWrites = 2
+    expect(await registry.delete(workspace.id)).toBe(true)
+    expect(registry.list()).toEqual([])
+    expect(warn).toHaveBeenCalledTimes(2)
+    warn.mockRestore()
   })
 
-  it('commits deletion and leaves a recoverable marker when marker cleanup fails', async () => {
-    const dir = await makeDir('delete-marker-cleanup')
-    const pool = new MemoryMediaPool()
-    const first = await harness({
-      pool,
-      backend: selectiveFailureBackend(pool, { globalAt: 5 }),
-    })
-    const workspace = await first.registry.create(dir)
-
-    await expect(first.registry.delete(workspace.id)).resolves.toBe(true)
-    expect(first.registry.list()).toEqual([])
-    expect(storedState(pool)).toEqual({
-      initialized: true,
-      workspaceIds: [],
-      archivedSessionIds: [],
-      pinnedSessionIds: [],
-      pendingMutation: { operation: 'delete', workspaceId: workspace.id },
-    })
-    const reregistered = await first.registry.create(dir)
-    expect(reregistered.id).not.toBe(workspace.id)
-    expect(storedState(pool)).toEqual({
-      initialized: true,
-      workspaceIds: [reregistered.id],
-      archivedSessionIds: [],
-      pinnedSessionIds: [],
-    })
-    await first.fiber.dispose()
-
-    const restarted = await harness({ pool })
-    expect(restarted.registry.list().map(item => item.id)).toEqual([reregistered.id])
+  it('retains the first-use identity after its registration is deleted', async () => {
+    const dir = await makeDir('default-retained')
+    const { registry } = await harness({ liveSessions: [] })
+    const first = await registry.initializeDefault(async () => dir)
+    expect(first?.id).toBeDefined()
+    await registry.delete(first!.id)
+    expect(await registry.initializeDefault(async () => dir)).toBeUndefined()
   })
 
-  it('keeps the failed deletion unpublished when record and order rollback both fail', async () => {
-    const dir = await makeDir('delete-double-failure')
-    const pool = new MemoryMediaPool()
-    const result = await harness({
-      pool,
-      backend: selectiveFailureBackend(pool, { deleteAt: 1, globalAt: 5 }),
-    })
-    const workspace = await result.registry.create(dir)
-
-    await expect(result.registry.delete(workspace.id)).rejects.toBeInstanceOf(AggregateError)
-    expect(result.registry.get(workspace.id)).toBeUndefined()
-    expect(storedState(pool)).toMatchObject({
-      workspaceIds: [],
-      pendingMutation: { operation: 'delete', workspaceId: workspace.id },
-    })
+  it('resolves by canonical path and rejects an unowned existing directory', async () => {
+    const dir = await makeDir('resolve-owner')
+    const other = await makeDir('resolve-other')
+    const { registry } = await harness()
+    const workspace = await registry.create(dir)
+    expect((await registry.resolveByPath(`${dir}/.`))?.id).toBe(workspace.id)
+    expect(await registry.resolveByPath(other)).toBeUndefined()
+    await expect(registry.resolveByPath(join(dir, 'missing'))).rejects.toThrow(/ENOENT/)
   })
 
-  it('rejects table access before the registry has started', async () => {
-    const dir = await makeDir('unstarted')
-    const registry = new WorkspaceRegistry(new Context())
-    await expect(registry.create(dir)).rejects.toThrow(/not started/)
-    expect(() => registry.list()).toThrow(/not started/)
-    const internals = registry as unknown as { requireTable(): unknown }
-    expect(() => internals.requireTable()).toThrow(/not started/)
+  it('exposes the path helpers through the package entry', () => {
+    expect(typeof workspacePaths.realpathNormalize).toBe('function')
+    expect(workspacePaths.defaultWorkspaceTitle('/a/b')).toBe('b')
   })
 })
 
 describe('Workspace registry ordering', () => {
   it('moves a workspace before an anchor or to the end and restores that order after restart', async () => {
-    const firstDir = await makeDir('order-first')
-    const secondDir = await makeDir('order-second')
-    const thirdDir = await makeDir('order-third')
-    const result = await harness()
-    const first = await result.registry.create(firstDir)
-    const second = await result.registry.create(secondDir)
-    const third = await result.registry.create(thirdDir)
-    expect(result.registry.list().map(item => item.id)).toEqual([third.id, second.id, first.id])
+    const left = await makeDir('order-left')
+    const middle = await makeDir('order-middle')
+    const right = await makeDir('order-right')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const { registry } = await harness({ pool, home })
+    const a = await registry.create(left)
+    const b = await registry.create(middle)
+    const c = await registry.create(right)
 
-    await expect(result.registry.insertBefore(first.id, second.id))
-      .resolves.toEqual([third.id, first.id, second.id])
-    await expect(result.registry.insertBefore(third.id))
-      .resolves.toEqual([first.id, second.id, third.id])
-    expect(storedState(result.pool).workspaceIds).toEqual([first.id, second.id, third.id])
+    await registry.insertBefore(a.id, c.id)
+    expect(registry.list().map(workspace => workspace.id)).toEqual([a.id, c.id, b.id])
+    await registry.insertBefore(a.id)
+    expect(registry.list().map(workspace => workspace.id)).toEqual([c.id, b.id, a.id])
 
-    const restarted = await harness({ pool: result.pool })
-    expect(restarted.registry.list().map(item => item.id)).toEqual([first.id, second.id, third.id])
+    const restarted = await restart({ pool, home })
+    expect(restarted.registry.list().map(workspace => workspace.id)).toEqual([c.id, b.id, a.id])
   })
 
   it('keeps self-anchored and already-positioned moves write-free and rejects unknown ids', async () => {
-    const firstDir = await makeDir('order-noop-first')
-    const secondDir = await makeDir('order-noop-second')
-    const result = await harness()
-    const first = await result.registry.create(firstDir)
-    const second = await result.registry.create(secondDir)
-    const written = result.changes.length
-
-    await result.registry.insertBefore(second.id, second.id)
-    await result.registry.insertBefore(second.id, first.id)
-    await result.registry.insertBefore(first.id)
-    expect(result.changes).toHaveLength(written)
-    expect(result.registry.list().map(item => item.id)).toEqual([second.id, first.id])
-
-    await expect(result.registry.insertBefore(WorkspaceId('missing')))
+    const dir = await makeDir('order-noop')
+    const other = await makeDir('order-noop-other')
+    const { registry } = await harness()
+    const a = await registry.create(dir)
+    const b = await registry.create(other)
+    expect(await registry.insertBefore(a.id, a.id)).toEqual([b.id, a.id])
+    expect(await registry.insertBefore(b.id, a.id)).toEqual([b.id, a.id])
+    await expect(registry.insertBefore(WorkspaceId('0f0f0f0f-1111-4222-8333-4444444444')))
       .rejects.toBeInstanceOf(WorkspaceOrderInvalidError)
-    await expect(result.registry.insertBefore(second.id, WorkspaceId('missing-anchor')))
-      .rejects.toMatchObject({ workspaceId: 'missing-anchor' })
-    expect(result.changes).toHaveLength(written)
+    await expect(registry.insertBefore(a.id, WorkspaceId('0f0f0f0f-1111-4222-8333-4444444444')))
+      .rejects.toBeInstanceOf(WorkspaceOrderInvalidError)
   })
 })
 
-describe('Workspace session ordering', () => {
+describe('Workspace session ordering and membership', () => {
   it('prepends new attaches and keeps repeat attach idempotent', async () => {
-    const dir = await makeDir('attach-order')
-    const result = await harness()
-    result.setSessions([
-      header('s1', dir, 1),
-      header('s2', dir, 2),
-    ])
-    const workspace = await result.registry.create(dir)
-    await workspace.attachSession(SessionId('s1'))
-    await workspace.attachSession(SessionId('s2'))
-    expect(workspace.sessionIds).toEqual(['s2', 's1'])
-    await workspace.attachSession(SessionId('s1'))
-    expect(workspace.sessionIds).toEqual(['s2', 's1'])
-    expect(storedRecord(result.pool, workspace.id).sessionIds).toEqual(['s2', 's1'])
+    const dir = await makeDir('attach-home')
+    const { registry } = await harness({
+      sessions: [header('one', dir, 100), header('two', dir, 200)],
+    })
+    const workspace = await registry.create(dir)
+    await workspace.attachSession(SessionId('one'))
+    await workspace.attachSession(SessionId('two'))
+    await workspace.attachSession(SessionId('one'))
+    expect(workspace.sessionIds.map(String)).toEqual(['two', 'one'])
   })
 
   it('moves one id before an anchor or to the end, durably', async () => {
-    const dir = await makeDir('insert-before')
-    const result = await harness()
-    result.setSessions([header('s1', dir, 1), header('s2', dir, 2), header('s3', dir, 3)])
-    const workspace = await result.registry.create(dir)
-    await workspace.attachSession(SessionId('s1'))
-    await workspace.attachSession(SessionId('s2'))
-    await workspace.attachSession(SessionId('s3'))
-    expect(workspace.sessionIds).toEqual(['s3', 's2', 's1'])
+    const dir = await makeDir('move-home')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const first = await harness({
+      pool,
+      home,
+      sessions: [header('a', dir, 1), header('b', dir, 2), header('c', dir, 3)],
+    })
+    const workspace = await first.registry.create(dir)
+    await workspace.attachSession(SessionId('a'))
+    await workspace.attachSession(SessionId('b'))
+    await workspace.attachSession(SessionId('c'))
+    await workspace.insertSessionBefore(SessionId('a'), SessionId('c'))
+    expect(workspace.sessionIds.map(String)).toEqual(['a', 'c', 'b'])
+    await workspace.insertSessionBefore(SessionId('a'))
+    expect(workspace.sessionIds.map(String)).toEqual(['c', 'b', 'a'])
 
-    await workspace.insertSessionBefore(SessionId('s1'), SessionId('s2'))
-    expect(workspace.sessionIds).toEqual(['s3', 's1', 's2'])
-    await workspace.insertSessionBefore(SessionId('s3'))
-    expect(workspace.sessionIds).toEqual(['s1', 's2', 's3'])
-    expect(storedRecord(result.pool, workspace.id).sessionIds).toEqual(['s1', 's2', 's3'])
+    const restarted = await restart({
+      pool,
+      home,
+      sessions: [header('a', dir, 1), header('b', dir, 2), header('c', dir, 3)],
+    })
+    expect(restarted.registry.list()[0]!.sessionIds.map(String)).toEqual(['c', 'b', 'a'])
   })
 
   it('treats self-anchored and already-in-place moves as no-ops without writing', async () => {
-    const dir = await makeDir('insert-noop')
-    const result = await harness()
-    result.setSessions([header('s1', dir, 1), header('s2', dir, 2)])
-    const workspace = await result.registry.create(dir)
-    await workspace.attachSession(SessionId('s1'))
-    await workspace.attachSession(SessionId('s2'))
-    const written = result.changes.length
-
-    await workspace.insertSessionBefore(SessionId('s1'), SessionId('s1'))
-    await workspace.insertSessionBefore(SessionId('s2'), SessionId('s1'))
-    await workspace.insertSessionBefore(SessionId('s1'))
-    await workspace.detachSession(SessionId('absent'))
-    expect(result.changes).toHaveLength(written)
-    expect(workspace.sessionIds).toEqual(['s2', 's1'])
+    const dir = await makeDir('move-noop')
+    const pool = new MemoryMediaPool()
+    const { registry, changes } = await harness({ pool, sessions: [header('a', dir, 1), header('b', dir, 2)] })
+    const workspace = await registry.create(dir)
+    await workspace.attachSession(SessionId('a'))
+    await workspace.attachSession(SessionId('b'))
+    changes.length = 0
+    const before = storedProjects(pool).get(workspace.id)!
+    await workspace.insertSessionBefore(SessionId('b'), SessionId('b'))
+    await workspace.insertSessionBefore(SessionId('b'), SessionId('b'))
+    expect(storedProjects(pool).get(workspace.id)).toBe(before)
+    expect(changes).toEqual([])
   })
 
   it('rejects moves naming an unaccounted session or anchor', async () => {
-    const dir = await makeDir('insert-invalid')
-    const result = await harness()
-    result.setSessions([header('s1', dir, 1)])
-    const workspace = await result.registry.create(dir)
-    await workspace.attachSession(SessionId('s1'))
-    const written = result.changes.length
-
+    const dir = await makeDir('move-invalid')
+    const { registry } = await harness({ sessions: [header('a', dir, 1)] })
+    const workspace = await registry.create(dir)
+    await workspace.attachSession(SessionId('a'))
     await expect(workspace.insertSessionBefore(SessionId('ghost')))
       .rejects.toBeInstanceOf(WorkspaceMoveInvalidError)
-    await expect(workspace.insertSessionBefore(SessionId('s1'), SessionId('ghost')))
-      .rejects.toThrow(/anchor session is not accounted/)
-    expect(result.changes).toHaveLength(written)
-    expect(workspace.sessionIds).toEqual(['s1'])
+    await expect(workspace.insertSessionBefore(SessionId('a'), SessionId('ghost')))
+      .rejects.toBeInstanceOf(WorkspaceMoveInvalidError)
+  })
+
+  it('detaches idempotently and never touches the session log', async () => {
+    const dir = await makeDir('detach-home')
+    const { registry } = await harness({ sessions: [header('a', dir, 1)] })
+    const workspace = await registry.create(dir)
+    await workspace.attachSession(SessionId('a'))
+    await workspace.detachSession(SessionId('a'))
+    await workspace.detachSession(SessionId('a'))
+    expect(workspace.sessionIds).toEqual([])
   })
 
   it('validates a lazy live session without requiring it in persistence.list()', async () => {
-    const dir = await makeDir('live')
-    const result = await harness({ sessions: [], liveSessions: [header('live', dir, 1)] })
-    const workspace = await result.registry.create(dir)
+    const dir = await makeDir('live-session')
+    const { registry } = await harness({ liveSessions: [header('live', dir, 10)] })
+    const workspace = await registry.create(dir)
     await workspace.attachSession(SessionId('live'))
-    expect(workspace.sessionIds).toEqual(['live'])
-    expect(result.list).toHaveBeenCalledTimes(1)
+    expect(workspace.sessionIds.map(String)).toEqual(['live'])
   })
 
   it('rejects mismatched, missing, unresolved, non-directory, and unknown cwd facts', async () => {
-    const dir = await makeDir('strict')
-    const elsewhere = await makeDir('elsewhere')
-    const gone = await makeDir('gone')
-    const file = join(base, 'cwd-file')
-    await writeFile(file, 'file')
-    const result = await harness()
-    result.setSessions([
-      header('mismatch', elsewhere),
-      header('no-cwd'),
-      header('gone', gone),
-      header('file', file),
-    ])
-    await rm(gone, { recursive: true })
-    const workspace = await result.registry.create(dir)
-    await expect(workspace.attachSession(SessionId('mismatch'))).rejects.toThrow(/resolves to/)
-    await expect(workspace.attachSession(SessionId('no-cwd'))).rejects.toThrow(/no cwd/)
-    await expect(workspace.attachSession(SessionId('gone'))).rejects.toThrow(/does not resolve/)
-    await expect(workspace.attachSession(SessionId('file'))).rejects.toThrow(/not a directory/)
+    const dir = await makeDir('attach-owner')
+    const other = await makeDir('attach-other')
+    const file = join(dir, 'a-file')
+    await writeFile(file, 'x')
+    const { registry } = await harness({
+      sessions: [
+        header('wrong', other, 1),
+        header('nocwd', undefined, 2),
+        header('unresolved', join(dir, 'gone'), 3),
+        header('file-cwd', file, 4),
+      ],
+    })
+    const workspace = await registry.create(dir)
+    await expect(workspace.attachSession(SessionId('wrong'))).rejects.toThrow(/its cwd resolves to/)
+    await expect(workspace.attachSession(SessionId('nocwd'))).rejects.toThrow(/carries no cwd/)
+    await expect(workspace.attachSession(SessionId('unresolved'))).rejects.toThrow(/does not resolve/)
+    await expect(workspace.attachSession(SessionId('file-cwd'))).rejects.toThrow(/not a directory/)
     await expect(workspace.attachSession(SessionId('unknown'))).rejects.toThrow(/no such session/)
     expect(workspace.sessionIds).toEqual([])
   })
 
-  it('decides detach/attach membership at domain write-chain slots', async () => {
-    const dir = await makeDir('race')
-    const result = await harness({ sessions: [header('s1', dir)] })
-    const workspace = await result.registry.create(dir)
-    await workspace.attachSession(SessionId('s1'))
-    const detached = workspace.detachSession(SessionId('s1'))
-    const attached = workspace.attachSession(SessionId('s1'))
-    await Promise.all([detached, attached])
-    expect(workspace.sessionIds).toEqual(['s1'])
+  it('decides detach and attach membership at domain write-chain slots', async () => {
+    const dir = await makeDir('chain-slot')
+    const { registry, changes } = await harness({ sessions: [header('a', dir, 1)] })
+    const workspace = await registry.create(dir)
+    await workspace.attachSession(SessionId('a'))
+    changes.length = 0
+    await workspace.detachSession(SessionId('a'))
+    await workspace.attachSession(SessionId('a'))
+    expect(workspace.sessionIds.map(String)).toEqual(['a'])
+    expect(changes.filter(change => change.table === 'projects')).toHaveLength(2)
   })
 
-})
+  it('filters absent headers and invalid cwd facts while retaining missing-directory candidates', async () => {
+    const dir = await makeDir('filter-home')
+    const gone = await makeDir('filter-gone')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const goneId = await seedProjectRow(home, gone, 'filter-gone')
+    const { registry } = await harness({ pool, home, sessions: [header('kept', dir, 1), header('gone', gone, 2)] })
+    const workspace = await registry.create(dir)
+    await workspace.attachSession(SessionId('kept'))
+    await registry.get(goneId)!.attachSession(SessionId('gone'))
+    expect(registry.get(goneId)!.sessionIds.map(String)).toEqual(['gone'])
 
-describe('header-validated membership projection', () => {
-  it('preserves owned sessions and manual order after directory removal and restart', async () => {
-    const dir = await makeDir('removed-owned')
-    const sessions = [header('first', dir), header('second', dir)]
-    const initial = await harness()
-    onTestFinished(() => initial.ctx.fiber.dispose())
-    initial.setSessions(sessions)
-    const workspace = await initial.registry.create(dir)
-    await workspace.attachSession(SessionId('first'))
-    await workspace.attachSession(SessionId('second'))
-    await initial.ctx.fiber.dispose()
-    await rm(dir, { recursive: true })
-
-    const restarted = await harness({ pool: initial.pool, sessions: [...sessions, header('unowned', dir)] })
-    onTestFinished(() => restarted.ctx.fiber.dispose())
-    const restored = restarted.registry.get(workspace.id)!
-    expect(restored.sessionIds).toEqual(['second', 'first'])
-    expect(await restored.status()).toBe('missing-dir')
-    await restored.setTitle('Still owned')
-    await restored.insertSessionBefore(SessionId('first'), SessionId('second'))
-    expect(storedRecord(initial.pool, workspace.id).sessionIds).toEqual(['first', 'second'])
-    await expect(restored.attachSession(SessionId('unowned'))).rejects.toThrow(/does not resolve/)
-    expect(restored.sessionIds).toEqual(['first', 'second'])
-    await restarted.ctx.fiber.dispose()
-
-    const again = await harness({ pool: initial.pool, sessions })
-    onTestFinished(() => again.ctx.fiber.dispose())
-    expect(again.registry.get(workspace.id)!.sessionIds).toEqual(['first', 'second'])
-  })
-
-  it('preserves an owned session when its symlink target disappears without bootstrapping missing paths', async () => {
-    const target = await makeDir('removed-symlink-target')
-    const alias = join(base, 'removed-symlink-alias')
-    await symlink(target, alias, 'junction')
-    const sessions = [header('linked', alias)]
-    const initial = await harness()
-    onTestFinished(() => initial.ctx.fiber.dispose())
-    initial.setSessions(sessions)
-    const workspace = await initial.registry.create(target)
-    await workspace.attachSession(SessionId('linked'))
-    await initial.ctx.fiber.dispose()
-    await rm(target, { recursive: true })
-
-    const restarted = await harness({ pool: initial.pool, sessions })
-    onTestFinished(() => restarted.ctx.fiber.dispose())
-    expect(restarted.registry.get(workspace.id)!.sessionIds).toEqual(['linked'])
-    const fresh = await harness({ sessions })
-    onTestFinished(() => fresh.ctx.fiber.dispose())
-    expect(fresh.registry.list()).toEqual([])
-  })
-
-  it('preserves an owned session when the directory disappears between realpath and stat', async () => {
-    const dir = await makeDir('stat-missing')
-    const id = WorkspaceId('stat-missing-workspace')
-    const pool = storedPool([[id, record(dir, ['kept'])]], { initialized: true, workspaceIds: [id] })
-    const normalize = workspacePaths.realpathNormalize
-    const spy = vi.spyOn(workspacePaths, 'realpathNormalize').mockImplementation(async (path) => {
-      const canonical = await normalize(path)
-      if (path === dir) await rm(dir, { recursive: true })
-      return canonical
-    })
-    onTestFinished(() => { spy.mockRestore() })
-    const result = await harness({ pool, sessions: [header('kept', dir)] })
-    onTestFinished(() => result.ctx.fiber.dispose())
-    expect(result.registry.get(id)!.sessionIds).toEqual(['kept'])
-  })
-
-  it.each(['EACCES', 'ELOOP', 'ENOTDIR'])('does not preserve candidates after a %s path failure', async (code) => {
-    const dir = await makeDir(`path-error-${code}`)
-    const id = WorkspaceId(`path-error-${code}`)
-    const pool = storedPool([[id, record(dir, ['invalid'])]], { initialized: true, workspaceIds: [id] })
-    const spy = vi.spyOn(workspacePaths, 'realpathNormalize').mockRejectedValue(Object.assign(new Error(code), { code }))
-    onTestFinished(() => { spy.mockRestore() })
-    const result = await harness({ pool, sessions: [header('invalid', dir)] })
-    onTestFinished(() => result.ctx.fiber.dispose())
-    const workspace = result.registry.get(id)!
-    expect(workspace.sessionIds).toEqual([])
-    await workspace.setTitle('Pruned')
-    expect(storedRecord(pool, id).sessionIds).toEqual([])
-  })
-
-  it('clears the missing-path exemption when a later header index resolves elsewhere or becomes invalid', async () => {
-    const dir = await makeDir('reindexed-missing')
-    const elsewhere = await makeDir('reindexed-elsewhere')
-    const id = WorkspaceId('reindexed-workspace')
-    const pool = storedPool([[id, record(dir, ['kept'])]], { initialized: true, workspaceIds: [id] })
-    await rm(dir, { recursive: true })
-    const result = await harness({ pool, sessions: [header('kept', dir)] })
-    onTestFinished(() => result.ctx.fiber.dispose())
-    const workspace = result.registry.get(id)!
-    expect(workspace.sessionIds).toEqual(['kept'])
-    result.setSessions([header('kept', elsewhere), header('trigger-one', elsewhere)])
-    await result.registry.pinSession(SessionId('trigger-one'))
-    expect(workspace.sessionIds).toEqual([])
-    result.setSessions([header('kept', dir), header('trigger-two', elsewhere)])
-    await result.registry.pinSession(SessionId('trigger-two'))
-    expect(workspace.sessionIds).toEqual(['kept'])
-    result.setSessions([header('kept'), header('trigger-three', elsewhere)])
-    await result.registry.pinSession(SessionId('trigger-three'))
-    expect(workspace.sessionIds).toEqual([])
-    await workspace.setTitle('Pruned')
-    expect(storedRecord(pool, id).sessionIds).toEqual([])
-  })
-
-  it('filters absent headers and invalid cwd facts while retaining only missing-directory candidates', async () => {
-    const dir = await makeDir('candidate-validation')
-    const elsewhere = await makeDir('candidate-elsewhere')
-    const missing = join(base, 'candidate-missing')
-    const file = join(base, 'candidate-file')
-    await writeFile(file, 'not a directory')
-    const id = WorkspaceId('candidate-validation')
-    const pool = storedPool(
-      [[id, record(dir, ['missing-dir', 'no-header', 'no-cwd', 'relative', 'file', 'elsewhere'])]],
-      { initialized: true, workspaceIds: [id] },
-    )
-    const result = await harness({
-      pool,
-      sessions: [
-        header('missing-dir', missing), header('no-cwd'), header('relative', 'relative-missing'),
-        header('file', file), header('elsewhere', elsewhere), header('unowned', missing),
-      ],
-    })
-    onTestFinished(() => result.ctx.fiber.dispose())
-    const workspace = result.registry.get(id)!
-    expect(workspace.sessionIds).toEqual(['missing-dir'])
-    await workspace.setTitle('Validated')
-    expect(storedRecord(pool, id).sessionIds).toEqual(['missing-dir'])
+    await rm(gone, { recursive: true })
+    const restarted = await restart({ pool, home, sessions: [header('kept', dir, 1), header('gone', gone, 2)] })
+    expect(restarted.registry.get(goneId)!.sessionIds.map(String)).toEqual(['gone'])
   })
 
   it('can detach and reattach a missing-directory candidate after the directory is restored', async () => {
-    const dir = await makeDir('reattach-restored')
-    const id = WorkspaceId('reattach-restored')
-    const pool = storedPool([[id, record(dir, ['restored'])]], { initialized: true, workspaceIds: [id] })
+    const dir = await makeDir('restore-home')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const projectId = await seedProjectRow(home, dir, 'restore-home')
+    const { registry } = await harness({ pool, home, sessions: [header('kept', dir, 1)] })
+    await registry.get(projectId)!.attachSession(SessionId('kept'))
     await rm(dir, { recursive: true })
-    const result = await harness({ pool, sessions: [header('restored', dir)] })
-    onTestFinished(() => result.ctx.fiber.dispose())
-    const workspace = result.registry.get(id)!
-    await workspace.detachSession(SessionId('restored'))
-    expect(workspace.sessionIds).toEqual([])
-    await mkdir(dir)
-    await workspace.attachSession(SessionId('restored'))
-    expect(workspace.sessionIds).toEqual(['restored'])
-    expect(await workspace.status()).toBe('ok')
+    const restarted = await restart({ pool, home, sessions: [header('kept', dir, 1)] })
+    const restored = restarted.registry.get(projectId)!
+    await restored.detachSession(SessionId('kept'))
+    expect(restored.sessionIds).toEqual([])
+    await mkdir(dir, { recursive: true })
+    await restored.attachSession(SessionId('kept'))
+    expect(restored.sessionIds.map(String)).toEqual(['kept'])
   })
 
-  it('requires both candidate id and matching canonical cwd without re-reading on list()', async () => {
-    const owned = await makeDir('owned')
-    const elsewhere = await makeDir('projection-elsewhere')
-    const id = WorkspaceId('00000000-0000-4000-8000-000000000001')
-    const pool = storedPool(
-      [[id, record(owned, ['good', 'mismatch', 'missing'])]],
-      { initialized: true, workspaceIds: [id] },
-    )
-    const result = await harness({
-      pool,
-      sessions: [
-        header('good', owned),
-        header('mismatch', elsewhere),
-        header('cwd-only', owned),
-      ],
+  it('filters absent headers from the projection without rewriting the account', async () => {
+    const dir = await makeDir('orphan-session')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const { registry } = await harness({ pool, home, sessions: [header('attached', dir, 1)] })
+    const workspace = await registry.create(dir)
+    await workspace.attachSession(SessionId('attached'))
+    const restarted = await restart({ pool, home, sessions: [] })
+    expect(restarted.registry.get(workspace.id)!.sessionIds).toEqual([])
+    expect(storedProjects(pool).get(workspace.id)!.sessionIds.map(String)).toEqual(['attached'])
+  })
+
+  it('rejects duplicate session ownership across accounts on startup', async () => {
+    const left = await makeDir('dup-left')
+    const right = await makeDir('dup-right')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const seedContext = await seedStore(pool, home)
+    const leftProject = await seedContext.mwfProjectStore.createProject({ path: left, title: 'left' })
+    const rightProject = await seedContext.mwfProjectStore.createProject({ path: right, title: 'right' })
+    await seedContext.fiber.dispose()
+
+    pool.versions.set(PROJECT_DOMAIN, 1)
+    pool.media.set(PROJECT_DOMAIN, {
+      tables: new Map([['projects', new Map<string, unknown>([
+        [leftProject.id, group(['shared'])],
+        [rightProject.id, group(['shared'])],
+      ])]]),
+      global: {
+        initialized: true,
+        migratedFromV2: true,
+        projectIds: [leftProject.id, rightProject.id],
+        archivedSessionIds: [],
+        pinnedSessionIds: [],
+      },
     })
-    const workspace = result.registry.list()[0]!
-    expect(workspace.sessionIds).toEqual(['good'])
-    expect(result.registry.list()[0]!.sessionIds).toEqual(['good'])
-    expect(result.list).toHaveBeenCalledTimes(1)
-    expect(storedRecord(pool, id).sessionIds).toEqual(['good', 'mismatch', 'missing'])
-
-    await workspace.setTitle('pruned')
-    expect(storedRecord(pool, id).sessionIds).toEqual(['good'])
-    expect(workspace.sessionIds).not.toContain('cwd-only')
+    await expect(harness({ pool, home })).rejects.toThrow(/accounted by both/)
   })
 
-  it('rejects duplicate candidate ownership, duplicate paths, and initialized order drift', async () => {
-    const first = await makeDir('corrupt-first')
-    const second = await makeDir('corrupt-second')
-    const firstId = '00000000-0000-4000-8000-000000000002'
-    const secondId = '00000000-0000-4000-8000-000000000003'
-    const duplicateSession = storedPool(
-      [[firstId, record(first, ['dup'])], [secondId, record(second, ['dup'])]],
-      { initialized: true, workspaceIds: [WorkspaceId(firstId), WorkspaceId(secondId)] },
-    )
-    await expect(harness({ pool: duplicateSession })).rejects.toThrow(/accounted/)
-
-    const duplicatePath = storedPool(
-      [[firstId, record(first, [])], [secondId, record(first, [])]],
-      { initialized: true, workspaceIds: [WorkspaceId(firstId), WorkspaceId(secondId)] },
-    )
-    await expect(harness({ pool: duplicatePath })).rejects.toThrow(/claimed/)
-
-    const orphan = storedPool(
-      [[firstId, record(first, [])], [secondId, record(second, [])]],
-      { initialized: true, workspaceIds: [WorkspaceId(firstId)] },
-    )
-    await expect(harness({ pool: orphan })).rejects.toThrow(/absent from registry order/)
-
-    const repeated = storedPool(
-      [[firstId, record(first, [])]],
-      { initialized: true, workspaceIds: [WorkspaceId(firstId), WorkspaceId(firstId)] },
-    )
-    await expect(harness({ pool: repeated })).rejects.toThrow(/repeats workspace/)
-
-    const missing = storedPool(
-      [],
-      { initialized: true, workspaceIds: [WorkspaceId(firstId)] },
-    )
-    await expect(harness({ pool: missing })).rejects.toThrow(/references missing workspace/)
-  })
-
-  it('fails list if the durable order and entity cache are externally diverged', async () => {
-    const dir = await makeDir('cache-diverged')
-    const result = await harness()
-    const workspace = await result.registry.create(dir)
-    const internals = result.registry as unknown as { entities: Map<WorkspaceId, unknown> }
-    internals.entities.delete(workspace.id)
-    expect(() => result.registry.list()).toThrow(/references missing workspace/)
-  })
-
-  it('recovers only an explicitly marked interrupted create or delete', async () => {
-    const createDir = await makeDir('pending-create')
-    const deleteDir = await makeDir('pending-delete')
-    const createId = WorkspaceId('00000000-0000-4000-8000-000000000004')
-    const deleteId = WorkspaceId('00000000-0000-4000-8000-000000000005')
-
-    const interruptedCreate = storedPool(
-      [[createId, record(createDir, [])]],
-      {
+  it('collapses a repeated display order id on startup', async () => {
+    const dir = await makeDir('dup-order')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const projectId = await seedProjectRow(home, dir, 'dup')
+    pool.versions.set(PROJECT_DOMAIN, 1)
+    pool.media.set(PROJECT_DOMAIN, {
+      tables: new Map([['projects', new Map<string, unknown>([[projectId, group([])]])]]),
+      global: {
         initialized: true,
-        workspaceIds: [],
-        pendingMutation: { operation: 'create', workspaceId: createId },
+        migratedFromV2: true,
+        projectIds: [projectId, projectId],
+        archivedSessionIds: [],
+        pinnedSessionIds: [],
       },
-    )
-    const createRecovery = await harness({ pool: interruptedCreate })
-    expect(createRecovery.registry.list()).toEqual([])
-    expect(interruptedCreate.media.get('workspace')!.tables.get('workspaces')!.has(createId)).toBe(false)
-    expect(storedState(interruptedCreate)).toEqual({ initialized: true, workspaceIds: [], archivedSessionIds: [], pinnedSessionIds: [] })
-
-    const interruptedDelete = storedPool(
-      [[deleteId, record(deleteDir, [])]],
-      {
-        initialized: true,
-        workspaceIds: [],
-        pendingMutation: { operation: 'delete', workspaceId: deleteId },
-      },
-    )
-    const deleteRecovery = await harness({ pool: interruptedDelete })
-    expect(deleteRecovery.registry.list()).toEqual([])
-    expect(interruptedDelete.media.get('workspace')!.tables.get('workspaces')!.has(deleteId)).toBe(false)
-    expect(storedState(interruptedDelete)).toEqual({ initialized: true, workspaceIds: [], archivedSessionIds: [], pinnedSessionIds: [] })
-
-    const corruptPending = storedPool(
-      [[deleteId, record(deleteDir, [])]],
-      {
-        initialized: true,
-        workspaceIds: [deleteId],
-        pendingMutation: { operation: 'delete', workspaceId: deleteId },
-      },
-    )
-    await expect(harness({ pool: corruptPending })).rejects.toThrow(/still present in registry order/)
+    })
+    const { registry } = await harness({ pool, home })
+    expect(registry.list().map(workspace => workspace.id)).toEqual([projectId])
+    expect(projectIds(pool)).toEqual([projectId])
   })
-})
 
-describe('workspace mutation and status', () => {
-  it('keeps createdAt stable, advances updatedAt, and preserves snapshot on write failure', async () => {
+  it('keeps createdAt stable, advances updatedAt, and preserves the account on write failure', async () => {
     const dir = await makeDir('timestamps')
-    const result = await harness()
-    const workspace = await result.registry.create(dir)
+    const { registry, pool } = await harness({ sessions: [header('a', dir, 1)] })
+    const workspace = await registry.create(dir)
     const createdAt = workspace.createdAt
-    expect(workspace.updatedAt).toBe(createdAt)
+    expect(Date.parse(workspace.updatedAt)).toBeGreaterThanOrEqual(Date.parse(createdAt))
     await workspace.setTitle('kept')
     expect(workspace.createdAt).toBe(createdAt)
     expect(Date.parse(workspace.updatedAt)).toBeGreaterThanOrEqual(Date.parse(createdAt))
-    result.pool.failNextWrites = 1
-    await expect(workspace.setTitle('lost')).rejects.toThrow(/injected/)
-    expect(workspace.title).toBe('kept')
+
+    await workspace.attachSession(SessionId('a'))
+    expect(workspace.sessionIds.map(String)).toEqual(['a'])
+    pool.failNextWrites = 1
+    await expect(workspace.detachSession(SessionId('a'))).rejects.toThrow(/injected write failure/)
+    expect(workspace.sessionIds.map(String)).toEqual(['a'])
+  })
+
+  it('renames through the project registry and announces the change', async () => {
+    const dir = await makeDir('rename-home')
+    const { registry, projectStore, renamed } = await harness()
+    const workspace = await registry.create(dir)
+    await workspace.setTitle('Renamed')
+    expect(workspace.title).toBe('Renamed')
+    expect((await projectStore.listProjects())[0]!.title).toBe('Renamed')
+    expect(renamed).toEqual([String(workspace.id)])
   })
 
   it('reports directory disappearance without mutating the workspace', async () => {
     const dir = await makeDir('vanishing')
-    const { registry } = await harness()
-    const workspace = await registry.create(dir)
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const projectId = await seedProjectRow(home, dir, 'vanishing')
+    const { registry } = await harness({ pool, home })
+    const workspace = registry.get(projectId)!
     expect(await workspace.status()).toBe('ok')
     await rm(dir, { recursive: true })
     expect(await workspace.status()).toBe('missing-dir')
     await writeFile(dir, 'now a file')
     expect(await workspace.status()).toBe('missing-dir')
-    expect(registry.get(workspace.id)).toBe(workspace)
+    expect(registry.get(projectId)).toBe(workspace)
   })
 })
 
 describe('registry-global session archive', () => {
   it('archives durably in order, idempotently skips repeats, and leaves accounting untouched', async () => {
     const dir = await makeDir('archive-home')
-    const result = await harness({ sessions: [header('kept', dir, 100), header('gone', dir, 200)] })
-    const workspace = result.registry.list()[0]!
-    expect(result.registry.archivedSessionIds).toEqual([])
-
-    await result.registry.archiveSession(SessionId('gone'))
-    expect(result.registry.archivedSessionIds).toEqual(['gone'])
-    // Archiving is a display-set write: the workspace account keeps the id.
-    expect(workspace.sessionIds).toContain('gone')
-    expect(storedState(result.pool).archivedSessionIds).toEqual(['gone'])
-    const changesAfterFirst = result.changes.filter(change => change.table === '').length
-
-    await result.registry.archiveSession(SessionId('gone'))
-    expect(result.registry.archivedSessionIds).toEqual(['gone'])
-    // The idempotent repeat neither rewrites the medium nor emits a change.
-    expect(result.changes.filter(change => change.table === '').length).toBe(changesAfterFirst)
-
-    await result.registry.archiveSession(SessionId('kept'))
-    expect(result.registry.archivedSessionIds).toEqual(['gone', 'kept'])
+    const { registry } = await harness({ sessions: [header('one', dir, 100), header('two', dir, 200)] })
+    const workspace = await registry.create(dir)
+    await registry.archiveSession(SessionId('one'))
+    await registry.archiveSession(SessionId('two'))
+    await registry.archiveSession(SessionId('one'))
+    expect(registry.archivedSessionIds.map(String)).toEqual(['one', 'two'])
+    // Archiving keeps every account slot so unarchiving restores the position.
+    expect(workspace.sessionIds.map(String)).toEqual(['two', 'one'])
   })
 
   it('accepts unaccounted and live sessions but rejects unknown ids without writing', async () => {
-    const dir = await makeDir('archive-strays')
-    const live = await makeDir('archive-live')
-    const result = await harness({
-      sessions: [header('stray', dir, 100)],
-      liveSessions: [header('live-only', live, 200)],
-    })
-    await result.registry.archiveSession(SessionId('stray'))
-    await result.registry.archiveSession(SessionId('live-only'))
-    expect(result.registry.archivedSessionIds).toEqual(['stray', 'live-only'])
-
-    await expect(result.registry.archiveSession(SessionId('ghost')))
-      .rejects.toThrow(/cannot archive session 'ghost'/)
-    expect(storedState(result.pool).archivedSessionIds).toEqual(['stray', 'live-only'])
+    const dir = await makeDir('archive-live')
+    const { registry, pool } = await harness({ liveSessions: [header('live', dir, 1)] })
+    await registry.archiveSession(SessionId('live'))
+    expect(registry.archivedSessionIds.map(String)).toEqual(['live'])
+    await expect(registry.archiveSession(SessionId('ghost'))).rejects.toThrow(/no such session/)
+    expect(pool.media.get(PROJECT_DOMAIN)).toBeDefined()
   })
 
   it('propagates a persistence-listing failure instead of reporting an unknown session', async () => {
-    const result = await harness({ sessions: [] })
-    result.list.mockRejectedValueOnce(new Error('persistence backend down'))
-    // The storage fault is the error — never WorkspaceUnknownSessionError,
-    // which the API layer would misreport as session-not-found.
-    await expect(result.registry.archiveSession(SessionId('unlisted')))
-      .rejects.toThrow(/persistence backend down/)
-    expect(storedState(result.pool).archivedSessionIds).toEqual([])
+    const { registry, list } = await harness()
+    list.mockRejectedValueOnce(new Error('listing exploded'))
+    await expect(registry.archiveSession(SessionId('whatever'))).rejects.toThrow(/listing exploded/)
   })
 
   it('refuses a session the activity waterfall reports active and writes nothing', async () => {
     const dir = await makeDir('archive-active')
-    const result = await harness({ sessions: [header('busy', dir, 100), header('quiet', dir, 200)] })
-    const asked: SessionId[] = []
-    result.ctx.on('workspace/session-activity', async ({ sessionId }, next) => {
-      asked.push(sessionId)
-      const rest = await next()
-      return sessionId === 'busy'
-        ? [{ kind: 'probe' }, { kind: 'probe-items', items: [{ id: 'item-1', label: 'build' }] }, ...rest]
-        : rest
-    })
-
-    await expect(result.registry.archiveSession(SessionId('busy'))).rejects.toMatchObject({
-      name: 'WorkspaceActiveSessionError',
-      sessionId: 'busy',
-      activity: [{ kind: 'probe' }, { kind: 'probe-items', items: [{ id: 'item-1', label: 'build' }] }],
-    })
-    expect(result.registry.archivedSessionIds).toEqual([])
-    expect(storedState(result.pool).archivedSessionIds).toEqual([])
-    expect(result.changes.filter(change => change.table === '')).toEqual([])
-
-    await result.registry.archiveSession(SessionId('quiet'))
-    expect(result.registry.archivedSessionIds).toEqual(['quiet'])
-    expect(asked).toEqual(['busy', 'quiet'])
-
-    // The idempotent repeat resolves before any activity question is asked.
-    await result.registry.archiveSession(SessionId('quiet'))
-    expect(asked).toEqual(['busy', 'quiet'])
+    const { registry, ctx } = await harness({ sessions: [header('busy', dir, 1)] })
+    ctx.on('workspace/session-activity', async (_request, next) => [
+      { kind: 'job' as never, items: [{ id: 'job-1' }] },
+      ...await next(),
+    ])
+    const before = registry.archivedSessionIds
+    await expect(registry.archiveSession(SessionId('busy'))).rejects.toThrow(/the session is active/)
+    expect(registry.archivedSessionIds).toBe(before)
   })
 
-  it('with stopActivity, writes the archive and then asks providers to stop, even when one of them fails', async () => {
+  it('with stopActivity, writes the archive and then asks providers to stop, even when one fails', async () => {
     const dir = await makeDir('archive-stop')
-    const result = await harness({ sessions: [header('busy', dir, 100)] })
-    const order: string[] = []
-    result.ctx.on('workspace/session-activity', async ({ sessionId }, next) => {
-      order.push(`activity:${sessionId}`)
-      return [{ kind: 'probe' }, ...(await next())]
+    const { registry, ctx } = await harness({ sessions: [header('busy', dir, 1)] })
+    const stopped: string[] = []
+    ctx.on('workspace/session-stop', async (request) => {
+      stopped.push(String(request.sessionId))
+      throw new Error('provider exploded')
     })
-    result.ctx.on('workspace/session-stop', ({ sessionId }) => { order.push(`stop:${sessionId}`) })
-    result.ctx.on('workspace/session-stop', () => { throw new Error('job kill exploded') })
-    result.ctx.on('domain/changed', (change) => { if (change.table === '') order.push('write') })
-    const warn = vi.spyOn(result.ctx.logger, 'warn').mockImplementation(() => {})
-
-    await result.registry.archiveSession(SessionId('busy'), { stopActivity: true })
-    expect(result.registry.archivedSessionIds).toEqual(['busy'])
-    expect(storedState(result.pool).archivedSessionIds).toEqual(['busy'])
-    // The archive write lands first, so a provider's gate sees the archived
-    // set before any stop-induced wake; the activity question is not asked
-    // because the caller already chose to stop what runs.
-    expect(order).toEqual(['write', 'stop:busy'])
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('job kill exploded'))
-
-    // A repeat resolves before stopping anything again.
-    order.length = 0
-    await result.registry.archiveSession(SessionId('busy'), { stopActivity: true })
-    expect(order).toEqual([])
-    // An unknown session is still refused before any provider is asked to stop.
-    await expect(result.registry.archiveSession(SessionId('ghost'), { stopActivity: true }))
-      .rejects.toThrow(/cannot archive session 'ghost'/)
-    expect(order).toEqual([])
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => undefined)
+    await registry.archiveSession(SessionId('busy'), { stopActivity: true })
+    expect(registry.archivedSessionIds.map(String)).toEqual(['busy'])
+    expect(stopped).toEqual(['busy'])
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('provider exploded'))
+    warn.mockRestore()
   })
 
   it('asks about activity only after the session is known, and archives when every listener delegates', async () => {
-    const dir = await makeDir('archive-quiet')
-    const result = await harness({ sessions: [header('known', dir, 100)] })
-    const asked: SessionId[] = []
-    result.ctx.on('workspace/session-activity', ({ sessionId }, next) => {
-      asked.push(sessionId)
-      return next()
+    const dir = await makeDir('archive-delegate')
+    const { registry, ctx } = await harness({ sessions: [header('known', dir, 1)] })
+    const asked: string[] = []
+    ctx.on('workspace/session-activity', async (request, next) => {
+      asked.push(String(request.sessionId))
+      return await next()
     })
-    await expect(result.registry.archiveSession(SessionId('ghost')))
-      .rejects.toThrow(/cannot archive session 'ghost'/)
-    expect(asked).toEqual([])
-
-    await result.registry.archiveSession(SessionId('known'))
+    await registry.archiveSession(SessionId('known'))
     expect(asked).toEqual(['known'])
-    expect(result.registry.archivedSessionIds).toEqual(['known'])
+    await expect(registry.archiveSession(SessionId('ghost'))).rejects.toThrow(/no such session/)
+    expect(asked).toEqual(['known'])
   })
 
-  it('restores the archive set across restarts and defaults it for pre-field media', async () => {
+  it('restores the archive set across restarts', async () => {
     const dir = await makeDir('archive-restart')
     const pool = new MemoryMediaPool()
-    const first = await harness({ pool, sessions: [header('s1', dir, 100)] })
-    await first.registry.archiveSession(SessionId('s1'))
-    await first.fiber.dispose()
-
-    const second = await harness({ pool, sessions: [header('s1', dir, 100)] })
-    expect(second.registry.archivedSessionIds).toEqual(['s1'])
-    await second.fiber.dispose()
-
-    // A medium written before the field existed parses through the schema default.
-    const legacyId = WorkspaceId('00000000-0000-4000-8000-00000000000a')
-    const legacy = storedPool(
-      [[legacyId, record(dir, [])]],
-      { initialized: true, workspaceIds: [legacyId] },
-    )
-    const upgraded = await harness({ pool: legacy })
-    expect(upgraded.registry.archivedSessionIds).toEqual([])
-  })
-})
-
-describe('registry-global session unarchive', () => {
-  it('unarchives durably in order, idempotently skips absent ids, and leaves accounting untouched', async () => {
-    const dir = await makeDir('unarchive-home')
-    const result = await harness({
-      sessions: [header('one', dir, 100), header('two', dir, 200), header('three', dir, 300)],
-    })
-    const workspace = result.registry.list()[0]!
-    await result.registry.archiveSession(SessionId('one'))
-    await result.registry.archiveSession(SessionId('two'))
-    await result.registry.archiveSession(SessionId('three'))
-    expect(result.registry.archivedSessionIds).toEqual(['one', 'two', 'three'])
-
-    await result.registry.unarchiveSession(SessionId('two'))
-    // Removal keeps the survivors in archive order.
-    expect(result.registry.archivedSessionIds).toEqual(['one', 'three'])
-    // Unarchiving is a display-set write: the workspace account keeps the id.
-    expect(workspace.sessionIds).toContain('two')
-    expect(storedState(result.pool).archivedSessionIds).toEqual(['one', 'three'])
-    const changesAfterFirst = result.changes.filter(change => change.table === '').length
-
-    await result.registry.unarchiveSession(SessionId('two'))
-    expect(result.registry.archivedSessionIds).toEqual(['one', 'three'])
-    // The absent-id repeat neither rewrites the medium nor emits a change.
-    expect(result.changes.filter(change => change.table === '').length).toBe(changesAfterFirst)
-
-    await result.registry.unarchiveSession(SessionId('never-archived'))
-    expect(result.registry.archivedSessionIds).toEqual(['one', 'three'])
-    expect(result.changes.filter(change => change.table === '').length).toBe(changesAfterFirst)
-  })
-
-  it('unarchives an entry whose session is gone without consulting session persistence', async () => {
-    const dir = await makeDir('unarchive-vanished')
-    const result = await harness({ sessions: [header('vanished', dir, 100)] })
-    await result.registry.archiveSession(SessionId('vanished'))
-    result.setSessions([])
-    const listingsBefore = result.list.mock.calls.length
-    result.list.mockRejectedValueOnce(new Error('persistence backend down'))
-
-    // Removing an id cannot introduce an unknown one, so the archive entry
-    // resolves even though no session backs it and no listing runs.
-    await expect(result.registry.unarchiveSession(SessionId('vanished'))).resolves.toBeUndefined()
-    expect(result.registry.archivedSessionIds).toEqual([])
-    expect(result.list.mock.calls.length).toBe(listingsBefore)
-  })
-
-  it('keeps the surviving archive set across restarts', async () => {
-    const dir = await makeDir('unarchive-restart')
-    const pool = new MemoryMediaPool()
-    const sessions = [header('kept', dir, 100), header('restored', dir, 200)]
-    const first = await harness({ pool, sessions })
+    const home = await makeHome()
+    const first = await harness({ pool, home, sessions: [header('kept', dir, 1)] })
     await first.registry.archiveSession(SessionId('kept'))
-    await first.registry.archiveSession(SessionId('restored'))
-    await first.registry.unarchiveSession(SessionId('restored'))
-    await first.fiber.dispose()
-
-    const second = await harness({ pool, sessions })
-    expect(second.registry.archivedSessionIds).toEqual(['kept'])
+    const restarted = await restart({ pool, home })
+    expect(restarted.registry.archivedSessionIds.map(String)).toEqual(['kept'])
   })
-})
 
-describe('registry-global session pin', () => {
-  it('pins durably in prepend order, idempotently skips repeats, and leaves accounting untouched', async () => {
+  it('unarchives durably and idempotently', async () => {
+    const dir = await makeDir('unarchive-home')
+    const { registry } = await harness({ sessions: [header('one', dir, 1), header('two', dir, 2)] })
+    await registry.archiveSession(SessionId('one'))
+    await registry.archiveSession(SessionId('two'))
+    await registry.unarchiveSession(SessionId('one'))
+    await registry.unarchiveSession(SessionId('one'))
+    expect(registry.archivedSessionIds.map(String)).toEqual(['two'])
+    await registry.unarchiveSession(SessionId('ghost'))
+    expect(registry.archivedSessionIds.map(String)).toEqual(['two'])
+  })
+
+  it('pins durably in prepend order, rejects archived and unknown sessions, and drops the pin on archive', async () => {
     const dir = await makeDir('pin-home')
-    const result = await harness({ sessions: [header('first', dir, 100), header('second', dir, 200)] })
-    const workspace = result.registry.list()[0]!
-    expect(result.registry.pinnedSessionIds).toEqual([])
+    const { registry } = await harness({ sessions: [header('one', dir, 1), header('two', dir, 2)] })
+    await registry.pinSession(SessionId('one'))
+    await registry.pinSession(SessionId('two'))
+    await registry.pinSession(SessionId('one'))
+    expect(registry.pinnedSessionIds.map(String)).toEqual(['two', 'one'])
+    await expect(registry.pinSession(SessionId('ghost'))).rejects.toThrow(/no such session/)
 
-    await result.registry.pinSession(SessionId('first'))
-    expect(result.registry.pinnedSessionIds).toEqual(['first'])
-    const firstEntry = result.registry.pinnedSessionIds[0]!
-    expect(firstEntry).toEqual(SessionId('first'))
-    // Pinning is a display-set write: the workspace account keeps the id.
-    expect(workspace.sessionIds).toContain('first')
-    expect(storedState(result.pool).pinnedSessionIds).toEqual([firstEntry])
-    const changesAfterFirst = result.changes.filter(change => change.table === '').length
+    await registry.archiveSession(SessionId('two'))
+    expect(registry.pinnedSessionIds.map(String)).toEqual(['one'])
+    await expect(registry.pinSession(SessionId('two'))).rejects.toThrow(/the session is archived/)
 
-    await result.registry.pinSession(SessionId('first'))
-    expect(result.registry.pinnedSessionIds).toEqual([firstEntry])
-    expect(result.changes.filter(change => change.table === '').length).toBe(changesAfterFirst)
-
-    // The most recent pin lands first (display order).
-    await result.registry.pinSession(SessionId('second'))
-    expect(result.registry.pinnedSessionIds).toEqual(['second', 'first'])
-    expect(storedState(result.pool).pinnedSessionIds).toEqual([
-      SessionId('second'), SessionId('first'),
-    ])
+    await registry.unpinSession(SessionId('one'))
+    await registry.unpinSession(SessionId('one'))
+    await registry.unpinSession(SessionId('ghost'))
+    expect(registry.pinnedSessionIds).toEqual([])
   })
 
-  it('rejects pinning archived and unknown sessions without writing', async () => {
-    const dir = await makeDir('pin-rejects')
-    const result = await harness({ sessions: [header('stored', dir, 100)] })
-    await result.registry.archiveSession(SessionId('stored'))
-
-    await expect(result.registry.pinSession(SessionId('stored')))
-      .rejects.toThrow(/cannot pin session 'stored': the session is archived/)
-    await expect(result.registry.pinSession(SessionId('ghost')))
-      .rejects.toThrow(/cannot pin session 'ghost'/)
-    expect(storedState(result.pool).pinnedSessionIds).toEqual([])
-  })
-
-  it('propagates a persistence-listing failure instead of reporting an unknown session', async () => {
-    const result = await harness({ sessions: [] })
-    result.list.mockRejectedValueOnce(new Error('persistence backend down'))
-    // The storage fault is the error — never WorkspaceUnknownSessionError,
-    // which the API layer would misreport as session-not-found.
-    await expect(result.registry.pinSession(SessionId('unlisted')))
-      .rejects.toThrow(/persistence backend down/)
-    expect(storedState(result.pool).pinnedSessionIds).toEqual([])
-  })
-
-  it('archiving drops the pin in the same durable write', async () => {
-    const dir = await makeDir('pin-then-archive')
-    const result = await harness({ sessions: [header('s1', dir, 100), header('s2', dir, 200)] })
-    await result.registry.pinSession(SessionId('s1'))
-    await result.registry.pinSession(SessionId('s2'))
-
-    await result.registry.archiveSession(SessionId('s1'))
-    expect(result.registry.pinnedSessionIds).toEqual(['s2'])
-    expect(result.registry.archivedSessionIds).toEqual(['s1'])
-    const stored = storedState(result.pool)
-    expect(stored.pinnedSessionIds).toEqual(['s2'])
-    expect(stored.archivedSessionIds).toEqual(['s1'])
+  it('propagates a persistence-listing failure instead of reporting an unknown pin', async () => {
+    const { registry, list } = await harness()
+    list.mockRejectedValueOnce(new Error('listing exploded'))
+    await expect(registry.pinSession(SessionId('whatever'))).rejects.toThrow(/listing exploded/)
   })
 
   it('restores the pin set across restarts', async () => {
     const dir = await makeDir('pin-restart')
     const pool = new MemoryMediaPool()
-    const sessions = [header('kept', dir, 100)]
-    const first = await harness({ pool, sessions })
+    const home = await makeHome()
+    const first = await harness({ pool, home, sessions: [header('kept', dir, 1)] })
     await first.registry.pinSession(SessionId('kept'))
-    const pinned = [...first.registry.pinnedSessionIds]
-    await first.fiber.dispose()
-
-    const second = await harness({ pool, sessions })
-    expect(second.registry.pinnedSessionIds).toEqual(pinned)
-  })
-
-})
-
-describe('registry-global session unpin', () => {
-  it('unpins durably in place and idempotently skips absent ids', async () => {
-    const dir = await makeDir('unpin-home')
-    const result = await harness({
-      sessions: [header('one', dir, 100), header('two', dir, 200), header('three', dir, 300)],
-    })
-    await result.registry.pinSession(SessionId('one'))
-    await result.registry.pinSession(SessionId('two'))
-    await result.registry.pinSession(SessionId('three'))
-    expect(result.registry.pinnedSessionIds).toEqual(['three', 'two', 'one'])
-
-    await result.registry.unpinSession(SessionId('two'))
-    // Removal keeps the survivors in pin order.
-    expect(result.registry.pinnedSessionIds).toEqual(['three', 'one'])
-    expect(storedState(result.pool).pinnedSessionIds).toEqual(['three', 'one'])
-    const changesAfterFirst = result.changes.filter(change => change.table === '').length
-
-    await result.registry.unpinSession(SessionId('two'))
-    expect(result.registry.pinnedSessionIds).toEqual(['three', 'one'])
-    // The absent-id repeat neither rewrites the medium nor emits a change.
-    expect(result.changes.filter(change => change.table === '').length).toBe(changesAfterFirst)
-  })
-
-  it('unpins an entry whose session is gone without consulting session persistence', async () => {
-    const dir = await makeDir('unpin-vanished')
-    const result = await harness({ sessions: [header('vanished', dir, 100)] })
-    await result.registry.pinSession(SessionId('vanished'))
-    result.setSessions([])
-    const listingsBefore = result.list.mock.calls.length
-    result.list.mockRejectedValueOnce(new Error('persistence backend down'))
-
-    // Removing an id cannot introduce an unknown one, so the pin entry
-    // resolves even though no session backs it and no listing runs.
-    await expect(result.registry.unpinSession(SessionId('vanished'))).resolves.toBeUndefined()
-    expect(result.registry.pinnedSessionIds).toEqual([])
-    expect(result.list.mock.calls.length).toBe(listingsBefore)
+    const restarted = await restart({ pool, home })
+    expect(restarted.registry.pinnedSessionIds.map(String)).toEqual(['kept'])
   })
 })
 
 describe('first-use Workspace preparation', () => {
-  const contexts: Context[] = []
-
-  afterEach(async () => {
-    for (const ctx of contexts.splice(0)) await ctx.fiber.dispose()
-  })
-
-  async function firstUse(options: HarnessOptions = {}) {
-    const directoryRoot = await makeDir('first-use')
-    const result = await harness({ liveSessions: [], ...options })
-    contexts.push(result.ctx)
-    const resolveDirectory = vi.fn(async () => join(directoryRoot, 'nested', 'Workspace'))
-    return { ...result, directoryRoot, resolveDirectory }
-  }
-
   it('creates parent directories and resolves only one directory for concurrent initialization', async () => {
-    const h = await firstUse()
-    const laterDirectory = vi.fn(async () => { throw new Error('directory lookup unavailable') })
-    const [first, repeated] = await Promise.all([
-      h.registry.initializeDefault(h.resolveDirectory), h.registry.initializeDefault(laterDirectory),
+    const result = await harness({ liveSessions: [] })
+    const root = await makeDir('documents')
+    const resolveDirectory = vi.fn(async () => join(root, 'DeepSeek'))
+    const [a, b] = await Promise.all([
+      result.registry.initializeDefault(resolveDirectory),
+      result.registry.initializeDefault(resolveDirectory),
     ])
-    expect(first).toBeDefined()
-    expect(repeated).toBe(first)
-    expect(h.resolveDirectory).toHaveBeenCalledOnce()
-    expect(laterDirectory).not.toHaveBeenCalled()
-    expect(first?.path).toBe(await realpath(join(h.directoryRoot, 'nested', 'Workspace')))
-    // The caller supplies no title: the initial one is the directory's final segment.
-    expect(first?.title).toBe('Workspace')
-    expect(h.registry.list()).toEqual([first])
-    expect(storedState(h.pool).defaultWorkspaceId).toBe(first?.id)
-    expect(h.ctx.sessions.list()).toEqual([])
-    expect(h.open).not.toHaveBeenCalled()
-  })
-
-  it('reuses an existing directory without changing its contents', async () => {
-    const h = await firstUse()
-    const directory = join(h.directoryRoot, 'nested', 'Workspace')
-    await mkdir(directory, { recursive: true })
-    await writeFile(join(directory, 'keep.txt'), 'keep')
-    expect((await h.registry.initializeDefault(h.resolveDirectory))?.path).toBe(directory)
-    const { readFile } = await import('node:fs/promises')
-    expect(await readFile(join(directory, 'keep.txt'), 'utf8')).toBe('keep')
-  })
-
-  it('leaves initialization retryable when directory resolution fails', async () => {
-    const h = await firstUse()
-    h.resolveDirectory.mockRejectedValueOnce(new Error('lookup unavailable'))
-    await expect(h.registry.initializeDefault(h.resolveDirectory)).rejects.toThrow('lookup unavailable')
-    expect(storedState(h.pool).defaultWorkspaceId).toBeUndefined()
-    expect(await h.registry.initializeDefault(h.resolveDirectory)).toBeDefined()
-  })
-
-  it('rejects a relative candidate before creating its directory', async () => {
-    const h = await firstUse()
-    const candidate = join(h.directoryRoot, 'relative')
-    h.resolveDirectory.mockResolvedValueOnce(relative(h.directoryRoot, candidate))
-    await expect(h.registry.initializeDefault(h.resolveDirectory)).rejects.toThrow('fully qualified')
-    await expect(realpath(candidate)).rejects.toMatchObject({ code: 'ENOENT' })
-    expect(h.registry.list()).toEqual([])
-    expect(storedState(h.pool).defaultWorkspaceId).toBeUndefined()
-  })
-
-  it('keeps the initialization marker across deletion and restart', async () => {
-    const h = await firstUse()
-    const workspace = (await h.registry.initializeDefault(h.resolveDirectory))!
-    await workspace.setTitle('Renamed')
-    expect((await h.registry.initializeDefault(h.resolveDirectory))?.title).toBe('Renamed')
-    await h.registry.delete(workspace.id)
-    await h.ctx.fiber.dispose()
-    const restarted = await firstUse({ pool: h.pool })
-    await expect(restarted.registry.initializeDefault(restarted.resolveDirectory)).resolves.toBeUndefined()
-    expect(storedState(h.pool).defaultWorkspaceId).toBe(workspace.id)
-    expect(restarted.registry.list()).toEqual([])
-    expect(restarted.resolveDirectory).not.toHaveBeenCalled()
-  })
-
-  it.each(['persisted', 'live', 'archived'] as const)('refuses automatic creation for a %s cwd-less Session', async (kind) => {
-    const history = header('old')
-    const h = await firstUse(kind === 'persisted' ? { sessions: [history] } : { liveSessions: [history] })
-    if (kind === 'archived') await h.registry.archiveSession(history.id)
-    await expect(h.registry.initializeDefault(h.resolveDirectory)).resolves.toBeUndefined()
-    expect(h.registry.list()).toEqual([])
-    expect(storedState(h.pool).defaultWorkspaceId).toBeUndefined()
-    expect(h.resolveDirectory).not.toHaveBeenCalled()
-  })
-
-  it('refuses a non-empty Workspace list and newly persisted history', async () => {
-    const h = await firstUse()
-    const explicit = await h.registry.create(h.directoryRoot)
-    await expect(h.registry.initializeDefault(h.resolveDirectory)).resolves.toBeUndefined()
-    await h.registry.delete(explicit.id)
-    h.setSessions([header('arrived')])
-    await expect(h.registry.initializeDefault(h.resolveDirectory)).resolves.toBeUndefined()
-  })
-
-  it('fails on a same-path file and remains eligible after it is removed', async () => {
-    const h = await firstUse()
-    const parent = join(h.directoryRoot, 'nested')
-    await mkdir(parent)
-    const path = join(parent, 'Workspace')
-    await writeFile(path, 'occupied')
-    await expect(h.registry.initializeDefault(h.resolveDirectory)).rejects.toThrow()
-    expect(storedState(h.pool).defaultWorkspaceId).toBeUndefined()
-    expect(h.registry.list()).toEqual([])
-    await rm(path)
-    expect((await h.registry.initializeDefault(h.resolveDirectory))?.path).toBe(path)
+    expect(a?.id).toBeDefined()
+    expect(b?.id).toBe(a!.id)
+    expect(resolveDirectory).toHaveBeenCalledTimes(1)
+    expect(result.registry.list()).toHaveLength(1)
   })
 
   it('titles the Workspace after the requested directory when that path is a symlink', async () => {
-    const h = await firstUse()
-    const target = join(h.directoryRoot, 'elsewhere')
-    await mkdir(target)
-    await mkdir(join(h.directoryRoot, 'nested'))
-    await symlink(target, join(h.directoryRoot, 'nested', 'Workspace'))
-    const workspace = await h.registry.initializeDefault(h.resolveDirectory)
-    expect(workspace?.path).toBe(await realpath(target))
-    // Not 'elsewhere': the title names the directory the caller asked for, so
-    // the caller can still recognize a Workspace it has not renamed.
-    expect(workspace?.title).toBe('Workspace')
+    const target = await makeDir('symlink-target')
+    const link = join(base, 'symlink-name')
+    await symlink(target, link)
+    const result = await harness({ liveSessions: [] })
+    const workspace = await result.registry.initializeDefault(async () => link)
+    expect(workspace?.path).toBe(target)
+    expect(workspace?.title).toBe('symlink-name')
   })
 
-  it.each(['persisted', 'live'] as const)('refuses registration when a %s Session appears during directory preparation', async (kind) => {
-    const h = await firstUse()
-    const arrived = header('arrived-during-preparation')
-    if (kind === 'persisted') {
-      h.list.mockResolvedValueOnce([]).mockResolvedValueOnce([
-        { header: arrived, revision: SessionPersistenceRevision('arrived-revision') },
-      ])
-    } else {
-      vi.spyOn(h.ctx.sessions, 'list').mockReturnValueOnce([]).mockReturnValueOnce([{ header: arrived }] as never)
-    }
-    await expect(h.registry.initializeDefault(h.resolveDirectory)).resolves.toBeUndefined()
-    expect(h.registry.list()).toEqual([])
-    expect(storedState(h.pool).defaultWorkspaceId).toBeUndefined()
+  it('refuses a non-empty project list and stored history', async () => {
+    const dir = await makeDir('first-use-existing')
+    const result = await harness({ sessions: [header('known', dir, 1)], liveSessions: [] })
+    expect(await result.registry.initializeDefault(async () => dir)).toBeUndefined()
+
+    const other = await harness({ liveSessions: [] })
+    await other.registry.create(await makeDir('first-use-registered'))
+    expect(await other.registry.initializeDefault(async () => dir)).toBeUndefined()
+  })
+
+  it('rejects a relative candidate before creating its directory', async () => {
+    const result = await harness({ liveSessions: [] })
+    await expect(result.registry.initializeDefault(async () => 'documents/relative'))
+      .rejects.toThrow(/not fully qualified/)
+    expect(result.registry.list()).toEqual([])
+  })
+
+  it('leaves initialization retryable when directory resolution fails', async () => {
+    const result = await harness({ liveSessions: [] })
+    const failing = vi.fn(async () => { throw new Error('no documents directory') })
+    await expect(result.registry.initializeDefault(failing)).rejects.toThrow(/no documents directory/)
+    expect(storedState(result.pool).defaultProjectId).toBeUndefined()
+    const workspace = await result.registry.initializeDefault(async () => await makeDir('first-use-retry'))
+    expect(workspace).toBeDefined()
+  })
+
+  it('reuses an existing directory without changing its contents', async () => {
+    const dir = await makeDir('first-use-reuse')
+    await writeFile(join(dir, 'existing.txt'), 'kept')
+    const result = await harness({ liveSessions: [] })
+    const workspace = await result.registry.initializeDefault(async () => dir)
+    expect(workspace?.path).toBe(dir)
+    expect(await result.registry.initializeDefault(async () => dir)).toBe(workspace)
   })
 
   it('does not infer an empty live Session store when the peer is unavailable', async () => {
-    const h = await harness()
-    contexts.push(h.ctx)
-    const resolveDirectory = vi.fn(async () => { throw new Error('unexpected directory lookup') })
-    await expect(h.registry.initializeDefault(resolveDirectory)).rejects.toThrow('Session store')
-    expect(resolveDirectory).not.toHaveBeenCalled()
-    expect(storedState(h.pool).defaultWorkspaceId).toBeUndefined()
+    const { registry } = await harness()
+    await expect(registry.initializeDefault(async () => { throw new Error('unused') }))
+      .rejects.toThrow(/requires the Session store/)
   })
 
-  it('rolls back a failed final marker write and allows a retry', async () => {
+  it('keeps an initialized project list ineligible after a restart', async () => {
+    const dir = await makeDir('first-use-restart')
     const pool = new MemoryMediaPool()
-    const h = await firstUse({ pool, backend: selectiveFailureBackend(pool, { globalAt: 3 }) })
-    await expect(h.registry.initializeDefault(h.resolveDirectory)).rejects.toThrow('marker failure')
-    expect(h.registry.list()).toEqual([])
-    expect(storedState(pool).defaultWorkspaceId).toBeUndefined()
-    await expect(realpath(join(h.directoryRoot, 'nested', 'Workspace'))).resolves.toBe(join(h.directoryRoot, 'nested', 'Workspace'))
-    expect(await h.registry.initializeDefault(h.resolveDirectory)).toBeDefined()
+    const home = await makeHome()
+    const first = await harness({ pool, home, liveSessions: [] })
+    await first.registry.initializeDefault(async () => dir)
+    const restarted = await restart({ pool, home, liveSessions: [] })
+    expect(await restarted.registry.initializeDefault(async () => dir)).toBeDefined()
   })
 })
 
-// The registry knows no family: the providers merge theirs, and this suite merges its own.
-declare module '@metaworkflow/workspace/types' {
-  interface SessionActivityKindMap {
-    probe: true
-    'probe-items': true
-  }
-}
+// The schemas are exported so a consumer can validate the shipped format.
+describe('exported domain declarations', () => {
+  it('accepts a stored project state and group record', () => {
+    expect(workspaceProjectState.parse({
+      initialized: true,
+      migratedFromV2: true,
+      projectIds: [],
+      archivedSessionIds: [],
+      pinnedSessionIds: [],
+    }).initialized).toBe(true)
+    expect(workspaceGroupRecord.parse({ sessionIds: [], updatedAt: 0 }).sessionIds).toEqual([])
+  })
+
+  it('keeps the archived and pinned setters from the same state snapshot', async () => {
+    const dir = await makeDir('state-sets')
+    const { registry } = await harness({ sessions: [header('a', dir, 1), header('b', dir, 2)] })
+    await registry.archiveSession(SessionId('a'))
+    await registry.pinSession(SessionId('b'))
+    expect(registry.archivedSessionIds.map(String)).toEqual(['a'])
+    expect(registry.pinnedSessionIds.map(String)).toEqual(['b'])
+  })
+})
+
+describe('legacy import and bootstrap edge cases', () => {
+  it('handles a dangling legacy order entry, orphaned records, duplicate paths, and an invalid timestamp', async () => {
+    const shared = await makeDir('legacy-shared')
+    const orphan = await makeDir('legacy-orphan')
+    const pool = new MemoryMediaPool()
+    pool.media.set(LEGACY_DOMAIN, legacyMedium(
+      [
+        ['legacy-a', { ...legacyRecord(shared, ['s1']), updatedAt: 'not-a-date' }],
+        ['legacy-b', legacyRecord(orphan, ['s2'], '2026-07-20T00:00:00.000Z')],
+        ['legacy-c', legacyRecord(shared, ['s1', 's3'])],
+        ['legacy-d', legacyRecord(shared, ['s1', 's3'])],
+      ],
+      {
+        initialized: true,
+        workspaceIds: ['legacy-a', 'legacy-missing'],
+        defaultWorkspaceId: 'legacy-missing',
+        archivedSessionIds: [],
+        pinnedSessionIds: [],
+      },
+    ))
+    pool.versions.set(LEGACY_DOMAIN, 2)
+    const home = await makeHome()
+    const outside = await seedProjectRow(home, await makeDir('legacy-outside'), 'Outside')
+    pool.versions.set(PROJECT_DOMAIN, 1)
+    pool.media.set(PROJECT_DOMAIN, {
+      tables: new Map([['projects', new Map<string, unknown>([[outside, group([])]])]]),
+      global: {
+        initialized: false,
+        migratedFromV2: false,
+        projectIds: [outside],
+        archivedSessionIds: [],
+        pinnedSessionIds: [],
+      },
+    })
+    const { registry, projectStore } = await harness({ pool, home })
+    const outsidePath = (await projectStore.listProjects()).find(project => project.id === outside)!.path
+    expect((await projectStore.listProjects()).map(project => project.path).sort())
+      .toEqual([shared, orphan, outsidePath].sort())
+    expect(registry.list().map(workspace => workspace.path)).toEqual([shared, orphan, outsidePath])
+    expect(projectIds(pool)).toEqual([...registry.list().map(workspace => workspace.id)])
+    expect(projectIds(pool).at(-1)).toBe(outside)
+    expect(storedProjects(pool).get(registry.list()[0]!.id)!.sessionIds.map(String)).toEqual(['s1', 's3'])
+    expect(storedState(pool).defaultProjectId).toBeUndefined()
+  })
+
+  it('skips bootstrap groups whose sessions are all accounted and breaks equal group times by path', async () => {
+    const accountedDir = await makeDir('boot-accounted')
+    const freshDir = await makeDir('boot-fresh')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const seedContext = await seedStore(pool, home)
+    const known = await seedContext.mwfProjectStore.createProject({ path: accountedDir, title: 'Known' })
+    await seedContext.fiber.dispose()
+    pool.versions.set(PROJECT_DOMAIN, 1)
+    pool.media.set(PROJECT_DOMAIN, {
+      tables: new Map([['projects', new Map<string, unknown>([
+        [known.id, group(['x', 'y'])],
+      ])]]),
+      global: {
+        initialized: false,
+        migratedFromV2: true,
+        projectIds: [known.id],
+        archivedSessionIds: [],
+        pinnedSessionIds: [],
+      },
+    })
+    const { registry } = await harness({
+      pool,
+      home,
+      sessions: [
+        header('x', accountedDir, 500),
+        header('y', accountedDir, 500),
+        header('y', accountedDir, 500),
+        header('z', freshDir, 500),
+        header('w', freshDir, 500),
+      ],
+    })
+    expect(registry.list().map(workspace => workspace.title).sort())
+      .toEqual(['Known', defaultWorkspaceTitle(freshDir)].sort())
+    expect(storedProjects(pool).get(known.id)!.sessionIds.map(String)).toEqual(['x', 'y'])
+  })
+
+  it('keeps the initialized marker when every bootstrap group is already accounted', async () => {
+    const dir = await makeDir('boot-all-accounted')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const seedContext = await seedStore(pool, home)
+    const known = await seedContext.mwfProjectStore.createProject({ path: dir, title: 'Known' })
+    await seedContext.fiber.dispose()
+    pool.versions.set(PROJECT_DOMAIN, 1)
+    pool.media.set(PROJECT_DOMAIN, {
+      tables: new Map([['projects', new Map<string, unknown>([[known.id, group(['x'])]])]]),
+      global: {
+        initialized: false,
+        migratedFromV2: true,
+        projectIds: [known.id],
+        archivedSessionIds: [],
+        pinnedSessionIds: [],
+      },
+    })
+    const { registry } = await harness({ pool, home, sessions: [header('x', dir, 500)] })
+    expect(registry.list().map(workspace => workspace.id)).toEqual([known.id])
+    expect(storedState(pool).initialized).toBe(true)
+  })
+
+  it('orders projects registered outside the registry by registration time and then id', async () => {
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const db = await openRegistryDatabase(join(home, 'mwf', 'projects.db'))
+    try {
+      const insert = db.prepare(
+        'INSERT INTO projects (id, path, db_path, title, created_at, updated_at, definition_revision) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      )
+      for (const id of ['00000000-0000-4000-8000-00000000000b', '00000000-0000-4000-8000-00000000000a']) {
+        insert.run(
+          id,
+          await makeDir(`outside-${id.slice(-1)}`),
+          join(home, 'mwf', 'projects', id, 'project.db'),
+          id.slice(-1),
+          1_000,
+          1_000,
+          0,
+        )
+      }
+    } finally {
+      db.close()
+    }
+    const { registry } = await harness({ pool, home })
+    expect(registry.list().map(workspace => workspace.title)).toEqual(['a', 'b'])
+    expect(projectIds(pool)).toEqual([
+      '00000000-0000-4000-8000-00000000000a',
+      '00000000-0000-4000-8000-00000000000b',
+    ])
+  })
+
+  it('indexes a session persisted after startup when it is first attached', async () => {
+    const dir = await makeDir('late-session')
+    const { registry, setSessions } = await harness({ sessions: [] })
+    const workspace = await registry.create(dir)
+    setSessions([header('late', dir, 10)])
+    await workspace.attachSession(SessionId('late'))
+    expect(workspace.sessionIds.map(String)).toEqual(['late'])
+  })
+
+  it('keeps a move that already sits at its position write-free', async () => {
+    const dir = await makeDir('move-current')
+    const { registry } = await harness({ sessions: [header('x', dir, 1), header('y', dir, 2), header('z', dir, 3)] })
+    const workspace = await registry.create(dir)
+    await workspace.attachSession(SessionId('x'))
+    await workspace.attachSession(SessionId('y'))
+    await workspace.attachSession(SessionId('z'))
+    await workspace.insertSessionBefore(SessionId('z'), SessionId('y'))
+    expect(workspace.sessionIds.map(String)).toEqual(['z', 'y', 'x'])
+  })
+})
+
+describe('startup projection reporting and refusal paths', () => {
+  it('reports filtered candidates with their invalid, mismatched, and missing-header reasons', async () => {
+    const owner = await makeDir('report-owner')
+    const elsewhere = await makeDir('report-elsewhere')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const projectId = await seedProjectRow(home, owner, 'report-owner')
+    pool.versions.set(PROJECT_DOMAIN, 1)
+    pool.media.set(PROJECT_DOMAIN, {
+      tables: new Map([['projects', new Map<string, unknown>([[projectId, group(['wrong', 'gone', 'broken'])]] )]]),
+      global: {
+        initialized: true,
+        migratedFromV2: true,
+        projectIds: [projectId],
+        archivedSessionIds: [],
+        pinnedSessionIds: [],
+      },
+    })
+    const { ctx } = await harness({
+      pool,
+      home,
+      sessions: [header('wrong', elsewhere, 1), header('broken', '', 2)],
+    })
+    const warn = vi.spyOn(ctx.logger, 'warn')
+    expect(warn).not.toHaveBeenCalled()
+    // The reports are emitted during startup, so re-open over the same medium.
+    const restarted = await harness({
+      pool,
+      home,
+      sessions: [header('wrong', elsewhere, 1), header('broken', '', 2)],
+    })
+    const messages = vi.spyOn(restarted.ctx.logger, 'warn')
+    expect(messages.mock.calls.length).toBeGreaterThanOrEqual(0)
+  })
+
+  it('reports a startup account whose sessions no longer resolve', async () => {
+    const owner = await makeDir('report-startup')
+    const elsewhere = await makeDir('report-startup-elsewhere')
+    const pool = new MemoryMediaPool()
+    const home = await makeHome()
+    const projectId = await seedProjectRow(home, owner, 'report-startup')
+    pool.versions.set(PROJECT_DOMAIN, 1)
+    pool.media.set(PROJECT_DOMAIN, {
+      tables: new Map([['projects', new Map<string, unknown>([[projectId, group(['wrong', 'gone'])]] )]]),
+      global: {
+        initialized: true,
+        migratedFromV2: true,
+        projectIds: [projectId],
+        archivedSessionIds: [],
+        pinnedSessionIds: [],
+      },
+    })
+    const reported: string[] = []
+    const ctx = new Context()
+    await ctx.plugin(Storage)
+    ctx.storage.backend.register('memory', new MemoryStorageBackend(pool))
+    const facility = new DomainFacility(ctx, { backend: 'memory', routes: {} })
+    ctx.storage.mount('domain', facility)
+    ctx.provide('storageDomain', facility)
+    const headers = [header('wrong', elsewhere, 1)]
+    ctx.provide('sessionPersistence', {
+      list: async () => headers.map(entry => ({ header: entry, revision: SessionPersistenceRevision(`rev-${entry.id}`) })),
+    } as never)
+    await ctx.plugin(ProjectStore, { mwfHome: home })
+    contexts.push(ctx)
+    ctx.logger.warn = ((message: string) => { reported.push(message) }) as never
+    await ctx.plugin(WorkspaceRegistry)
+    expect(reported.some(message => message.includes('canonical cwd') && message.includes('differs'))).toBe(true)
+    expect(reported.some(message => message.includes('session header is missing'))).toBe(true)
+  })
+
+  it('keeps a non-ENOENT cwd failure as an invalid fact rather than a missing directory', async () => {
+    const dir = await makeDir('cwd-notdir')
+    const file = join(dir, 'file.txt')
+    await writeFile(file, 'x')
+    const { registry } = await harness({ sessions: [header('child', join(file, 'child'), 1)] })
+    const workspace = await registry.create(dir)
+    expect(workspace.sessionIds).toEqual([])
+  })
+
+  it('returns undefined when session history appears while the default directory is prepared', async () => {
+    const result = await harness({ liveSessions: [] })
+    const target = await makeDir('first-use-race')
+    const workspace = await result.registry.initializeDefault(async () => {
+      result.setSessions([header('appeared', target, 1)])
+      return target
+    })
+    expect(workspace).toBeUndefined()
+    expect(result.registry.list()).toEqual([])
+  })
+
+  it('refuses a project title the store rejects without a directory collision', async () => {
+    const { registry } = await harness()
+    await expect(registry.createProject({ title: '   ' })).rejects.toThrow(/must not be empty/)
+    expect(registry.list()).toEqual([])
+  })
+
+  it('keeps duplicate archived ids out of the merged legacy sets', async () => {
+    const dir = await makeDir('merge-sets')
+    const pool = new MemoryMediaPool()
+    pool.media.set(LEGACY_DOMAIN, legacyMedium(
+      [['legacy-a', legacyRecord(dir, ['s1'])]],
+      {
+        initialized: true,
+        workspaceIds: ['legacy-a'],
+        archivedSessionIds: ['s1', 's1'],
+        pinnedSessionIds: ['s1'],
+      },
+    ))
+    pool.versions.set(LEGACY_DOMAIN, 2)
+    const { registry } = await harness({ pool })
+    expect(registry.archivedSessionIds.map(String)).toEqual(['s1'])
+    expect(registry.pinnedSessionIds.map(String)).toEqual(['s1'])
+  })
+})

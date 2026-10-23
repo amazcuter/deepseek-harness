@@ -90,6 +90,14 @@
     - id: ui-open-in-app
       name: '@metaworkflow/client-ui-open-in-app'
 
+    # Workflow project persistence: the global project registry plus one SQLite
+    # database per project. The workspace registry below reads project identity
+    # from it, so this row loads first; its database lives under the Harness home.
+    - id: workflow-project-store
+      name: '@metaworkflow/workflow-project-store'
+
+    # Workspace registry: registered projects as Session groups (ordered
+    # accounts, display order, first-use identity, archive and pin sets).
     - id: workspace
       name: '@metaworkflow/workspace'
 

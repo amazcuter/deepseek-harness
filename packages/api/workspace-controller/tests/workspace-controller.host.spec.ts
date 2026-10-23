@@ -7,8 +7,9 @@ import SessionStore, { SessionId } from '@metaworkflow/session'
 import Storage from '@metaworkflow/storage'
 import { DomainFacility } from '@metaworkflow/storage-domain'
 import { RemoteError, type PeerId, type Principal, type RemoteInvocation } from '@metaworkflow/typert-protocol'
+import ProjectStore from '@metaworkflow/workflow-project-store'
 import WorkspaceRegistry from '@metaworkflow/workspace'
-import type { WorkspaceId } from '@metaworkflow/workspace/types'
+import { WorkspaceId } from '@metaworkflow/workspace'
 import RemoteAccessService, { type RemoteAccessCondition, type RemoteAccessRole } from '@metaworkflow/api-remote-access'
 import WorkspaceController from '../src/index.ts'
 import { DEFAULT_WORKSPACE_DIRECTORY } from '../src/default-workspace.ts'
@@ -63,6 +64,7 @@ async function harness(options: { systemDocuments?: boolean } = {}) {
   ctx.storage.mount('domain', storageDomain)
   ctx.provide('storageDomain', storageDomain)
   ctx.provide('sessionPersistence', { list: () => Promise.resolve([]) } as never)
+  await ctx.plugin(ProjectStore, { mwfHome: join(root, 'home') })
   await ctx.plugin(WorkspaceRegistry)
   const dispose = (): void => {}
   ctx.provide('typert', {
@@ -332,7 +334,7 @@ describe('WorkspaceController commands', () => {
 })
 
 describe('WorkspaceController follow', () => {
-  it('seeds a new feed from existing rows and rejects an inconsistent registry commit', async () => {
+  it('seeds a new feed from existing rows and ignores a stale display-order commit', async () => {
     const { ctx, root } = await harness()
     const existing = await ctx.workspaceRegistry.create(stageDir(root, 'existing'))
     const feed = new WorkspaceFeed(ctx)
@@ -340,20 +342,32 @@ describe('WorkspaceController follow', () => {
       items: [{ workspaceId: existing.id }],
     })
 
-    expect(() => {
-      ctx.emit('domain/changed', {
-        domain: 'workspace',
-        table: '',
-        key: '',
-        operation: 'put',
-        value: {
-          initialized: true,
-          workspaceIds: ['missing'],
-          archivedSessionIds: [],
-          pinnedSessionIds: [],
-        },
-      })
-    }).toThrow('references missing Workspace "missing"')
+    // The project store owns existence, so a durable order naming a project it
+    // no longer holds is filtered rather than fatal.
+    const abort = new AbortController()
+    const iterator = feed.follow(abort.signal)[Symbol.asyncIterator]()
+    try {
+      await nextFrame(iterator)
+      expect(() => {
+        ctx.emit('domain/changed', {
+          domain: 'workspace_projects',
+          table: '',
+          key: '',
+          operation: 'put',
+          value: {
+            initialized: true,
+            migratedFromV2: true,
+            projectIds: ['00000000-0000-4000-8000-000000000000'],
+            archivedSessionIds: [],
+            pinnedSessionIds: [],
+          },
+        })
+      }).not.toThrow()
+      expect(feed.baseline()).toMatchObject({ items: [{ workspaceId: existing.id }] })
+    } finally {
+      abort.abort()
+      await iterator.return?.()
+    }
   })
 
   it('starts a fresh feed with existing pins and follows their removal', async () => {
@@ -558,14 +572,16 @@ describe('WorkspaceController follow', () => {
       domain: 'other', table: 'records', key: 'x', operation: 'put', value: {},
     })
     ctx.emit('domain/changed', {
-      domain: 'workspace', table: '', key: '', operation: 'deleted',
+      domain: 'workspace_projects', table: '', key: '', operation: 'deleted',
     })
     ctx.emit('domain/changed', {
-      domain: 'workspace', table: 'other', key: 'x', operation: 'put', value: {},
+      domain: 'workspace_projects', table: 'other', key: 'x', operation: 'put', value: {},
     })
     ctx.emit('domain/changed', {
-      domain: 'workspace', table: 'workspaces', key: 'unknown', operation: 'deleted',
+      domain: 'workspace_projects', table: 'projects', key: 'unknown', operation: 'deleted',
     })
+    // A change naming a project this generation never delivered is ignored.
+    ctx.emit('workspace/changed', { workspaceId: WorkspaceId('00000000-0000-4000-8000-000000000000') })
     const pending = iterator.next()
     const created = await controller.create({ path: stageDir(root, 'visible') })
     await expect(pending).resolves.toMatchObject({ value: { type: 'upsert' } })

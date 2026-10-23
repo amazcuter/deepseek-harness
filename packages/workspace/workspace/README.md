@@ -1,5 +1,5 @@
 ---
-description: "Workspace entity registry (ctx.workspaceRegistry) for hosts choosing, mounting, or debugging durable workspace records and header-validated session membership."
+description: "Workspace registry (ctx.workspaceRegistry) for hosts choosing, mounting, or debugging workflow projects as session groups: project identity from ctx.mwfProjectStore, ordered session accounts, and header-validated membership."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use this package to keep an ordered, persistent list of project directories and the sessions run in each directory. Hosts can build project sidebars, hide sessions from grouping without deleting their histories, and remove projects without deleting folders, files, or sessions. Re-adding a removed directory creates a fresh project; an existing project's sessions stay grouped when its directory disappears. Choose it for GUI or host workflows that need durable project grouping; it is invisible to models and adds no prompt or request-context cost, but requires session persistence and storage backends.
+Use this package to keep an ordered, persistent list of workflow projects. Project identity — id, directory, title — belongs to `@metaworkflow/workflow-project-store`; this package adds each project's ordered session account, the display order, the first-use identity, and the registry-global archive and pin sets. Hosts can build project sidebars, hide sessions from grouping without deleting their histories, and remove projects without deleting folders, files, or sessions. Re-adding a removed directory creates a fresh project. Choose it for GUI or host workflows needing durable project grouping; it is invisible to models and requires the project store, session persistence, and storage backends.
 
 ## Table of Contents
 
@@ -43,10 +43,13 @@ The package needs a session store, a session persistence backend, and the storag
 - name: '@metaworkflow/storage-domain'
   config:
     backend: json
+- name: '@metaworkflow/workflow-project-store'
 - name: '@metaworkflow/workspace'
 ```
 
 With these rows mounted, creating a project shows up in the list immediately and survives a restart; the first start also groups existing sessions by the directory they ran in. If a required peer is missing, the workspace feature stays unavailable until it is mounted.
+
+A profile written by the previous release — the shipped `workspace` domain, version 2 — is imported once on first start: every stored workspace becomes a project registration through `ctx.mwfProjectStore` (a directory that already has a project is reused, never duplicated), its session account moves to that project, and the default identity plus the archive and pin sets carry over. The legacy medium is opened read-only and never rewritten or deleted, and the import is idempotent: a crash before the `migratedFromV2` marker is written repeats the same work on the next start without creating duplicate projects.
 
 ### Creating and ordering projects
 
@@ -114,15 +117,15 @@ Archive admission is a capability seam over two Host events this package declare
 
 ### Durable shape
 
-The registry opens the `workspace` domain (version 2): a `workspaces` table keyed by `WorkspaceId` plus one global state holding `workspaceIds` (the authoritative display order), `archivedSessionIds`, `pinnedSessionIds`, the optional `defaultWorkspaceId` first-use identity, and the optional `pendingMutation` marker. Archive and pin sets contain Session id strings, default to empty, and carry no per-entry objects or timestamps; the pin array keeps the most recently pinned id first. Archiving clears the pin in the same global-state write without changing Workspace membership. Unarchive runs no session-existence probe, because dropping an id from the set cannot introduce an unknown one, while archive verifies the session before adding it.
+The registry opens the `workspace_projects` domain (version 1): a `projects` table keyed by `WorkspaceId` holding each project's ordered `sessionIds` and its account `updatedAt`, plus one global state holding `projectIds` (the authoritative display order), `archivedSessionIds`, `pinnedSessionIds`, the optional `defaultProjectId` first-use identity, `migratedFromV2`, and `initialized`. Directory and title live only in the project registry, so this domain never restates them. Archive and pin sets contain Session id strings, default to empty, and carry no per-entry objects or timestamps; the pin array keeps the most recently pinned id first. Archiving clears the pin in the same global-state write without changing project membership. Unarchive runs no session-existence probe, because dropping an id from the set cannot introduce an unknown one, while archive verifies the session before adding it. The shipped v2 `workspace` declaration stays in `src/spec.ts` only so the one-time import can read it.
 
 ### Lifecycle
 
-On start, the registry opens the domain, completes a marked mutation if one is pending, validates stored state — duplicate paths, duplicate session accounts, and order drift all fail loud — and, when not yet initialized, bootstraps history from persisted headers before writing the initialized marker last, so an interrupted bootstrap resumes safely. A fresh empty registry is real once initialized; it never re-bootstraps.
+On start, the registry opens its domain, reads every registered project, imports the legacy v2 registry when the marker says it has not run, bootstraps history from persisted headers when the registry is not yet initialized, and reconciles the display order and session accounts with the project store. Duplicate session ownership across projects still fails loud; existence and order divergence are repaired rather than fatal, because the project store owns both. A fresh empty registry is real once initialized; it never re-bootstraps.
 
 ### Failure and recovery
 
-A create or delete whose second write fails rolls the cache and the prior order back; when both the operation and its rollback fail, the durable marker still names the interrupted operation and the next startup completes or rolls it back. A committed delete whose marker cleanup fails still reports success, and the next startup clears the marker idempotently.
+A create whose account or order write fails removes the project registration it just wrote (the directory stays) and rethrows; the project store rejects a directory another project claims, so a losing concurrent create reuses the winner instead. A committed delete whose follow-up order or account write fails still reports success, logs the failure, and is repaired by the next startup reconciliation.
 
 </details>
 

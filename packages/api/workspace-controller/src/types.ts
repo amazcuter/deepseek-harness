@@ -50,6 +50,12 @@ declare module '@metaworkflow/typert-protocol' {
       readonly sessionId: SessionId
       readonly beforeSessionId?: SessionId
     }
+    /** No registration carries that project identity. */
+    'project/not-found': {}
+    /** The requested directory cannot back a project. */
+    'project/invalid-path': { readonly path: string }
+    /** Another project already claims the requested directory. */
+    'project/path-in-use': { readonly path: string }
     /** The verb needs an interaction the composed backend does not serve. */
     'directory-picker/unavailable': { readonly capability: string }
     /** The target is not fully qualified, or the backend cannot list it. */
@@ -174,3 +180,52 @@ export type WorkspaceFollowIncrement =
 export type WorkspaceFollowFrame =
   | { readonly type: 'baseline'; readonly value: WorkspaceBaseline }
   | WorkspaceFollowIncrement
+
+/** One registered workflow project as a dashboard row. */
+export interface ProjectSummary {
+  /** Project identity; the same value the workspace Remote namespace calls `workspaceId`. */
+  readonly id: WorkspaceId
+  /** Display title owned by the project registry. */
+  readonly title: string
+  /** Absolute project directory. */
+  readonly path: string
+  /** Live directory state: `'missing-dir'` when the directory is gone, never a rename. */
+  readonly status: 'ok' | 'missing-dir'
+  /** Latest stored definition revision; `0` while the project has no definition. */
+  readonly definitionRevision: number
+  /** Sessions this project currently accounts to, filtered by the registry's header index. */
+  readonly sessionCount: number
+}
+
+/** Every registered project. */
+export interface ProjectListValue {
+  readonly items: readonly ProjectSummary[]
+}
+
+/** Project registration request: a title plus an optional existing directory. */
+export interface ProjectCreateRequest {
+  readonly title: string
+  /** Existing directory; omitted registers a project in the project store's own project root. */
+  readonly path?: string
+}
+
+/** One mutated project. */
+export interface ProjectValue {
+  readonly project: ProjectSummary
+}
+
+/** Project title mutation. */
+export interface ProjectRenameRequest {
+  readonly id: WorkspaceId
+  readonly title: string
+}
+
+/** Project address for open and remove. */
+export interface ProjectTargetRequest {
+  readonly id: WorkspaceId
+}
+
+/** Project deregistration receipt; the directory and every Session stay. */
+export interface ProjectRemoveValue {
+  readonly deleted: true
+}

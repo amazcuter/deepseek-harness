@@ -7,6 +7,7 @@ import type {} from '@metaworkflow/api-remote-access'
 import type { SessionId } from '@metaworkflow/session/types'
 import { WorkspaceCommands } from './commands.ts'
 import { DirectoryPickerController } from './directory-picker.ts'
+import { MwProjectController } from './projects.ts'
 import { WorkspaceFeed, workspaceView } from './feed.ts'
 import { defaultWorkspaceDirectory, validateDocumentsDirectory } from './default-directory.ts'
 import type {
@@ -32,6 +33,7 @@ import type {
 
 export type * from './types.ts'
 export { DirectoryPickerController } from './directory-picker.ts'
+export { MwProjectController } from './projects.ts'
 
 /** First-use directory policy for the Host account. */
 export interface Config {
@@ -80,6 +82,9 @@ export class WorkspaceController extends TypertRemoteService {
     // stays pending until a picking backend is composed, so a host without one
     // registers no picking namespace instead of answering an unservable verb.
     ctx.plugin(DirectoryPickerController)
+    // The dashboard's project verbs own their own namespace; the Workspace
+    // namespace keeps serving the sidebar unchanged.
+    ctx.plugin(MwProjectController)
   }
 
   /**

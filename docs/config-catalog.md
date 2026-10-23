@@ -301,7 +301,7 @@ export interface Config {
 ## `@metaworkflow/api-workspace-controller`
 
 - `inject`: `remoteAccess` · `typert` · `workspaceRegistry`
-- `source`: [`packages/api/workspace-controller/src/index.ts:37`](../packages/api/workspace-controller/src/index.ts)
+- `source`: [`packages/api/workspace-controller/src/index.ts:39`](../packages/api/workspace-controller/src/index.ts)
 
 ```ts config-catalog
 /** First-use directory policy for the Host account. */
@@ -4550,7 +4550,7 @@ export interface Config {
 
 ## `@metaworkflow/workflow-project-store`
 
-- `source`: [`packages/workflow/project-store/src/index.ts:104`](../packages/workflow/project-store/src/index.ts)
+- `source`: [`packages/workflow/project-store/src/index.ts:113`](../packages/workflow/project-store/src/index.ts)
 
 ```ts config-catalog
 /** Plugin configuration. */
@@ -4748,7 +4748,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@metaworkflow/tool-working-directory` | `tools` · `workingDirectory` | [`packages/session/tool-working-directory/src/index.ts`](../packages/session/tool-working-directory/src/index.ts) |
 | `@metaworkflow/user-questions` | — | [`packages/interaction/user-questions/src/index.ts`](../packages/interaction/user-questions/src/index.ts) |
 | `@metaworkflow/webhook` | `agents` · `agentDefaultModel` · `agentPresets` · `permissionPresets` · `sessionTitle` · `workspaceRegistry` | [`packages/experimental/webhook/src/index.ts`](../packages/experimental/webhook/src/index.ts) |
-| `@metaworkflow/workspace` | `storageDomain` · `sessionPersistence` | [`packages/workspace/workspace/src/index.ts`](../packages/workspace/workspace/src/index.ts) |
+| `@metaworkflow/workspace` | `storageDomain` · `sessionPersistence` · `mwfProjectStore` | [`packages/workspace/workspace/src/index.ts`](../packages/workspace/workspace/src/index.ts) |
 <!-- END GENERATED config-catalog:no-config -->
 
 ## Seam packages (not directly loadable)
