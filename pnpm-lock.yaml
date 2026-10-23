@@ -16456,6 +16456,9 @@ importers:
       '@metaworkflow/workflow':
         specifier: workspace:*
         version: link:../../packages/workflow/workflow
+      '@metaworkflow/workflow-project-store':
+        specifier: workspace:*
+        version: link:../../packages/workflow/project-store
       '@metaworkflow/workflow-ptc':
         specifier: workspace:*
         version: link:../../packages/workflow/workflow-ptc

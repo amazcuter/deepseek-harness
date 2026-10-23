@@ -154,6 +154,7 @@
     "@metaworkflow/web-search-exa": "workspace:*",
     "@metaworkflow/web-search-perplexity": "workspace:*",
     "@metaworkflow/workflow": "workspace:*",
+    "@metaworkflow/workflow-project-store": "workspace:*",
     "@metaworkflow/workflow-ptc": "workspace:*",
     "@metaworkflow/otel": "workspace:*",
     "@metaworkflow/workspace": "workspace:*",
