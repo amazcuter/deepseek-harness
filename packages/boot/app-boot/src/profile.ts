@@ -183,6 +183,9 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
   web: {
     bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'],
   },
+  metaworkflow: {
+    bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-metaworkflow-app'],
+  },
   headless: {
     bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-headless'],
   },

@@ -13,6 +13,7 @@ Run `pnpm run gen-cli-help` to regenerate; run `pnpm run verify-cli-help` to che
 - [`dsh plugin`](#dsh-plugin)
 - [`dsh acp`](#dsh-acp)
 - [`dsh headless`](#dsh-headless)
+- [`dsh metaworkflow`](#dsh-metaworkflow)
 - [`dsh sdk`](#dsh-sdk)
 - [`dsh sdk-minimal`](#dsh-sdk-minimal)
 - [`dsh web`](#dsh-web)
@@ -123,6 +124,46 @@ Examples:
   echo "run the tests" | dsh --profile headless   read the task from stdin
   dsh --profile headless --json "run the tests"   emit machine-readable run events
   dsh --profile headless --session-id session-… "continue"   resume an existing Session
+
+```
+
+<a id="dsh-metaworkflow"></a>
+## `dsh metaworkflow`
+
+Invocations: `dsh metaworkflow --help`, `dsh --profile metaworkflow --help`
+
+```text
+Usage: dsh --profile metaworkflow [options]
+
+Serve the MetaWorkFlow browser UI.
+
+Options:
+  --host <host>                  bind address: one concrete IPv4 or IPv6 literal
+                                 of a local interface; wildcard addresses are
+                                 rejected
+  --no-open                      do not open the Web UI in the default browser
+  --port <port>                  listen port; pass 0 to let the OS pick a free
+                                 one
+  --public-url <url>             advertise this HTTP(S) root in the printed,
+                                 opened, runtime-context, and DSH_WEB_URL forms;
+                                 grants no trust
+  --trusted-host <authority...>  extra authority the /api browser-trust fence
+                                 accepts (host or host:port; repeatable)
+  --tls-cert <file>              PEM server certificate chain; requires
+                                 --tls-key
+  --tls-key <file>               unencrypted PEM private key; requires
+                                 --tls-cert
+  -h, --help                     show this help
+
+Examples:
+  dsh --profile metaworkflow                 serve on the composed host and port
+  dsh --profile metaworkflow --no-open       serve without opening a browser
+  dsh --profile metaworkflow --port 8080     serve on another port
+  dsh --profile metaworkflow --host 10.0.0.7 bind one local interface address
+  dsh --profile metaworkflow --public-url https://app.example/ui/ --trusted-host app.example
+                                             advertise a prefix-stripping HTTPS proxy entry and admit its authority
+  dsh --profile metaworkflow --tls-cert ./server-chain.pem --tls-key ./server-key.pem
+                                             serve HTTPS with an existing certificate and key
 
 ```
 

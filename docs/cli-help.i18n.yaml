@@ -9,8 +9,8 @@
   en: b7174eab3476579d
   zh: 5ddab967320e3cff
 /dsh-cli-help/contents:
-  en: 00308bcc6dc90afd
-  zh: 16f7442b76686a02
+  en: 5890cc34430dd6dd
+  zh: 459755cc28665e02
 /dsh-cli-help/dsh:
   en: e0695abcf7d8b521
   zh: 712c23b3c8a115ca
@@ -21,8 +21,11 @@
   en: bcb0f84577ce5f03
   zh: 4382e617006849db
 /dsh-cli-help/dsh-headless:
-  en: 878a1dd78017964d
-  zh: bb43d91b4beb9bda
+  en: eb005febbd167b59
+  zh: f7c9289b7a9cdfb4
+/dsh-cli-help/dsh-metaworkflow:
+  en: d65fc6ae4cce0e59
+  zh: 099b223bc8c3618f
 /dsh-cli-help/dsh-sdk:
   en: 701f239c5157dedb
   zh: ee11be2932b05ce4

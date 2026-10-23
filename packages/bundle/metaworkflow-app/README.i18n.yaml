@@ -1,0 +1,49 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/bundle/metaworkflow-app/README.md
+/:
+  en: 2e85ae9ad3c693df
+  zh: 632260f8739c1229
+/deepseek-ai-dsh-metaworkflow-app:
+  en: d4d17c5b72bedb3b
+  zh: 3fb9ce3a102113a6
+/deepseek-ai-dsh-metaworkflow-app/summary:
+  en: 519d1b9a94637b4a
+  zh: 993fa6c03f040cc5
+/deepseek-ai-dsh-metaworkflow-app/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/deepseek-ai-dsh-metaworkflow-app/use-this-package:
+  en: 22ad22b16156a338
+  zh: 8aaccde47f80918f
+/deepseek-ai-dsh-metaworkflow-app/understand-the-implementation:
+  en: fbcafcd6e29d4eda
+  zh: 535d9651748ae757
+/deepseek-ai-dsh-metaworkflow-app/understand-the-implementation/source-map:
+  en: f9fbb4cc3167b0dd
+  zh: 438844208e2c9588
+/deepseek-ai-dsh-metaworkflow-app/further-exploration:
+  en: cc7137a09f91fe9a
+  zh: 0a5b3a67d3f87567
+/deepseek-ai-dsh-metaworkflow-app/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/deepseek-ai-dsh-metaworkflow-app/model-experience/web-runtime-variable:
+  en: 623bf8a0bf05599d
+  zh: 398ded2e7b20c1ea
+/deepseek-ai-dsh-metaworkflow-app/model-experience/web-runtime-variable/what-the-model-sees:
+  en: 46980c9298abe5fc
+  zh: 37da51fb9d8f56a7
+/deepseek-ai-dsh-metaworkflow-app/model-experience/web-runtime-variable/token-effect:
+  en: 449fbfa3986f98f0
+  zh: a7d66333594ab2dd
+/deepseek-ai-dsh-metaworkflow-app/model-experience/web-runtime-variable/kv-cache-effect:
+  en: 37542a8b81a744f5
+  zh: c0048aaadecae296
+/deepseek-ai-dsh-metaworkflow-app/known-limitations-and-deferred-work:
+  en: 8e9959fdb00acd0d
+  zh: 10a31cd93e673d4c
+/deepseek-ai-dsh-metaworkflow-app/known-limitations-and-deferred-work/dev-note:
+  en: fa4e4e95872e2fcf
+  zh: 67ae9526a4555242

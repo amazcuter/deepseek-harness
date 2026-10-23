@@ -16,7 +16,7 @@ import { collectRuntimeLocalSourceSpecifiers, collectRuntimeSourceSpecifiers } f
 
 const PROFILE_SOURCE = 'packages/boot/app-boot/src/profile.ts'
 const ON_DEMAND_SOURCE = 'packages/boot/app-boot/src/official-bundle-packages.ts'
-const PROFILES = ['acp', 'web', 'headless', 'sdk', 'sdk-minimal']
+const PROFILES = ['acp', 'web', 'metaworkflow', 'headless', 'sdk', 'sdk-minimal']
 const PICKER_SOURCE = 'packages/host/directory-picker-auto/src/index.ts'
 const DYNAMIC_MOUNTS: Readonly<Record<string, readonly string[]>> = {
   [PICKER_SOURCE]: ['BACKEND_PACKAGES', 'SURFACE_PACKAGES'],

@@ -2278,6 +2278,38 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@deepseek-ai/dsh-message-feedback -->
 
+<!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-metaworkflow-app -->
+<a id="deepseek-aidsh-metaworkflow-app"></a>
+
+## `@deepseek-ai/dsh-metaworkflow-app`
+
+- `inject`: `webServer`
+- `source`: [`packages/bundle/metaworkflow-app/src/index.ts:55`](../packages/bundle/metaworkflow-app/src/index.ts)
+
+```ts config-catalog
+/** Plugin config: composed deployment settings plus per-invocation command-line values. */
+export interface Config {
+  /** Permit default-browser handoff after the Loader tree settles; an SSH launch suppresses it. */
+  openBrowser: boolean
+  /** Print the URL line on activation; a non-interactive layer can turn it off. */
+  printUrl: boolean
+  /**
+   * Register the `DSH_WEB_URL` bash variable naming this GUI. A one-shot
+   * non-interactive layer can turn it off when its user is not in the GUI.
+   */
+  surfaceContext: boolean
+  /**
+   * Canonical HTTP(S) root to advertise in the printed and opened URL,
+   * `DSH_WEB_URL`, and `webApp.getAdvertisedUrl()`, which supplies the Web GUI
+   * URL in agent runtime context, e.g. `https://app.example/ui/`, normalized to end in `/`. Configures no routing
+   * or authentication; see [public deployments](../README.md#public-deployments).
+   * Absent or YAML `null` advertises the bind-address URL.
+   */
+  publicUrl?: string
+}
+```
+<!-- END GENERATED config-catalog:@deepseek-ai/dsh-metaworkflow-app -->
+
 <!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-office-to-pdf -->
 <a id="deepseek-aidsh-office-to-pdf"></a>
 
