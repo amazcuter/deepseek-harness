@@ -1,0 +1,66 @@
+{
+  "name": "@metaworkflow/workflow-agent-executor",
+  "description": "Host-side agent node executor for the workflow scheduler (ctx.mwfAgentExecutor): registers the `agent` node kind, runs one constrained DSH child Agent per activation, and commits the structured result the node's completion tool accepted",
+  "version": "0.2.1-rc.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/workflow/agent-executor"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:~",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/agent-default-model": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-persistence": "workspace:*",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*",
+    "@metaworkflow/workflow-definition": "workspace:*",
+    "@metaworkflow/workflow-project-store": "workspace:*",
+    "@metaworkflow/workflow-scheduler": "workspace:*"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "workspace:~"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "workspace:~",
+    "@metaworkflow/agent": "workspace:*",
+    "@metaworkflow/agent-default-model": "workspace:*",
+    "@metaworkflow/agent-loop": "workspace:*",
+    "@metaworkflow/agent-loop-testkit": "workspace:*",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/llm": "workspace:*",
+    "@metaworkflow/llm-deepseek-api-key": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
+    "@metaworkflow/session-persistence": "workspace:*",
+    "@metaworkflow/session-persistence-jsonl": "workspace:*",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*",
+    "@metaworkflow/workflow-definition": "workspace:*",
+    "@metaworkflow/workflow-project-store": "workspace:*",
+    "@metaworkflow/workflow-scheduler": "workspace:*"
+  }
+}

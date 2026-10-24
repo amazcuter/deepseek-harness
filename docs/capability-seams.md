@@ -293,6 +293,9 @@ flowchart LR
   svc_mwfPythonRunner["ctx.mwfPythonRunner<br/>Workflow Python node execution"]
   pkg_workflow_python_executor["workflow-python-executor"]
   svc_mwfPythonExecutor["ctx.mwfPythonExecutor<br/>Workflow python node execution adapter"]
+  pkg_workflow_agent_executor["workflow-agent-executor"]
+  svc_mwfAgentExecutor["ctx.mwfAgentExecutor<br/>Workflow agent node execution adapter"]
+  svc_mwfNodeSessions["ctx.mwfNodeSessions<br/>Workflow node session registry"]
   svc_mwfScheduler["ctx.mwfScheduler<br/>Workflow run scheduling"]
   pkg_webhook["webhook"]
   svc_webhookRuntime["ctx.webhookRuntime<br/>Webhook rule runtime"]
@@ -457,6 +460,8 @@ flowchart LR
   pkg_web_search_perplexity --> svc_web
   pkg_webhook --> svc_webhookRuntime
   pkg_workflow --> svc_workflowEngine
+  pkg_workflow_agent_executor --> svc_mwfAgentExecutor
+  pkg_workflow_agent_executor --> svc_mwfNodeSessions
   pkg_workflow_project_store --> svc_mwfProjectStore
   pkg_workflow_ptc --> svc_workflowEngine
   pkg_workflow_python_executor --> svc_mwfPythonExecutor
@@ -514,6 +519,8 @@ flowchart LR
   svc_llm --> pkg_compaction_basic
   svc_lsp --> pkg_tool_lsp
   svc_mcpResources --> pkg_mcp_resources
+  svc_mwfAgentExecutor --> pkg_workflow_scheduler
+  svc_mwfNodeSessions --> pkg_workflow_agent_executor
   svc_mwfProjectStore --> pkg_workflow_scheduler
   svc_mwfPythonExecutor --> pkg_workflow_scheduler
   svc_mwfPythonRunner --> pkg_workflow_python_executor
@@ -727,6 +734,8 @@ flowchart LR
 | `ctx.mwfProjectStore` | `service` | [`workflow-project-store`](../packages/workflow/project-store) | - | [`workflow-scheduler`](../packages/workflow/scheduler) | - | Owns the global project registry and one database per project; the scheduler commits runs, activations, attempts, artifacts, and outbox rows through that connection, and the GUI stages read them there. |
 | `ctx.mwfPythonRunner` | `service` | [`workflow-python-runner`](../packages/workflow/python-runner) | - | [`workflow-python-executor`](../packages/workflow/python-executor) | - | Owns interpreter resolution, the project .venv, and one isolated node run; the python executor is its one consumer, so a node never resolves an interpreter or writes a project environment itself. |
 | `ctx.mwfPythonExecutor` | `service` | [`workflow-python-executor`](../packages/workflow/python-executor) | - | [`workflow-scheduler`](../packages/workflow/scheduler) | - | Registers the python node kind with the scheduler and runs one activation per call through the python runner inside the project working directory; it keeps no scheduling state and takes the node source from the stored definition revision. |
+| `ctx.mwfAgentExecutor` | `service` | [`workflow-agent-executor`](../packages/workflow/agent-executor) | - | [`workflow-scheduler`](../packages/workflow/scheduler) | - | Registers the agent node kind with the scheduler and runs one activation per call as a child Agent composed from the stored node: its instructions, its tool allow list, its memory policy, and the completion tool that reports the result. |
+| `ctx.mwfNodeSessions` | `service` | [`workflow-agent-executor`](../packages/workflow/agent-executor) | - | [`workflow-agent-executor`](../packages/workflow/agent-executor) | - | Maps each child Agent session of a running workflow attempt to its project, run, attempt, node, and revision, so the completion tool and a caller inspecting a live Agent agree on whose work it is. |
 | `ctx.mwfScheduler` | `service` | [`workflow-scheduler`](../packages/workflow/scheduler) | - | - | - | Owns readiness, concurrency slots, attempt retries, loop iterations, and the one-batch commit of a node outcome; node kinds attach through executor registration, so the package has no executor of its own. |
 | `ctx.webhookRuntime` | `core` | [`webhook`](../packages/experimental/webhook) | - | [`webhook-github`](../packages/experimental/webhook-github) | - | Provider adapters dispatch authenticated deliveries; trusted plugins register independent process-local rules, and the runtime turns non-null results into ordinary Workspace-backed Sessions without delivery or completion state. |
 | `ctx.lsp` | `seam` | [`lsp`](../packages/lsp/lsp) | [`lsp-stdio`](../packages/lsp/lsp-stdio) | [`tool-lsp`](../packages/lsp/tool-lsp) | - | Provider registration and selection plus normalized query execution over exactly four operations; the seam offers no protocol escape hatch, so a backend translates into the normalized request and result. |

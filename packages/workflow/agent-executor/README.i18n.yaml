@@ -1,0 +1,85 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/workflow/agent-executor/README.md
+/:
+  en: 51bc8586fd875f32
+  zh: 4a14ec437046c461
+/metaworkflow-workflow-agent-executor:
+  en: 1343d7268f91e13c
+  zh: 6542c57cd23a50d0
+/metaworkflow-workflow-agent-executor/summary:
+  en: d22819bf7e98ec1c
+  zh: 28bd27ca624edb81
+/metaworkflow-workflow-agent-executor/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: bda879a892f240f0
+/metaworkflow-workflow-agent-executor/use-this-package:
+  en: 358701838857fbde
+  zh: acc86aa34acf9848
+/metaworkflow-workflow-agent-executor/use-this-package/when-to-choose-it:
+  en: 13f4f116b24352df
+  zh: 53151f75fd905597
+/metaworkflow-workflow-agent-executor/use-this-package/minimal-configuration:
+  en: f2a25df1eed1d5a5
+  zh: 14ecfc190605c20a
+/metaworkflow-workflow-agent-executor/use-this-package/service-api:
+  en: 358a4cd0d912b0d5
+  zh: 17875fc098031be1
+/metaworkflow-workflow-agent-executor/use-this-package/what-one-execution-reports:
+  en: 1001624888ee4411
+  zh: 6971cc6096a7e6c8
+/metaworkflow-workflow-agent-executor/understand-the-implementation:
+  en: d05fe3869cf06aeb
+  zh: 5a0f0af732b31256
+/metaworkflow-workflow-agent-executor/further-exploration:
+  en: 44eba40e9717a175
+  zh: a1a8fd78827f73c7
+/metaworkflow-workflow-agent-executor/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/metaworkflow-workflow-agent-executor/model-experience/node-instruction-section:
+  en: 84fde1aadb647134
+  zh: 849d6d2afdebb8d4
+/metaworkflow-workflow-agent-executor/model-experience/node-instruction-section/what-the-model-sees:
+  en: aef61107f0050042
+  zh: 644d3ca0becf090d
+/metaworkflow-workflow-agent-executor/model-experience/node-instruction-section/token-effect:
+  en: 9f91d6a8547cc17a
+  zh: 46fd249c8eb69d43
+/metaworkflow-workflow-agent-executor/model-experience/node-instruction-section/kv-cache-effect:
+  en: 1e8f44a15d2f7165
+  zh: 62f658c42658d7be
+/metaworkflow-workflow-agent-executor/model-experience/completion-tool:
+  en: 456bc8656ff92d65
+  zh: f07360d99ca28251
+/metaworkflow-workflow-agent-executor/model-experience/completion-tool/what-the-model-sees:
+  en: dd73971057fd3bf4
+  zh: 894cc0d4d753f8a8
+/metaworkflow-workflow-agent-executor/model-experience/completion-tool/what-the-model-sees/completion-instruction:
+  en: 793195bed28163c6
+  zh: df8d0d1719297d3e
+/metaworkflow-workflow-agent-executor/model-experience/completion-tool/token-effect:
+  en: 18147827ab762cce
+  zh: 13638713127a7886
+/metaworkflow-workflow-agent-executor/model-experience/completion-tool/kv-cache-effect:
+  en: 224ba94f3a366747
+  zh: b5a6fb9f067144fc
+/metaworkflow-workflow-agent-executor/model-experience/task-message:
+  en: 9689f6fec765efbb
+  zh: 2a45d4a4103f548c
+/metaworkflow-workflow-agent-executor/model-experience/task-message/what-the-model-sees:
+  en: b80c93d6388b9324
+  zh: 8505868df0224263
+/metaworkflow-workflow-agent-executor/model-experience/task-message/token-effect:
+  en: ba59bb570ec7260f
+  zh: fbebad205b2fdb1f
+/metaworkflow-workflow-agent-executor/model-experience/task-message/kv-cache-effect:
+  en: b5a8a9b38d1b96de
+  zh: 95e5938de5c5ba4d
+/metaworkflow-workflow-agent-executor/known-limitations-and-deferred-work:
+  en: 180edfdcaa17c854
+  zh: 48fb47b0a1c3d576
+/metaworkflow-workflow-agent-executor/known-limitations-and-deferred-work/dev-note:
+  en: 6661f34b8f6a6cdf
+  zh: f9f10a80cd062e23

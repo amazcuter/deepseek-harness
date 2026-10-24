@@ -110,6 +110,15 @@
     - id: workflow-python-executor
       name: '@metaworkflow/workflow-python-executor'
 
+    # Workflow agents: the `agent` node kind. One activation becomes one
+    # constrained DSH child Agent with the node's instructions, tool allow list,
+    # memory policy, and the completion tool that reports its result. It injects
+    # the scheduler and store above plus the Agent registry, the Session backend,
+    # the prompt and tool registries, and the default model, so it activates only
+    # when every service its children need already exists.
+    - id: workflow-agent-executor
+      name: '@metaworkflow/workflow-agent-executor'
+
     # Workspace registry: registered projects as Session groups (ordered
     # accounts, display order, first-use identity, archive and pin sets).
     - id: workspace

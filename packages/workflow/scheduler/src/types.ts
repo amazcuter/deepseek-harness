@@ -47,6 +47,8 @@ export interface NodeActivation {
   readonly iteration: number
   /** 1-based attempt number of this execution. */
   readonly attemptNo: number
+  /** Recorded attempt row this execution runs under; an executor keys idempotent work on it. */
+  readonly attemptId: AttemptId
   /** Run-scoped parameters supplied when the run started. */
   readonly params: RunParams
 }

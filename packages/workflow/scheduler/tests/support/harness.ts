@@ -87,6 +87,38 @@ export function pythonNode(
 }
 
 /**
+ * One agent node whose configuration the validator accepts; the fake executor
+ * never runs a model.
+ * @param id - node id.
+ * @param extra - optional inputs and join policy.
+ * @returns the node.
+ */
+export function agentNode(
+  id: string,
+  extra: { readonly inputs?: readonly InputBinding[]; readonly join?: 'all' | 'first-success' } = {},
+): WorkflowNode {
+  return {
+    id,
+    kind: 'agent',
+    title: id,
+    config: {
+      kind: 'agent',
+      outputSchema: {
+        type: 'object',
+        properties: { answer: { type: 'string' } },
+        required: ['answer'],
+        additionalProperties: false,
+      },
+      instructions: `Answer node ${id}.`,
+      tools: [],
+      memory: 'fresh',
+    },
+    inputs: extra.inputs ?? [],
+    join: extra.join ?? 'all',
+  }
+}
+
+/**
  * One forward edge.
  * @param from - source node id.
  * @param to - target node id.

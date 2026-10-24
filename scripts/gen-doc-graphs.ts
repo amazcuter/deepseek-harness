@@ -905,6 +905,22 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Registers the python node kind with the scheduler and runs one activation per call through the python runner inside the project working directory; it keeps no scheduling state and takes the node source from the stored definition revision.',
   },
   {
+    key: 'mwfAgentExecutor',
+    pkg: 'workflow-agent-executor',
+    title: 'Workflow agent node execution adapter',
+    mode: 'service',
+    consumers: ['workflow-scheduler'],
+    note: 'Registers the agent node kind with the scheduler and runs one activation per call as a child Agent composed from the stored node: its instructions, its tool allow list, its memory policy, and the completion tool that reports the result.',
+  },
+  {
+    key: 'mwfNodeSessions',
+    pkg: 'workflow-agent-executor',
+    title: 'Workflow node session registry',
+    mode: 'service',
+    consumers: ['workflow-agent-executor'],
+    note: 'Maps each child Agent session of a running workflow attempt to its project, run, attempt, node, and revision, so the completion tool and a caller inspecting a live Agent agree on whose work it is.',
+  },
+  {
     key: 'mwfScheduler',
     pkg: 'workflow-scheduler',
     title: 'Workflow run scheduling',

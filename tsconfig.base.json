@@ -374,6 +374,7 @@
       "@metaworkflow/workflow-scheduler": ["./packages/workflow/scheduler/src"],
       "@metaworkflow/workflow-python-runner": ["./packages/workflow/python-runner/src"],
       "@metaworkflow/workflow-python-executor": ["./packages/workflow/python-executor/src"],
+      "@metaworkflow/workflow-agent-executor": ["./packages/workflow/agent-executor/src"],
       // BEGIN generated package aliases — pnpm run gen-tsconfig-paths
       "@metaworkflow/acp": ["./packages/acp/acp/src"],
       "@metaworkflow/acp-app": ["./packages/bundle/acp-app/src"],

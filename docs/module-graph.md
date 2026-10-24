@@ -450,6 +450,7 @@ flowchart TD
   subgraph group_workflow["packages/workflow"]
     pkg_tool_workflow["tool-workflow"]
     pkg_workflow["workflow"]
+    pkg_workflow_agent_executor["workflow-agent-executor"]
     pkg_workflow_definition["workflow-definition"]
     pkg_workflow_project_store["workflow-project-store"]
     pkg_workflow_ptc["workflow-ptc"]
@@ -1166,6 +1167,19 @@ flowchart TD
   pkg_agent_loop_testkit --> pkg_system_prompt
   pkg_agent_loop_testkit --> pkg_tools
   pkg_agent_loop_testkit --> pkg_working_directory
+  pkg_workflow_agent_executor --> pkg_agent
+  pkg_workflow_agent_executor --> pkg_agent_default_model
+  pkg_workflow_agent_executor --> pkg_brand
+  pkg_workflow_agent_executor --> pkg_llm
+  pkg_workflow_agent_executor --> pkg_session
+  pkg_workflow_agent_executor --> pkg_session_persistence
+  pkg_workflow_agent_executor --> pkg_system_prompt
+  pkg_workflow_agent_executor --> pkg_tools
+  pkg_workflow_agent_executor --> pkg_util_values
+  pkg_workflow_agent_executor --> pkg_workflow_definition
+  pkg_workflow_agent_executor --> pkg_workflow_project_store
+  pkg_workflow_agent_executor --> pkg_workflow_scheduler
+  pkg_workflow_python_executor --> pkg_brand
   pkg_workflow_python_executor --> pkg_util_values
   pkg_workflow_python_executor --> pkg_workflow_definition
   pkg_workflow_python_executor --> pkg_workflow_project_store
@@ -1763,7 +1777,8 @@ flowchart TD
 | [`sandbox-ssh`](../packages/ssh/sandbox-ssh) | `ssh` | [`sandbox`](../packages/sandbox/sandbox), [`ssh`](../packages/ssh/ssh) |
 | [`subprocess-ssh`](../packages/ssh/subprocess-ssh) | `ssh` | [`ssh`](../packages/ssh/ssh), [`subprocess`](../packages/subprocess/subprocess), [`subprocess-local`](../packages/subprocess/subprocess-local) |
 | [`agent-loop-testkit`](../packages/test-support/agent-loop-testkit) | `test-support` | [`agent`](../packages/core/agent), [`agent-loop`](../packages/core/agent-loop), [`fs-local`](../packages/fs/fs-local), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-projection`](../packages/session/session-projection), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`working-directory`](../packages/session/working-directory) |
-| [`workflow-python-executor`](../packages/workflow/python-executor) | `workflow` | [`util-values`](../packages/util/values), [`workflow-definition`](../packages/workflow/definition), [`workflow-project-store`](../packages/workflow/project-store), [`workflow-python-runner`](../packages/workflow/python-runner), [`workflow-scheduler`](../packages/workflow/scheduler) |
+| [`workflow-agent-executor`](../packages/workflow/agent-executor) | `workflow` | [`agent`](../packages/core/agent), [`agent-default-model`](../packages/core/agent-default-model), [`brand`](../packages/util/brand), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`util-values`](../packages/util/values), [`workflow-definition`](../packages/workflow/definition), [`workflow-project-store`](../packages/workflow/project-store), [`workflow-scheduler`](../packages/workflow/scheduler) |
+| [`workflow-python-executor`](../packages/workflow/python-executor) | `workflow` | [`brand`](../packages/util/brand), [`util-values`](../packages/util/values), [`workflow-definition`](../packages/workflow/definition), [`workflow-project-store`](../packages/workflow/project-store), [`workflow-python-runner`](../packages/workflow/python-runner), [`workflow-scheduler`](../packages/workflow/scheduler) |
 | [`subagent`](../packages/subagent/subagent) | `subagent` | [`agent`](../packages/core/agent), [`agent-preset-registry`](../packages/preset/agent-preset-registry), [`attachment`](../packages/attachment/attachment), [`llm`](../packages/llm/llm), [`permission-presets`](../packages/interaction/permission-presets), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`session-projection`](../packages/session/session-projection), [`session-query`](../packages/session-query/session-query), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`typert-protocol`](../packages/typert/protocol), [`user-approval`](../packages/interaction/user-approval), [`util-time`](../packages/util/time), [`working-directory`](../packages/session/working-directory), [`workspace`](../packages/workspace/workspace) |
 | [`spill-policy`](../packages/spill/spill-policy) | `spill` | [`attachment`](../packages/attachment/attachment), [`fs`](../packages/fs/fs), [`llm`](../packages/llm/llm), [`output-retention`](../packages/util/output-retention), [`session`](../packages/core/session), [`spill`](../packages/spill/spill), [`token-meter`](../packages/llm/token-meter), [`tools`](../packages/core/tools) |
 | [`session-query-sqlite`](../packages/session-query/session-query-sqlite) | `session-query` | [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`session-query`](../packages/session-query/session-query) |

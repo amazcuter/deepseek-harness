@@ -135,6 +135,70 @@ interface WorkflowRun {
 
 Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
 
+<a id="ctxmwfagentexecutor--agentexecutor"></a>
+
+### `ctx.mwfAgentExecutor` — `AgentExecutor`
+
+Runs workflow agent nodes for the scheduler.
+
+One instance owns one executor registration for the `agent` kind, which is an effect: disposing the plugin unregisters it, so a replaced plugin never leaves a duplicate executor behind. It also owns `ctx.mwfNodeSessions`, the live session-to-attempt registry, in the same scope.
+
+```ts cordis-catalog
+/**
+ * Run one activation's agent node.
+ *
+ * The stored definition revision is authoritative: the executor builds the
+ * child Agent from that revision's node configuration, never from the
+ * scheduler-supplied copy, so a run executes the composition the project
+ * stored.
+ * @param activation - the node, its iteration and attempt number, and the run's parameters.
+ * @param inputs - the assembled input values, keyed by binding name.
+ * @param signal - aborted when the run is paused or canceled.
+ * @returns the completed value, or a structured failure.
+ * @throws the abort reason when `signal` aborted, because that outcome is not a node failure.
+ */
+async execute(activation: NodeActivation, inputs: NodeInputs, signal: AbortSignal): Promise<NodeResult>
+```
+
+Source: [`packages/workflow/agent-executor/src/index.ts`](../../packages/workflow/agent-executor/src/index.ts)
+
+<a id="ctxmwfnodesessions--nodesessionregistry"></a>
+
+### `ctx.mwfNodeSessions` — `NodeSessionRegistry`
+
+One record per live child Agent of the workflow agent executor.
+
+```ts cordis-catalog
+/**
+ * Record the attempt one session runs for.
+ *
+ * A retained node resumes the same session for a later attempt, so binding an
+ * existing session replaces its record: the newest attempt is the one that
+ * drives it now.
+ * @param record - the session and the attempt running it.
+ * @returns nothing.
+ */
+bind(record: NodeSessionRecord): void
+
+/**
+ * The record of one session.
+ * @param sessionId - child Agent's session identity.
+ * @returns the attempt the session serves, or `undefined` when no attempt owns it.
+ */
+lookup(sessionId: SessionId): NodeSessionRecord | undefined
+
+/**
+ * Drop the record of one settled attempt.
+ * @param sessionId - child Agent's session identity.
+ * @returns nothing; an absent record is not an error.
+ */
+forget(sessionId: SessionId): void
+```
+
+Types: [SessionId](core.zh.md)
+
+Source: [`packages/workflow/agent-executor/src/node-sessions.ts`](../../packages/workflow/agent-executor/src/node-sessions.ts)
+
 <a id="ctxmwfprojectstore--workflowprojectstore"></a>
 
 ### `ctx.mwfProjectStore` — `WorkflowProjectStore`

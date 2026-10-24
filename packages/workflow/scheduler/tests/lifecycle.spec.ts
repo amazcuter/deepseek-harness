@@ -6,7 +6,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { WorkflowSchedulerError } from '../src/index.ts'
 import type { TickResult } from '../src/index.ts'
-import { FakeExecutor, deferred, define, definition, edge, harness, pythonNode, startRun } from './support/harness.ts'
+import { FakeExecutor, agentNode, deferred, define, definition, edge, harness, pythonNode, startRun } from './support/harness.ts'
 import type { Harness } from './support/harness.ts'
 
 const harnesses: Harness[] = []
@@ -91,6 +91,20 @@ describe('createRun', () => {
 })
 
 describe('tick', () => {
+  it('dispatches an agent node with the attempt identity its executor keys on', async () => {
+    const h = await mounted()
+    const revision = await define(h, definition([agentNode('ask')], []))
+    const agent = new FakeExecutor('agent', () => ({ status: 'succeeded', value: { answer: 'ok' } }))
+    h.scheduler.registerExecutor(agent)
+    const runId = await startRun(h, revision)
+
+    await expect(h.scheduler.tick({ projectId: h.projectId, runId })).resolves.toMatchObject({ status: 'succeeded' })
+    const attempts = await h.scheduler.listAttempts({ projectId: h.projectId, runId })
+    expect(agent.calls.map(call => call.activation)).toMatchObject([
+      { projectId: h.projectId, definitionRevision: revision, attemptNo: 1, attemptId: attempts[0]?.attemptId },
+    ])
+  })
+
   it('executes a linear graph node by node and settles it', async () => {
     const h = await mounted()
     const revision = await define(h, definition(

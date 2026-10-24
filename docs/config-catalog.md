@@ -4545,6 +4545,27 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@metaworkflow/webhook-github -->
 
+<!-- BEGIN GENERATED config-catalog:@metaworkflow/workflow-agent-executor -->
+<a id="metaworkflowworkflow-agent-executor"></a>
+
+## `@metaworkflow/workflow-agent-executor`
+
+- `inject`: `mwfScheduler` · `mwfProjectStore` · `agents` · `sessionPersistence` · `systemPrompt` · `tools` · `agentDefaultModel`
+- `source`: [`packages/workflow/agent-executor/src/types.ts:15`](../packages/workflow/agent-executor/src/types.ts)
+
+```ts config-catalog
+/** Plugin configuration. */
+export interface Config {
+  /**
+   * Wall-clock deadline of one node turn, in milliseconds. Omitted uses the
+   * executor's default of ten minutes; an exceeded deadline cancels the child
+   * Agent's turn and reports a retryable `agent/timeout` failure.
+   */
+  readonly turnTimeoutMs?: number
+}
+```
+<!-- END GENERATED config-catalog:@metaworkflow/workflow-agent-executor -->
+
 <!-- BEGIN GENERATED config-catalog:@metaworkflow/workflow-project-store -->
 <a id="metaworkflowworkflow-project-store"></a>
 

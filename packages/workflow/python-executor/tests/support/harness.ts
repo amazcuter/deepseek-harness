@@ -17,7 +17,8 @@ import { Context, Service } from '@deepseek-ai/cordis'
 import { serializeDefinition } from '@metaworkflow/workflow-definition'
 import type { InputBinding, Predicate, WorkflowDefinition, WorkflowEdge, WorkflowNode } from '@metaworkflow/workflow-definition'
 import ProjectStore from '@metaworkflow/workflow-project-store'
-import type { ProjectId, ProjectRecord, RunId } from '@metaworkflow/workflow-project-store'
+import { brandString } from '@metaworkflow/brand'
+import type { AttemptId, ProjectId, ProjectRecord, RunId } from '@metaworkflow/workflow-project-store'
 import PythonRunner from '@metaworkflow/workflow-python-runner'
 import type { RunNodeRequest, RunNodeResult } from '@metaworkflow/workflow-python-runner'
 import { interpreterCandidates } from '@metaworkflow/workflow-python-runner/src/interpreter.ts'
@@ -301,6 +302,8 @@ export async function activationFor(
     definitionRevision: run.definitionRevision,
     iteration: activation.iteration,
     attemptNo: 1,
+    // The scheduler assigns a real attempt id; a hand-built activation only names the attempt it reports.
+    attemptId: brandString<AttemptId>(`attempt-${node.id}-1`),
     params,
   }
 }

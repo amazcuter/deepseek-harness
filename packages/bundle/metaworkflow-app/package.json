@@ -186,6 +186,7 @@
     "@metaworkflow/tool-web": "workspace:*",
     "@metaworkflow/tool-workflow": "workspace:*",
     "@metaworkflow/web-frontend": "workspace:*",
+    "@metaworkflow/workflow-agent-executor": "workspace:*",
     "@metaworkflow/workflow-project-store": "workspace:*",
     "@metaworkflow/workflow-python-executor": "workspace:*",
     "@metaworkflow/workflow-python-runner": "workspace:*",

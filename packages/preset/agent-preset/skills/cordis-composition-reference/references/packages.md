@@ -507,6 +507,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | Package | Config | Description |
 |---|---|---|
 | `@metaworkflow/tool-workflow` | yes | Model-facing workflow tool: run a JavaScript orchestration script over ctx.workflowEngine |
+| `@metaworkflow/workflow-agent-executor` | yes | Host-side agent node executor for the workflow scheduler (ctx.mwfAgentExecutor): registers the `agent` node kind, runs one constrained DSH child Agent per activation, and commits the structured result the node's completion tool accepted |
 | `@metaworkflow/workflow-project-store` | yes | Workflow project persistence (ctx.mwfProjectStore): the global project registry and one SQLite database per project for definitions, runs, activations, attempts, artifacts, decisions, and the session outbox |
 | `@metaworkflow/workflow-ptc` | yes | Workflow orchestration in the shared sandboxed Node PTC runtime |
 | `@metaworkflow/workflow-python-executor` | yes | Host-side python node executor for the workflow scheduler (ctx.mwfPythonExecutor): registers the `python` node kind, reads each run's stored definition revision, runs the node through ctx.mwfPythonRunner in the project working directory, and reports one structured outcome |

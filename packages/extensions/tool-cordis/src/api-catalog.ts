@@ -1585,6 +1585,50 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'mwfAgentExecutor',
+    summary: 'Runs workflow agent nodes for the scheduler.',
+    description: 'Runs workflow agent nodes for the scheduler.\n\nOne instance owns one executor registration for the `agent` kind, which is an effect: disposing the plugin unregisters it, so a replaced plugin never leaves a duplicate executor behind. It also owns `ctx.mwfNodeSessions`, the live session-to-attempt registry, in the same scope.',
+    methods: [
+      {
+        signature: 'readonly nodeSessions: NodeSessionRegistry',
+        description: 'The live child-Agent registry this executor owns.',
+        parameters: [],
+      },
+      {
+        signature: 'async execute(activation: NodeActivation, inputs: NodeInputs, signal: AbortSignal): Promise<NodeResult>',
+        description: 'Run one activation\'s agent node.\n\nThe stored definition revision is authoritative: the executor builds the child Agent from that revision\'s node configuration, never from the scheduler-supplied copy, so a run executes the composition the project stored.',
+        parameters: [{ name: 'activation', description: 'the node, its iteration and attempt number, and the run\'s parameters.' }, { name: 'inputs', description: 'the assembled input values, keyed by binding name.' }, { name: 'signal', description: 'aborted when the run is paused or canceled.' }],
+        returns: 'the completed value, or a structured failure.',
+        throws: ['the abort reason when `signal` aborted, because that outcome is not a node failure.'],
+      },
+    ],
+  },
+  {
+    key: 'mwfNodeSessions',
+    summary: 'One record per live child Agent of the workflow agent executor.',
+    description: 'One record per live child Agent of the workflow agent executor.',
+    methods: [
+      {
+        signature: 'bind(record: NodeSessionRecord): void',
+        description: 'Record the attempt one session runs for.\n\nA retained node resumes the same session for a later attempt, so binding an existing session replaces its record: the newest attempt is the one that drives it now.',
+        parameters: [{ name: 'record', description: 'the session and the attempt running it.' }],
+        returns: 'nothing.',
+      },
+      {
+        signature: 'lookup(sessionId: SessionId): NodeSessionRecord | undefined',
+        description: 'The record of one session.',
+        parameters: [{ name: 'sessionId', description: 'child Agent\'s session identity.' }],
+        returns: 'the attempt the session serves, or `undefined` when no attempt owns it.',
+      },
+      {
+        signature: 'forget(sessionId: SessionId): void',
+        description: 'Drop the record of one settled attempt.',
+        parameters: [{ name: 'sessionId', description: 'child Agent\'s session identity.' }],
+        returns: 'nothing; an absent record is not an error.',
+      },
+    ],
+  },
+  {
     key: 'mwfProjectStore',
     summary: 'The workflow project store service.',
     description: 'The workflow project store service.\n\nThe registry database opens on first use and every project database opens when its project is first touched; each connection stays open until the service is disposed or its project is removed from the registry. Writes are serialized per database, so concurrent callers never rely on `busy_timeout` to order them.',
@@ -6651,7 +6695,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'NodeActivation',
-    declaration: 'export interface NodeActivation {\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly node: WorkflowNode;\n    readonly projectId: ProjectId;\n    readonly definitionRevision: number;\n    readonly iteration: number;\n    readonly attemptNo: number;\n    readonly params: RunParams;\n}',
+    declaration: 'export interface NodeActivation {\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly node: WorkflowNode;\n    readonly projectId: ProjectId;\n    readonly definitionRevision: number;\n    readonly iteration: number;\n    readonly attemptNo: number;\n    readonly attemptId: AttemptId;\n    readonly params: RunParams;\n}',
   },
   {
     name: 'NodeArtifact',
@@ -6680,6 +6724,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'NodeRunFailure',
     declaration: 'export interface NodeRunFailure {\n    readonly code: PythonRunnerErrorCode;\n    readonly message: string;\n}',
+  },
+  {
+    name: 'NodeSessionRecord',
+    declaration: 'export interface NodeSessionRecord {\n    readonly sessionId: SessionId;\n    readonly projectId: ProjectId;\n    readonly runId: RunId;\n    readonly attemptId: AttemptId;\n    readonly nodeId: string;\n    readonly revision: number;\n}',
+  },
+  {
+    name: 'NodeSessionRegistry',
+    declaration: 'export class NodeSessionRegistry extends Service {\n    constructor(ctx: Context);\n    bind(record: NodeSessionRecord): void;\n    lookup(sessionId: SessionId): NodeSessionRecord | undefined;\n    forget(sessionId: SessionId): void;\n}',
   },
   {
     name: 'NotFutureError',

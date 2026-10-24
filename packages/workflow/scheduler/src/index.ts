@@ -819,7 +819,7 @@ export default class WorkflowScheduler extends Service {
           diagnostics,
         })
       }
-      const result = await this.execute(executor, context, inputs.inputs, attemptNo)
+      const result = await this.execute(executor, context, inputs.inputs, attemptNo, attemptId)
       if (result.status === 'failed' && result.retryable && attemptNo < this.settings.maxAttempts) {
         await this.recordRetryableFailure(projectId, attemptId, result.error)
         attemptNo += 1
@@ -878,6 +878,7 @@ export default class WorkflowScheduler extends Service {
     context: ActivationContext,
     inputs: NodeInputs,
     attemptNo: number,
+    attemptId: AttemptId,
   ): Promise<NodeResult> {
     const controller = new AbortController()
     this.controllers(context.runId).add(controller)
@@ -890,6 +891,7 @@ export default class WorkflowScheduler extends Service {
         definitionRevision: context.runRevision,
         iteration: context.activation.iteration,
         attemptNo,
+        attemptId,
         params: context.params,
       }, inputs, controller.signal)
     } catch (error: unknown) {
