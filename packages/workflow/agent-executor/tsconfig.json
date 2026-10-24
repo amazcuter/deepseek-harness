@@ -39,6 +39,9 @@
       "path": "../../util/values"
     },
     {
+      "path": "../coordinator"
+    },
+    {
       "path": "../definition"
     },
     {
@@ -49,6 +52,9 @@
     },
     {
       "path": "../tool-complete-node"
+    },
+    {
+      "path": "../tool-request-decision"
     }
   ]
 }

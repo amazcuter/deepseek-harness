@@ -110,12 +110,23 @@
     - id: workflow-python-executor
       name: '@metaworkflow/workflow-python-executor'
 
+    # Workflow coordination: one persistent project Session that plans the
+    # project's workflow, answers the decisions its nodes ask, and reports the
+    # project's state. It injects the store and scheduler above plus the Agent
+    # registry, the Session backend, the prompt and tool registries, and the
+    # default model, so it activates only when every service its Session needs
+    # already exists. Nodes parent their conversations on it, so it loads before
+    # the executor that reads it.
+    - id: workflow-coordinator
+      name: '@metaworkflow/workflow-coordinator'
+
     # Workflow agents: the `agent` node kind. One activation becomes one
     # constrained DSH child Agent with the node's instructions, tool allow list,
-    # memory policy, and the completion tool that reports its result. It injects
-    # the scheduler and store above plus the Agent registry, the Session backend,
-    # the prompt and tool registries, and the default model, so it activates only
-    # when every service its children need already exists.
+    # memory policy, the completion tool that reports its result, and the
+    # decision tool that asks the project coordinator. It injects the scheduler
+    # and store above plus the Agent registry, the Session backend, the prompt
+    # and tool registries, and the default model, so it activates only when every
+    # service its children need already exists.
     - id: workflow-agent-executor
       name: '@metaworkflow/workflow-agent-executor'
 

@@ -451,9 +451,11 @@ flowchart TD
   end
   subgraph group_workflow["packages/workflow"]
     pkg_tool_complete_node["tool-complete-node"]
+    pkg_tool_request_decision["tool-request-decision"]
     pkg_tool_workflow["tool-workflow"]
     pkg_workflow["workflow"]
     pkg_workflow_agent_executor["workflow-agent-executor"]
+    pkg_workflow_coordinator["workflow-coordinator"]
     pkg_workflow_definition["workflow-definition"]
     pkg_workflow_project_store["workflow-project-store"]
     pkg_workflow_ptc["workflow-ptc"]
@@ -494,6 +496,7 @@ flowchart TD
   pkg_remote_mock --> pkg_typert_protocol
   pkg_typert_loader --> pkg_typert_registry
   pkg_workflow_project_store --> pkg_home_paths
+  pkg_workflow_project_store --> pkg_util_values
   pkg_skill_office --> pkg_skill
   pkg_web_fetch_http --> pkg_http_proxy
   pkg_web_fetch_http --> pkg_timeout
@@ -1060,6 +1063,8 @@ flowchart TD
   pkg_tool_complete_node --> pkg_system_prompt
   pkg_tool_complete_node --> pkg_tools
   pkg_tool_complete_node --> pkg_util_values
+  pkg_tool_request_decision --> pkg_tools
+  pkg_tool_request_decision --> pkg_util_values
   pkg_tool_workflow --> pkg_agent
   pkg_tool_workflow --> pkg_jobs
   pkg_tool_workflow --> pkg_llm
@@ -1067,6 +1072,16 @@ flowchart TD
   pkg_tool_workflow --> pkg_system_prompt
   pkg_tool_workflow --> pkg_tools
   pkg_tool_workflow --> pkg_workflow
+  pkg_workflow_coordinator --> pkg_agent
+  pkg_workflow_coordinator --> pkg_agent_default_model
+  pkg_workflow_coordinator --> pkg_brand
+  pkg_workflow_coordinator --> pkg_session
+  pkg_workflow_coordinator --> pkg_session_persistence
+  pkg_workflow_coordinator --> pkg_system_prompt
+  pkg_workflow_coordinator --> pkg_tools
+  pkg_workflow_coordinator --> pkg_util_values
+  pkg_workflow_coordinator --> pkg_workflow_project_store
+  pkg_workflow_coordinator --> pkg_workflow_scheduler
   pkg_workflow_definition --> pkg_tools
   pkg_workflow_definition --> pkg_util_values
   pkg_plugin_package_inventory_deepseek --> pkg_agent
@@ -1181,8 +1196,10 @@ flowchart TD
   pkg_workflow_agent_executor --> pkg_session_persistence
   pkg_workflow_agent_executor --> pkg_system_prompt
   pkg_workflow_agent_executor --> pkg_tool_complete_node
+  pkg_workflow_agent_executor --> pkg_tool_request_decision
   pkg_workflow_agent_executor --> pkg_tools
   pkg_workflow_agent_executor --> pkg_util_values
+  pkg_workflow_agent_executor --> pkg_workflow_coordinator
   pkg_workflow_agent_executor --> pkg_workflow_definition
   pkg_workflow_agent_executor --> pkg_workflow_project_store
   pkg_workflow_agent_executor --> pkg_workflow_scheduler
@@ -1625,7 +1642,7 @@ flowchart TD
 | [`subprocess`](../packages/subprocess/subprocess) | `subprocess` | [`http-proxy`](../packages/util/http-proxy) |
 | [`remote-mock`](../packages/test-support/remote-mock) | `test-support` | [`typert-protocol`](../packages/typert/protocol) |
 | [`typert-loader`](../packages/typert/loader) | `typert` | [`typert-registry`](../packages/typert/registry) |
-| [`workflow-project-store`](../packages/workflow/project-store) | `workflow` | [`home-paths`](../packages/util/home-paths) |
+| [`workflow-project-store`](../packages/workflow/project-store) | `workflow` | [`home-paths`](../packages/util/home-paths), [`util-values`](../packages/util/values) |
 | [`skill-office`](../packages/skill/skill-office) | `skill` | [`skill`](../packages/skill/skill) |
 | [`web-fetch-http`](../packages/web/web-fetch-http) | `web` | [`http-proxy`](../packages/util/http-proxy), [`timeout`](../packages/util/timeout), [`web`](../packages/web/web) |
 | [`web-search-exa`](../packages/web/web-search-exa) | `web` | [`launch-environment`](../packages/util/launch-environment), [`web`](../packages/web/web) |
@@ -1764,7 +1781,9 @@ flowchart TD
 | [`ssh`](../packages/ssh/ssh) | `ssh` | [`brand`](../packages/util/brand), [`fs`](../packages/fs/fs), [`fs-local`](../packages/fs/fs-local), [`fs-sandbox`](../packages/fs/fs-sandbox), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-local`](../packages/sandbox/sandbox-local), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`session-projection`](../packages/session/session-projection), [`subprocess`](../packages/subprocess/subprocess), [`subprocess-local`](../packages/subprocess/subprocess-local), [`util-values`](../packages/util/values) |
 | [`llm-replay`](../packages/test-support/llm-replay) | `test-support` | [`compaction`](../packages/compaction/compaction), [`deepseek-llm-api-extensions`](../packages/llm/deepseek-llm-api-extensions), [`llm`](../packages/llm/llm), [`session`](../packages/core/session) |
 | [`tool-complete-node`](../packages/workflow/tool-complete-node) | `workflow` | [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`util-values`](../packages/util/values) |
+| [`tool-request-decision`](../packages/workflow/tool-request-decision) | `workflow` | [`tools`](../packages/core/tools), [`util-values`](../packages/util/values) |
 | [`tool-workflow`](../packages/workflow/tool-workflow) | `workflow` | [`agent`](../packages/core/agent), [`jobs`](../packages/jobs/jobs), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`workflow`](../packages/workflow/workflow) |
+| [`workflow-coordinator`](../packages/workflow/coordinator) | `workflow` | [`agent`](../packages/core/agent), [`agent-default-model`](../packages/core/agent-default-model), [`brand`](../packages/util/brand), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`util-values`](../packages/util/values), [`workflow-project-store`](../packages/workflow/project-store), [`workflow-scheduler`](../packages/workflow/scheduler) |
 | [`workflow-definition`](../packages/workflow/definition) | `workflow` | [`tools`](../packages/core/tools), [`util-values`](../packages/util/values) |
 | [`plugin-package-inventory-deepseek`](../packages/llm/plugin-package-inventory-deepseek) | `llm` | [`agent`](../packages/core/agent), [`agent-preset-registry`](../packages/preset/agent-preset-registry), [`deepseek-llm-api-extensions`](../packages/llm/deepseek-llm-api-extensions), [`session`](../packages/core/session) |
 | [`token-meter`](../packages/llm/token-meter) | `llm` | [`compaction`](../packages/compaction/compaction), [`compaction-image-offload`](../packages/compaction/compaction-image-offload), [`llm`](../packages/llm/llm), [`llm-retry`](../packages/llm/llm-retry), [`session`](../packages/core/session), [`session-projection`](../packages/session/session-projection) |
@@ -1785,7 +1804,7 @@ flowchart TD
 | [`sandbox-ssh`](../packages/ssh/sandbox-ssh) | `ssh` | [`sandbox`](../packages/sandbox/sandbox), [`ssh`](../packages/ssh/ssh) |
 | [`subprocess-ssh`](../packages/ssh/subprocess-ssh) | `ssh` | [`ssh`](../packages/ssh/ssh), [`subprocess`](../packages/subprocess/subprocess), [`subprocess-local`](../packages/subprocess/subprocess-local) |
 | [`agent-loop-testkit`](../packages/test-support/agent-loop-testkit) | `test-support` | [`agent`](../packages/core/agent), [`agent-loop`](../packages/core/agent-loop), [`fs-local`](../packages/fs/fs-local), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-projection`](../packages/session/session-projection), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`working-directory`](../packages/session/working-directory) |
-| [`workflow-agent-executor`](../packages/workflow/agent-executor) | `workflow` | [`agent`](../packages/core/agent), [`agent-default-model`](../packages/core/agent-default-model), [`brand`](../packages/util/brand), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`system-prompt`](../packages/core/system-prompt), [`tool-complete-node`](../packages/workflow/tool-complete-node), [`tools`](../packages/core/tools), [`util-values`](../packages/util/values), [`workflow-definition`](../packages/workflow/definition), [`workflow-project-store`](../packages/workflow/project-store), [`workflow-scheduler`](../packages/workflow/scheduler) |
+| [`workflow-agent-executor`](../packages/workflow/agent-executor) | `workflow` | [`agent`](../packages/core/agent), [`agent-default-model`](../packages/core/agent-default-model), [`brand`](../packages/util/brand), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`system-prompt`](../packages/core/system-prompt), [`tool-complete-node`](../packages/workflow/tool-complete-node), [`tool-request-decision`](../packages/workflow/tool-request-decision), [`tools`](../packages/core/tools), [`util-values`](../packages/util/values), [`workflow-coordinator`](../packages/workflow/coordinator), [`workflow-definition`](../packages/workflow/definition), [`workflow-project-store`](../packages/workflow/project-store), [`workflow-scheduler`](../packages/workflow/scheduler) |
 | [`workflow-python-executor`](../packages/workflow/python-executor) | `workflow` | [`brand`](../packages/util/brand), [`util-values`](../packages/util/values), [`workflow-definition`](../packages/workflow/definition), [`workflow-project-store`](../packages/workflow/project-store), [`workflow-python-runner`](../packages/workflow/python-runner), [`workflow-scheduler`](../packages/workflow/scheduler) |
 | [`subagent`](../packages/subagent/subagent) | `subagent` | [`agent`](../packages/core/agent), [`agent-preset-registry`](../packages/preset/agent-preset-registry), [`attachment`](../packages/attachment/attachment), [`llm`](../packages/llm/llm), [`permission-presets`](../packages/interaction/permission-presets), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`session-projection`](../packages/session/session-projection), [`session-query`](../packages/session-query/session-query), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`typert-protocol`](../packages/typert/protocol), [`user-approval`](../packages/interaction/user-approval), [`util-time`](../packages/util/time), [`working-directory`](../packages/session/working-directory), [`workspace`](../packages/workspace/workspace) |
 | [`spill-policy`](../packages/spill/spill-policy) | `spill` | [`attachment`](../packages/attachment/attachment), [`fs`](../packages/fs/fs), [`llm`](../packages/llm/llm), [`output-retention`](../packages/util/output-retention), [`session`](../packages/core/session), [`spill`](../packages/spill/spill), [`token-meter`](../packages/llm/token-meter), [`tools`](../packages/core/tools) |

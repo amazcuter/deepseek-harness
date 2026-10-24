@@ -1604,6 +1604,20 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'mwfCoordinator',
+    summary: 'The workflow coordinator service.',
+    description: 'The workflow coordinator service.\n\nOne instance owns every project\'s coordinator Session: it creates the Session on first use, resumes the recorded one afterwards, and disposes both with the plugin. The durable record that makes the resumption possible lives in each project\'s database.',
+    methods: [
+      {
+        signature: 'async ensureSession(projectId: ProjectId): Promise<SessionId>',
+        description: 'The coordinator Session of one project, created on first use.\n\nA recorded Session is resumed, so the conversation keeps the plan it already made; a project that has none gets a fresh Session recorded before it can answer anything, so the next process resumes the same one.',
+        parameters: [{ name: 'projectId', description: 'project whose coordinator Session is needed.' }],
+        returns: 'the live coordinator Session identity.',
+        throws: ['{@link WorkflowCoordinatorError} `coordinator/session-unavailable` when the project or its Session cannot be opened.'],
+      },
+    ],
+  },
+  {
     key: 'mwfNodeSessions',
     summary: 'One record per live child Agent of the workflow agent executor.',
     description: 'One record per live child Agent of the workflow agent executor.',
@@ -1705,6 +1719,27 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Acknowledge one staged outbox event.',
         parameters: [{ name: 'projectId', description: 'registered project to write.' }, { name: 'attemptId', description: 'attempt the event belongs to.' }, { name: 'eventSeq', description: 'per-attempt event sequence.' }],
         returns: '`true` when this call acknowledged the event, `false` when it was absent or already acknowledged.',
+      },
+      {
+        signature: 'async requestDecision(projectId: ProjectId, request: DecisionRequestInput): Promise<void>',
+        description: 'Record one decision request from a waiting node attempt.\n\nThe request is the durable fact behind a `waiting` activation: it names the attempt that asked and carries the question, so a coordinator answering later never depends on the asking process still running.',
+        parameters: [{ name: 'projectId', description: 'registered project to write.' }, { name: 'request', description: 'the request, its activation, and its attempt.' }],
+        returns: 'nothing; the row is durable when the call resolves.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-project-id` or `project-not-found` for the project, and the database\'s own error when the activation is absent or the request id is already recorded.'],
+      },
+      {
+        signature: 'async listPendingDecisions(projectId: ProjectId): Promise<DecisionRecord[]>',
+        description: 'Every unanswered decision request of one project, oldest first.',
+        parameters: [{ name: 'projectId', description: 'registered project to read.' }],
+        returns: 'the pending requests with the run and node they belong to.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`, or `invalid-record` for a corrupt stored payload.'],
+      },
+      {
+        signature: 'async answerDecision(projectId: ProjectId, requestId: string, response: JsonValue): Promise<DecisionAnswer>',
+        description: 'Record the coordinator\'s answer to one decision request.\n\nThe first answer is authoritative: a repeated answer reports the recorded one instead of replacing it, so a retried tool call cannot redirect work that already resumed.',
+        parameters: [{ name: 'projectId', description: 'registered project to write.' }, { name: 'requestId', description: 'request being answered.' }, { name: 'response', description: 'the answer, as lossless JSON.' }],
+        returns: 'what the call did: this answer, the earlier answer, or that no such request exists.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-project-id`, `project-not-found`, or `invalid-record` for a corrupt stored payload.'],
       },
       {
         signature: 'async transact<T>(projectId: ProjectId, body: (db: DatabaseSync) => T): Promise<T>',
@@ -1832,10 +1867,17 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         throws: ['{@link WorkflowSchedulerError} `scheduler/activation-not-found`, `scheduler/activation-not-retryable` for a pending, running, or succeeded activation, and `scheduler/run-state-invalid` for a canceled run.'],
       },
       {
+        signature: 'async resumeActivation(request: ResumeActivationRequest): Promise<TickResult>',
+        description: 'Wake one waiting activation with the answer it asked for and advance the run.\n\nOnly a waiting activation resumes; every other status is a caller mistake (`scheduler/activation-not-resumable`), because starting, retrying, or re-answering work would run a node whose question is not the one answered. The answer is stored beside the activation\'s rows before the attempt runs, so the resumed execution receives it even after a restart. A paused run is reopened, because an answered decision is what it was waiting for.',
+        parameters: [{ name: 'request', description: 'project, run, waiting activation, and optional answer.' }],
+        returns: 'what the call dispatched, committed, and decided.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/run-state-invalid` for a settled run, `scheduler/activation-not-found`, `scheduler/activation-not-resumable`, and `scheduler/closed` after disposal.'],
+      },
+      {
         signature: 'async reconcile(request: ReconcileRequest): Promise<ReconcileResult>',
-        description: 'Recover one project after a backend restart.\n\nEvery attempt still marked running becomes `interrupted`, its activation returns to `pending`, and every running run is parked in `paused`; a human (or the coordinator) then resumes or retries. The pass repairs no Session tail: resuming a node\'s own conversation is the node executor\'s job.',
+        description: 'Recover one project after a backend restart.\n\nEvery attempt still marked running becomes `interrupted`, its activation returns to `pending`, and every running run is parked in `paused`; a human (or the coordinator) then resumes or retries. Waiting activations keep their state and are reported separately: their nodes are not interrupted, and the answer that wakes them is still theirs to receive. The pass repairs no Session tail: resuming a node\'s own conversation is the node executor\'s job.',
         parameters: [{ name: 'request', description: 'project to reconcile.' }],
-        returns: 'the interrupted attempts and the parked runs.',
+        returns: 'the interrupted attempts, the parked runs, and the waiting activations.',
         throws: ['{@link WorkflowSchedulerError} `scheduler/closed` after disposal.'],
       },
       {
@@ -4926,6 +4968,22 @@ export const EVENT_API: readonly EventApiEntry[] = [
     parameters: [{ name: 'info', description: 'the run\'s identity snapshot.' }, { name: 'agent', description: 'the call\'s sequence number, label, phase, and child id.' }],
   },
   {
+    name: 'workflow/decision-answered',
+    mode: 'emit',
+    signature: '\'workflow/decision-answered\'(info: DecisionAnsweredInfo): void',
+    summary: 'The coordinator answered a node\'s decision request and resumed its activation.',
+    description: 'The coordinator answered a node\'s decision request and resumed its activation. Paired with the executor\'s `workflow/decision-requested`.',
+    parameters: [{ name: 'info', description: 'the answered decision, its answer, and the run it resumed.' }],
+  },
+  {
+    name: 'workflow/decision-requested',
+    mode: 'emit',
+    signature: '\'workflow/decision-requested\'(info: DecisionRequestedInfo): void',
+    summary: 'A workflow node asked its project coordinator for a decision, so its activation is about to suspend.',
+    description: 'A workflow node asked its project coordinator for a decision, so its activation is about to suspend. Paired with the coordinator\'s `workflow/decision-answered` when the question is answered.',
+    parameters: [{ name: 'info', description: 'the asking attempt, its node, and the question.' }],
+  },
+  {
     name: 'workflow/end',
     mode: 'emit',
     signature: '\'workflow/end\'(info: WorkflowRunInfo, result: WorkflowResultInfo): void',
@@ -5692,6 +5750,34 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'DailyScheduleRecord',
     declaration: 'export interface DailyScheduleRecord {\n    readonly id: ScheduleId;\n    readonly kind: \'daily\';\n    readonly title: string;\n    readonly prompt: string;\n    readonly time: string;\n    readonly timeZone: string;\n    readonly scheduledAt: string;\n}',
+  },
+  {
+    name: 'DecisionAnswer',
+    declaration: 'export type DecisionAnswer = {\n    readonly kind: \'answered\';\n    readonly decision: DecisionRecord;\n} | {\n    readonly kind: \'already-answered\';\n    readonly decision: DecisionRecord;\n} | {\n    readonly kind: \'unknown\';\n};',
+  },
+  {
+    name: 'DecisionAnsweredInfo',
+    declaration: 'export interface DecisionAnsweredInfo {\n    readonly projectId: ProjectId;\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly requestId: string;\n    readonly answer: JsonValue;\n    readonly runStatus: string;\n}',
+  },
+  {
+    name: 'DecisionPayload',
+    declaration: 'export interface DecisionPayload {\n    readonly question: string;\n    readonly options?: readonly string[];\n    readonly detail?: JsonValue;\n}',
+  },
+  {
+    name: 'DecisionRecord',
+    declaration: 'export interface DecisionRecord {\n    readonly requestId: string;\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly nodeId: string;\n    readonly attemptId: AttemptId | null;\n    readonly payload: DecisionPayload;\n    readonly response: JsonValue | undefined;\n    readonly createdAt: number;\n    readonly answeredAt: number | null;\n}',
+  },
+  {
+    name: 'DecisionRequest',
+    declaration: 'export interface DecisionRequest {\n    readonly question: string;\n    readonly options?: readonly string[];\n    readonly detail?: JsonValue;\n}',
+  },
+  {
+    name: 'DecisionRequestedInfo',
+    declaration: 'export interface DecisionRequestedInfo {\n    readonly projectId: ProjectId;\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly attemptId: AttemptId;\n    readonly nodeId: string;\n    readonly requestId: string;\n    readonly payload: DecisionRequest;\n}',
+  },
+  {
+    name: 'DecisionRequestInput',
+    declaration: 'export interface DecisionRequestInput {\n    readonly requestId: string;\n    readonly activationId: ActivationId;\n    readonly attemptId: AttemptId;\n    readonly payload: DecisionPayload;\n}',
   },
   {
     name: 'DeepSeekLlmApiExtensionMap',
@@ -6695,7 +6781,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'NodeActivation',
-    declaration: 'export interface NodeActivation {\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly node: WorkflowNode;\n    readonly projectId: ProjectId;\n    readonly definitionRevision: number;\n    readonly iteration: number;\n    readonly attemptNo: number;\n    readonly attemptId: AttemptId;\n    readonly params: RunParams;\n}',
+    declaration: 'export interface NodeActivation {\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly node: WorkflowNode;\n    readonly projectId: ProjectId;\n    readonly definitionRevision: number;\n    readonly iteration: number;\n    readonly attemptNo: number;\n    readonly attemptId: AttemptId;\n    readonly params: RunParams;\n    readonly decision?: JsonValue;\n}',
   },
   {
     name: 'NodeArtifact',
@@ -6719,7 +6805,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'NodeResult',
-    declaration: 'export type NodeResult = {\n    readonly status: \'succeeded\';\n    readonly value: JsonValue;\n    readonly artifacts?: readonly NodeArtifact[];\n} | {\n    readonly status: \'failed\';\n    readonly error: NodeFailure;\n    readonly retryable: boolean;\n} | {\n    readonly status: \'waiting\';\n    readonly reason: string;\n};',
+    declaration: 'export type NodeResult = {\n    readonly status: \'succeeded\';\n    readonly value: JsonValue;\n    readonly artifacts?: readonly NodeArtifact[];\n} | {\n    readonly status: \'failed\';\n    readonly error: NodeFailure;\n    readonly retryable: boolean;\n} | {\n    readonly status: \'waiting\';\n    readonly requestId: string;\n};',
   },
   {
     name: 'NodeRunFailure',
@@ -7159,7 +7245,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ReconcileResult',
-    declaration: 'export interface ReconcileResult {\n    readonly interrupted: readonly InterruptedAttempt[];\n    readonly paused: readonly RunId[];\n}',
+    declaration: 'export interface ReconcileResult {\n    readonly interrupted: readonly InterruptedAttempt[];\n    readonly paused: readonly RunId[];\n    readonly waiting: readonly WaitingActivation[];\n}',
   },
   {
     name: 'RecurringScheduleRecord',
@@ -7332,6 +7418,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'RestoredSessionOptions',
     declaration: 'export interface RestoredSessionOptions {\n    readonly seed: SessionEvent[];\n    readonly meta: SessionHeader;\n    readonly inheritedEventCount: SessionLogOffset;\n    readonly eventState: SessionSeedEventState;\n}',
+  },
+  {
+    name: 'ResumeActivationRequest',
+    declaration: 'export interface ResumeActivationRequest extends ActivationRequest {\n    readonly decision?: JsonValue;\n}',
   },
   {
     name: 'ResumeAgentOptions',
@@ -9112,6 +9202,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'VerifiedWebhookDelivery',
     declaration: 'export interface VerifiedWebhookDelivery<K extends string = string> {\n    readonly kind: K;\n    readonly source: WebhookSourceId;\n    readonly deliveryId: WebhookDeliveryId;\n    readonly event: WebhookEventOf<K>;\n    readonly receivedAt: number;\n}',
+  },
+  {
+    name: 'WaitingActivation',
+    declaration: 'export interface WaitingActivation {\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly attemptId: AttemptId;\n    readonly nodeId: string;\n    readonly iteration: number;\n}',
   },
   {
     name: 'WebBootBatch',

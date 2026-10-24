@@ -9,7 +9,8 @@
  */
 
 import type { SessionId } from '@metaworkflow/session'
-import type { AttemptId, ProjectId, RunId } from '@metaworkflow/workflow-project-store'
+import type { DecisionRequest } from '@metaworkflow/tool-request-decision'
+import type { ActivationId, AttemptId, ProjectId, RunId } from '@metaworkflow/workflow-project-store'
 
 /** Plugin configuration. */
 export interface Config {
@@ -46,6 +47,8 @@ export type AgentExecutorErrorCode =
   | 'agent/session-unavailable'
   /** The child Agent's composition could not be built, for example because a configured tool is unknown. */
   | 'agent/composition-failed'
+  /** The decision request a node asked could not be recorded. */
+  | 'agent/decision-unavailable'
   /** The child Agent's turn was aborted by a cancellation outside this executor. */
   | 'agent/canceled'
   /** The child Agent's turn ended in a failure the loop reported. */
@@ -78,4 +81,25 @@ export interface NodeSessionRecord {
   readonly nodeId: string
   /** Definition revision the attempt executes. */
   readonly revision: number
+}
+
+/**
+ * One decision request a workflow node asked its project coordinator, announced
+ * as a host event so a UI can surface the wait without polling the store.
+ */
+export interface DecisionRequestedInfo {
+  /** Project whose coordinator owns the decision. */
+  readonly projectId: ProjectId
+  /** Run the waiting activation belongs to. */
+  readonly runId: RunId
+  /** Activation that is now waiting. */
+  readonly activationId: ActivationId
+  /** Attempt that asked. */
+  readonly attemptId: AttemptId
+  /** Definition node whose attempt asked. */
+  readonly nodeId: string
+  /** Identity the coordinator answers with. */
+  readonly requestId: string
+  /** The question, its optional answers, and its optional detail. */
+  readonly payload: DecisionRequest
 }

@@ -29,7 +29,7 @@ kind: "package-reference"
 
 ### 何时选用
 
-当一个工作流必须作为一份可恢复的运行跑在存储的图上、而节点究竟做什么由调用方决定时选用它。本阶段不自带 Python 或 Agent 执行器：调度器既不 import `@metaworkflow/workflow-python-runner`，也不 import 任何 Agent 包；某个就绪激活的类型没有执行器时，它的运行以 `scheduler/executor-missing` 失败，而不是一直等待。不要把它当通用任务队列：它调度一个项目的工作流图，并且只写工作流相关的行。
+当一个工作流必须作为一份可恢复的运行跑在存储的图上、而节点究竟做什么由调用方决定时选用它。它不自带 Python 或 Agent 执行器：调度器既不 import `@metaworkflow/workflow-python-runner`，也不 import 任何 Agent 包，因此由组合注册它要运行的节点类型；某个就绪激活的类型没有执行器时，它的运行以 `scheduler/executor-missing` 失败，而不是一直等待。不要把它当通用任务队列：它调度一个项目的工作流图，并且只写工作流相关的行。
 
 ### 最小配置
 
@@ -53,11 +53,12 @@ kind: "package-reference"
 | `step({ projectId, runId, activationId })` | 执行一个就绪激活，然后把运行置为 `paused` |
 | `pause` / `resume` / `cancel({ projectId, runId })` | 停止调度并中止在途 attempt、重新打开已暂停的运行，或取消所有未完成的激活 |
 | `retry({ projectId, runId, activationId })` | 把失败、取消或等待中的激活作为新 attempt 重新执行，并返回其 id |
-| `reconcile({ projectId })` | 把 running attempt 标为 `interrupted`、其激活回到 `pending`、运行置为暂停，并回报改动 |
+| `resumeActivation({ projectId, runId, activationId, decision? })` | 用它索要的答复唤醒等待中的激活、把该答复存到它的行旁，并推进运行 |
+| `reconcile({ projectId })` | 把 running attempt 标为 `interrupted`、其激活回到 `pending`、运行置为暂停，并回报改动——等待中的激活保持原状并单独回报 |
 | `getRun` / `listActivations` / `listAttempts` | 读回运行、它的激活与 attempt |
 | `registerExecutor(executor)` | 为一种节点类型注册执行器并返回 disposer |
 
-`createRun`、`step`、`retry` 以带类型的 `WorkflowSchedulerError` 拒绝：`scheduler/definition-unavailable`、`scheduler/definition-invalid`、`scheduler/activation-not-found`、`scheduler/activation-not-ready`、`scheduler/activation-not-retryable`、`scheduler/run-not-found`、`scheduler/run-state-invalid`、`scheduler/duplicate-executor` 或 `scheduler/closed`。节点自身的失败不是异常：它会被提交、出现在 `TickResult.diagnostics` 里，并使运行失败。
+`createRun`、`step`、`resumeActivation`、`retry` 以带类型的 `WorkflowSchedulerError` 拒绝：`scheduler/definition-unavailable`、`scheduler/definition-invalid`、`scheduler/activation-not-found`、`scheduler/activation-not-ready`、`scheduler/activation-not-retryable`、`scheduler/activation-not-resumable`、`scheduler/run-not-found`、`scheduler/run-state-invalid`、`scheduler/duplicate-executor` 或 `scheduler/closed`。节点自身的失败不是异常：它会被提交、出现在 `TickResult.diagnostics` 里，并使运行失败。
 
 ### 执行器接缝
 
@@ -70,7 +71,9 @@ interface NodeExecutor {
 }
 ```
 
-`NodeResult` 是 `{ status: 'succeeded', value, artifacts? }`、`{ status: 'failed', error, retryable }` 或 `{ status: 'waiting', reason }`。成功的结果是路由读取、并由后续激活消费的 JSON 值；`artifacts` 以稳定名称发布文件。可重试失败在预算内再消耗一个 attempt。等待中的结果释放执行名额，并让该激活等待重试。
+`NodeResult` 是 `{ status: 'succeeded', value, artifacts? }`、`{ status: 'failed', error, retryable }` 或 `{ status: 'waiting', requestId }`。成功的结果是路由读取、并由后续激活消费的 JSON 值；`artifacts` 以稳定名称发布文件。可重试失败在预算内再消耗一个 attempt。等待中的结果点明节点所问的决策：attempt 与激活变为 `waiting`，执行名额被释放，不提交结果，而 `resumeActivation` 带着答复让节点继续。
+
+等待中的激活从不满足 join。若 `all` join 声明的某个前驱仍在等待，它便不会触发，因此它的目标只有在恢复后的激活成功之后才启动；`waiting` attempt 也不是中断的 attempt，因此恢复流程会原样保留它。
 
 执行器必须观察 `signal` 并结清：暂停、取消或释放服务都会中止它，之后再到达的结果属于过时结果。
 
@@ -140,10 +143,11 @@ interface NodeExecutor {
 
 <a id="known-limitations-and-deferred-work"></a>
 
-本阶段不自带执行器，因此在后续阶段注册之前，两种节点都会以 `scheduler/executor-missing` 失败。
+未注册执行器的组合会让每次激活都以 `scheduler/executor-missing` 失败；Python 与 Agent 执行器是与本包并排挂载的独立包。
 
 - **没有退避** —— 可重试失败立即重试，唯一的限制是 attempt 预算。
-- **等待中的激活需要重试** —— 报告 `waiting` 的节点会交还名额并停下，直到 `retry` 重新打开它；向在途 attempt 投递决策属于 Agent 阶段。
+- **一份答复恢复一个激活** —— `resumeActivation` 按 id 指定一个等待中的激活；有多个等待节点的图需要每个节点各调用一次，因为对同一份工作重复答复会运行一个其问题已不是被答复问题的节点。
+- **决策只在作为输入时跨过答复进程** —— 答复存放在激活行旁并交给下一次 attempt，并在某次 attempt 提交时清除；答复已提交之后调度器进程崩溃也仍能带着它恢复，但若激活在此期间被取消，则不会重放该答复。
 - **first-success 目标可能等不到输入** —— 在第一个已提交分支上触发，意味着绑定到另一个仍未完成分支的输入解析为空，并让该激活以 `scheduler/input-missing` 失败。
 - **一个运行只认一个修订** —— 运行不会重读定义，因此运行中编辑工作流会以 `scheduler/stale-result` 被拒绝，而不是施加到受影响的激活上。
 - **不修复会话** —— `reconcile` 只回报被中断的 attempt 并把运行置为暂停；恢复节点自己的对话是执行器的职责。

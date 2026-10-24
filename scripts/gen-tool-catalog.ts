@@ -81,6 +81,7 @@ import WorkflowEngine from '@metaworkflow/workflow'
 import type { WorkflowRun, WorkflowStartRequest } from '@metaworkflow/workflow'
 import * as ToolRalph from '@metaworkflow/tool-ralph'
 import { createCompleteNodeTool } from '@metaworkflow/tool-complete-node'
+import { createRequestDecisionTool } from '@metaworkflow/tool-request-decision'
 import * as ToolWorkflow from '@metaworkflow/tool-workflow'
 import * as ToolWorkspaceDependencies from '@metaworkflow/tool-workspace-dependencies'
 import { githubSlug } from './verify-md-links.ts'
@@ -683,6 +684,21 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
     note:
       'The `value` parameter is the stored `outputSchema` of the executing node, so each workflow node sees its own schema; this page shows one representative node. A submission is recorded only after its own result succeeds, and the monotonic guard refuses every later call in the turn.',
+  },
+  {
+    pkg: '@metaworkflow/tool-request-decision',
+    dir: 'tool-request-decision',
+    source: 'packages/workflow/tool-request-decision/src/index.ts',
+    requires: ['ctx.tools'],
+    writes: ['tool/call', 'tool/result'],
+    mount(ctx) {
+      // One attempt's decision tool; the harvest never calls it, so the sink
+      // this composition binds records nothing.
+      createRequestDecisionTool({ onRequest: () => 'decision-0000' }).attach(ctx)
+      return Promise.resolve()
+    },
+    note:
+      "One call records one pending request and ends the turn, which is what releases the node's scheduler slot; the coordinator's answer reaches the resumed attempt as an input rather than as another tool result, and a second call in the same attempt is refused.",
   },
   {
     pkg: '@metaworkflow/tool-workspace-dependencies',

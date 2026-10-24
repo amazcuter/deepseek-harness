@@ -59,6 +59,9 @@ The generated [configuration catalog](../../../docs/config-catalog.md#metaworkfl
 | `listOutbox(projectId, attemptId)` | Staged events of one attempt in event order |
 | `appendOutbox(projectId, attemptId, eventSeq, payload)` | Stages one event; repeating the key returns the stored row |
 | `markAcked(projectId, attemptId, eventSeq)` | Acknowledges one event once and reports whether this call did it |
+| `requestDecision(projectId, { requestId, activationId, attemptId, payload })` | Records one waiting node's question, naming the run and node it belongs to through its activation |
+| `listPendingDecisions(projectId)` | Every unanswered request, oldest first, with its run, node, question, options, and detail |
+| `answerDecision(projectId, requestId, response)` | Records the first answer; a repeated answer reports the recorded one, and an unknown id reports `unknown` without writing |
 | `transact(projectId, body)` | Runs one synchronous body on the project's connection inside `BEGIN IMMEDIATE`, serialized with every other write, so a consumer that owns its own rows keeps one writer connection |
 
 ### Layout
@@ -108,6 +111,7 @@ The registry holds `projects` (unique working directory, recorded database path)
 | [`src/open.ts`](src/open.ts) | Fixed open protocol, pragmas, WAL retry, identity and version checks |
 | [`src/registry.ts`](src/registry.ts) | Registry layout, version, identity, and row statements |
 | [`src/project-database.ts`](src/project-database.ts) | Project layout, version, identity, and row statements |
+| [`src/decisions.ts`](src/decisions.ts) | Decision request statements: record, list pending, and answer once |
 | [`src/relocate.ts`](src/relocate.ts) | Checkpointed copy, sync, and atomic rename of one project database |
 | [`src/database.ts`](src/database.ts) | One lazily opened connection with its write queue |
 | [`src/queue.ts`](src/queue.ts) | Tail-promise serial queue |
@@ -171,6 +175,6 @@ These limits define what this stage does not do yet and where a caller must comp
 <details>
 <summary>Working context for maintainers — click to expand</summary>
 
-The project database declares `nodes`, `edges`, `activations`, `attempts`, `artifacts`, and `decisions`; `mwf-workflow-scheduler` owns their row statements and reads them through `transact`. Only definition, run, and outbox operations are wired here. `transact` is what lets the scheduler commit an attempt's terminal status together with its activation and run transitions, its artifacts, and its staged outbox events: one batch, one commit, and a rollback removes all of them. A `transact` body must stay synchronous and must not call back into the store, because the connection is already inside its own transaction.
+The project database declares `nodes`, `edges`, `activations`, `attempts`, `artifacts`, and `decisions`; `mwf-workflow-scheduler` owns their row statements and reads them through `transact`. Decision requests keep their own statements in `src/decisions.ts`, because two packages write them — the node executor records the question and the coordinator records the answer — so the row protocol belongs to the table's owner rather than to either consumer. `transact` is what lets the scheduler commit an attempt's terminal status together with its activation and run transitions, its artifacts, and its staged outbox events: one batch, one commit, and a rollback removes all of them. A `transact` body must stay synchronous and must not call back into the store, because the connection is already inside its own transaction.
 
 </details>

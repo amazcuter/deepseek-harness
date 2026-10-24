@@ -29,7 +29,7 @@ Mount it beside `@metaworkflow/workflow-project-store` in a Host composition and
 
 ### When to choose it
 
-Choose it when workflow nodes must run as one resumable run over a stored graph rather than as a single call, and when the caller owns what a node actually does. This stage ships no Python or Agent executor: the scheduler imports neither `@metaworkflow/workflow-python-runner` nor any Agent package, and a ready activation whose kind has no executor fails its run with `scheduler/executor-missing` instead of waiting. Do not use it as a general job queue — it schedules one project's workflow graph and writes only workflow rows.
+Choose it when workflow nodes must run as one resumable run over a stored graph rather than as a single call, and when the caller owns what a node actually does. It ships no Python or Agent executor: the scheduler imports neither `@metaworkflow/workflow-python-runner` nor any Agent package, so a composition registers the kinds it runs and a ready activation whose kind has no executor fails its run with `scheduler/executor-missing` instead of waiting. Do not use it as a general job queue — it schedules one project's workflow graph and writes only workflow rows.
 
 ### Minimal configuration
 
@@ -53,11 +53,12 @@ The generated [configuration catalog](../../../docs/config-catalog.md#metaworkfl
 | `step({ projectId, runId, activationId })` | Executes one ready activation, then parks the run in `paused` |
 | `pause` / `resume` / `cancel({ projectId, runId })` | Stops scheduling and aborts in-flight attempts, reopens a paused run, or cancels every unfinished activation |
 | `retry({ projectId, runId, activationId })` | Reopens a failed, canceled, or waiting activation as a new attempt and returns its id |
-| `reconcile({ projectId })` | Marks running attempts `interrupted`, returns their activations to `pending`, parks running runs, and reports what it changed |
+| `resumeActivation({ projectId, runId, activationId, decision? })` | Wakes a waiting activation with the answer it asked for, stores that answer beside its rows, and advances the run |
+| `reconcile({ projectId })` | Marks running attempts `interrupted`, returns their activations to `pending`, parks running runs, and reports what it changed — waiting activations keep their state and are reported separately |
 | `getRun` / `listActivations` / `listAttempts` | Read the run, its activations, and its attempts back |
 | `registerExecutor(executor)` | Registers the executor for one node kind and returns the disposer |
 
-`createRun`, `step`, and `retry` reject with a typed `WorkflowSchedulerError`: `scheduler/definition-unavailable`, `scheduler/definition-invalid`, `scheduler/activation-not-found`, `scheduler/activation-not-ready`, `scheduler/activation-not-retryable`, `scheduler/run-not-found`, `scheduler/run-state-invalid`, `scheduler/duplicate-executor`, or `scheduler/closed`. A node's own failure is not an exception: it is committed, reported in `TickResult.diagnostics`, and fails the run.
+`createRun`, `step`, `resumeActivation`, and `retry` reject with a typed `WorkflowSchedulerError`: `scheduler/definition-unavailable`, `scheduler/definition-invalid`, `scheduler/activation-not-found`, `scheduler/activation-not-ready`, `scheduler/activation-not-retryable`, `scheduler/activation-not-resumable`, `scheduler/run-not-found`, `scheduler/run-state-invalid`, `scheduler/duplicate-executor`, or `scheduler/closed`. A node's own failure is not an exception: it is committed, reported in `TickResult.diagnostics`, and fails the run.
 
 ### The executor seam
 
@@ -70,7 +71,9 @@ interface NodeExecutor {
 }
 ```
 
-`NodeResult` is `{ status: 'succeeded', value, artifacts? }`, `{ status: 'failed', error, retryable }`, or `{ status: 'waiting', reason }`. A successful result is the JSON value routing reads and later activations consume; `artifacts` publishes files under stable names. A retryable failure spends another attempt while the budget lasts. A waiting result releases the execution slot and leaves the activation waiting for a retry.
+`NodeResult` is `{ status: 'succeeded', value, artifacts? }`, `{ status: 'failed', error, retryable }`, or `{ status: 'waiting', requestId }`. A successful result is the JSON value routing reads and later activations consume; `artifacts` publishes files under stable names. A retryable failure spends another attempt while the budget lasts. A waiting result names the decision the node asked for: the attempt and activation become `waiting`, the execution slot is released, no result is committed, and `resumeActivation` continues the node with the answer.
+
+A waiting activation never satisfies a join. An `all` join whose declared predecessor is still waiting does not fire, so its target starts only after the resumed activation succeeds; a `waiting` attempt is also not an interrupted one, so a recovery pass leaves it exactly as it was.
 
 An executor must observe `signal` and settle: pausing, canceling, or disposing the service aborts it, and a result that arrives afterwards is stale.
 
@@ -139,10 +142,11 @@ No model request is assembled here, so no cached prefix changes; an executor tha
 
 <a id="known-limitations-and-deferred-work"></a>
 
-No executor ships with this stage, so both node kinds fail with `scheduler/executor-missing` until a later stage registers one.
+A composition that registers no executor fails every activation with `scheduler/executor-missing`; the Python and Agent executors are separate packages mounted beside this one.
 
 - **No backoff** — a retryable failure retries immediately; the attempt budget is the only limiter.
-- **Waiting activations need a retry** — a node that reports `waiting` frees its slot and stops until `retry` reopens it; delivering a decision to a live attempt belongs to the Agent stage.
+- **An answer resumes one activation** — `resumeActivation` names one waiting activation by id; a graph with several waiting nodes needs one call per node, because a re-answer of the same work would run a node whose question is no longer the one answered.
+- **A decision outlives the answering process only as input** — the answer is stored beside the activation's rows and handed to the next attempt, and it is cleared when an attempt commits; a scheduler process that dies after the answer was committed still resumes with it, but nothing replays an answer whose activation was canceled in between.
 - **A first-success target can wait for a missing input** — firing on the first committed branch means an input bound to another, still-open branch resolves to nothing and fails that activation with `scheduler/input-missing`.
 - **One revision per run** — a run never re-reads its definition, so editing a workflow mid-run is refused as `scheduler/stale-result` rather than applied to the affected activations.
 - **No Session repair** — `reconcile` reports interrupted attempts and parks runs; resuming a node's own conversation is the executor's job.

@@ -47,6 +47,7 @@ This table connects model-visible tool names to the plugin package and service s
 | `@metaworkflow/experimental-tool-worktree` | `create_worktree` | `ctx.tools`, `ctx.worktrees`, `a calling Agent` | `tool/call`, `Git branch and checkout`, `working-directory/change`, `tool/result` | - | Explicit experimental composition only. Creates a new branch and checkout from a pinned local commit under existing write permissions, then changes the Session directory. Leaving retains the branch and checkout. |
 | `@metaworkflow/tool-workflow` | `workflow` | `ctx.tools`, `ctx.workflowEngine`, `ctx.systemPrompt`, `a calling Agent (exec.agent parents the script children)` | `tool/call`, `tool/result` | - | - |
 | `@metaworkflow/tool-complete-node` | `submit_node_result` | `ctx.tools`, `ctx.systemPrompt` | `tool/call`, `tool/result` | - | The `value` parameter is the stored `outputSchema` of the executing node, so each workflow node sees its own schema; this page shows one representative node. A submission is recorded only after its own result succeeds, and the monotonic guard refuses every later call in the turn. |
+| `@metaworkflow/tool-request-decision` | `request_decision` | `ctx.tools` | `tool/call`, `tool/result` | - | One call records one pending request and ends the turn, which is what releases the node's scheduler slot; the coordinator's answer reaches the resumed attempt as an input rather than as another tool result, and a second call in the same attempt is refused. |
 | `@metaworkflow/tool-workspace-dependencies` | `load_workspace_dependencies` | `ctx.tools` | `tool/call`, `tool/result` | - | - |
 | `@metaworkflow/tool-web` | `web_fetch`, `web_search` | `ctx.tools`, `ctx.web`, `ctx.systemPrompt` | `tool/call`, `tool/result` | - | web_search and web_fetch keep provider selection behind ctx.web so model-visible schemas stay stable across backend swaps. |
 
@@ -2791,6 +2792,43 @@ Submit this workflow node's structured result. Call it exactly once, when the no
 Source: [`packages/workflow/tool-complete-node/src/index.ts`](../packages/workflow/tool-complete-node/src/index.ts)
 
 The `value` parameter is the stored `outputSchema` of the executing node, so each workflow node sees its own schema; this page shows one representative node. A submission is recorded only after its own result succeeds, and the monotonic guard refuses every later call in the turn.
+
+<a id="metaworkflowtool-request-decision"></a>
+
+## `@metaworkflow/tool-request-decision`
+
+### `request_decision`
+
+Ask the project coordinator to decide something you cannot decide yourself. Call it with your question, optionally listing candidate answers and attaching structured detail; the call ends this turn, so do not call it for something you can resolve from your own inputs.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "question": {
+      "type": "string",
+      "description": "The decision you need: one specific question the coordinator can answer."
+    },
+    "options": {
+      "type": "array",
+      "description": "Candidate answers you propose, in your preferred order. Omit for an open question.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "detail": {
+      "description": "Structured context that helps the coordinator answer: the values, files, or tradeoffs involved."
+    }
+  },
+  "required": [
+    "question"
+  ]
+}
+```
+
+Source: [`packages/workflow/tool-request-decision/src/index.ts`](../packages/workflow/tool-request-decision/src/index.ts)
+
+One call records one pending request and ends the turn, which is what releases the node's scheduler slot; the coordinator's answer reaches the resumed attempt as an input rather than as another tool result, and a second call in the same attempt is refused.
 
 <a id="metaworkflowtool-workspace-dependencies"></a>
 

@@ -51,6 +51,7 @@
 | `@metaworkflow/experimental-tool-worktree` | `create_worktree` | `ctx.tools`, `ctx.worktrees`, `a calling Agent` | `tool/call`, `Git branch and checkout`, `working-directory/change`, `tool/result` | - | 仅通过显式实验组合加载。在现有写权限下从固定的本地提交创建新分支与检出目录，再改变 Session 工作目录。离开时保留分支与检出目录。 |
 | `@metaworkflow/tool-workflow` | `workflow` | `ctx.tools`、`ctx.workflowEngine`、`ctx.systemPrompt`、`a calling Agent (exec.agent parents the script children)` | `tool/call`、`tool/result` | - | - |
 | `@metaworkflow/tool-complete-node` | `submit_node_result` | `ctx.tools`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | `value` 参数是执行中节点已存储的 `outputSchema`，因此每个工作流节点看到各自的 schema；本页展示其中一个代表性节点。只有在提交自身的结果成功之后才会记录提交，且单调守卫会拒绝该回合中之后的每次调用。 |
+| `@metaworkflow/tool-request-decision` | `request_decision` | `ctx.tools` | `tool/call`、`tool/result` | - | 一次调用记录一个待决请求并结束本回合，从而释放节点的调度名额；统筹的答复会作为恢复后尝试的输入送达，而不是另一个工具结果，且同一尝试中的第二次调用会被拒绝。 |
 | `@metaworkflow/tool-workspace-dependencies` | `load_workspace_dependencies` | `ctx.tools` | `tool/call`, `tool/result` | - | - |
 | `@metaworkflow/tool-web` | `web_fetch`、`web_search` | `ctx.tools`、`ctx.web`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | web_search 和 web_fetch 将提供方选择置于 ctx.web 之后，使模型可见 schema 在更换后端时保持稳定。 |
 
@@ -2799,6 +2800,43 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
 来源：[`packages/workflow/tool-complete-node/src/index.ts`](../packages/workflow/tool-complete-node/src/index.ts)
 
 `value` 参数是执行中节点已存储的 `outputSchema`，因此每个工作流节点看到各自的 schema；本页展示其中一个代表性节点。只有在提交自身的结果成功之后才会记录提交，且单调守卫会拒绝该回合中之后的每次调用。
+
+<a id="metaworkflowtool-request-decision"></a>
+
+## `@metaworkflow/tool-request-decision`
+
+### `request_decision`
+
+请项目统筹决定你无法自行决定的事情。调用时给出你的问题，可选列出候选答案并附上结构化细节；该调用会结束本回合，因此能用自身输入解决的事情不要调用它。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "question": {
+      "type": "string",
+      "description": "The decision you need: one specific question the coordinator can answer."
+    },
+    "options": {
+      "type": "array",
+      "description": "Candidate answers you propose, in your preferred order. Omit for an open question.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "detail": {
+      "description": "Structured context that helps the coordinator answer: the values, files, or tradeoffs involved."
+    }
+  },
+  "required": [
+    "question"
+  ]
+}
+```
+
+来源：[`packages/workflow/tool-request-decision/src/index.ts`](../packages/workflow/tool-request-decision/src/index.ts)
+
+一次调用记录一个待决请求并结束本回合，从而释放节点的调度名额；统筹的答复会作为恢复后尝试的输入送达，而不是另一个工具结果，且同一尝试中的第二次调用会被拒绝。
 
 <a id="metaworkflowtool-workspace-dependencies"></a>
 

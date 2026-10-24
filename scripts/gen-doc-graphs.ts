@@ -921,6 +921,14 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Maps each child Agent session of a running workflow attempt to its project, run, attempt, node, and revision, so the completion tool and a caller inspecting a live Agent agree on whose work it is.',
   },
   {
+    key: 'mwfCoordinator',
+    pkg: 'workflow-coordinator',
+    title: 'Workflow project coordination',
+    mode: 'service',
+    consumers: ['workflow-agent-executor'],
+    note: 'Owns one persistent coordinator Session per project, records the answers its tools give to waiting decisions, and resumes the activations those answers wake; agent nodes parent their own conversations on it.',
+  },
+  {
     key: 'mwfScheduler',
     pkg: 'workflow-scheduler',
     title: 'Workflow run scheduling',

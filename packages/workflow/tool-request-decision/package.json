@@ -1,0 +1,39 @@
+{
+  "name": "@metaworkflow/tool-request-decision",
+  "description": "Model-facing decision tool for workflow agent nodes (request_decision): asks the project coordinator one question per attempt, records the pending request, and ends the turn so the execution slot is released",
+  "version": "0.2.1-rc.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/workflow/tool-request-decision"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:~",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "workspace:~",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
+  }
+}

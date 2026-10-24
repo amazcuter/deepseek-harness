@@ -89,6 +89,7 @@ const PACKAGE_LIBRARIES: Readonly<Record<string, string>> = {
   'packages/typert/generator': 'Build-time generator run outside any agent runtime.',
   'packages/typert/protocol': 'Compiler-independent protocol declarations.',
   'packages/workflow/tool-complete-node': 'Model-facing completion tool factory consumed by the workflow agent executor; exports no Cordis plugin entry.',
+  'packages/workflow/tool-request-decision': 'Model-facing decision tool factory consumed by the workflow agent executor; exports no Cordis plugin entry.',
   'packages/workflow/definition': 'Pure workflow graph document, validator, and routing library with no plugin entry.',
   'packages/util/atomic-write': 'Zero-dependency filesystem write utility.',
   'packages/util/brand': 'Stateless nominal-string and canonical-key constructors.',

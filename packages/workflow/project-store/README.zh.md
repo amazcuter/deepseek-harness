@@ -59,6 +59,9 @@ kind: "package-reference"
 | `listOutbox(projectId, attemptId)` | 一次尝试已暂存的事件，按事件顺序 |
 | `appendOutbox(projectId, attemptId, eventSeq, payload)` | 暂存一个事件；重复的键返回已存行 |
 | `markAcked(projectId, attemptId, eventSeq)` | 只确认一次事件，并报告本次调用是否完成确认 |
+| `requestDecision(projectId, { requestId, activationId, attemptId, payload })` | 记录一个等待中节点的问题，并通过其激活点明它所属的运行与节点 |
+| `listPendingDecisions(projectId)` | 按从旧到新列出每个未答复的请求，含其运行、节点、问题、选项与细节 |
+| `answerDecision(projectId, requestId, response)` | 记录首次答复；重复答复会回报已记录的答复，未知 id 会回报 `unknown` 且不写入 |
 | `transact(projectId, body)` | 在项目连接上以 `BEGIN IMMEDIATE` 运行一段同步主体，并与其他写入串行，令拥有自有行的消费方仍只用一个写连接 |
 
 ### 布局
@@ -108,6 +111,7 @@ kind: "package-reference"
 | [`src/open.ts`](src/open.ts) | 固定打开协议、pragma、WAL 重试、标识与版本校验 |
 | [`src/registry.ts`](src/registry.ts) | 注册库布局、版本、标识与行语句 |
 | [`src/project-database.ts`](src/project-database.ts) | 项目库布局、版本、标识与行语句 |
+| [`src/decisions.ts`](src/decisions.ts) | 决策请求语句：记录、列出待决、只答复一次 |
 | [`src/relocate.ts`](src/relocate.ts) | 一个项目数据库的检查点复制、同步与原子改名 |
 | [`src/database.ts`](src/database.ts) | 一个按需打开的连接及其写入队列 |
 | [`src/queue.ts`](src/queue.ts) | 尾部 promise 串行队列 |

@@ -5,6 +5,7 @@
  */
 
 import type { Branded } from '@metaworkflow/brand'
+import type { JsonValue } from '@metaworkflow/util-values'
 
 /** Opaque identifier of one workflow project registered in the global registry. */
 export type ProjectId = Branded<'ProjectId'>
@@ -86,6 +87,70 @@ export interface RunRecord {
   /** Why the run reached its status, when the runner recorded a reason. */
   readonly reason: string | null
 }
+
+/**
+ * One question a node asks the project coordinator: the model-authored question,
+ * the optional answer choices it offers, and any structured detail that helps
+ * the coordinator answer.
+ */
+export interface DecisionPayload {
+  /** The question the node needs answered to continue. */
+  readonly question: string
+  /** Candidate answers the node proposed, in the order it offered them. */
+  readonly options?: readonly string[]
+  /** Structured context the node attached to its question. */
+  readonly detail?: JsonValue
+}
+
+/** One decision request to record against the activation and attempt that asked. */
+export interface DecisionRequestInput {
+  /** Identity the asker minted; it is the idempotency key of the request row. */
+  readonly requestId: string
+  /** Activation whose attempt is waiting for the answer. */
+  readonly activationId: ActivationId
+  /** Attempt that asked. */
+  readonly attemptId: AttemptId
+  readonly payload: DecisionPayload
+}
+
+/** One recorded decision request and the answer it received. */
+export interface DecisionRecord {
+  readonly requestId: string
+  /** Run the waiting activation belongs to. */
+  readonly runId: RunId
+  readonly activationId: ActivationId
+  /** Definition node whose attempt asked, which names the work the answer resumes. */
+  readonly nodeId: string
+  readonly attemptId: AttemptId | null
+  readonly payload: DecisionPayload
+  /** The coordinator's answer, or `undefined` while the request is unanswered. */
+  readonly response: JsonValue | undefined
+  /** Epoch milliseconds of the request. */
+  readonly createdAt: number
+  /** Epoch milliseconds of the answer, or `null` while unanswered. */
+  readonly answeredAt: number | null
+}
+
+/**
+ * What one answer attempt did. The first answer is authoritative: a repeated
+ * answer reports `already-answered` with the recorded one, and an unknown id
+ * reports `unknown` instead of writing a row nothing asked for.
+ */
+export type DecisionAnswer =
+  | {
+    /** This call recorded the answer. */
+    readonly kind: 'answered'
+    readonly decision: DecisionRecord
+  }
+  | {
+    /** An earlier answer is already recorded; this call changed nothing. */
+    readonly kind: 'already-answered'
+    readonly decision: DecisionRecord
+  }
+  | {
+    /** No request with this id exists in the project. */
+    readonly kind: 'unknown'
+  }
 
 /** One durable outbox record awaiting replay into a session log. */
 export interface OutboxRecord {

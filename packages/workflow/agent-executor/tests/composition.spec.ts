@@ -11,7 +11,7 @@ import {
   type Harness,
 } from './support/harness.ts'
 import { toolCallResponse } from './support/mock-adapter.ts'
-import { COMPLETION_INSTRUCTION, COMPLETION_TOOL_NAME } from '../src/index.ts'
+import { COMPLETION_INSTRUCTION, COMPLETION_TOOL_NAME, DECISION_TOOL_NAME } from '../src/index.ts'
 
 /**
  * Register one no-op global tool the node's allow list can name.
@@ -60,7 +60,7 @@ describe('agent node composition', () => {
       const request = await runOnce(h, revision)
       expect(request.provider).toBe(PROVIDER)
       expect(request.model).toBe(MODEL)
-      expect(toolNames(request)).toEqual(['alpha', COMPLETION_TOOL_NAME])
+      expect(toolNames(request).sort()).toEqual([COMPLETION_TOOL_NAME, DECISION_TOOL_NAME, 'alpha'].sort())
       const system = systemText(request)
       expect(system).toContain('You are the answer node.')
       expect(system).toContain(COMPLETION_INSTRUCTION)
@@ -90,7 +90,7 @@ describe('agent node composition', () => {
       globalTool(h.ctx, 'alpha')
       const revision = await h.define(definition([agentNode('ask')]))
       const request = await runOnce(h, revision)
-      expect(toolNames(request)).toEqual([COMPLETION_TOOL_NAME])
+      expect(toolNames(request).sort()).toEqual([COMPLETION_TOOL_NAME, DECISION_TOOL_NAME].sort())
     } finally {
       await h.close()
     }
@@ -107,9 +107,10 @@ describe('agent node composition', () => {
       const runId = await h.start(revision)
       const ticked = await h.tick(runId)
       expect(ticked.status).toBe('succeeded')
-      expect(h.adapter.requests.map(request => toolNames(request))).toEqual([
-        ['alpha', COMPLETION_TOOL_NAME],
-        ['beta', COMPLETION_TOOL_NAME],
+      const offered = (names: string[]): string[] => [...names].sort()
+      expect(h.adapter.requests.map(request => offered(toolNames(request)))).toEqual([
+        offered([COMPLETION_TOOL_NAME, DECISION_TOOL_NAME, 'alpha']),
+        offered([COMPLETION_TOOL_NAME, DECISION_TOOL_NAME, 'beta']),
       ])
     } finally {
       await h.close()

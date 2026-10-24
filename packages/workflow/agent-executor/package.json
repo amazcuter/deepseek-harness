@@ -36,8 +36,10 @@
     "@metaworkflow/session-persistence": "workspace:*",
     "@metaworkflow/system-prompt": "workspace:*",
     "@metaworkflow/tool-complete-node": "workspace:*",
+    "@metaworkflow/tool-request-decision": "workspace:*",
     "@metaworkflow/tools": "workspace:*",
     "@metaworkflow/util-values": "workspace:*",
+    "@metaworkflow/workflow-coordinator": "workspace:*",
     "@metaworkflow/workflow-definition": "workspace:*",
     "@metaworkflow/workflow-project-store": "workspace:*",
     "@metaworkflow/workflow-scheduler": "workspace:*"
@@ -59,8 +61,10 @@
     "@metaworkflow/session-persistence-jsonl": "workspace:*",
     "@metaworkflow/system-prompt": "workspace:*",
     "@metaworkflow/tool-complete-node": "workspace:*",
+    "@metaworkflow/tool-request-decision": "workspace:*",
     "@metaworkflow/tools": "workspace:*",
     "@metaworkflow/util-values": "workspace:*",
+    "@metaworkflow/workflow-coordinator": "workspace:*",
     "@metaworkflow/workflow-definition": "workspace:*",
     "@metaworkflow/workflow-project-store": "workspace:*",
     "@metaworkflow/workflow-scheduler": "workspace:*"

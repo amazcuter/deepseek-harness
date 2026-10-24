@@ -298,6 +298,8 @@ flowchart LR
   pkg_workflow_agent_executor["workflow-agent-executor"]
   svc_mwfAgentExecutor["ctx.mwfAgentExecutor<br/>Workflow agent node execution adapter"]
   svc_mwfNodeSessions["ctx.mwfNodeSessions<br/>Workflow node session registry"]
+  pkg_workflow_coordinator["workflow-coordinator"]
+  svc_mwfCoordinator["ctx.mwfCoordinator<br/>Workflow project coordination"]
   svc_mwfScheduler["ctx.mwfScheduler<br/>Workflow run scheduling"]
   pkg_webhook["webhook"]
   svc_webhookRuntime["ctx.webhookRuntime<br/>Webhook rule runtime"]
@@ -464,6 +466,7 @@ flowchart LR
   pkg_workflow --> svc_workflowEngine
   pkg_workflow_agent_executor --> svc_mwfAgentExecutor
   pkg_workflow_agent_executor --> svc_mwfNodeSessions
+  pkg_workflow_coordinator --> svc_mwfCoordinator
   pkg_workflow_project_store --> svc_mwfProjectStore
   pkg_workflow_ptc --> svc_workflowEngine
   pkg_workflow_python_executor --> svc_mwfPythonExecutor
@@ -522,6 +525,7 @@ flowchart LR
   svc_lsp --> pkg_tool_lsp
   svc_mcpResources --> pkg_mcp_resources
   svc_mwfAgentExecutor --> pkg_workflow_scheduler
+  svc_mwfCoordinator --> pkg_workflow_agent_executor
   svc_mwfNodeSessions --> pkg_workflow_agent_executor
   svc_mwfProjectStore --> pkg_workflow_scheduler
   svc_mwfPythonExecutor --> pkg_workflow_scheduler
@@ -738,6 +742,7 @@ flowchart LR
 | `ctx.mwfPythonExecutor` | `service` | [`workflow-python-executor`](../packages/workflow/python-executor) | - | [`workflow-scheduler`](../packages/workflow/scheduler) | - | 向调度器注册 python 节点类型，并在项目工作目录中通过 Python 运行器执行每次激活；它不保留任何调度状态，节点源码取自存储的定义修订。 |
 | `ctx.mwfAgentExecutor` | `service` | [`workflow-agent-executor`](../packages/workflow/agent-executor) | - | [`workflow-scheduler`](../packages/workflow/scheduler) | - | 向调度器注册 agent 节点类型，并把每次激活作为按已存储节点装配出的子 Agent 运行：节点指令、工具白名单、记忆策略，以及报告结果的完成工具。 |
 | `ctx.mwfNodeSessions` | `service` | [`workflow-agent-executor`](../packages/workflow/agent-executor) | - | [`workflow-agent-executor`](../packages/workflow/agent-executor) | - | 把运行中工作流尝试的每个子 Agent 会话映射到其项目、运行、attempt、节点与修订，使完成工具与检查在线 Agent 的调用方对"这是谁的工作"给出一致答案。 |
+| `ctx.mwfCoordinator` | `service` | [`workflow-coordinator`](../packages/workflow/coordinator) | - | [`workflow-agent-executor`](../packages/workflow/agent-executor) | - | 每个项目拥有一个持久的统筹 Session，记录其工具对等待中决策给出的答复，并恢复这些答复唤醒的激活；agent 节点把自己的会话挂到它下面。 |
 | `ctx.mwfScheduler` | `service` | [`workflow-scheduler`](../packages/workflow/scheduler) | - | - | - | 拥有就绪判定、并发名额、attempt 重试、循环迭代，以及一次批次提交节点结果；节点类型通过执行器注册接入，因此本包自身不带执行器。 |
 | `ctx.webhookRuntime` | `core` | [`webhook`](../packages/experimental/webhook) | - | [`webhook-github`](../packages/experimental/webhook-github) | - | 提供方适配器分派已认证交付；可信插件注册独立的进程本地规则，runtime 把非 null 结果转换为普通的 Workspace-backed Session，不保留交付或完成状态。 |
 | `ctx.lsp` | `seam` | [`lsp`](../packages/lsp/lsp) | [`lsp-stdio`](../packages/lsp/lsp-stdio) | [`tool-lsp`](../packages/lsp/tool-lsp) | - | 提供方注册与选择，加上恰好四种操作的标准化查询执行；该 seam 不提供协议逃生口，后端必须转换为标准化请求和结果。 |

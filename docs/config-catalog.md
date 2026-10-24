@@ -4551,7 +4551,7 @@ export interface Config {
 ## `@metaworkflow/workflow-agent-executor`
 
 - `inject`: `mwfScheduler` · `mwfProjectStore` · `agents` · `sessionPersistence` · `systemPrompt` · `tools` · `agentDefaultModel`
-- `source`: [`packages/workflow/agent-executor/src/types.ts:15`](../packages/workflow/agent-executor/src/types.ts)
+- `source`: [`packages/workflow/agent-executor/src/types.ts:16`](../packages/workflow/agent-executor/src/types.ts)
 
 ```ts config-catalog
 /** Plugin configuration. */
@@ -4571,7 +4571,7 @@ export interface Config {
 
 ## `@metaworkflow/workflow-project-store`
 
-- `source`: [`packages/workflow/project-store/src/index.ts:114`](../packages/workflow/project-store/src/index.ts)
+- `source`: [`packages/workflow/project-store/src/index.ts:119`](../packages/workflow/project-store/src/index.ts)
 
 ```ts config-catalog
 /** Plugin configuration. */
@@ -4664,7 +4664,7 @@ export interface Config {
 ## `@metaworkflow/workflow-scheduler`
 
 - `inject`: `mwfProjectStore`
-- `source`: [`packages/workflow/scheduler/src/index.ts:109`](../packages/workflow/scheduler/src/index.ts)
+- `source`: [`packages/workflow/scheduler/src/index.ts:114`](../packages/workflow/scheduler/src/index.ts)
 
 ```ts config-catalog
 /** Plugin configuration. */
@@ -4836,6 +4836,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@metaworkflow/tool-working-directory` | `tools` · `workingDirectory` | [`packages/session/tool-working-directory/src/index.ts`](../packages/session/tool-working-directory/src/index.ts) |
 | `@metaworkflow/user-questions` | — | [`packages/interaction/user-questions/src/index.ts`](../packages/interaction/user-questions/src/index.ts) |
 | `@metaworkflow/webhook` | `agents` · `agentDefaultModel` · `agentPresets` · `permissionPresets` · `sessionTitle` · `workspaceRegistry` | [`packages/experimental/webhook/src/index.ts`](../packages/experimental/webhook/src/index.ts) |
+| `@metaworkflow/workflow-coordinator` | `mwfProjectStore` · `mwfScheduler` · `agents` · `sessionPersistence` · `systemPrompt` · `tools` · `agentDefaultModel` | [`packages/workflow/coordinator/src/index.ts`](../packages/workflow/coordinator/src/index.ts) |
 | `@metaworkflow/workspace` | `storageDomain` · `sessionPersistence` · `mwfProjectStore` | [`packages/workspace/workspace/src/index.ts`](../packages/workspace/workspace/src/index.ts) |
 <!-- END GENERATED config-catalog:no-config -->
 
@@ -4930,6 +4931,7 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 | `@metaworkflow/ssh-helper-runtime` | — | [`packages/ssh/ssh-helper-runtime/src/index.ts`](../packages/ssh/ssh-helper-runtime/src/index.ts) |
 | `@metaworkflow/timeout` | — | [`packages/util/timeout/src/index.ts`](../packages/util/timeout/src/index.ts) |
 | `@metaworkflow/tool-complete-node` | — | [`packages/workflow/tool-complete-node/src/index.ts`](../packages/workflow/tool-complete-node/src/index.ts) |
+| `@metaworkflow/tool-request-decision` | — | [`packages/workflow/tool-request-decision/src/index.ts`](../packages/workflow/tool-request-decision/src/index.ts) |
 | `@metaworkflow/typert-generator` | — | [`packages/typert/generator/src/index.ts`](../packages/typert/generator/src/index.ts) |
 | `@metaworkflow/typert-protocol` | — | [`packages/typert/protocol/src/index.ts`](../packages/typert/protocol/src/index.ts) |
 | `@metaworkflow/typert-registry` | — | [`packages/typert/registry/src/index.ts`](../packages/typert/registry/src/index.ts) |

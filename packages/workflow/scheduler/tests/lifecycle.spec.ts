@@ -385,7 +385,7 @@ describe('reconcile', () => {
     })
     const attempts = await h.scheduler.listAttempts({ projectId: h.projectId, runId })
     expect(attempts.map(attempt => attempt.status)).toEqual(['succeeded', 'interrupted'])
-    await expect(h.scheduler.reconcile({ projectId: h.projectId })).resolves.toEqual({ interrupted: [], paused: [] })
+    await expect(h.scheduler.reconcile({ projectId: h.projectId })).resolves.toEqual({ interrupted: [], paused: [], waiting: [] })
   })
 })
 

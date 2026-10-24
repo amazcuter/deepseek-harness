@@ -28,7 +28,8 @@
   "license": "MIT",
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@metaworkflow/home-paths": "workspace:*"
+    "@metaworkflow/home-paths": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:~",
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:~",
-    "@metaworkflow/home-paths": "workspace:*"
+    "@metaworkflow/home-paths": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
   }
 }

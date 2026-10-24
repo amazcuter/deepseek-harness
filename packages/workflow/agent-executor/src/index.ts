@@ -27,24 +27,28 @@ import { brandString } from '@metaworkflow/brand'
 import { createUserMessage } from '@metaworkflow/llm'
 import type { SessionId, TurnEndReason } from '@metaworkflow/session'
 import { createCompleteNodeTool } from '@metaworkflow/tool-complete-node'
+import { createRequestDecisionTool } from '@metaworkflow/tool-request-decision'
+import type { DecisionRequest } from '@metaworkflow/tool-request-decision'
 import type { JsonValue } from '@metaworkflow/util-values'
 import { parseDefinitionDocument } from '@metaworkflow/workflow-definition'
 import type { AgentNodeConfig } from '@metaworkflow/workflow-definition'
 import type { NodeActivation, NodeExecutor, NodeInputs, NodeResult, RunView } from '@metaworkflow/workflow-scheduler'
 import type { DefinitionRecord, ProjectRecord } from '@metaworkflow/workflow-project-store'
-// Type-only: brings the scheduler, store, Agent registry, and default-model
-// services into the Context type the plugin injects.
+// Type-only: brings the scheduler, store, Agent registry, default-model, and
+// coordinator services into the Context type the plugin injects and reads.
 import type {} from '@metaworkflow/workflow-scheduler'
 import type {} from '@metaworkflow/workflow-project-store'
+import type {} from '@metaworkflow/workflow-coordinator'
 import type {} from '@metaworkflow/agent-default-model'
 import type {} from '@metaworkflow/session-persistence'
 import { NodeSessionRegistry } from './node-sessions.ts'
 import { retainedSessionKey, selectRetainedSessions, upsertRetainedSession } from './retained-sessions.ts'
-import type { AgentExecutorErrorCode, Config } from './types.ts'
+import type { AgentExecutorErrorCode, Config, DecisionRequestedInfo } from './types.ts'
 
 export type * from './types.ts'
 export { NodeSessionRegistry } from './node-sessions.ts'
 export { COMPLETION_INSTRUCTION, COMPLETION_TOOL_NAME } from '@metaworkflow/tool-complete-node'
+export { DECISION_TOOL_DESCRIPTION, DECISION_TOOL_NAME } from '@metaworkflow/tool-request-decision'
 export { RETAINED_SESSIONS_KEY } from './retained-sessions.ts'
 
 /** The deadline one node turn gets when the plugin configuration omits one. */
@@ -81,14 +85,31 @@ class AgentExecutorError extends Error {
   }
 }
 
-/** One attempt's completion slot, filled by the tool the child Agent composes. */
-interface CompletionCell {
+/**
+ * One attempt's outcome cell, filled by the tools the child Agent composes: the
+ * value a completion call accepted, or the decision request that suspended it.
+ */
+interface AttemptCell {
+  /** The node result an accepted completion recorded. */
   value: JsonValue | undefined
+  /** The request a `request_decision` call recorded, which makes the attempt wait. */
+  requestId: string | undefined
 }
 
 declare module '@deepseek-ai/cordis' {
   interface Context {
     mwfAgentExecutor: AgentExecutor
+  }
+
+  interface Events {
+    /**
+     * A workflow node asked its project coordinator for a decision, so its
+     * activation is about to suspend. Paired with the coordinator's
+     * `workflow/decision-answered` when the question is answered.
+     * @param info - the asking attempt, its node, and the question.
+     * @mode emit
+     */
+    'workflow/decision-requested'(info: DecisionRequestedInfo): void
   }
 }
 
@@ -120,12 +141,17 @@ function newSessionId(): SessionId {
  * @returns the user-role message text.
  */
 function taskText(activation: NodeActivation, inputs: NodeInputs): string {
+  // A resumed attempt carries the coordinator's answer as one more input, so the
+  // model sees it in the same block as the values its bindings assembled.
+  const rendered: NodeInputs = activation.decision === undefined
+    ? inputs
+    : { ...inputs, decision: activation.decision }
   return [
     `Workflow node ${JSON.stringify(activation.node.id)} — iteration ${String(activation.iteration)}, attempt ${String(activation.attemptNo)}.`,
     '',
     'Node inputs:',
     '```json',
-    JSON.stringify(inputs, null, 2),
+    JSON.stringify(rendered, null, 2),
     '```',
   ].join('\n')
 }
@@ -190,6 +216,9 @@ export default class AgentExecutor extends Service {
       const agentOptions = this.agentOptions()
       const retained = config.memory === 'retained'
       const resumed = retained ? await this.retainedSession(activation) : undefined
+      // A resumed conversation keeps the lineage it was created with, so only a
+      // fresh one asks the coordinator for its parent.
+      const parentSession = resumed === undefined ? await this.coordinatorSession(activation) : undefined
       sessionId = resumed ?? newSessionId()
       this.nodeSessions.bind({
         sessionId,
@@ -199,7 +228,7 @@ export default class AgentExecutor extends Service {
         nodeId: activation.node.id,
         revision: activation.definitionRevision,
       })
-      const cell: CompletionCell = { value: undefined }
+      const cell: AttemptCell = { value: undefined, requestId: undefined }
       const setup = (childCtx: Context): void => { this.composeChild(childCtx, activation, config, cell) }
       handle = await this.openChild({
         activation,
@@ -208,6 +237,7 @@ export default class AgentExecutor extends Service {
         setup,
         sessionId,
         resume: resumed !== undefined,
+        parentSession,
         signal,
       })
       if (retained && resumed === undefined) await this.recordSession(activation, sessionId)
@@ -253,13 +283,23 @@ export default class AgentExecutor extends Service {
     readonly setup: (childCtx: Context) => void
     readonly sessionId: SessionId
     readonly resume: boolean
+    readonly parentSession: SessionId | undefined
     readonly signal: AbortSignal
   }): Promise<AgentHandle> {
-    const { activation, project, agentOptions, setup, sessionId, resume, signal } = options
+    const { activation, project, agentOptions, setup, sessionId, resume, parentSession, signal } = options
     try {
       return resume
         ? await this.ctx.agents.resume({ resumeSessionId: sessionId, agentOptions, signal, setup })
-        : await this.ctx.agents.create({ sessionId, meta: { cwd: project.path }, agentOptions, signal, setup })
+        : await this.ctx.agents.create({
+          sessionId,
+          meta: {
+            cwd: project.path,
+            ...parentSession === undefined ? {} : { parentSession },
+          },
+          agentOptions,
+          signal,
+          setup,
+        })
     } catch (error: unknown) {
       if (error instanceof AgentExecutorError) throw error
       const operation = resume ? 'resume' : 'create'
@@ -276,12 +316,13 @@ export default class AgentExecutor extends Service {
    * Compose the child Agent's scoped world from the node's stored configuration.
    *
    * The instruction section is the node's persona; the tool allow list selects
-   * capabilities without inferring permissions; the completion tool is always
-   * present, so no configuration can leave a node unable to report a result.
+   * capabilities without inferring permissions; the completion tool and the
+   * decision tool are always present, so no configuration can leave a node
+   * unable to report a result or ask for a decision.
    * @param childCtx - the child Agent's scope context, during its creation window.
    * @param activation - the activation being executed.
    * @param config - the node's stored agent configuration.
-   * @param cell - the attempt's completion slot.
+   * @param cell - the attempt's outcome slot.
    * @returns nothing; every registration belongs to the child's scope.
    * @throws {@link AgentExecutorError} `agent/composition-failed` when the node
    * names a tool this deployment does not register.
@@ -290,7 +331,7 @@ export default class AgentExecutor extends Service {
     childCtx: Context,
     activation: NodeActivation,
     config: AgentNodeConfig,
-    cell: CompletionCell,
+    cell: AttemptCell,
   ): void {
     childCtx.systemPrompt.section({
       name: 'workflow:node-instructions',
@@ -307,6 +348,16 @@ export default class AgentExecutor extends Service {
       onAccept: (value) => { cell.value = value },
     })
     completion.attach(childCtx)
+    const decision = createRequestDecisionTool({
+      // The sink closes over this attempt's identity, so the recorded request can
+      // only ever name the attempt whose session the registry already mapped.
+      onRequest: async (request) => {
+        const requestId = await this.recordDecision(activation, request)
+        cell.requestId = requestId
+        return requestId
+      },
+    })
+    decision.attach(childCtx)
     try {
       childCtx.tools.restrict({ allow: [...config.tools] })
     } catch (error: unknown) {
@@ -322,13 +373,14 @@ export default class AgentExecutor extends Service {
   /**
    * Send the activation's task and wait for the turn to settle.
    *
-   * The turn ends in exactly one of three ways: the completion tool recorded a
-   * value, the loop ended the turn without one, or the deadline expired. A value
-   * alone is a success; assistant text is not.
+   * The turn ends in exactly one of four ways: the completion tool recorded a
+   * value, the decision tool recorded a request, the loop ended the turn without
+   * either, or the deadline expired. A value is a success, a request suspends the
+   * attempt, and assistant text is neither.
    * @param agent - the live child Agent.
    * @param activation - the activation being executed.
    * @param inputs - the assembled input values.
-   * @param cell - the attempt's completion slot.
+   * @param cell - the attempt's outcome slot.
    * @param signal - aborted when the run is paused or canceled.
    * @returns the node's outcome.
    * @throws the abort reason when `signal` aborted while the turn ran.
@@ -337,7 +389,7 @@ export default class AgentExecutor extends Service {
     agent: Agent,
     activation: NodeActivation,
     inputs: NodeInputs,
-    cell: CompletionCell,
+    cell: AttemptCell,
     signal: AbortSignal,
   ): Promise<NodeResult> {
     let turnEnd: TurnEndReason | undefined
@@ -375,6 +427,9 @@ export default class AgentExecutor extends Service {
       }
     }
     if (cell.value !== undefined) return { status: 'succeeded', value: cell.value }
+    // A recorded request is a suspension, not a failure: the scheduler releases
+    // the slot and answers wake the activation through `resumeActivation`.
+    if (cell.requestId !== undefined) return { status: 'waiting', requestId: cell.requestId }
     signal.throwIfAborted()
     return this.turnFailure(activation, turnEnd)
   }
@@ -589,5 +644,57 @@ export default class AgentExecutor extends Service {
         { cause: error },
       )
     }
+  }
+
+  /**
+   * The project's coordinator session, which owns the decision this node asks.
+   *
+   * The node's conversation is a child of the coordinator's: `parentSession`
+   * names that lineage, so a reader of the session log can tell which project
+   * conversation a node serves. A deployment without the coordinator service
+   * runs nodes unparented instead of failing them.
+   * @param activation - the activation being executed.
+   * @returns the coordinator session id, or `undefined` when this deployment mounts none.
+   */
+  private async coordinatorSession(activation: NodeActivation): Promise<SessionId | undefined> {
+    const coordinator = this.ctx.get('mwfCoordinator')
+    return coordinator === undefined ? undefined : await coordinator.ensureSession(activation.projectId)
+  }
+
+  /**
+   * Record one decision request the node's tool asked and announce it.
+   * @param activation - the activation whose attempt is asking.
+   * @param request - the question, its optional answers, and its optional detail.
+   * @returns the request identity the coordinator answers with.
+   * @throws {@link AgentExecutorError} `agent/decision-unavailable` when the
+   * request cannot be recorded.
+   */
+  private async recordDecision(activation: NodeActivation, request: DecisionRequest): Promise<string> {
+    const requestId = randomUUID()
+    try {
+      await this.ctx.mwfProjectStore.requestDecision(activation.projectId, {
+        requestId,
+        activationId: activation.activationId,
+        attemptId: activation.attemptId,
+        payload: request,
+      })
+    } catch (error: unknown) {
+      throw new AgentExecutorError(
+        'agent/decision-unavailable',
+        `the decision request of node "${activation.node.id}" could not be recorded: ${describe(error)}`,
+        false,
+        { cause: error },
+      )
+    }
+    this.ctx.emit('workflow/decision-requested', {
+      projectId: activation.projectId,
+      runId: activation.runId,
+      activationId: activation.activationId,
+      attemptId: activation.attemptId,
+      nodeId: activation.node.id,
+      requestId,
+      payload: request,
+    })
+    return requestId
   }
 }

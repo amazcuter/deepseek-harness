@@ -528,6 +528,38 @@ export function selectRunningAttempts(
 }
 
 /**
+ * Every attempt of this project that is still waiting on a decision.
+ *
+ * The activation must still be waiting too: a resumed activation keeps its
+ * asking attempt row at `waiting` while a newer attempt runs, so only the pair
+ * describes work that has not moved on.
+ * @param db - open project connection.
+ * @returns the waiting attempts with their activation, run, and node, in row order.
+ */
+export function selectWaitingAttempts(db: DatabaseSync): Array<{
+  readonly attemptId: AttemptId
+  readonly activationId: ActivationId
+  readonly runId: RunId
+  readonly nodeId: string
+  readonly iteration: number
+}> {
+  const rows = db.prepare(
+    `SELECT a.attempt_id AS attempt_id, a.activation_id AS activation_id, c.run_id AS run_id,
+            c.node_id AS node_id, c.iteration AS iteration
+       FROM attempts a JOIN activations c ON c.activation_id = a.activation_id
+      WHERE a.status = 'waiting' AND c.status = 'waiting'
+      ORDER BY a.started_at, a.attempt_id`,
+  ).all()
+  return rows.map(row => ({
+    attemptId: row.attempt_id as AttemptId,
+    activationId: row.activation_id as ActivationId,
+    runId: row.run_id as RunId,
+    nodeId: row.node_id as string,
+    iteration: row.iteration as number,
+  }))
+}
+
+/**
  * Record one attempt's terminal outcome.
  * @param db - open project connection.
  * @param attemptId - attempt to update.

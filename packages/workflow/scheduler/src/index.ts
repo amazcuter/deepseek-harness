@@ -36,6 +36,7 @@ import type { InputBinding } from '@metaworkflow/workflow-definition'
 import { WorkflowSchedulerError } from './errors.ts'
 import { ExecutorRegistry } from './executors.ts'
 import { assembleInputs } from './inputs.ts'
+import { clearPendingDecision, savePendingDecision, selectPendingDecision } from './pending-decisions.ts'
 import {
   insertActivation,
   insertArtifact,
@@ -52,6 +53,7 @@ import {
   selectRunAttempts,
   selectRuns,
   selectRunningAttempts,
+  selectWaitingAttempts,
   startRunIfPending,
   updateActivationIncoming,
   updateActivationStatus,
@@ -88,16 +90,19 @@ import type {
   NodeResult,
   ReconcileRequest,
   ReconcileResult,
+  ResumeActivationRequest,
   RetryResult,
   RunParams,
   RunRequest,
   RunView,
   SchedulerDiagnostic,
   TickResult,
+  WaitingActivation,
 } from './types.ts'
 
 export type * from './types.ts'
 export { WorkflowSchedulerError, type WorkflowSchedulerErrorCode } from './errors.ts'
+export { PENDING_DECISIONS_KEY } from './pending-decisions.ts'
 
 /** Concurrent node executions one run gets when the composition configures none. */
 export const DEFAULT_MAX_CONCURRENT = 4
@@ -457,14 +462,54 @@ export default class WorkflowScheduler extends Service {
   }
 
   /**
+   * Wake one waiting activation with the answer it asked for and advance the run.
+   *
+   * Only a waiting activation resumes; every other status is a caller mistake
+   * (`scheduler/activation-not-resumable`), because starting, retrying, or
+   * re-answering work would run a node whose question is not the one answered.
+   * The answer is stored beside the activation's rows before the attempt runs,
+   * so the resumed execution receives it even after a restart. A paused run is
+   * reopened, because an answered decision is what it was waiting for.
+   * @param request - project, run, waiting activation, and optional answer.
+   * @returns what the call dispatched, committed, and decided.
+   * @throws {@link WorkflowSchedulerError} `scheduler/run-state-invalid` for a
+   * settled run, `scheduler/activation-not-found`,
+   * `scheduler/activation-not-resumable`, and `scheduler/closed` after disposal.
+   */
+  async resumeActivation(request: ResumeActivationRequest): Promise<TickResult> {
+    this.assertOpen()
+    const run = await this.readRun(request.projectId, request.runId)
+    if (isRunTerminal(run.status)) {
+      throw new WorkflowSchedulerError('scheduler/run-state-invalid', `run "${request.runId}" already settled as ${run.status}`)
+    }
+    const activation = await this.requireActivation(request.projectId, request.runId, request.activationId)
+    if (activation.status !== 'waiting') {
+      throw new WorkflowSchedulerError(
+        'scheduler/activation-not-resumable',
+        `activation "${request.activationId}" is ${activation.status}, not waiting for a decision`,
+      )
+    }
+    await this.store.transact(request.projectId, (db) => {
+      const now = Date.now()
+      updateActivationStatus(db, request.activationId, 'pending', now)
+      if (request.decision !== undefined) savePendingDecision(db, request.activationId, request.decision)
+      if (run.status === 'paused') updateRunStatus(db, request.runId, 'running', null, now)
+    })
+    return this.drive(request.projectId, request.runId, { pauseAfterSingle: false })
+  }
+
+  /**
    * Recover one project after a backend restart.
    *
    * Every attempt still marked running becomes `interrupted`, its activation
    * returns to `pending`, and every running run is parked in `paused`; a human
-   * (or the coordinator) then resumes or retries. The pass repairs no Session
-   * tail: resuming a node's own conversation is the node executor's job.
+   * (or the coordinator) then resumes or retries. Waiting activations keep
+   * their state and are reported separately: their nodes are not interrupted,
+   * and the answer that wakes them is still theirs to receive. The pass repairs
+   * no Session tail: resuming a node's own conversation is the node executor's
+   * job.
    * @param request - project to reconcile.
-   * @returns the interrupted attempts and the parked runs.
+   * @returns the interrupted attempts, the parked runs, and the waiting activations.
    * @throws {@link WorkflowSchedulerError} `scheduler/closed` after disposal.
    */
   async reconcile(request: ReconcileRequest): Promise<ReconcileResult> {
@@ -485,13 +530,22 @@ export default class WorkflowScheduler extends Service {
           iteration: activation.iteration,
         })
       }
+      // Reading before the runs are parked reports every waiting activation the
+      // previous backend left, independently of which runs this pass parks.
+      const waiting: WaitingActivation[] = selectWaitingAttempts(db).map(attempt => ({
+        runId: attempt.runId,
+        activationId: attempt.activationId,
+        attemptId: attempt.attemptId,
+        nodeId: attempt.nodeId,
+        iteration: attempt.iteration,
+      }))
       const paused: RunId[] = []
       for (const run of selectRuns(db)) {
         if (run.status !== 'running') continue
         updateRunStatus(db, run.runId, 'paused', 'recovered after restart', now)
         paused.push(run.runId)
       }
-      return { interrupted, paused }
+      return { interrupted, paused, waiting }
     })
   }
 
@@ -785,6 +839,9 @@ export default class WorkflowScheduler extends Service {
     let attemptNo = await this.nextAttemptNo(projectId, activation.activationId)
     for (;;) {
       const attemptId = await this.startAttempt(projectId, activation.activationId, attemptNo)
+      // Read per attempt, so a retry of a resumed activation receives the same
+      // answer until one attempt commits an outcome for it.
+      const decision = await this.store.transact(projectId, db => selectPendingDecision(db, activation.activationId))
       const inputs = await this.assemble(context)
       if (inputs.kind === 'missing') {
         const error = {
@@ -819,7 +876,7 @@ export default class WorkflowScheduler extends Service {
           diagnostics,
         })
       }
-      const result = await this.execute(executor, context, inputs.inputs, attemptNo, attemptId)
+      const result = await this.execute(executor, context, inputs.inputs, attemptNo, attemptId, decision)
       if (result.status === 'failed' && result.retryable && attemptNo < this.settings.maxAttempts) {
         await this.recordRetryableFailure(projectId, attemptId, result.error)
         attemptNo += 1
@@ -842,7 +899,10 @@ export default class WorkflowScheduler extends Service {
           attemptNo,
           attemptStatus: 'waiting',
           activationStatus: 'waiting',
-          error: { code: 'scheduler/waiting', message: result.reason },
+          error: {
+            code: 'scheduler/waiting',
+            message: `node "${node.id}" waits for decision "${result.requestId}"`,
+          },
           diagnostics,
         })
       }
@@ -871,6 +931,8 @@ export default class WorkflowScheduler extends Service {
    * @param context - the activation being executed.
    * @param inputs - the assembled input values.
    * @param attemptNo - 1-based attempt number.
+   * @param attemptId - the attempt row this execution runs under.
+   * @param decision - the answer that resumed this activation, when one is stored.
    * @returns the node's outcome; a rejection becomes a structured failure.
    */
   private async execute(
@@ -879,6 +941,7 @@ export default class WorkflowScheduler extends Service {
     inputs: NodeInputs,
     attemptNo: number,
     attemptId: AttemptId,
+    decision: JsonValue | undefined,
   ): Promise<NodeResult> {
     const controller = new AbortController()
     this.controllers(context.runId).add(controller)
@@ -893,6 +956,7 @@ export default class WorkflowScheduler extends Service {
         attemptNo,
         attemptId,
         params: context.params,
+        ...decision === undefined ? {} : { decision },
       }, inputs, controller.signal)
     } catch (error: unknown) {
       return { status: 'failed', error: { code: 'scheduler/executor-error', message: String(error) }, retryable: false }
@@ -1003,6 +1067,9 @@ export default class WorkflowScheduler extends Service {
       const now = Date.now()
       if (!this.commitAllowed(db, context, plan.attemptId, plan.diagnostics)) return false
       updateAttemptOutcome(db, plan.attemptId, plan.attemptStatus, now, plan.error ?? null, plan.value)
+      // The answer is consumed by the outcome, whatever it was: a later retry
+      // must not receive an answer the node already acted on.
+      clearPendingDecision(db, context.activation.activationId)
       updateActivationStatus(db, context.activation.activationId, plan.activationStatus, now)
       if (plan.attemptStatus !== 'waiting') {
         insertOutboxEvent(db, plan.attemptId, 0, JSON.stringify({

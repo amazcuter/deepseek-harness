@@ -17,6 +17,8 @@ export type WorkflowSchedulerErrorCode =
   | 'scheduler/activation-not-ready'
   /** A retry named an activation that has not failed, is still queued, or already succeeded. */
   | 'scheduler/activation-not-retryable'
+  /** A resume named an activation that is not waiting for a decision. */
+  | 'scheduler/activation-not-resumable'
   /** The stored revision is absent, so the run's graph cannot be read. */
   | 'scheduler/definition-unavailable'
   /** The stored revision no longer validates as an executable definition. */

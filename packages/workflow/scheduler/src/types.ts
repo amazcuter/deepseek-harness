@@ -51,6 +51,13 @@ export interface NodeActivation {
   readonly attemptId: AttemptId
   /** Run-scoped parameters supplied when the run started. */
   readonly params: RunParams
+  /**
+   * The coordinator's answer that resumed this activation, when
+   * `resumeActivation` supplied one. It is the activating attempt's next input:
+   * an executor injects it into the work it continues, never into the values
+   * the activation's own bindings assembled.
+   */
+  readonly decision?: JsonValue
 }
 
 /** One file an execution published for later activations of the same run. */
@@ -89,10 +96,14 @@ export type NodeResult =
     readonly retryable: boolean
   }
   | {
-    /** The node suspended itself, for example while awaiting a human decision. */
+    /** The node suspended itself while it awaits one external decision. */
     readonly status: 'waiting'
-    /** Why the node is waiting; recorded on its attempt. */
-    readonly reason: string
+    /**
+     * The decision request the node is waiting on. The scheduler records the
+     * activation and attempt as waiting, releases the execution slot, and
+     * commits no result, so a `resumeActivation` call can wake it.
+     */
+    readonly requestId: string
   }
 
 /**
@@ -208,6 +219,22 @@ export interface ActivationRequest extends RunRequest {
   readonly activationId: ActivationId
 }
 
+/**
+ * Request to wake one waiting activation with the answer it asked for.
+ *
+ * The answer becomes the activation's next input: the scheduler keeps it beside
+ * the activation's rows until the resumed attempt commits, so a restart between
+ * the answer and the execution still hands the same answer to the node.
+ */
+export interface ResumeActivationRequest extends ActivationRequest {
+  /**
+   * The coordinator's answer, as lossless JSON. Omitted wakes the activation
+   * without an answer, which is what a retry of a waiting node needs when the
+   * decision was already folded into the node's own conversation.
+   */
+  readonly decision?: JsonValue
+}
+
 /** Request to start one run from a stored definition revision. */
 export interface CreateRunRequest {
   readonly projectId: ProjectId
@@ -236,12 +263,28 @@ export interface InterruptedAttempt {
   readonly iteration: number
 }
 
+/** One activation the recovery pass found waiting for a decision. */
+export interface WaitingActivation {
+  readonly runId: RunId
+  readonly activationId: ActivationId
+  /** Attempt that asked and is still the waiting one. */
+  readonly attemptId: AttemptId
+  readonly nodeId: string
+  readonly iteration: number
+}
+
 /** What the recovery pass changed. */
 export interface ReconcileResult {
   /** Attempts that were running when the previous backend stopped. */
   readonly interrupted: readonly InterruptedAttempt[]
   /** Runs the pass parked in `paused`. */
   readonly paused: readonly RunId[]
+  /**
+   * Activations still waiting for a decision. They keep their state and their
+   * slot is not reclaimed as an interrupted attempt: answering one is what
+   * resumes it, whatever the previous backend stopped doing.
+   */
+  readonly waiting: readonly WaitingActivation[]
 }
 
 /** What one scheduling call did. */

@@ -9,8 +9,8 @@
   en: f6f3331616462bfd
   zh: d7d2439e601a854b
 /tool-schema-catalog/tool-package-map:
-  en: b9ff9f93962c7489
-  zh: 20ffde6cecd197fd
+  en: f37e4379ee3d4b9b
+  zh: 5c168c0b854334e0
 /tool-schema-catalog/metaworkflow-plugin-manager:
   en: 08792e33ded56221
   zh: 08792e33ded56221
@@ -318,8 +318,14 @@
   en: e441eff43d04923a
   zh: e441eff43d04923a
 /tool-schema-catalog/metaworkflow-tool-complete-node/submit-node-result:
-  en: b97de7ed57780380
-  zh: 91711fc879825099
+  en: 271ebff6a2e07674
+  zh: 91d40d90c65d0c9a
+/tool-schema-catalog/metaworkflow-tool-request-decision:
+  en: df6572bb1dedace4
+  zh: df6572bb1dedace4
+/tool-schema-catalog/metaworkflow-tool-request-decision/request-decision:
+  en: 14e024194f58e5f4
+  zh: e9822455dc351fd4
 /tool-schema-catalog/metaworkflow-tool-workspace-dependencies:
   en: eb8e6706e9c934a1
   zh: eb8e6706e9c934a1

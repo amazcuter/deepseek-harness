@@ -119,6 +119,8 @@ Hook misuse inside a script — bad arguments, unknown/deferred `agent()` option
 
 The `workflow/*` events (`workflow/start`, `workflow/phase`, `workflow/log`, `workflow/agent-start`, `workflow/agent-end`, `workflow/end` — see the [events catalog](#cordis-surface)) are **observe-only** emits carrying DATA SNAPSHOTS: every payload starts with `WorkflowRunInfo` (id + meta), never the live `WorkflowRun`, so a subscriber cannot gain `cancel`/`dispose`, and `workflow/end` deliberately omits the result value (a listener observing outcomes must not receive a mutable alias of the caller's result). Every emit is per-listener contained — a throwing subscriber is logged, never propagated, and cannot starve the listeners registered after it — and every listener receives its own payload clone, so mutating it corrupts neither the engine nor other listeners; the containment mirrors `subagent/start`/`subagent/end`.
 
+The two decision events sit outside that run vocabulary. `workflow/decision-requested` is the node executor's notice that an agent node asked its project coordinator a question and suspended; `workflow/decision-answered` is the coordinator's notice that its answer resumed the activation. Both carry the project, run, activation, and the request or answer as plain JSON, and neither is a `SessionEventMap` member: they exist so a UI subscribes instead of polling the project database. Answering is what releases a `waiting` activation, and the answer reaches the resumed node as an input rather than as a tool result.
+
 ## Durable Chat records
 
 The top-level `mwf-tool-workflow` consumer projects display facts into its calling parent Session without changing execution ownership. It writes `tool-workflow/run-start` after a run is accepted, pairs member start and end by `runId + seq`, and writes `tool-workflow/run-end` only after the result is known and disposal reaches quiescence. Nested transport calls write no record. The first append failure disables later writes for that run, so the log remains empty or a legal continuous prefix and the tool result is unchanged.
@@ -161,6 +163,33 @@ async execute(activation: NodeActivation, inputs: NodeInputs, signal: AbortSigna
 ```
 
 Source: [`packages/workflow/agent-executor/src/index.ts`](../../packages/workflow/agent-executor/src/index.ts)
+
+<a id="ctxmwfcoordinator--workflowcoordinator"></a>
+
+### `ctx.mwfCoordinator` — `WorkflowCoordinator`
+
+The workflow coordinator service.
+
+One instance owns every project's coordinator Session: it creates the Session on first use, resumes the recorded one afterwards, and disposes both with the plugin. The durable record that makes the resumption possible lives in each project's database.
+
+```ts cordis-catalog
+/**
+ * The coordinator Session of one project, created on first use.
+ *
+ * A recorded Session is resumed, so the conversation keeps the plan it
+ * already made; a project that has none gets a fresh Session recorded before
+ * it can answer anything, so the next process resumes the same one.
+ * @param projectId - project whose coordinator Session is needed.
+ * @returns the live coordinator Session identity.
+ * @throws {@link WorkflowCoordinatorError} `coordinator/session-unavailable`
+ * when the project or its Session cannot be opened.
+ */
+async ensureSession(projectId: ProjectId): Promise<SessionId>
+```
+
+Types: [SessionId](core.md)
+
+Source: [`packages/workflow/coordinator/src/index.ts`](../../packages/workflow/coordinator/src/index.ts)
 
 <a id="ctxmwfnodesessions--nodesessionregistry"></a>
 
@@ -335,6 +364,45 @@ async appendOutbox( projectId: ProjectId, attemptId: AttemptId, eventSeq: number
  * absent or already acknowledged.
  */
 async markAcked(projectId: ProjectId, attemptId: AttemptId, eventSeq: number): Promise<boolean>
+
+/**
+ * Record one decision request from a waiting node attempt.
+ *
+ * The request is the durable fact behind a `waiting` activation: it names the
+ * attempt that asked and carries the question, so a coordinator answering
+ * later never depends on the asking process still running.
+ * @param projectId - registered project to write.
+ * @param request - the request, its activation, and its attempt.
+ * @returns nothing; the row is durable when the call resolves.
+ * @throws {@link WorkflowProjectStoreError} `invalid-project-id` or
+ * `project-not-found` for the project, and the database's own error when the
+ * activation is absent or the request id is already recorded.
+ */
+async requestDecision(projectId: ProjectId, request: DecisionRequestInput): Promise<void>
+
+/**
+ * Every unanswered decision request of one project, oldest first.
+ * @param projectId - registered project to read.
+ * @returns the pending requests with the run and node they belong to.
+ * @throws {@link WorkflowProjectStoreError} `invalid-project-id`,
+ * `project-not-found`, or `invalid-record` for a corrupt stored payload.
+ */
+async listPendingDecisions(projectId: ProjectId): Promise<DecisionRecord[]>
+
+/**
+ * Record the coordinator's answer to one decision request.
+ *
+ * The first answer is authoritative: a repeated answer reports the recorded
+ * one instead of replacing it, so a retried tool call cannot redirect work
+ * that already resumed.
+ * @param projectId - registered project to write.
+ * @param requestId - request being answered.
+ * @param response - the answer, as lossless JSON.
+ * @returns what the call did: this answer, the earlier answer, or that no such request exists.
+ * @throws {@link WorkflowProjectStoreError} `invalid-project-id`,
+ * `project-not-found`, or `invalid-record` for a corrupt stored payload.
+ */
+async answerDecision(projectId: ProjectId, requestId: string, response: JsonValue): Promise<DecisionAnswer>
 
 /**
  * Run one synchronous body against one project's connection, inside one
@@ -561,14 +629,34 @@ async cancel(request: RunRequest): Promise<RunView>
 async retry(request: ActivationRequest): Promise<RetryResult>
 
 /**
+ * Wake one waiting activation with the answer it asked for and advance the run.
+ *
+ * Only a waiting activation resumes; every other status is a caller mistake
+ * (`scheduler/activation-not-resumable`), because starting, retrying, or
+ * re-answering work would run a node whose question is not the one answered.
+ * The answer is stored beside the activation's rows before the attempt runs,
+ * so the resumed execution receives it even after a restart. A paused run is
+ * reopened, because an answered decision is what it was waiting for.
+ * @param request - project, run, waiting activation, and optional answer.
+ * @returns what the call dispatched, committed, and decided.
+ * @throws {@link WorkflowSchedulerError} `scheduler/run-state-invalid` for a
+ * settled run, `scheduler/activation-not-found`,
+ * `scheduler/activation-not-resumable`, and `scheduler/closed` after disposal.
+ */
+async resumeActivation(request: ResumeActivationRequest): Promise<TickResult>
+
+/**
  * Recover one project after a backend restart.
  *
  * Every attempt still marked running becomes `interrupted`, its activation
  * returns to `pending`, and every running run is parked in `paused`; a human
- * (or the coordinator) then resumes or retries. The pass repairs no Session
- * tail: resuming a node's own conversation is the node executor's job.
+ * (or the coordinator) then resumes or retries. Waiting activations keep
+ * their state and are reported separately: their nodes are not interrupted,
+ * and the answer that wakes them is still theirs to receive. The pass repairs
+ * no Session tail: resuming a node's own conversation is the node executor's
+ * job.
  * @param request - project to reconcile.
- * @returns the interrupted attempts and the parked runs.
+ * @returns the interrupted attempts, the parked runs, and the waiting activations.
  * @throws {@link WorkflowSchedulerError} `scheduler/closed` after disposal.
  */
 async reconcile(request: ReconcileRequest): Promise<ReconcileResult>
@@ -664,6 +752,43 @@ One `agent()` call established a published child run. Paired with Events['workfl
 ```
 
 Source: [`packages/workflow/workflow/src/index.ts`](../../packages/workflow/workflow/src/index.ts)
+
+<a id="workflowdecision-answered--emit"></a>
+
+#### `workflow/decision-answered` — emit
+
+The coordinator answered a node's decision request and resumed its activation. Paired with the executor's `workflow/decision-requested`.
+
+```ts cordis-catalog
+/**
+ * The coordinator answered a node's decision request and resumed its
+ * activation. Paired with the executor's `workflow/decision-requested`.
+ * @param info - the answered decision, its answer, and the run it resumed.
+ * @mode emit
+ */
+'workflow/decision-answered'(info: DecisionAnsweredInfo): void
+```
+
+Source: [`packages/workflow/coordinator/src/index.ts`](../../packages/workflow/coordinator/src/index.ts)
+
+<a id="workflowdecision-requested--emit"></a>
+
+#### `workflow/decision-requested` — emit
+
+A workflow node asked its project coordinator for a decision, so its activation is about to suspend. Paired with the coordinator's `workflow/decision-answered` when the question is answered.
+
+```ts cordis-catalog
+/**
+ * A workflow node asked its project coordinator for a decision, so its
+ * activation is about to suspend. Paired with the coordinator's
+ * `workflow/decision-answered` when the question is answered.
+ * @param info - the asking attempt, its node, and the question.
+ * @mode emit
+ */
+'workflow/decision-requested'(info: DecisionRequestedInfo): void
+```
+
+Source: [`packages/workflow/agent-executor/src/index.ts`](../../packages/workflow/agent-executor/src/index.ts)
 
 <a id="workflowend--emit"></a>
 

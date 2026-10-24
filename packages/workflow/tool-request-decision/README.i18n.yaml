@@ -1,0 +1,67 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/workflow/tool-request-decision/README.md
+/:
+  en: 2bf171db2c1d00a3
+  zh: 4c7140643bd75297
+/metaworkflow-tool-request-decision:
+  en: 7f7e19453ffa4c33
+  zh: 65c8d7f01c394c41
+/metaworkflow-tool-request-decision/summary:
+  en: 9c19cedf820b946c
+  zh: 34cfe4fe58c7fae3
+/metaworkflow-tool-request-decision/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: bda879a892f240f0
+/metaworkflow-tool-request-decision/use-this-package:
+  en: bbff250eba0f1b89
+  zh: 0a618f05cc88ee2b
+/metaworkflow-tool-request-decision/use-this-package/when-to-use-it:
+  en: 2432f5b237b9b2f8
+  zh: 254cbafbe8265903
+/metaworkflow-tool-request-decision/use-this-package/entry-points:
+  en: 875bad1f6bbc804b
+  zh: 9f639443708c45ae
+/metaworkflow-tool-request-decision/use-this-package/minimal-composition:
+  en: f860d8d6c2a222d1
+  zh: e16ba0c18be777f3
+/metaworkflow-tool-request-decision/understand-the-implementation:
+  en: fb137385d15784c5
+  zh: e953415834ea1578
+/metaworkflow-tool-request-decision/further-exploration:
+  en: 9e2aacfd7b55c5b0
+  zh: a52594f3426e4020
+/metaworkflow-tool-request-decision/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/metaworkflow-tool-request-decision/model-experience/decision-tool-schema:
+  en: 8941b6ccd38e9046
+  zh: c17be636e9a96225
+/metaworkflow-tool-request-decision/model-experience/decision-tool-schema/what-the-model-sees:
+  en: 4fd0f59f936a7830
+  zh: a98d3df617c637f0
+/metaworkflow-tool-request-decision/model-experience/decision-tool-schema/token-effect:
+  en: 7854a132e18b18b6
+  zh: 40654ecb495d7347
+/metaworkflow-tool-request-decision/model-experience/decision-tool-schema/kv-cache-effect:
+  en: c74c9ae855d7b993
+  zh: cf1d9bedefd6319f
+/metaworkflow-tool-request-decision/model-experience/resume-input:
+  en: 9cda9785f513c859
+  zh: f489f1acb75844b1
+/metaworkflow-tool-request-decision/model-experience/resume-input/what-the-model-sees:
+  en: b7780f8d96c81c79
+  zh: d5ef109a625de9df
+/metaworkflow-tool-request-decision/model-experience/resume-input/token-effect:
+  en: 93ed210b5e15f14a
+  zh: b7f8da1aa436dced
+/metaworkflow-tool-request-decision/model-experience/resume-input/kv-cache-effect:
+  en: 110103913ce57e85
+  zh: 149230cdbc186dd8
+/metaworkflow-tool-request-decision/known-limitations-and-deferred-work:
+  en: 520191a0e5a0b92c
+  zh: c74589020b5fb20d
+/metaworkflow-tool-request-decision/known-limitations-and-deferred-work/dev-note:
+  en: fbf55d559b840f1f
+  zh: 47a131f86f0e308a

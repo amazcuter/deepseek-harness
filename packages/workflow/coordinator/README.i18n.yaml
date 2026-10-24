@@ -1,0 +1,70 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/workflow/coordinator/README.md
+/:
+  en: d479571ebfbcd80e
+  zh: 3e9ee061f84fcb16
+/metaworkflow-workflow-coordinator:
+  en: 903898ccd46b8e94
+  zh: 5e27d4b2a72dad27
+/metaworkflow-workflow-coordinator/summary:
+  en: bacf39ef3bca922b
+  zh: e42d4a891fafe0eb
+/metaworkflow-workflow-coordinator/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: bda879a892f240f0
+/metaworkflow-workflow-coordinator/use-this-package:
+  en: bc564b420b82467d
+  zh: 0caa94e1adc8ecbe
+/metaworkflow-workflow-coordinator/use-this-package/when-to-choose-it:
+  en: a6f676329934b115
+  zh: f57de1c08e76a9c5
+/metaworkflow-workflow-coordinator/use-this-package/minimal-configuration:
+  en: d1ff5001df693417
+  zh: 506995400fbefe31
+/metaworkflow-workflow-coordinator/use-this-package/service-api:
+  en: d0049c9688e87ea8
+  zh: 8153141f21751632
+/metaworkflow-workflow-coordinator/use-this-package/tools-the-coordinator-session-gains:
+  en: 357e778dca810e75
+  zh: 994a7f2353cd8b3d
+/metaworkflow-workflow-coordinator/understand-the-implementation:
+  en: e0f5af11944b987c
+  zh: 15899ddec99d7f77
+/metaworkflow-workflow-coordinator/further-exploration:
+  en: f6e4a7f238a77cdb
+  zh: 7a3c1745d856d0e3
+/metaworkflow-workflow-coordinator/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/metaworkflow-workflow-coordinator/model-experience/coordinator-prompt-section:
+  en: 002d7b2b5f093309
+  zh: bab355fa35b59feb
+/metaworkflow-workflow-coordinator/model-experience/coordinator-prompt-section/what-the-model-sees:
+  en: bd72a4082d3694a6
+  zh: 07a39a0bba52377b
+/metaworkflow-workflow-coordinator/model-experience/coordinator-prompt-section/token-effect:
+  en: cc195fea413d95c2
+  zh: 7c81261c793811ed
+/metaworkflow-workflow-coordinator/model-experience/coordinator-prompt-section/kv-cache-effect:
+  en: 6bb8e3c34a969bc7
+  zh: 1b9c3fbe4fc2980f
+/metaworkflow-workflow-coordinator/model-experience/coordinator-tools:
+  en: 2aecf52a7935f414
+  zh: cca9b5722b5adba7
+/metaworkflow-workflow-coordinator/model-experience/coordinator-tools/what-the-model-sees:
+  en: 53e468c0975419c5
+  zh: bfe35976dbda16ce
+/metaworkflow-workflow-coordinator/model-experience/coordinator-tools/token-effect:
+  en: 134b7f44a59a534c
+  zh: c6dffd7a272f14c3
+/metaworkflow-workflow-coordinator/model-experience/coordinator-tools/kv-cache-effect:
+  en: aa9bc5741f13c1c3
+  zh: b37bec5cd4bbc27e
+/metaworkflow-workflow-coordinator/known-limitations-and-deferred-work:
+  en: 1f053c741d6d2c05
+  zh: 0a640a6e71a99951
+/metaworkflow-workflow-coordinator/known-limitations-and-deferred-work/dev-note:
+  en: 5d0ffa7614e68b3e
+  zh: 9cf860462352afed

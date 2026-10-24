@@ -34,6 +34,8 @@ The workflow group lets an agent run orchestration scripts that delegate work to
 | [`python-executor`](python-executor/README.md) | Runs the scheduler's `python` activations on the real interpreter in the project working directory | `ctx.mwfPythonExecutor` |
 | [`tool-complete-node`](tool-complete-node/README.md) | Gives a workflow agent node the `submit_node_result` tool that reports its structured result | pure library (no `ctx` key) |
 | [`agent-executor`](agent-executor/README.md) | Runs the scheduler's `agent` activations as constrained DSH child Agents that report a structured result | `ctx.mwfAgentExecutor` |
+| [`tool-request-decision`](tool-request-decision/README.md) | Gives a workflow agent node the `request_decision` tool that asks the project coordinator a question | pure library (no `ctx` key) |
+| [`coordinator`](coordinator/README.md) | Gives each project one persistent coordinator Session that answers node decisions and reports project state | `ctx.mwfCoordinator` |
 
 -----
 

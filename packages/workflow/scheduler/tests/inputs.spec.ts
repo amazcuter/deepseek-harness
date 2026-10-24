@@ -144,7 +144,7 @@ describe('unfinished branches', () => {
       [edge('a', 'b'), edge('a', 'c'), edge('b', 'd'), edge('c', 'd')],
     ))
     h.scheduler.registerExecutor(new FakeExecutor('python', call => call.activation.node.id === 'c'
-      ? { status: 'waiting', reason: 'still working' }
+      ? { status: 'waiting', requestId: 'decision-1' }
       : { status: 'succeeded', value: { value: 'ready' } }))
     const runId = await startRun(h, revision)
 

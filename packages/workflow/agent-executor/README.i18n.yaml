@@ -9,8 +9,8 @@
   en: 1343d7268f91e13c
   zh: 6542c57cd23a50d0
 /metaworkflow-workflow-agent-executor/summary:
-  en: d22819bf7e98ec1c
-  zh: 28bd27ca624edb81
+  en: e7d710a7c60e3ef1
+  zh: 5324a87b0e24020c
 /metaworkflow-workflow-agent-executor/table-of-contents:
   en: d152484eb41ac6b4
   zh: bda879a892f240f0
@@ -24,17 +24,17 @@
   en: f2a25df1eed1d5a5
   zh: 14ecfc190605c20a
 /metaworkflow-workflow-agent-executor/use-this-package/service-api:
-  en: 358a4cd0d912b0d5
-  zh: 17875fc098031be1
+  en: 63546aadbcd596db
+  zh: 94b8e7157b9ebcdf
 /metaworkflow-workflow-agent-executor/use-this-package/what-one-execution-reports:
-  en: 1001624888ee4411
-  zh: 6971cc6096a7e6c8
+  en: bd17c6910d1d9abd
+  zh: adf4dc6d7d0b7a4d
 /metaworkflow-workflow-agent-executor/understand-the-implementation:
-  en: eeea19d7fd2dbed4
-  zh: acdaab29416c70a8
+  en: 50c36f7c645d4e6d
+  zh: 5956daf0c9139d9e
 /metaworkflow-workflow-agent-executor/further-exploration:
-  en: 0c84694a780583fb
-  zh: 29ccd18f6dccac8c
+  en: ccbdd7ac32251096
+  zh: 28c3803889ed8bdb
 /metaworkflow-workflow-agent-executor/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -62,12 +62,24 @@
 /metaworkflow-workflow-agent-executor/model-experience/completion-tool/kv-cache-effect:
   en: 224ba94f3a366747
   zh: b5a6fb9f067144fc
+/metaworkflow-workflow-agent-executor/model-experience/decision-tool:
+  en: b0edf0d1740a1f52
+  zh: 43404dce5f2393fe
+/metaworkflow-workflow-agent-executor/model-experience/decision-tool/what-the-model-sees:
+  en: 44caf33537bee792
+  zh: 155419f8d9ed1244
+/metaworkflow-workflow-agent-executor/model-experience/decision-tool/token-effect:
+  en: 6858da617eda549e
+  zh: f14da969885ccd95
+/metaworkflow-workflow-agent-executor/model-experience/decision-tool/kv-cache-effect:
+  en: f6769c78bc8cde9b
+  zh: aaf503a2a4dde95b
 /metaworkflow-workflow-agent-executor/model-experience/task-message:
   en: 9689f6fec765efbb
   zh: 2a45d4a4103f548c
 /metaworkflow-workflow-agent-executor/model-experience/task-message/what-the-model-sees:
-  en: b80c93d6388b9324
-  zh: 8505868df0224263
+  en: ec1eae5e2f2a5697
+  zh: b343f45d35147040
 /metaworkflow-workflow-agent-executor/model-experience/task-message/token-effect:
   en: ba59bb570ec7260f
   zh: fbebad205b2fdb1f
@@ -75,8 +87,8 @@
   en: b5a8a9b38d1b96de
   zh: 95e5938de5c5ba4d
 /metaworkflow-workflow-agent-executor/known-limitations-and-deferred-work:
-  en: 8ba8d0cb7c203d31
-  zh: ff71517a705d8ad6
+  en: d107b0cba9f9f76b
+  zh: 6058623addc54001
 /metaworkflow-workflow-agent-executor/known-limitations-and-deferred-work/dev-note:
   en: 6661f34b8f6a6cdf
   zh: f9f10a80cd062e23

@@ -2953,6 +2953,9 @@ importers:
       '@metaworkflow/workflow-agent-executor':
         specifier: workspace:*
         version: link:../../workflow/agent-executor
+      '@metaworkflow/workflow-coordinator':
+        specifier: workspace:*
+        version: link:../../workflow/coordinator
       '@metaworkflow/workflow-project-store':
         specifier: workspace:*
         version: link:../../workflow/project-store
@@ -15840,6 +15843,67 @@ importers:
       '@metaworkflow/tool-complete-node':
         specifier: workspace:*
         version: link:../tool-complete-node
+      '@metaworkflow/tool-request-decision':
+        specifier: workspace:*
+        version: link:../tool-request-decision
+      '@metaworkflow/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+      '@metaworkflow/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+      '@metaworkflow/workflow-coordinator':
+        specifier: workspace:*
+        version: link:../coordinator
+      '@metaworkflow/workflow-definition':
+        specifier: workspace:*
+        version: link:../definition
+      '@metaworkflow/workflow-project-store':
+        specifier: workspace:*
+        version: link:../project-store
+      '@metaworkflow/workflow-scheduler':
+        specifier: workspace:*
+        version: link:../scheduler
+
+  packages/workflow/coordinator:
+    dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@metaworkflow/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@metaworkflow/agent-default-model':
+        specifier: workspace:*
+        version: link:../../core/agent-default-model
+      '@metaworkflow/agent-loop':
+        specifier: workspace:*
+        version: link:../../core/agent-loop
+      '@metaworkflow/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
+      '@metaworkflow/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@metaworkflow/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@metaworkflow/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@metaworkflow/session-persistence':
+        specifier: workspace:*
+        version: link:../../session/session-persistence
+      '@metaworkflow/session-persistence-jsonl':
+        specifier: workspace:*
+        version: link:../../session/session-persistence-jsonl
+      '@metaworkflow/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
       '@metaworkflow/tools':
         specifier: workspace:*
         version: link:../../core/tools
@@ -15883,6 +15947,9 @@ importers:
       '@metaworkflow/home-paths':
         specifier: workspace:*
         version: link:../../util/home-paths
+      '@metaworkflow/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
 
   packages/workflow/python-executor:
     dependencies:
@@ -15955,6 +16022,18 @@ importers:
       '@metaworkflow/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
+      '@metaworkflow/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+      '@metaworkflow/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+
+  packages/workflow/tool-request-decision:
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
       '@metaworkflow/tools':
         specifier: workspace:*
         version: link:../../core/tools

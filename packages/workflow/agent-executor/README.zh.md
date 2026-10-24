@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`ctx.mwfAgentExecutor` 把工作流调度器接到 Agent 运行时上。调度器拥有就绪判断、重试、循环与持久行；本插件提供 `agent` 节点类型，让一次就绪的激活变成按节点已存储配置装配出的一个子 Agent。子 Agent 拿到的是：作为人格设定的节点指令、只做能力选择而不推导权限的工具白名单、决定是否延续既有对话的记忆策略，以及一个以节点 `outputSchema` 为 `value` 参数的完成工具。节点结果就是该工具记录的值，普通助手文本从不构成结果。
+`ctx.mwfAgentExecutor` 把工作流调度器接到 Agent 运行时上。调度器拥有就绪判断、重试、循环与持久行；本插件提供 `agent` 节点类型，让一次就绪的激活变成按节点已存储配置装配出的一个子 Agent。子 Agent 拿到的是：作为人格设定的节点指令、只做能力选择而不推导权限的工具白名单、记忆策略、以节点 `outputSchema` 为 `value` 参数的完成工具，以及它借以向项目统筹提问的决策工具。节点结果就是完成工具记录的值；决策请求则让激活挂起。
 
 ## 目录
 
@@ -47,7 +47,7 @@ kind: "package-reference"
 
 | 成员 | 行为 |
 |---|---|
-| `execute(activation, inputs, signal)` | 读取运行所存储的定义修订、打开项目目录、装配子 Agent、驱动一个回合，并返回 `{ status: 'succeeded', value }` 或 `{ status: 'failed', error, retryable }` |
+| `execute(activation, inputs, signal)` | 读取运行所存储的定义修订、打开项目目录、装配子 Agent、驱动一个回合，并返回 `{ status: 'succeeded', value }`、`{ status: 'waiting', requestId }` 或 `{ status: 'failed', error, retryable }` |
 | `nodeSessions` | `ctx.mwfNodeSessions` 注册表：每个运行中的子 Agent 会话为哪一次尝试服务 |
 
 调度器通过已注册的 `agent` 执行器到达 `execute`；该公开方法存在，是为了让调用方不必驱动整次运行就能测试单次激活。中止是唯一的抛出：被中止的信号报告中止而不是节点失败，因为被暂停或取消的运行不得记录节点失败。`ctx.mwfNodeSessions` 注册在本插件自己的作用域内，因此完成工具与执行器天然共享它。
@@ -57,6 +57,8 @@ kind: "package-reference"
 | 结果 | 报告 |
 |---|---|
 | 完成工具接受了一个值 | `succeeded`，携带该值 |
+| 决策工具记录了请求 | `waiting`，携带该 request id；调度器释放名额，`resumeActivation` 让节点继续 |
+| 项目数据库无法记录决策请求 | 工具在同一回合内向模型报告 `agent/decision-unavailable`，因此节点可以在没有记录任何请求的情况下继续 |
 | 回合结束但没有完成 | `failed` `agent/completion-missing`，可重试 |
 | 循环以错误结束了回合 | `failed` `agent/turn-failed`，可重试 |
 | 回合触及模型的输出 token 上限 | `failed` `agent/turn-failed`，可重试 |
@@ -86,6 +88,10 @@ kind: "package-reference"
 
 **记忆。** `fresh` 为每次激活新建会话且不记录任何东西。`retained` 读取项目 `schema_meta` 兼容行中该运行与该节点的记录：有记录的会话通过 `ctx.agents.resume()` 恢复；首次激活则先创建并在回合开始前记录。运行本身是键的一部分，因此同一定义的两个运行不会共用对话；循环迭代不是，因此 `retained` 节点在其所属运行的多次激活之间保持同一次对话。恢复遵循 Agent 运行时既有语义：尾部未闭合的日志由循环补上闭合，执行器从不自行修复会话日志。
 
+**决策。** [`@metaworkflow/tool-request-decision`](../tool-request-decision/README.zh.md) 提供每个子 Agent 都有的 `request_decision` 工具。它的 `onRequest` 闭包写入一行 `decisions`、点明本次激活与 attempt，发出 `workflow/decision-requested`，并把 request id 交回，由本次尝试的单元保存。以已记录请求结束的回合是 `waiting`：执行器不提交结果，调度器释放执行名额，统筹的答复以 `decision` 的形式成为恢复后尝试的输入。调度器为该激活存下的答复会被合并进任务消息的输入块，因此 `fresh` 节点开启一段知道决策的新对话，`retained` 节点则延续自己的对话。
+
+**血缘。** 子会话的 `parentSession` 指向项目的统筹 Session——部署挂载了统筹时经由 `ctx.get('mwfCoordinator')` 解析。未挂载统筹的组合会让节点无父会话地运行，而不是失败。
+
 **完成。** 工具本身位于 [`@metaworkflow/tool-complete-node`](../tool-complete-node/README.zh.md)：每次激活都用节点已存储的 `outputSchema` 与一个写入本次尝试完成槽位的 `onAccept` 闭包创建一个实例。该包拥有 `{ value: <outputSchema> }` 参数 schema、`ToolArgsError` 回填、`tools/result` 之后的两阶段提交，以及单调重复守卫；执行器只消费被接受的值，而 `exec.concludeTurn()` 让该回合就此终止。调度器在自己的事务里把该值提交为这次尝试的结果，因此完成与尝试行要么一起落盘，要么都不落盘。
 
 **生命周期。** 一次调用就是一个回合。执行器发出任务消息、等待 Agent 归于一静、读取结果，然后销毁 Agent 句柄——`retained` 节点保留的是会话，不是 Agent。调度器的中止信号会取消回合随后被重新抛出，期限则先取消回合再报告 `agent/timeout`。
@@ -109,6 +115,8 @@ kind: "package-reference"
 - [工作流项目存储](../project-store/README.zh.md) —— 定义修订、运行与 retained 会话行所在之处。
 - [工作流定义](../definition/README.zh.md) —— 本执行器读取的 agent 节点配置。
 - [节点完成工具](../tool-complete-node/README.zh.md) —— 每个子 Agent 用来报告结果的工具。
+- [决策工具](../tool-request-decision/README.zh.md) —— 子 Agent 借以向项目统筹提问的工具。
+- [工作流统筹](../coordinator/README.zh.md) —— 答复这些问题并作为子会话父会话的 Session。
 - [生成的配置目录](../../../docs/config-catalog.zh.md#metaworkflowworkflow-agent-executor) —— 全部可接受字段。
 
 -----
@@ -144,11 +152,25 @@ kind: "package-reference"
 
 单个回合内追加式。声明与指令在整个对话中稳定，因此前缀保持可复用；另一个节点的输出 schema、或改变它的定义修订，都会产生不同的请求序列。
 
+### 决策工具
+
+#### 模型看到什么
+
+生成的 [`request_decision` schema](../../../docs/tool-catalog.zh.md#metaworkflowtool-request-decision)，其唯一必填问题携带节点提出的可选候选答案与结构化细节。[`@metaworkflow/tool-request-decision`](../tool-request-decision/README.zh.md) 拥有该定义及其卡片元数据；本包只决定每个子 Agent 中都必须存在它。
+
+#### Token 影响
+
+条件式。该声明出现在节点回合的每次请求上，工具结果会点明统筹将要答复的 request id。
+
+#### KV Cache 影响
+
+单个回合内追加式。声明在整个对话中稳定。
+
 ### 任务消息
 
 #### 模型看到什么
 
-一条 user 角色的消息，指明节点、其 `iteration` 与 `attempt` 编号，并以 JSON 代码块给出该次激活组装出的输入值。
+一条 user 角色的消息，指明节点、其 `iteration` 与 `attempt` 编号，并以 JSON 代码块给出该次激活组装出的输入值。恢复后的尝试会把统筹的答复作为该块中的又一个值，放在 `decision` 之下。
 
 #### Token 影响
 
@@ -161,10 +183,11 @@ kind: "package-reference"
 <a id="known-limitations-and-deferred-work"></a>
 ## 已知限制与暂缓事项
 
-- **没有统筹会话** —— 子 Agent 不记录 `parentSession`，因为运行尚无统筹对话；后续阶段所需的持久血缘会随该对话一起到来。
 - **部署级模型** —— 节点无法自行选择提供方、模型或推理力度；每个子 Agent 都使用 `ctx.agentDefaultModel`，直到定义模型长出 model 字段。
 - **不发布产物** —— 节点只报告 JSON 值，因此子 Agent 写出的文件不会作为 `NodeArtifact` 记录发布，`artifact` 输入绑定也没有可读的内容。
-- **每次激活一个回合** —— 执行器只发一条任务消息且从不引导，因此提问题或等待输入的子 Agent 会以 `agent/completion-missing` 结束回合，而不是让激活挂起。
+- **每次尝试一个请求** —— 提出决策的节点每个回合挂起一次；第二个问题需要再走一次激活，恢复后的尝试提供了它。
+- **名为 `decision` 的绑定会被覆盖** —— 恢复后尝试的输入块在 `decision` 下携带统筹的答复，因此同时声明了同名输入绑定的节点看到的是答复而不是自己的值。
+- **每次激活一个回合** —— 执行器只发一条任务消息且从不引导，因此既没有完成、也没有决策请求就结束回合的子 Agent 会以 `agent/completion-missing` 失败，而不是让激活挂起。
 - **不捕获权限状态** —— 子 Agent 继承组合为其作用域授予的权限；本阶段不会把委派策略写入会话日志。
 
 <a id="dev-note"></a>

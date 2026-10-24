@@ -499,6 +499,8 @@
     { "path": "./packages/workflow/workflow" },
     { "path": "./packages/workflow/workflow-ptc" },
     { "path": "./packages/workflow/tool-complete-node" },
+    { "path": "./packages/workflow/tool-request-decision" },
+    { "path": "./packages/workflow/coordinator" },
     { "path": "./packages/workflow/tool-workflow" },
     { "path": "./packages/workflow/definition" },
     { "path": "./packages/workflow/project-store" },

@@ -76,7 +76,7 @@ describe('concurrency slots', () => {
     const revision = await fanOfFive(h)
     const python = new FakeExecutor('python', (call) => {
       if (call.activation.node.id === 'a') return { status: 'succeeded', value: null }
-      if (call.activation.node.id === 'b1') return { status: 'waiting', reason: 'awaiting a decision' }
+      if (call.activation.node.id === 'b1') return { status: 'waiting', requestId: 'decision-1' }
       return { status: 'succeeded', value: null }
     })
     h.scheduler.registerExecutor(python)

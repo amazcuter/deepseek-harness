@@ -27,7 +27,9 @@ import { Context, Service } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import { brandString } from '@metaworkflow/brand'
 import { expandHomePath, resolveMwfHome } from '@metaworkflow/home-paths'
+import type { JsonValue } from '@metaworkflow/util-values'
 import { DatabaseSlot } from './database.ts'
+import { answerDecision, insertDecision, selectPendingDecisions } from './decisions.ts'
 import { WorkflowProjectStoreError } from './errors.ts'
 import { OWNER_ONLY_DIRECTORY_MODE } from './open.ts'
 import {
@@ -58,6 +60,9 @@ import { runTransaction } from './transaction.ts'
 import type {
   AttemptId,
   CreateProjectRequest,
+  DecisionAnswer,
+  DecisionRecord,
+  DecisionRequestInput,
   DefinitionRecord,
   OutboxRecord,
   ProjectId,
@@ -553,6 +558,60 @@ export default class WorkflowProjectStore extends Service {
     return slot.queue.run(async () => {
       const db = await slot.connection()
       return runTransaction(db, () => ackOutboxRow(db, attemptId, eventSeq, Date.now()))
+    })
+  }
+
+  /**
+   * Record one decision request from a waiting node attempt.
+   *
+   * The request is the durable fact behind a `waiting` activation: it names the
+   * attempt that asked and carries the question, so a coordinator answering
+   * later never depends on the asking process still running.
+   * @param projectId - registered project to write.
+   * @param request - the request, its activation, and its attempt.
+   * @returns nothing; the row is durable when the call resolves.
+   * @throws {@link WorkflowProjectStoreError} `invalid-project-id` or
+   * `project-not-found` for the project, and the database's own error when the
+   * activation is absent or the request id is already recorded.
+   */
+  async requestDecision(projectId: ProjectId, request: DecisionRequestInput): Promise<void> {
+    const { slot } = await this.projectSlotFor(projectId)
+    await slot.queue.run(async () => {
+      const db = await slot.connection()
+      runTransaction(db, () => { insertDecision(db, request, Date.now()) })
+    })
+  }
+
+  /**
+   * Every unanswered decision request of one project, oldest first.
+   * @param projectId - registered project to read.
+   * @returns the pending requests with the run and node they belong to.
+   * @throws {@link WorkflowProjectStoreError} `invalid-project-id`,
+   * `project-not-found`, or `invalid-record` for a corrupt stored payload.
+   */
+  async listPendingDecisions(projectId: ProjectId): Promise<DecisionRecord[]> {
+    const { slot } = await this.projectSlotFor(projectId)
+    return selectPendingDecisions(await slot.connection())
+  }
+
+  /**
+   * Record the coordinator's answer to one decision request.
+   *
+   * The first answer is authoritative: a repeated answer reports the recorded
+   * one instead of replacing it, so a retried tool call cannot redirect work
+   * that already resumed.
+   * @param projectId - registered project to write.
+   * @param requestId - request being answered.
+   * @param response - the answer, as lossless JSON.
+   * @returns what the call did: this answer, the earlier answer, or that no such request exists.
+   * @throws {@link WorkflowProjectStoreError} `invalid-project-id`,
+   * `project-not-found`, or `invalid-record` for a corrupt stored payload.
+   */
+  async answerDecision(projectId: ProjectId, requestId: string, response: JsonValue): Promise<DecisionAnswer> {
+    const { slot } = await this.projectSlotFor(projectId)
+    return slot.queue.run(async () => {
+      const db = await slot.connection()
+      return runTransaction(db, () => answerDecision(db, requestId, response, Date.now()))
     })
   }
 

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`ctx.mwfAgentExecutor` connects the workflow scheduler to the Agent runtime. The scheduler owns readiness, retries, loops, and durable rows; this plugin supplies the `agent` node kind, so one ready activation becomes one child Agent composed from the node's stored configuration. The child receives the node's instructions as its persona, a tool allow list that selects capabilities without deriving permissions, a memory policy that decides whether it continues an earlier conversation, and a completion tool whose `value` parameter is the node's `outputSchema`. The node's result is whatever that tool recorded, and plain assistant text is never a result.
+`ctx.mwfAgentExecutor` connects the workflow scheduler to the Agent runtime. The scheduler owns readiness, retries, loops, and durable rows; this plugin supplies the `agent` node kind, so one ready activation becomes one child Agent composed from the node's stored configuration. The child receives the node's instructions as its persona, a tool allow list that selects capabilities without deriving permissions, a memory policy, the completion tool whose `value` parameter is the node's `outputSchema`, and the decision tool it asks its project coordinator through. The node's result is whatever the completion tool recorded; a decision request suspends the activation instead.
 
 ## Table of Contents
 
@@ -47,7 +47,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#metaworkfl
 
 | Member | Behavior |
 |---|---|
-| `execute(activation, inputs, signal)` | Reads the run's stored definition revision, opens the project directory, composes the child Agent, drives one turn, and returns `{ status: 'succeeded', value }` or `{ status: 'failed', error, retryable }` |
+| `execute(activation, inputs, signal)` | Reads the run's stored definition revision, opens the project directory, composes the child Agent, drives one turn, and returns `{ status: 'succeeded', value }`, `{ status: 'waiting', requestId }`, or `{ status: 'failed', error, retryable }` |
 | `nodeSessions` | The `ctx.mwfNodeSessions` registry: which attempt each running child Agent session serves |
 
 The scheduler reaches `execute` through the registered `agent` executor; the public method exists so a caller can test one activation without driving a run. Abort is the one rejection: an aborted signal reports the abort instead of a node failure, because a paused or canceled run must not record one. `ctx.mwfNodeSessions` is registered in this plugin's own scope, so the completion tool and the executor share it by construction.
@@ -57,6 +57,8 @@ The scheduler reaches `execute` through the registered `agent` executor; the pub
 | Outcome | Result |
 |---|---|
 | The completion tool accepted a value | `succeeded` with that value |
+| The decision tool recorded a request | `waiting` with that request id; the scheduler releases the slot and `resumeActivation` continues the node |
+| The project database could not record a decision request | the tool reports `agent/decision-unavailable` to the model inside the same turn, so the node may continue without a request it never recorded |
 | The turn ended without a completion | `failed` `agent/completion-missing`, retryable |
 | The loop ended the turn with an error | `failed` `agent/turn-failed`, retryable |
 | The turn reached the model's output-token ceiling | `failed` `agent/turn-failed`, retryable |
@@ -86,6 +88,10 @@ The service holds three things: its resolved deadline, one `ctx.effect` registra
 
 **Memory.** `fresh` creates a session per activation and records nothing. `retained` reads the project's `schema_meta` compatibility row for this run and node; a recorded session is resumed through `ctx.agents.resume()`, and a first activation creates one and records it before the turn starts. The run is part of the key, so two runs of the same definition never share a conversation, and a loop iteration is not, so a `retained` node keeps one conversation across the activations of its run. Resume follows the Agent runtime's own semantics: a log whose tail never closed is closed by the loop, and the executor never repairs a session log itself.
 
+**Decisions.** [`@metaworkflow/tool-request-decision`](../tool-request-decision/README.md) supplies the `request_decision` tool every child gets. Its `onRequest` closure writes one `decisions` row naming this activation and attempt, emits `workflow/decision-requested`, and hands the request id back, which the attempt's cell keeps. A turn that ends with a recorded request is `waiting`: the executor commits no result, the scheduler frees the execution slot, and the coordinator's answer arrives as the resumed attempt's input under `decision`. An answer the scheduler stored for the activation is merged into the task message's input block, so a `fresh` node starts a new conversation that knows what was decided and a `retained` one continues its own.
+
+**Lineage.** The child session's `parentSession` names the project's coordinator Session, resolved through `ctx.get('mwfCoordinator')` when the deployment mounts one. A composition without the coordinator runs nodes unparented instead of failing them.
+
 **Completion.** The tool itself lives in [`@metaworkflow/tool-complete-node`](../tool-complete-node/README.md): each activation creates one instance from the node's stored `outputSchema` and an `onAccept` closure writing this attempt's completion slot. That package owns the `{ value: <outputSchema> }` parameter schema, the `ToolArgsError` backfill, the two-phase commit behind `tools/result`, and the monotonic duplicate guard; the executor consumes only the accepted value, which `exec.concludeTurn()` makes terminal for the turn. The scheduler commits that value as the attempt's result in its own transaction, so the completion and the attempt row land together or not at all.
 
 **Lifetime.** One call is one turn. The executor sends the task message, waits for the agent to reach quiescence, reads the outcome, and disposes the Agent handle — the session, not the Agent, is what a retained node keeps. The scheduler's abort signal cancels the turn and is then rethrown, and the deadline cancels the turn before reporting `agent/timeout`.
@@ -109,6 +115,8 @@ The service holds three things: its resolved deadline, one `ctx.effect` registra
 - [Workflow project store](../project-store/README.md) — where definition revisions, runs, and the retained-session row live.
 - [Workflow definition](../definition/README.md) — the agent node configuration this executor reads.
 - [Node completion tool](../tool-complete-node/README.md) — the tool every child uses to report its result.
+- [Decision tool](../tool-request-decision/README.md) — the tool a child asks its project coordinator a question through.
+- [Workflow coordinator](../coordinator/README.md) — the Session that answers those questions and parents the child conversation.
 - [Generated configuration catalog](../../../docs/config-catalog.md#metaworkflowworkflow-agent-executor) — every accepted field.
 
 -----
@@ -144,11 +152,25 @@ Conditional. The declaration is present on every request of the node's turn and 
 
 Append-only within one turn. The declaration and the instruction are stable for the whole conversation, so they keep the prefix reusable; a different node's output schema, or a definition revision that changes it, produces a different request series.
 
+### Decision tool
+
+#### What the model sees
+
+The generated [`request_decision` schema](../../../docs/tool-catalog.md#metaworkflowtool-request-decision), whose one required question carries the optional candidate answers and structured detail the node proposes. [`@metaworkflow/tool-request-decision`](../tool-request-decision/README.md) owns the definition and its card metadata; this package decides only that it is present in every child.
+
+#### Token effect
+
+Conditional. The declaration is present on every request of the node's turn, and the tool result names the request id the coordinator will answer.
+
+#### KV Cache effect
+
+Append-only within one turn. The declaration is stable for the whole conversation.
+
 ### Task message
 
 #### What the model sees
 
-One user-role message naming the node, its `iteration` and `attempt` numbers, and the activation's assembled input values as a JSON code block.
+One user-role message naming the node, its `iteration` and `attempt` numbers, and the activation's assembled input values as a JSON code block. A resumed attempt includes the coordinator's answer as one more value in that block, under `decision`.
 
 #### Token effect
 
@@ -160,10 +182,11 @@ Append-only. Each activation appends a new message after the previous turn, so t
 
 ## Known Limitations and Deferred Work
 
-- **No coordinator session** — a child Agent records no `parentSession`, because the run has no coordinating conversation yet; the durable lineage a later stage needs arrives with that conversation.
+- **One request per attempt** — a node that asks a decision suspends once per turn; a second question needs another activation, which the resumed attempt provides.
+- **A binding named `decision` is overwritten** — the resumed attempt's input block carries the coordinator's answer under `decision`, so a node that also declares an input binding with that name sees the answer instead of its own value.
 - **Deployment-wide model** — a node cannot select its own provider, model, or reasoning effort; every child uses `ctx.agentDefaultModel` until the definition model grows a model field.
 - **No artifact publication** — a node reports a JSON value only, so files a child writes are not published as `NodeArtifact` records and an `artifact` input binding has nothing to read from this executor.
-- **One turn per activation** — the executor sends one task message and never steers, so a child that asks a question or waits for input ends the turn as `agent/completion-missing` rather than suspending the activation.
+- **One turn per activation** — the executor sends one task message and never steers, so a child that ends its turn without a completion and without a decision request fails as `agent/completion-missing` rather than suspending the activation.
 - **Permission state is not captured** — the child inherits whatever the composition grants its scope; this stage captures no delegation policy onto the session log.
 
 <a id="dev-note"></a>

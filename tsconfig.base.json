@@ -375,6 +375,7 @@
       "@metaworkflow/workflow-python-runner": ["./packages/workflow/python-runner/src"],
       "@metaworkflow/workflow-python-executor": ["./packages/workflow/python-executor/src"],
       "@metaworkflow/workflow-agent-executor": ["./packages/workflow/agent-executor/src"],
+      "@metaworkflow/workflow-coordinator": ["./packages/workflow/coordinator/src"],
       // BEGIN generated package aliases — pnpm run gen-tsconfig-paths
       "@metaworkflow/acp": ["./packages/acp/acp/src"],
       "@metaworkflow/acp-app": ["./packages/bundle/acp-app/src"],
@@ -540,6 +541,7 @@
       "@metaworkflow/tool-present": ["./packages/deliverables/tool-present/src"],
       "@metaworkflow/tool-pwsh-persistent": ["./packages/shell/tool-pwsh-persistent/src"],
       "@metaworkflow/tool-ralph": ["./packages/experimental/tool-ralph/src"],
+      "@metaworkflow/tool-request-decision": ["./packages/workflow/tool-request-decision/src"],
       "@metaworkflow/tool-schedule": ["./packages/schedule/tool-schedule/src"],
       "@metaworkflow/tool-session-query": ["./packages/experimental/tool-session-query/src"],
       "@metaworkflow/tool-skill": ["./packages/skill/tool-skill/src"],

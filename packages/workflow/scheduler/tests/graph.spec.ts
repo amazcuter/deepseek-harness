@@ -320,7 +320,7 @@ describe('failures', () => {
     h.scheduler.registerExecutor(new FakeExecutor('python', (call) => {
       if (call.activation.node.id === 'a' && !suspended) {
         suspended = true
-        return { status: 'waiting', reason: 'awaiting a decision' }
+        return { status: 'waiting', requestId: 'decision-1' }
       }
       return { status: 'succeeded', value: null }
     }))
