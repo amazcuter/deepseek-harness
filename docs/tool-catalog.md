@@ -46,6 +46,7 @@ This table connects model-visible tool names to the plugin package and service s
 | `@metaworkflow/tool-working-directory` | `working_directory` | `ctx.tools`, `ctx.workingDirectory` | `tool/call`, `working-directory/change`, `user context for directory changes`, `tool/result` | - | Reads or changes the calling Session directory. Existing shells and processes retain their own directories; origin metadata and permission roots stay fixed. |
 | `@metaworkflow/experimental-tool-worktree` | `create_worktree` | `ctx.tools`, `ctx.worktrees`, `a calling Agent` | `tool/call`, `Git branch and checkout`, `working-directory/change`, `tool/result` | - | Explicit experimental composition only. Creates a new branch and checkout from a pinned local commit under existing write permissions, then changes the Session directory. Leaving retains the branch and checkout. |
 | `@metaworkflow/tool-workflow` | `workflow` | `ctx.tools`, `ctx.workflowEngine`, `ctx.systemPrompt`, `a calling Agent (exec.agent parents the script children)` | `tool/call`, `tool/result` | - | - |
+| `@metaworkflow/tool-complete-node` | `submit_node_result` | `ctx.tools`, `ctx.systemPrompt` | `tool/call`, `tool/result` | - | The `value` parameter is the stored `outputSchema` of the executing node, so each workflow node sees its own schema; this page shows one representative node. A submission is recorded only after its own result succeeds, and the monotonic guard refuses every later call in the turn. |
 | `@metaworkflow/tool-workspace-dependencies` | `load_workspace_dependencies` | `ctx.tools` | `tool/call`, `tool/result` | - | - |
 | `@metaworkflow/tool-web` | `web_fetch`, `web_search` | `ctx.tools`, `ctx.web`, `ctx.systemPrompt` | `tool/call`, `tool/result` | - | web_search and web_fetch keep provider selection behind ctx.web so model-visible schemas stay stable across backend swaps. |
 
@@ -2754,6 +2755,42 @@ Misused hooks (bad arguments, unknown options, unsupported schemas, tripped caps
 ```
 
 Source: [`packages/workflow/tool-workflow/src/index.ts`](../packages/workflow/tool-workflow/src/index.ts)
+
+<a id="metaworkflowtool-complete-node"></a>
+
+## `@metaworkflow/tool-complete-node`
+
+### `submit_node_result`
+
+Submit this workflow node's structured result. Call it exactly once, when the node's work is complete; a plain text answer is not a completion, and the arguments must match this tool's parameter schema exactly.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "value": {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "answer"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "value"
+  ],
+  "additionalProperties": false
+}
+```
+
+Source: [`packages/workflow/tool-complete-node/src/index.ts`](../packages/workflow/tool-complete-node/src/index.ts)
+
+The `value` parameter is the stored `outputSchema` of the executing node, so each workflow node sees its own schema; this page shows one representative node. A submission is recorded only after its own result succeeds, and the monotonic guard refuses every later call in the turn.
 
 <a id="metaworkflowtool-workspace-dependencies"></a>
 

@@ -26,6 +26,7 @@ import type { Agent, AgentHandle, AgentOptions } from '@metaworkflow/agent'
 import { brandString } from '@metaworkflow/brand'
 import { createUserMessage } from '@metaworkflow/llm'
 import type { SessionId, TurnEndReason } from '@metaworkflow/session'
+import { createCompleteNodeTool } from '@metaworkflow/tool-complete-node'
 import type { JsonValue } from '@metaworkflow/util-values'
 import { parseDefinitionDocument } from '@metaworkflow/workflow-definition'
 import type { AgentNodeConfig } from '@metaworkflow/workflow-definition'
@@ -37,14 +38,13 @@ import type {} from '@metaworkflow/workflow-scheduler'
 import type {} from '@metaworkflow/workflow-project-store'
 import type {} from '@metaworkflow/agent-default-model'
 import type {} from '@metaworkflow/session-persistence'
-import { attachCompletionTool } from './completion.ts'
 import { NodeSessionRegistry } from './node-sessions.ts'
 import { retainedSessionKey, selectRetainedSessions, upsertRetainedSession } from './retained-sessions.ts'
 import type { AgentExecutorErrorCode, Config } from './types.ts'
 
 export type * from './types.ts'
 export { NodeSessionRegistry } from './node-sessions.ts'
-export { COMPLETION_INSTRUCTION, COMPLETION_TOOL_NAME } from './completion.ts'
+export { COMPLETION_INSTRUCTION, COMPLETION_TOOL_NAME } from '@metaworkflow/tool-complete-node'
 export { RETAINED_SESSIONS_KEY } from './retained-sessions.ts'
 
 /** The deadline one node turn gets when the plugin configuration omits one. */
@@ -300,7 +300,13 @@ export default class AgentExecutor extends Service {
       // prompt variables do not rewrite authored text.
       interpolate: false,
     })
-    attachCompletionTool(childCtx, { schema: config.outputSchema, record: (value) => { cell.value = value } })
+    const completion = createCompleteNodeTool({
+      outputSchema: config.outputSchema,
+      // The sink closes over this activation's slot, so an accepted value can
+      // only ever settle the attempt whose session the registry already mapped.
+      onAccept: (value) => { cell.value = value },
+    })
+    completion.attach(childCtx)
     try {
       childCtx.tools.restrict({ allow: [...config.tools] })
     } catch (error: unknown) {

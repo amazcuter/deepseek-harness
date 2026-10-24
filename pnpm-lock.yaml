@@ -15837,6 +15837,9 @@ importers:
       '@metaworkflow/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
+      '@metaworkflow/tool-complete-node':
+        specifier: workspace:*
+        version: link:../tool-complete-node
       '@metaworkflow/tools':
         specifier: workspace:*
         version: link:../../core/tools
@@ -15943,6 +15946,21 @@ importers:
       '@deepseek-ai/cordis':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+
+  packages/workflow/tool-complete-node:
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@metaworkflow/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@metaworkflow/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+      '@metaworkflow/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
 
   packages/workflow/tool-workflow:
     dependencies:

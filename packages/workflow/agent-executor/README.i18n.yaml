@@ -30,11 +30,11 @@
   en: 1001624888ee4411
   zh: 6971cc6096a7e6c8
 /metaworkflow-workflow-agent-executor/understand-the-implementation:
-  en: d05fe3869cf06aeb
-  zh: 5a0f0af732b31256
+  en: eeea19d7fd2dbed4
+  zh: acdaab29416c70a8
 /metaworkflow-workflow-agent-executor/further-exploration:
-  en: 44eba40e9717a175
-  zh: a1a8fd78827f73c7
+  en: 0c84694a780583fb
+  zh: 29ccd18f6dccac8c
 /metaworkflow-workflow-agent-executor/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -54,11 +54,8 @@
   en: 456bc8656ff92d65
   zh: f07360d99ca28251
 /metaworkflow-workflow-agent-executor/model-experience/completion-tool/what-the-model-sees:
-  en: dd73971057fd3bf4
-  zh: 894cc0d4d753f8a8
-/metaworkflow-workflow-agent-executor/model-experience/completion-tool/what-the-model-sees/completion-instruction:
-  en: 793195bed28163c6
-  zh: df8d0d1719297d3e
+  en: 01df9b9851e7b7e8
+  zh: 604586dd12e6c475
 /metaworkflow-workflow-agent-executor/model-experience/completion-tool/token-effect:
   en: 18147827ab762cce
   zh: 13638713127a7886
@@ -78,8 +75,8 @@
   en: b5a8a9b38d1b96de
   zh: 95e5938de5c5ba4d
 /metaworkflow-workflow-agent-executor/known-limitations-and-deferred-work:
-  en: 180edfdcaa17c854
-  zh: 48fb47b0a1c3d576
+  en: 8ba8d0cb7c203d31
+  zh: ff71517a705d8ad6
 /metaworkflow-workflow-agent-executor/known-limitations-and-deferred-work/dev-note:
   en: 6661f34b8f6a6cdf
   zh: f9f10a80cd062e23

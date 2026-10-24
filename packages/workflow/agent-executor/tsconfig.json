@@ -46,6 +46,9 @@
     },
     {
       "path": "../scheduler"
+    },
+    {
+      "path": "../tool-complete-node"
     }
   ]
 }

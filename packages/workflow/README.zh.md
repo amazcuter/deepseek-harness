@@ -32,6 +32,7 @@ workflow 组让 agent（智能体）可以运行编排脚本，将工作委派�
 | [`definition`](definition/README.zh.md) | 定义、校验并路由工作流图文档 | 纯函数库（无 `ctx` 键） |
 | [`scheduler`](scheduler/README.zh.md) | 把已存储的定义编排成可恢复的运行，并驱动节点执行器 | `ctx.mwfScheduler` |
 | [`python-executor`](python-executor/README.zh.md) | 在真实解释器上、于项目工作目录中运行调度器的 `python` 激活 | `ctx.mwfPythonExecutor` |
+| [`tool-complete-node`](tool-complete-node/README.zh.md) | 为工作流 agent 节点提供报告结构化结果的 `submit_node_result` 工具 | 纯库（无 `ctx` 键） |
 | [`agent-executor`](agent-executor/README.zh.md) | 把调度器的 `agent` 激活作为受限的 DSH 子 Agent 运行，并报告结构化结果 | `ctx.mwfAgentExecutor` |
 
 -----

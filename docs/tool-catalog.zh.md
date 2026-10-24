@@ -50,6 +50,7 @@
 | `@metaworkflow/tool-working-directory` | `working_directory` | `ctx.tools`, `ctx.workingDirectory` | `tool/call`, `working-directory/change`, `user context for directory changes`, `tool/result` | - | 读取或改变调用方 Session 的目录。已有 shell 和进程保留自己的目录；原始元数据和权限根目录保持不变。 |
 | `@metaworkflow/experimental-tool-worktree` | `create_worktree` | `ctx.tools`, `ctx.worktrees`, `a calling Agent` | `tool/call`, `Git branch and checkout`, `working-directory/change`, `tool/result` | - | 仅通过显式实验组合加载。在现有写权限下从固定的本地提交创建新分支与检出目录，再改变 Session 工作目录。离开时保留分支与检出目录。 |
 | `@metaworkflow/tool-workflow` | `workflow` | `ctx.tools`、`ctx.workflowEngine`、`ctx.systemPrompt`、`a calling Agent (exec.agent parents the script children)` | `tool/call`、`tool/result` | - | - |
+| `@metaworkflow/tool-complete-node` | `submit_node_result` | `ctx.tools`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | `value` 参数是执行中节点已存储的 `outputSchema`，因此每个工作流节点看到各自的 schema；本页展示其中一个代表性节点。只有在提交自身的结果成功之后才会记录提交，且单调守卫会拒绝该回合中之后的每次调用。 |
 | `@metaworkflow/tool-workspace-dependencies` | `load_workspace_dependencies` | `ctx.tools` | `tool/call`, `tool/result` | - | - |
 | `@metaworkflow/tool-web` | `web_fetch`、`web_search` | `ctx.tools`、`ctx.web`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | web_search 和 web_fetch 将提供方选择置于 ctx.web 之后，使模型可见 schema 在更换后端时保持稳定。 |
 
@@ -2762,6 +2763,42 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
 ```
 
 来源：[`packages/workflow/tool-workflow/src/index.ts`](../packages/workflow/tool-workflow/src/index.ts)
+
+<a id="metaworkflowtool-complete-node"></a>
+
+## `@metaworkflow/tool-complete-node`
+
+### `submit_node_result`
+
+提交本工作流节点的结构化结果。当节点的工作完成时恰好调用一次；纯文本回答不构成完成，且参数必须与工具的参数 schema 完全匹配。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "value": {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "answer"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "value"
+  ],
+  "additionalProperties": false
+}
+```
+
+来源：[`packages/workflow/tool-complete-node/src/index.ts`](../packages/workflow/tool-complete-node/src/index.ts)
+
+`value` 参数是执行中节点已存储的 `outputSchema`，因此每个工作流节点看到各自的 schema；本页展示其中一个代表性节点。只有在提交自身的结果成功之后才会记录提交，且单调守卫会拒绝该回合中之后的每次调用。
 
 <a id="metaworkflowtool-workspace-dependencies"></a>
 

@@ -530,6 +530,7 @@
       "@metaworkflow/tool-ask-user": ["./packages/interaction/tool-ask-user/src"],
       "@metaworkflow/tool-bash": ["./packages/shell/tool-bash/src"],
       "@metaworkflow/tool-bash-persistent": ["./packages/shell/tool-bash-persistent/src"],
+      "@metaworkflow/tool-complete-node": ["./packages/workflow/tool-complete-node/src"],
       "@metaworkflow/tool-cordis": ["./packages/extensions/tool-cordis/src"],
       "@metaworkflow/tool-fs": ["./packages/fs/tool-fs/src"],
       "@metaworkflow/tool-fs-search": ["./packages/fs/tool-fs-search/src"],

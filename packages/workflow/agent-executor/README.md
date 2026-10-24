@@ -86,14 +86,13 @@ The service holds three things: its resolved deadline, one `ctx.effect` registra
 
 **Memory.** `fresh` creates a session per activation and records nothing. `retained` reads the project's `schema_meta` compatibility row for this run and node; a recorded session is resumed through `ctx.agents.resume()`, and a first activation creates one and records it before the turn starts. The run is part of the key, so two runs of the same definition never share a conversation, and a loop iteration is not, so a `retained` node keeps one conversation across the activations of its run. Resume follows the Agent runtime's own semantics: a log whose tail never closed is closed by the loop, and the executor never repairs a session log itself.
 
-**Completion.** The tool's parameter schema is `{ value: <node outputSchema> }`, validated with the shared JSON Schema validator. An invalid submission raises `ToolArgsError`, which the tool pipeline reports as an error result so the model can correct it inside the same turn. A valid submission is staged by execution identity and committed only after its own `tools/result` succeeds, keyed so a later pipeline failure discards it; a monotonic guard then refuses every later tool call in that turn, which is what makes a duplicate call unable to replace or extend a recorded result. `exec.concludeTurn()` ends the turn, and the scheduler commits the value as the attempt's result in its own transaction, so the completion and the attempt row land together or not at all.
+**Completion.** The tool itself lives in [`@metaworkflow/tool-complete-node`](../tool-complete-node/README.md): each activation creates one instance from the node's stored `outputSchema` and an `onAccept` closure writing this attempt's completion slot. That package owns the `{ value: <outputSchema> }` parameter schema, the `ToolArgsError` backfill, the two-phase commit behind `tools/result`, and the monotonic duplicate guard; the executor consumes only the accepted value, which `exec.concludeTurn()` makes terminal for the turn. The scheduler commits that value as the attempt's result in its own transaction, so the completion and the attempt row land together or not at all.
 
 **Lifetime.** One call is one turn. The executor sends the task message, waits for the agent to reach quiescence, reads the outcome, and disposes the Agent handle — the session, not the Agent, is what a retained node keeps. The scheduler's abort signal cancels the turn and is then rethrown, and the deadline cancels the turn before reporting `agent/timeout`.
 
 | File | Responsibility |
 |---|---|
 | `src/index.ts` | Plugin, executor registration, composition, turn driving, outcome mapping |
-| `src/completion.ts` | Completion tool, its prompt section, terminal guard, and two-phase capture |
 | `src/node-sessions.ts` | `ctx.mwfNodeSessions`, the live session-to-attempt registry |
 | `src/retained-sessions.ts` | The durable retained-session mapping in the project database |
 | `src/types.ts` | Configuration, failure codes, and the session record |
@@ -109,6 +108,7 @@ The service holds three things: its resolved deadline, one `ctx.effect` registra
 - [Workflow scheduler](../scheduler/README.md) — who dispatches the activations this plugin runs.
 - [Workflow project store](../project-store/README.md) — where definition revisions, runs, and the retained-session row live.
 - [Workflow definition](../definition/README.md) — the agent node configuration this executor reads.
+- [Node completion tool](../tool-complete-node/README.md) — the tool every child uses to report its result.
 - [Generated configuration catalog](../../../docs/config-catalog.md#metaworkflowworkflow-agent-executor) — every accepted field.
 
 -----
@@ -134,13 +134,7 @@ Append-only. The section text is fixed for a given stored revision, so it extend
 
 #### What the model sees
 
-The `submit_node_result` tool declaration, whose single required `value` parameter is the node's stored `outputSchema`, plus one trailing instruction section that names the tool and forbids finishing with plain text.
-
-##### Completion instruction
-
-```markdown
-When the node's work is complete, you MUST report its result by calling the `submit_node_result` tool with arguments matching its parameter schema exactly. Do not finish with a plain text answer: only that tool call counts as the node result.
-```
+The generated [`submit_node_result` schema](../../../docs/tool-catalog.md#metaworkflowtool-complete-node), whose single required `value` parameter is the node's stored `outputSchema`, plus one trailing instruction section that names the tool and forbids finishing with plain text. [`@metaworkflow/tool-complete-node`](../tool-complete-node/README.md) owns both; this package decides only that they are present in every child.
 
 #### Token effect
 
@@ -168,7 +162,6 @@ Append-only. Each activation appends a new message after the previous turn, so t
 
 - **No coordinator session** — a child Agent records no `parentSession`, because the run has no coordinating conversation yet; the durable lineage a later stage needs arrives with that conversation.
 - **Deployment-wide model** — a node cannot select its own provider, model, or reasoning effort; every child uses `ctx.agentDefaultModel` until the definition model grows a model field.
-- **Completion tool inside this package** — the tool, its instruction, and its guard live here until the shared workflow tool package owns them.
 - **No artifact publication** — a node reports a JSON value only, so files a child writes are not published as `NodeArtifact` records and an `artifact` input binding has nothing to read from this executor.
 - **One turn per activation** — the executor sends one task message and never steers, so a child that asks a question or waits for input ends the turn as `agent/completion-missing` rather than suspending the activation.
 - **Permission state is not captured** — the child inherits whatever the composition grants its scope; this stage captures no delegation policy onto the session log.

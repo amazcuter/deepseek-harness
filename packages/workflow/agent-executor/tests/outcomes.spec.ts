@@ -124,10 +124,11 @@ describe('agent node outcomes', () => {
       const runId = await h.start(revision)
       const activation = await activationFor(h, runId, 'ask')
       await h.disposeLoop()
-      // The fallback this covers is a foreign non-Error rejection.
-      const refused = (): Promise<never> =>
-        // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- see above
-        Promise.reject('the factory refused')
+      // The fallback this covers is a foreign non-Error rejection; throwing a
+      // string rethrows nothing an `Error` rule can rewrite into an Error.
+      const refused = async (): Promise<never> => {
+        throw 'the factory refused'
+      }
       h.ctx.agents.setFactory({ createAgent: refused, resume: refused })
       const result = await h.executor.execute(activation, {}, new AbortController().signal)
       expect(result).toMatchObject({ status: 'failed', error: { code: 'agent/session-unavailable' }, retryable: false })

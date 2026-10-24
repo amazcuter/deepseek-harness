@@ -80,6 +80,7 @@ import * as ToolWeb from '@metaworkflow/tool-web'
 import WorkflowEngine from '@metaworkflow/workflow'
 import type { WorkflowRun, WorkflowStartRequest } from '@metaworkflow/workflow'
 import * as ToolRalph from '@metaworkflow/tool-ralph'
+import { createCompleteNodeTool } from '@metaworkflow/tool-complete-node'
 import * as ToolWorkflow from '@metaworkflow/tool-workflow'
 import * as ToolWorkspaceDependencies from '@metaworkflow/tool-workspace-dependencies'
 import { githubSlug } from './verify-md-links.ts'
@@ -659,6 +660,29 @@ const TOOL_PACKAGES: ToolPackage[] = [
       await ctx.plugin(CatalogWorkflowEngine)
       await ctx.plugin(ToolWorkflow)
     },
+  },
+  {
+    pkg: '@metaworkflow/tool-complete-node',
+    dir: 'tool-complete-node',
+    source: 'packages/workflow/tool-complete-node/src/index.ts',
+    requires: ['ctx.tools', 'ctx.systemPrompt'],
+    writes: ['tool/call', 'tool/result'],
+    mount(ctx) {
+      // One representative node schema stands in for the stored schema a workflow
+      // node supplies; the completion tool never executes during the harvest.
+      createCompleteNodeTool({
+        outputSchema: {
+          type: 'object',
+          properties: { answer: { type: 'string' } },
+          required: ['answer'],
+          additionalProperties: false,
+        },
+        onAccept: () => undefined,
+      }).attach(ctx)
+      return Promise.resolve()
+    },
+    note:
+      'The `value` parameter is the stored `outputSchema` of the executing node, so each workflow node sees its own schema; this page shows one representative node. A submission is recorded only after its own result succeeds, and the monotonic guard refuses every later call in the turn.',
   },
   {
     pkg: '@metaworkflow/tool-workspace-dependencies',

@@ -1,0 +1,41 @@
+{
+  "name": "@metaworkflow/tool-complete-node",
+  "description": "Model-facing completion tool for workflow agent nodes (submit_node_result): the only structured way a node reports its result, with two-phase commit, a monotonic duplicate guard, and reusable card metadata",
+  "version": "0.2.1-rc.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/workflow/tool-complete-node"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:~",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "workspace:~",
+    "@metaworkflow/system-prompt": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
+  }
+}

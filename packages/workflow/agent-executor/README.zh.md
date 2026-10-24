@@ -86,14 +86,13 @@ kind: "package-reference"
 
 **记忆。** `fresh` 为每次激活新建会话且不记录任何东西。`retained` 读取项目 `schema_meta` 兼容行中该运行与该节点的记录：有记录的会话通过 `ctx.agents.resume()` 恢复；首次激活则先创建并在回合开始前记录。运行本身是键的一部分，因此同一定义的两个运行不会共用对话；循环迭代不是，因此 `retained` 节点在其所属运行的多次激活之间保持同一次对话。恢复遵循 Agent 运行时既有语义：尾部未闭合的日志由循环补上闭合，执行器从不自行修复会话日志。
 
-**完成。** 工具的参数 schema 是 `{ value: <节点 outputSchema> }`，用共享的 JSON Schema 校验器校验。非法提交抛出 `ToolArgsError`，工具管线把它报告为错误结果，模型可以在同一回合内改正。合法提交按执行身份暂存，只有它自己的 `tools/result` 成功后才提交，键位保证后续管线失败会丢弃它；随后一个单调守卫会拒绝该回合之后的所有工具调用，这正是重复调用无法替换或扩展已记录结果的原因。`exec.concludeTurn()` 结束回合，调度器在自己的事务里把该值提交为这次尝试的结果，因此完成与尝试行要么一起落盘，要么都不落盘。
+**完成。** 工具本身位于 [`@metaworkflow/tool-complete-node`](../tool-complete-node/README.zh.md)：每次激活都用节点已存储的 `outputSchema` 与一个写入本次尝试完成槽位的 `onAccept` 闭包创建一个实例。该包拥有 `{ value: <outputSchema> }` 参数 schema、`ToolArgsError` 回填、`tools/result` 之后的两阶段提交，以及单调重复守卫；执行器只消费被接受的值，而 `exec.concludeTurn()` 让该回合就此终止。调度器在自己的事务里把该值提交为这次尝试的结果，因此完成与尝试行要么一起落盘，要么都不落盘。
 
 **生命周期。** 一次调用就是一个回合。执行器发出任务消息、等待 Agent 归于一静、读取结果，然后销毁 Agent 句柄——`retained` 节点保留的是会话，不是 Agent。调度器的中止信号会取消回合随后被重新抛出，期限则先取消回合再报告 `agent/timeout`。
 
 | 文件 | 职责 |
 |---|---|
 | `src/index.ts` | 插件、执行器注册、装配、回合驱动、结果映射 |
-| `src/completion.ts` | 完成工具、其提示词段、终止守卫与两阶段捕获 |
 | `src/node-sessions.ts` | `ctx.mwfNodeSessions`，会话到尝试的在线注册表 |
 | `src/retained-sessions.ts` | 项目数据库中持久的 retained 会话映射 |
 | `src/types.ts` | 配置、失败码与会话记录 |
@@ -109,6 +108,7 @@ kind: "package-reference"
 - [工作流调度器](../scheduler/README.zh.md) —— 派发本插件所运行激活的一方。
 - [工作流项目存储](../project-store/README.zh.md) —— 定义修订、运行与 retained 会话行所在之处。
 - [工作流定义](../definition/README.zh.md) —— 本执行器读取的 agent 节点配置。
+- [节点完成工具](../tool-complete-node/README.zh.md) —— 每个子 Agent 用来报告结果的工具。
 - [生成的配置目录](../../../docs/config-catalog.zh.md#metaworkflowworkflow-agent-executor) —— 全部可接受字段。
 
 -----
@@ -134,13 +134,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-`submit_node_result` 工具声明，其唯一必填参数 `value` 就是节点已存储的 `outputSchema`；此外还有一段尾部指令，指明该工具并禁止用纯文本收尾。
-
-##### 完成指令
-
-```markdown
-When the node's work is complete, you MUST report its result by calling the `submit_node_result` tool with arguments matching its parameter schema exactly. Do not finish with a plain text answer: only that tool call counts as the node result.
-```
+生成的 [`submit_node_result` schema](../../../docs/tool-catalog.zh.md#metaworkflowtool-complete-node)，其唯一必填参数 `value` 就是节点已存储的 `outputSchema`；此外还有一段尾部指令，指明该工具并禁止用纯文本收尾。[`@metaworkflow/tool-complete-node`](../tool-complete-node/README.zh.md) 同时拥有两者；本包只决定每个子 Agent 中都必须存在它们。
 
 #### Token 影响
 
@@ -169,7 +163,6 @@ When the node's work is complete, you MUST report its result by calling the `sub
 
 - **没有统筹会话** —— 子 Agent 不记录 `parentSession`，因为运行尚无统筹对话；后续阶段所需的持久血缘会随该对话一起到来。
 - **部署级模型** —— 节点无法自行选择提供方、模型或推理力度；每个子 Agent 都使用 `ctx.agentDefaultModel`，直到定义模型长出 model 字段。
-- **完成工具仍在本包内** —— 该工具、其指令与守卫留在本包，直到共享的工作流工具包接管它们。
 - **不发布产物** —— 节点只报告 JSON 值，因此子 Agent 写出的文件不会作为 `NodeArtifact` 记录发布，`artifact` 输入绑定也没有可读的内容。
 - **每次激活一个回合** —— 执行器只发一条任务消息且从不引导，因此提问题或等待输入的子 Agent 会以 `agent/completion-missing` 结束回合，而不是让激活挂起。
 - **不捕获权限状态** —— 子 Agent 继承组合为其作用域授予的权限；本阶段不会把委派策略写入会话日志。

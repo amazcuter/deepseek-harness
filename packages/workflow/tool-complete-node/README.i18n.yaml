@@ -1,0 +1,70 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/workflow/tool-complete-node/README.md
+/:
+  en: 085da98a5c0b5d29
+  zh: 10da46efe8b4e886
+/metaworkflow-tool-complete-node:
+  en: 805d84b084417620
+  zh: 96063d04b90ab8b5
+/metaworkflow-tool-complete-node/summary:
+  en: bba1477d4f855f2e
+  zh: fcb289affb1b0d67
+/metaworkflow-tool-complete-node/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: bda879a892f240f0
+/metaworkflow-tool-complete-node/use-this-package:
+  en: bbff250eba0f1b89
+  zh: 0a618f05cc88ee2b
+/metaworkflow-tool-complete-node/use-this-package/when-to-use-it:
+  en: 7f495465f6db53d6
+  zh: 555c4714a8cdfeab
+/metaworkflow-tool-complete-node/use-this-package/entry-points:
+  en: 1fd01a9cb85f9237
+  zh: ef5e94bb31810720
+/metaworkflow-tool-complete-node/use-this-package/minimal-composition:
+  en: 02712b7928082e02
+  zh: 17667e78594042b7
+/metaworkflow-tool-complete-node/understand-the-implementation:
+  en: 75271a867b57bdca
+  zh: 227ec005b6d78761
+/metaworkflow-tool-complete-node/further-exploration:
+  en: 7913ef4c03d5dd54
+  zh: e242195aa1536475
+/metaworkflow-tool-complete-node/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/metaworkflow-tool-complete-node/model-experience/completion-tool-schema:
+  en: 38975c3687222e29
+  zh: 93d3583e16ab1328
+/metaworkflow-tool-complete-node/model-experience/completion-tool-schema/what-the-model-sees:
+  en: ccf8debba06437a0
+  zh: 6d9fa7d34ecf10f6
+/metaworkflow-tool-complete-node/model-experience/completion-tool-schema/token-effect:
+  en: a5b100b282c36299
+  zh: 8c0a91d7bfa6314c
+/metaworkflow-tool-complete-node/model-experience/completion-tool-schema/kv-cache-effect:
+  en: e8331f7fc9c57e34
+  zh: 88e7719e7ae74453
+/metaworkflow-tool-complete-node/model-experience/completion-instruction-section:
+  en: 6fcef533128fa9b2
+  zh: 41714633c026320c
+/metaworkflow-tool-complete-node/model-experience/completion-instruction-section/what-the-model-sees:
+  en: 1e9c53df87df22a6
+  zh: 2b11c9e6c89b0ffe
+/metaworkflow-tool-complete-node/model-experience/completion-instruction-section/what-the-model-sees/completion-instruction:
+  en: 793195bed28163c6
+  zh: df8d0d1719297d3e
+/metaworkflow-tool-complete-node/model-experience/completion-instruction-section/token-effect:
+  en: 81a60bf43fbe84e2
+  zh: c6743fb66251f7fb
+/metaworkflow-tool-complete-node/model-experience/completion-instruction-section/kv-cache-effect:
+  en: 14ae1260f493e3ab
+  zh: 78c9e587ebd815d1
+/metaworkflow-tool-complete-node/known-limitations-and-deferred-work:
+  en: 4cca9f2199e037a2
+  zh: e280015f08db718d
+/metaworkflow-tool-complete-node/known-limitations-and-deferred-work/dev-note:
+  en: 561ac95203b96ae0
+  zh: a3e3df6aca2ef12b
