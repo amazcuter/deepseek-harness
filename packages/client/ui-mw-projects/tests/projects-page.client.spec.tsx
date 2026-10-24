@@ -50,7 +50,7 @@ function ready(overrides: Partial<ProjectsSnapshot> = {}): ProjectsSnapshot {
 
 function bench(snapshot: ProjectsSnapshot = ready(), injected: Partial<Pick<ProjectsPageProps,
   'createProject' | 'openProject' | 'renameProject' | 'removeProject' | 'reloadProjects'
-  | 'resetImport' | 'importMermaid'>> = {}) {
+  | 'resetImport' | 'importMermaid' | 'useNovelTemplate'>> = {}) {
   const store = createSnapshotStore<ProjectsSnapshot>(snapshot)
   const actions = {
     createProject: vi.fn(),
@@ -60,6 +60,7 @@ function bench(snapshot: ProjectsSnapshot = ready(), injected: Partial<Pick<Proj
     reloadProjects: vi.fn(),
     resetImport: vi.fn(),
     importMermaid: vi.fn<(draft: ImportDraft) => void>(),
+    useNovelTemplate: vi.fn(),
     ...injected,
   }
   const props: ProjectsPageProps = {
@@ -173,6 +174,29 @@ describe('ProjectsPage empty state', () => {
     fireEvent.click(screen.getByRole('button', { name: zh['dashboard.import'] }))
     b.rerender({ ...ready(), import: { status: 'imported', projectId: 'imported' as ProjectId } })
     expect(screen.queryByRole('dialog')).toBeNull()
+  })
+})
+
+describe('ProjectsPage novel template entry', () => {
+  it('creates a project from the built-in template through the injected action', () => {
+    const b = bench(ready({ projects: [project('a', 'A')] }))
+    fireEvent.click(screen.getByRole('button', { name: zh['dashboard.templateNovelLabel'] }))
+    expect(b.actions.useNovelTemplate).toHaveBeenCalledOnce()
+    // The entry is a project source, not a dialog: the composition opens the
+    // project it registers, so no local dialog state appears here.
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('keeps the template entry inert while the list cannot be extended', () => {
+    bench({ ...ready(), view: { status: 'loading' } })
+    expect(screen.getByRole('button', { name: zh['dashboard.templateNovelLabel'] }))
+      .toHaveProperty('disabled', true)
+  })
+
+  it('disables the template entry while a mutation is in flight', () => {
+    bench(ready({ busy: true }))
+    expect(screen.getByRole('button', { name: zh['dashboard.templateNovelLabel'] }))
+      .toHaveProperty('disabled', true)
   })
 })
 

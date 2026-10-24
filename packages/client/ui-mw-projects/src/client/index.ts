@@ -31,6 +31,7 @@ import { en, zh, type ProjectsKey } from './locales.ts'
 import { ProjectsPage, type ProjectsPageInjected } from './ProjectsPage.tsx'
 import { ProjectsPanelIcon } from './ProjectsPanelIcon.tsx'
 import { ProjectsController, type ProjectId } from './projects.ts'
+import { NOVEL_TEMPLATE_DOCUMENT } from './templates/novel.ts'
 import { WorkbenchPage, type WorkbenchPageInjected } from './WorkbenchPage.tsx'
 import { WorkbenchController } from './workbench.ts'
 
@@ -111,6 +112,14 @@ export function apply(ctx: ClientContext): void {
           void controller.importMermaid(draft).then((imported) => {
             if (imported !== null) openProject(imported)
           })
+        },
+        useNovelTemplate: () => {
+          // The template registers the project and stores its definition, so
+          // opening goes through the same Host-confirmed path as any other row.
+          void controller.createFromTemplate(t('template.novel.title'), NOVEL_TEMPLATE_DOCUMENT)
+            .then((created) => {
+              if (created !== null) openProject(created)
+            })
         },
       }),
     }, ProjectsPage)

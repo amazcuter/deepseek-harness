@@ -1,0 +1,271 @@
+{
+  "version": 1,
+  "nodes": [
+    {
+      "id": "prepare",
+      "kind": "python",
+      "title": "准备大纲 / Prepare the outline",
+      "config": {
+        "kind": "python",
+        "source": "\"\"\"Prepare the novel project: the premise and the outline every draft follows.\"\"\"\nimport json\nimport pathlib\n\nROOT = pathlib.Path(__file__).resolve().parents[2]\n\nPREMISE = \"A lighthouse keeper's last winter on a remote island.\"\n\nOUTLINE = \"\"\"# Outline\n\nPremise: A lighthouse keeper's last winter on a remote island.\n\n1. Arrival: the keeper takes over a light nobody else wants.\n2. The storm: three days without a supply boat.\n3. The light fails at the worst possible hour.\n4. Relief: what the ship finds on the island.\n\"\"\"\n\n\ndef nodemain_prepare(inputs):\n    outline = ROOT / \"outline.md\"\n    outline.write_text(OUTLINE, encoding=\"utf-8\")\n    return json.dumps({\"outline_file\": str(outline), \"premise\": PREMISE}, ensure_ascii=False)\n"
+      },
+      "inputs": [],
+      "join": "all"
+    },
+    {
+      "id": "draft",
+      "kind": "agent",
+      "title": "起草 / Draft the chapter",
+      "config": {
+        "kind": "agent",
+        "instructions": "Read the outline file named by `outline_file`, then write one chapter of the novel it describes to a Markdown file in the project directory.\n\nIf `review-notes.md` exists beside the outline, a previous pass was rejected: read it first and fix every point it names before writing the new draft. Keep what the reviews accepted, and rewrite only what they rejected.\n\nWrite the chapter to `draft.md` and return its path with the chapter text.",
+        "tools": [
+          "read",
+          "write"
+        ],
+        "memory": "retained",
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "draft_file": {
+              "type": "string"
+            },
+            "chapter": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "draft_file",
+            "chapter"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "inputs": [
+        {
+          "name": "outline_file",
+          "source": {
+            "kind": "node",
+            "nodeId": "prepare",
+            "field": "outline_file"
+          }
+        }
+      ],
+      "join": "all"
+    },
+    {
+      "id": "review-style",
+      "kind": "agent",
+      "title": "文风审核 / Style review",
+      "config": {
+        "kind": "agent",
+        "instructions": "Read the draft file named by `draft_file` and review its prose: voice, pacing, imagery, and dialogue. Decide whether it is publishable as written.\n\nReturn `passed` true only when the prose needs no further revision, a `score` from 0 to 10, and a `summary` that names every problem a revision must fix.",
+        "tools": [
+          "read"
+        ],
+        "memory": "fresh",
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "passed": {
+              "type": "boolean"
+            },
+            "score": {
+              "type": "number"
+            },
+            "summary": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "passed",
+            "score",
+            "summary"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "inputs": [
+        {
+          "name": "draft_file",
+          "source": {
+            "kind": "node",
+            "nodeId": "draft",
+            "field": "draft_file"
+          }
+        },
+        {
+          "name": "chapter",
+          "source": {
+            "kind": "node",
+            "nodeId": "draft",
+            "field": "chapter"
+          }
+        }
+      ],
+      "join": "all"
+    },
+    {
+      "id": "review-consistency",
+      "kind": "agent",
+      "title": "连贯性审核 / Consistency review",
+      "config": {
+        "kind": "agent",
+        "instructions": "Read the draft file named by `draft_file` and check it against the outline: did every plot beat happen, do names, places, and facts agree, and does anything contradict the premise? Search the project files for earlier mentions when a fact looks inconsistent.\n\nReturn `passed` true only when the chapter is internally consistent, a `score` from 0 to 10, and a `summary` that names every contradiction a revision must fix.",
+        "tools": [
+          "read",
+          "grep"
+        ],
+        "memory": "fresh",
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "passed": {
+              "type": "boolean"
+            },
+            "score": {
+              "type": "number"
+            },
+            "summary": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "passed",
+            "score",
+            "summary"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "inputs": [
+        {
+          "name": "draft_file",
+          "source": {
+            "kind": "node",
+            "nodeId": "draft",
+            "field": "draft_file"
+          }
+        },
+        {
+          "name": "chapter",
+          "source": {
+            "kind": "node",
+            "nodeId": "draft",
+            "field": "chapter"
+          }
+        }
+      ],
+      "join": "all"
+    },
+    {
+      "id": "gate",
+      "kind": "python",
+      "title": "汇总与路由 / Aggregate and route",
+      "config": {
+        "kind": "python",
+        "source": "\"\"\"Aggregate both reviews and route: publish on a pass, revise on a rejection.\"\"\"\nimport json\nimport pathlib\n\nROOT = pathlib.Path(__file__).resolve().parents[2]\n\n\ndef nodemain_gate(inputs):\n    failed = []\n    if not inputs[\"style_passed\"]:\n        failed.append(\"style\")\n    if not inputs[\"consistency_passed\"]:\n        failed.append(\"consistency\")\n    passed = not failed\n    notes = ROOT / \"review-notes.md\"\n    if passed:\n        notes.write_text(\"Both reviews passed.\\n\", encoding=\"utf-8\")\n    else:\n        notes.write_text(\n            \"Revise the draft; these reviews rejected it: \" + \", \".join(failed) + \".\\n\",\n            encoding=\"utf-8\",\n        )\n    return json.dumps(\n        {\"passed\": passed, \"failed\": failed, \"notes_file\": str(notes)},\n        ensure_ascii=False,\n    )\n"
+      },
+      "inputs": [
+        {
+          "name": "style_passed",
+          "source": {
+            "kind": "node",
+            "nodeId": "review-style",
+            "field": "passed"
+          }
+        },
+        {
+          "name": "consistency_passed",
+          "source": {
+            "kind": "node",
+            "nodeId": "review-consistency",
+            "field": "passed"
+          }
+        }
+      ],
+      "join": "all"
+    },
+    {
+      "id": "publish",
+      "kind": "python",
+      "title": "发布 / Publish the chapter",
+      "config": {
+        "kind": "python",
+        "source": "\"\"\"Publish the accepted chapter beside the outline it was written against.\"\"\"\nimport json\nimport pathlib\n\nROOT = pathlib.Path(__file__).resolve().parents[2]\n\n\ndef nodemain_publish(inputs):\n    novel = ROOT / \"novel.md\"\n    novel.write_text(\"# The last light\\n\\n\" + inputs[\"chapter\"] + \"\\n\", encoding=\"utf-8\")\n    return json.dumps({\"published\": True, \"path\": str(novel)}, ensure_ascii=False)\n"
+      },
+      "inputs": [
+        {
+          "name": "chapter",
+          "source": {
+            "kind": "node",
+            "nodeId": "draft",
+            "field": "chapter"
+          }
+        }
+      ],
+      "join": "all"
+    }
+  ],
+  "edges": [
+    {
+      "id": "prepare-draft",
+      "from": "prepare",
+      "to": "draft",
+      "condition": null,
+      "mode": "multiple"
+    },
+    {
+      "id": "draft-review-style",
+      "from": "draft",
+      "to": "review-style",
+      "condition": null,
+      "mode": "multiple"
+    },
+    {
+      "id": "draft-review-consistency",
+      "from": "draft",
+      "to": "review-consistency",
+      "condition": null,
+      "mode": "multiple"
+    },
+    {
+      "id": "style-gate",
+      "from": "review-style",
+      "to": "gate",
+      "condition": null,
+      "mode": "multiple"
+    },
+    {
+      "id": "consistency-gate",
+      "from": "review-consistency",
+      "to": "gate",
+      "condition": null,
+      "mode": "multiple"
+    },
+    {
+      "id": "gate-publish",
+      "from": "gate",
+      "to": "publish",
+      "condition": {
+        "op": "truthy",
+        "field": "passed"
+      },
+      "mode": "multiple"
+    },
+    {
+      "id": "gate-draft",
+      "from": "gate",
+      "to": "draft",
+      "condition": {
+        "op": "eq",
+        "field": "passed",
+        "value": false
+      },
+      "mode": "multiple",
+      "loop": {
+        "maxIterations": 3
+      }
+    }
+  ]
+}

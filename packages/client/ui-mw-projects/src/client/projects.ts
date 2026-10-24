@@ -170,9 +170,42 @@ export class ProjectsController {
    * @returns a promise settled once the row or the failure is published.
    */
   async create(title: string): Promise<void> {
-    await this.mutate(() => this.remote.create({ title }), (value) => {
+    await this.registerProject(title)
+  }
+
+  /**
+   * Create a project from a definition template: register it, then store the
+   * template's document as its first revision.
+   *
+   * `projects.importDefinition` validates the document before it writes, so an
+   * unusable template registers a project that owns no definition rather than a
+   * project whose definition cannot run. Only the composition may select the
+   * workbench panel, so this reports the project instead of opening it.
+   * @param title - project title; the Host rejects a blank one.
+   * @param document - definition document text; the Host validates it.
+   * @returns the registered project, or `null` once a failure is published as
+   * the `mutationError`.
+   */
+  async createFromTemplate(title: string, document: string): Promise<ProjectId | null> {
+    const created = await this.registerProject(title)
+    if (created === null) return null
+    const stored = await this.mutate(() => this.remote.importDefinition({ id: created, document }))
+    return stored ? created : null
+  }
+
+  /**
+   * Register one project and place its row, appending when the registry is new to it.
+   * @param title - project title; the Host rejects a blank one.
+   * @returns the Host id of the registered project, or `null` once the failure
+   * is published as the `mutationError`.
+   */
+  private async registerProject(title: string): Promise<ProjectId | null> {
+    let created: ProjectId | null = null
+    const done = await this.mutate(() => this.remote.create({ title }), (value) => {
+      created = value.project.id
       this.patch({ projects: upsertProject(this.current().projects, value.project) })
     })
+    return done ? created : null
   }
 
   /**
@@ -231,11 +264,14 @@ export class ProjectsController {
 
   /**
    * Run one mutation, publishing its in-flight state and its echo.
+   * @param call - the Remote call to perform.
+   * @param accept - publishes the value the call returned; omitted when a
+   * later call in the same action reads the row back.
    * @returns whether the Host call succeeded.
    */
   private async mutate<Value>(
     call: () => Promise<RemoteResult<Value>>,
-    accept: (value: Value) => void,
+    accept?: (value: Value) => void,
   ): Promise<boolean> {
     this.inFlight += 1
     this.patch({ busy: true, mutationError: null })
@@ -246,7 +282,7 @@ export class ProjectsController {
       this.patch({ mutationError: outcome.failure })
       return false
     }
-    accept(outcome.value)
+    accept?.(outcome.value)
     return true
   }
 }

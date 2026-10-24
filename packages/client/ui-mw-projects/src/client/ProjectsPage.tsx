@@ -51,13 +51,15 @@ export interface ProjectsPageInjected {
   readonly resetImport: () => void
   /** Import one flowchart as a new project's definition. */
   readonly importMermaid: (draft: ImportDraft) => void
+  /** Create a project from the built-in novel template and open it. */
+  readonly useNovelTemplate: () => void
 }
 
 /** The injected callbacks once the hook compartment is bound away. */
 type ProjectsActions = Omit<ProjectsPageInjected, 'hooks'>
 
-/** The callbacks the dashboard body renders rows with; the import dialog owns its own two. */
-type ProjectListActions = Omit<ProjectsActions, 'resetImport' | 'importMermaid'>
+/** The callbacks the dashboard body renders rows with; the import dialog and the template own their own. */
+type ProjectListActions = Omit<ProjectsActions, 'resetImport' | 'importMermaid' | 'useNovelTemplate'>
 
 /** Full component props assembled by the main slot renderer. */
 export type ProjectsPageProps =
@@ -321,7 +323,7 @@ function ProjectsBody({ t, snapshot, actions }: {
  */
 export function ProjectsPage({
   t, useProjects, createProject, openProject, renameProject, removeProject, reloadProjects,
-  resetImport, importMermaid,
+  resetImport, importMermaid, useNovelTemplate,
 }: ProjectsPageProps): ReactNode {
   const snapshot = useProjects(state => state)
   const { view } = snapshot
@@ -341,6 +343,14 @@ export function ProjectsPage({
             onClick={() => { createProject(t('project.untitled')) }}
           >
             {t('dashboard.create')}
+          </Button>
+          <Button
+            variant="outline"
+            disabled={snapshot.busy || view.status !== 'ready'}
+            aria-label={t('dashboard.templateNovelLabel')}
+            onClick={useNovelTemplate}
+          >
+            {t('dashboard.templateNovel')}
           </Button>
           <Button
             variant="outline"

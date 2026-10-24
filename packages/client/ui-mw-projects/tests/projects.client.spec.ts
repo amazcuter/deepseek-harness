@@ -49,7 +49,11 @@ function bench() {
     mapping: {},
     warnings: [],
   })))
-  // The dashboard reads five verbs; the workbench verbs exist on the namespace
+  const importDefinition = vi.fn<ProjectsRemote['importDefinition']>(() => Promise.resolve(ok({
+    revision: 1,
+    nodeCount: 6,
+  })))
+  // The dashboard reads six verbs; the workbench verbs exist on the namespace
   // but this controller never calls them.
   const unused = (): Promise<never> => Promise.reject(new Error('the dashboard calls no workbench verb'))
   const remote: ProjectsRemote = {
@@ -63,7 +67,7 @@ function bench() {
     availableTools: vi.fn(unused),
     coordinator: vi.fn(unused),
     definition: vi.fn(unused),
-    importDefinition: vi.fn(unused),
+    importDefinition,
     importMermaid,
     pause: vi.fn(unused),
     pendingDecisions: vi.fn(unused),
@@ -72,7 +76,10 @@ function bench() {
     startRun: vi.fn(unused),
     updateNode: vi.fn(unused),
   }
-  return { controller: new ProjectsController(remote), list, create, open, rename, remove, importMermaid }
+  return {
+    controller: new ProjectsController(remote),
+    list, create, open, rename, remove, importMermaid, importDefinition,
+  }
 }
 
 describe('ProjectsController', () => {
@@ -326,5 +333,52 @@ describe('ProjectsController import', () => {
     b.controller.resetImport()
     stop()
     expect(seen).toEqual([])
+  })
+})
+
+describe('ProjectsController template', () => {
+  /** The template document text the panel hands the controller. */
+  const DOCUMENT = '{"version":1,"nodes":[],"edges":[]}'
+
+  it('registers the project, stores the template as its definition, and reports it for opening', async () => {
+    const b = bench()
+    const created = await b.controller.createFromTemplate('小说创作', DOCUMENT)
+    expect(b.create).toHaveBeenCalledExactlyOnceWith({ title: '小说创作' })
+    expect(b.importDefinition).toHaveBeenCalledExactlyOnceWith({ id: 'new', document: DOCUMENT })
+    expect(created).toBe('new')
+    expect(b.controller.list.getSnapshot()).toMatchObject({
+      projects: [{ id: 'new', title: '小说创作' }],
+      busy: false,
+      mutationError: null,
+    })
+  })
+
+  it('reports no project when the Host refuses the registration', async () => {
+    const b = bench()
+    b.create.mockResolvedValueOnce(fail(new RemoteError('project/invalid-path', 'the directory is gone', {
+      path: '/projects/gone',
+    })))
+    await expect(b.controller.createFromTemplate('小说创作', DOCUMENT)).resolves.toBeNull()
+    expect(b.importDefinition).not.toHaveBeenCalled()
+    expect(b.controller.list.getSnapshot().mutationError).toEqual({
+      code: 'project/invalid-path',
+      message: 'the directory is gone',
+    })
+    expect(b.controller.list.getSnapshot().projects).toEqual([])
+  })
+
+  it('keeps the registered project but reports no opening when the definition is refused', async () => {
+    const b = bench()
+    b.importDefinition.mockResolvedValueOnce(fail(new RemoteError('project/definition-invalid', 'no entry node', {
+      violations: ['definition/no-entry-node'],
+    })))
+    await expect(b.controller.createFromTemplate('小说创作', DOCUMENT)).resolves.toBeNull()
+    expect(b.controller.list.getSnapshot().mutationError).toEqual({
+      code: 'project/definition-invalid',
+      message: 'no entry node',
+    })
+    // The registration stands: the user keeps the project and fixes its definition.
+    expect(b.controller.list.getSnapshot().projects.map(project => project.id)).toEqual(['new'])
+    expect(b.controller.list.getSnapshot().busy).toBe(false)
   })
 })

@@ -8,6 +8,10 @@
   "compilerOptions": {
     "noEmit": true,
     "rewriteRelativeImportExtensions": false,
+    // Client plugins may author a JSON artifact in `src` (ui-mw-projects ships
+    // its built-in workflow template that way); tests import both that file and
+    // the module that re-exports it.
+    "resolveJsonModule": true,
     // Tests execute under vitest on node (e2e files spawn processes); browser
     // purity of package src is each package's own tsconfig plus
     // scripts/client-bundle-purity.spec.ts.

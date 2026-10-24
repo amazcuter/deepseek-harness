@@ -286,6 +286,62 @@ describe('ui-mw-projects browser plugin', () => {
     expect(snapshotOf(face).import).toEqual({ status: 'imported', projectId: 'imported' })
   })
 
+  it('creates a project from the novel template, stores its definition, and opens it', async () => {
+    const b = await bench()
+    let rows: readonly ProjectSummary[] = []
+    b.mock.unary('projects/list', () => ok({ items: rows }))
+    b.mock.unary('projects/create', (request: { readonly title: string }) => {
+      rows = [project('novel', { title: request.title })]
+      return ok({ project: row(rows, 'novel') })
+    })
+    b.mock.unary('projects/importDefinition', (request: { readonly id: string; readonly document: string }) => {
+      expect(request.id).toBe('novel')
+      // The template's own document travels unchanged: the Host validates it.
+      expect(request.document).toContain('"id":"review-consistency"')
+      expect(request.document).toContain('"maxIterations":3')
+      rows = [project('novel', { title: '小说创作', definitionRevision: 1 })]
+      return ok({ revision: 1, nodeCount: 6 })
+    })
+    b.mock.unary('projects/open', (request: { readonly id: string }) => ok({ project: row(rows, request.id) }))
+    declareRoot(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const face = dashboardOf(b.slots)
+    await vi.waitFor(() => { expect(snapshotOf(face).view.status).toBe('ready') })
+
+    face.useNovelTemplate()
+    await vi.waitFor(() => { expect(b.selectPanel).toHaveBeenLastCalledWith(PROJECT_PANEL_ID) })
+    expect(b.mock.remote.projects.create).toHaveBeenCalledExactlyOnceWith({ title: '小说创作' })
+    expect(b.mock.remote.projects.importDefinition).toHaveBeenCalledOnce()
+    expect(b.mock.remote.projects.open).toHaveBeenCalledExactlyOnceWith({ id: 'novel' })
+    expect(snapshotOf(face).projects.map(entry => entry.title)).toEqual(['小说创作'])
+    expect(snapshotOf(face).openedProjectId).toBe('novel')
+  })
+
+  it('keeps the dashboard on screen when the Host refuses the template definition', async () => {
+    const b = await bench()
+    let rows: readonly ProjectSummary[] = []
+    b.mock.unary('projects/list', () => ok({ items: rows }))
+    b.mock.unary('projects/create', (request: { readonly title: string }) => {
+      rows = [project('novel', { title: request.title })]
+      return ok({ project: row(rows, 'novel') })
+    })
+    b.mock.unary('projects/importDefinition', () => ({
+      ok: false,
+      error: new RemoteError('project/definition-invalid', 'no entry node', {
+        violations: ['definition/no-entry-node'],
+      }),
+    }))
+    declareRoot(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const face = dashboardOf(b.slots)
+    await vi.waitFor(() => { expect(snapshotOf(face).view.status).toBe('ready') })
+
+    face.useNovelTemplate()
+    await vi.waitFor(() => { expect(snapshotOf(face).mutationError?.code).toBe('project/definition-invalid') })
+    expect(b.mock.remote.projects.open).not.toHaveBeenCalled()
+    expect(b.selectPanel).toHaveBeenCalledExactlyOnceWith(PROJECTS_PANEL_ID)
+  })
+
   it('keeps the dashboard on screen when the imported flowchart is refused', async () => {
     const b = await bench()
     b.mock.unary('projects/importMermaid', () => ({

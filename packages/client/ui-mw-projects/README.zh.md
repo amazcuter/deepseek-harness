@@ -35,6 +35,8 @@ MetaWorkFlow profile 打开的是项目首页，而不是上一个会话。首�
 
 **新建项目** 注册一个标题为本地化「未命名项目」的项目，目录由 Host 决定，位于 Harness home 之下。Host 回执到达后行即出现，随后可用 **重命名** 给它一个真正的名字。
 
+**使用小说模板** 注册一个标题为「小说创作」的项目，通过 `projects.importDefinition` 把内置的小说工作流写成它的第一版定义，然后打开它。模板是 `src/client/templates/` 下的一份 JSON 文档：`prepare`(Python) → `draft`(Agent) → 并行的 `review-style` 与 `review-consistency`(Agent) → `gate`(Python，等待两份审核) → `publish`(Python)，任一审核不通过时 `gate` 回边到 `draft`，最多三轮。两个审核节点使用不同的工具选择——文风审核用 `read`，连贯性审核用 `read` 与 `grep`，起草节点用 `read` 与 `write`——因此模板演示了重开项目后仍然保留的逐节点工具列表。Host 在写入版本前校验这份文档，所以校验不过的模板会被拒绝而不是写入；`tests/novel-template.host.spec.ts` 对随包发布的文件运行同一个校验器。
+
 **导入 Mermaid** 打开一个对话框，包含项目名与流程图源码。提交时调用 `projects.importMermaid`：Host 注册项目、解析流程图、翻译成定义，并把它作为项目的第一个版本写入——被拒绝的流程图不会注册任何东西。成功后对话框自行隐藏、列表重新加载，组合随后打开新项目的工作台。拒绝是结构化的而不是一句话：对话框给出解析器指出的行号、拒绝码、翻译成功但无法运行时的校验消息，以及重新提交同一份草稿的 **重试**，因此一个笔误不会连累文本与项目名。
 
 ### 项目行

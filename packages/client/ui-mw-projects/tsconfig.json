@@ -2,10 +2,13 @@
   "extends": "../../../tsconfig.base.client.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "lib/types"
+    "outDir": "lib/types",
+    "resolveJsonModule": true
   },
   "include": [
-    "src"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.json"
   ],
   "references": [
     {
