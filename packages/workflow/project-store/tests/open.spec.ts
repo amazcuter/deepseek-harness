@@ -345,7 +345,7 @@ describe('store database identities', () => {
       expect(registryDb.prepare("SELECT value FROM schema_meta WHERE key = 'format'").get())
         .toEqual({ value: 'workflow-projects/2' })
       expect(projectDb.prepare("SELECT value FROM schema_meta WHERE key = 'format'").get())
-        .toEqual({ value: 'workflow-project/1' })
+        .toEqual({ value: 'workflow-project/2' })
     } finally {
       registryDb.close()
       projectDb.close()

@@ -371,6 +371,7 @@
       // aliases cannot be generated from the directory names.
       "@metaworkflow/workflow-definition": ["./packages/workflow/definition/src"],
       "@metaworkflow/workflow-project-store": ["./packages/workflow/project-store/src"],
+      "@metaworkflow/workflow-scheduler": ["./packages/workflow/scheduler/src"],
       "@metaworkflow/workflow-python-runner": ["./packages/workflow/python-runner/src"],
       // BEGIN generated package aliases — pnpm run gen-tsconfig-paths
       "@metaworkflow/acp": ["./packages/acp/acp/src"],

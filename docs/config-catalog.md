@@ -4550,7 +4550,7 @@ export interface Config {
 
 ## `@metaworkflow/workflow-project-store`
 
-- `source`: [`packages/workflow/project-store/src/index.ts:113`](../packages/workflow/project-store/src/index.ts)
+- `source`: [`packages/workflow/project-store/src/index.ts:114`](../packages/workflow/project-store/src/index.ts)
 
 ```ts config-catalog
 /** Plugin configuration. */
@@ -4615,6 +4615,25 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@metaworkflow/workflow-python-runner -->
+
+<!-- BEGIN GENERATED config-catalog:@metaworkflow/workflow-scheduler -->
+<a id="metaworkflowworkflow-scheduler"></a>
+
+## `@metaworkflow/workflow-scheduler`
+
+- `inject`: `mwfProjectStore`
+- `source`: [`packages/workflow/scheduler/src/index.ts:109`](../packages/workflow/scheduler/src/index.ts)
+
+```ts config-catalog
+/** Plugin configuration. */
+export interface Config {
+  /** Concurrent node executions per run; at least one. */
+  readonly maxConcurrent?: number
+  /** Attempts one activation may spend before it fails; at least one. */
+  readonly maxAttempts?: number
+}
+```
+<!-- END GENERATED config-catalog:@metaworkflow/workflow-scheduler -->
 
 <!-- BEGIN GENERATED config-catalog:@metaworkflow/working-directory -->
 <a id="metaworkflowworking-directory"></a>

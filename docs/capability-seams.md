@@ -288,8 +288,10 @@ flowchart LR
   pkg_tool_workflow["tool-workflow"]
   pkg_workflow_project_store["workflow-project-store"]
   svc_mwfProjectStore["ctx.mwfProjectStore<br/>Workflow project persistence"]
+  pkg_workflow_scheduler["workflow-scheduler"]
   pkg_workflow_python_runner["workflow-python-runner"]
   svc_mwfPythonRunner["ctx.mwfPythonRunner<br/>Workflow Python node execution"]
+  svc_mwfScheduler["ctx.mwfScheduler<br/>Workflow run scheduling"]
   pkg_webhook["webhook"]
   svc_webhookRuntime["ctx.webhookRuntime<br/>Webhook rule runtime"]
   pkg_webhook_github["webhook-github"]
@@ -456,6 +458,7 @@ flowchart LR
   pkg_workflow_project_store --> svc_mwfProjectStore
   pkg_workflow_ptc --> svc_workflowEngine
   pkg_workflow_python_runner --> svc_mwfPythonRunner
+  pkg_workflow_scheduler --> svc_mwfScheduler
   pkg_working_directory --> svc_workingDirectory
   pkg_workspace --> svc_workspaceRegistry
   pkg_workspace_changes --> svc_workspaceChanges
@@ -508,6 +511,7 @@ flowchart LR
   svc_llm --> pkg_compaction_basic
   svc_lsp --> pkg_tool_lsp
   svc_mcpResources --> pkg_mcp_resources
+  svc_mwfProjectStore --> pkg_workflow_scheduler
   svc_officeToPdf --> pkg_client_ui_sidebar_documentpreview
   svc_otel --> pkg_host_product_telemetry_otel
   svc_otel --> pkg_session_telemetry_otel
@@ -715,8 +719,9 @@ flowchart LR
 | `ctx.webApp` | `core` | [`web-app`](../packages/bundle/web-app) | - | [`harness-dev-context`](../packages/context/harness-dev-context) | - | The web-runtime row advertises one URL for its Web GUI: the configured publicUrl, otherwise the listener origin; MWF_WEB_URL, the startup URL, and harness-dev-context read the same value. |
 | `ctx.clientModules` | `core` | [`client-modules`](../packages/client/modules) | - | [`client-hmr`](../packages/client/hmr) | - | Composes the __MWF_BOOT__ entry graph from an incremental mwf.client scan, serves plugin bundles, and notifies rebuilt/graph-changed subscribers. |
 | `ctx.workflowEngine` | `seam` | [`workflow`](../packages/workflow/workflow) | [`workflow-ptc`](../packages/workflow/workflow-ptc) | [`tool-workflow`](../packages/workflow/tool-workflow), [`tool-ralph`](../packages/experimental/tool-ralph) | - | One engine per context, as in bash, with no named-provider registry; the general workflow and fixed Ralph consumers start runs whose agent() calls fan out through ctx.subagents. |
-| `ctx.mwfProjectStore` | `service` | [`workflow-project-store`](../packages/workflow/project-store) | - | - | - | Owns the global project registry and one database per project; no consumer is wired yet, so the runner and GUI stages attach their reads and writes here. |
+| `ctx.mwfProjectStore` | `service` | [`workflow-project-store`](../packages/workflow/project-store) | - | [`workflow-scheduler`](../packages/workflow/scheduler) | - | Owns the global project registry and one database per project; the scheduler commits runs, activations, attempts, artifacts, and outbox rows through that connection, and the GUI stages read them there. |
 | `ctx.mwfPythonRunner` | `service` | [`workflow-python-runner`](../packages/workflow/python-runner) | - | - | - | Owns interpreter resolution, the project .venv, and one isolated node run; no consumer is wired yet, so the scheduler stage attaches its runs here. |
+| `ctx.mwfScheduler` | `service` | [`workflow-scheduler`](../packages/workflow/scheduler) | - | - | - | Owns readiness, concurrency slots, attempt retries, loop iterations, and the one-batch commit of a node outcome; node kinds attach through executor registration, so the package has no executor of its own. |
 | `ctx.webhookRuntime` | `core` | [`webhook`](../packages/experimental/webhook) | - | [`webhook-github`](../packages/experimental/webhook-github) | - | Provider adapters dispatch authenticated deliveries; trusted plugins register independent process-local rules, and the runtime turns non-null results into ordinary Workspace-backed Sessions without delivery or completion state. |
 | `ctx.lsp` | `seam` | [`lsp`](../packages/lsp/lsp) | [`lsp-stdio`](../packages/lsp/lsp-stdio) | [`tool-lsp`](../packages/lsp/tool-lsp) | - | Provider registration and selection plus normalized query execution over exactly four operations; the seam offers no protocol escape hatch, so a backend translates into the normalized request and result. |
 | `ctx.dynamicCordisRunner` | `core` | [`cordis-host-runner`](../packages/extensions/cordis-host-runner) | - | [`tool-cordis`](../packages/extensions/tool-cordis) | - | Owns the in-memory definition registry, the vm sandbox for host halves, and the request-run round trip; browser pages reach the same service over the wire through its remote namespace. |

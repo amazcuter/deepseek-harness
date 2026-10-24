@@ -1663,6 +1663,13 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: '`true` when this call acknowledged the event, `false` when it was absent or already acknowledged.',
       },
       {
+        signature: 'async transact<T>(projectId: ProjectId, body: (db: DatabaseSync) => T): Promise<T>',
+        description: 'Run one synchronous body against one project\'s connection, inside one `BEGIN IMMEDIATE` batch and serialized with every other write of that database.\n\nThis is how a consumer that owns its own rows — the workflow scheduler writes runs, activations, attempts, artifacts, and the outbox together — keeps one writer connection per database instead of opening a second one. The body must be synchronous: an `await` inside it would hold the write lock across unrelated work.',
+        parameters: [{ name: 'projectId', description: 'registered project whose connection the body uses.' }, { name: 'body', description: 'statements to run; returning normally commits, throwing rolls back.' }],
+        returns: 'the body\'s result after the commit.',
+        throws: ['{@link WorkflowProjectStoreError} `invalid-project-id` or `project-not-found`, and the body\'s own error after the batch rolled back.'],
+      },
+      {
         signature: 'async close(): Promise<void>',
         description: 'Close every open connection and refuse further work. Idempotent.',
         parameters: [],
@@ -1702,6 +1709,97 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         parameters: [{ name: 'request', description: 'project, node, source, inputs, limits, environment, and abort signal.' }],
         returns: 'the node\'s value or the failure, with captured logs and exit facts.',
         throws: ['{@link PythonRunnerError} `project/path-too-long`, `node/invalid-id`, or an interpreter failure; an aborted run refuses with the signal\'s reason instead.'],
+      },
+    ],
+  },
+  {
+    key: 'mwfScheduler',
+    summary: 'The workflow scheduler service.',
+    description: 'The workflow scheduler service.\n\nOne instance owns the executor registrations, the per-run in-flight abort controllers, and the configuration every call reads; the durable state it schedules from stays in the project database.',
+    methods: [
+      {
+        signature: 'registerExecutor(executor: NodeExecutor): () => void',
+        description: 'Register the executor for one node kind.\n\nThe registration is an effect: disposing the returned disposer, or the plugin fiber, unregisters the executor.',
+        parameters: [{ name: 'executor', description: 'executor to register.' }],
+        returns: 'the disposer that unregisters it.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/duplicate-executor` when the kind already has an executor, and `scheduler/closed` after disposal.'],
+      },
+      {
+        signature: 'async createRun(request: CreateRunRequest): Promise<CreateRunResult>',
+        description: 'Start one run from a stored definition revision.\n\nThe run and its entry activation are written in one transaction, so a run never exists without the activation that starts it. The definition is parsed and validated first: a revision that no longer describes an executable graph is refused instead of recorded.',
+        parameters: [{ name: 'request', description: 'project, definition revision, and optional run parameters.' }],
+        returns: 'the identity of the created run.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/definition-unavailable` or `scheduler/definition-invalid`, and `scheduler/closed` after disposal.'],
+      },
+      {
+        signature: 'async tick(request: RunRequest): Promise<TickResult>',
+        description: 'Advance one run until nothing else can start.\n\nReady activations start in document order, at most `maxConcurrent` at a time, and each committed outcome immediately re-opens the readiness question. The call returns when the run settles, pauses, or has only waiting or in-flight work left. Calling it again on a settled run changes nothing.',
+        parameters: [{ name: 'request', description: 'project and run to advance.' }],
+        returns: 'what the call dispatched, committed, and decided.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/run-not-found` for an unknown run, and `scheduler/closed` after disposal.'],
+      },
+      {
+        signature: 'async step(request: ActivationRequest): Promise<TickResult>',
+        description: 'Execute one named activation and then stop scheduling.\n\nThe activation must be pending and its join must already be satisfied; a run that settles as a result of the step keeps its settled status instead of being parked again.',
+        parameters: [{ name: 'request', description: 'project, run, and the activation to execute.' }],
+        returns: 'what the step dispatched and decided.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/activation-not-found` when the activation belongs to another run, `scheduler/activation-not-ready` when its join does not fire yet, and `scheduler/run-state-invalid` for a terminal run.'],
+      },
+      {
+        signature: 'async pause(request: RunRequest): Promise<RunView>',
+        description: 'Stop scheduling one run and abort its in-flight attempts.\n\nAn attempt that was already running becomes `canceled` and its activation returns to `pending`, so a resumed run re-executes it; a result that arrives after the abort is stale and commits nothing.',
+        parameters: [{ name: 'request', description: 'project and run to pause.' }],
+        returns: 'the run as it now reads.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/run-not-found` or `scheduler/run-state-invalid`.'],
+      },
+      {
+        signature: 'async resume(request: RunRequest): Promise<RunView>',
+        description: 'Allow a paused run to continue.',
+        parameters: [{ name: 'request', description: 'project and run to resume.' }],
+        returns: 'the run as it now reads.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/run-state-invalid` unless the run is paused.'],
+      },
+      {
+        signature: 'async cancel(request: RunRequest): Promise<RunView>',
+        description: 'Cancel one run and every activation it has not finished.\n\nCommitted results stay readable; a result that arrives after the abort is stale and commits nothing.',
+        parameters: [{ name: 'request', description: 'project and run to cancel.' }],
+        returns: 'the run as it now reads.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/run-not-found` or `scheduler/run-state-invalid`.'],
+      },
+      {
+        signature: 'async retry(request: ActivationRequest): Promise<RetryResult>',
+        description: 'Retry one settled or waiting activation as a new attempt.\n\nThe activation returns to `pending` and is executed once; a run that had failed reopens so the rest of the graph can continue, while a canceled run stays canceled. History is kept: the earlier attempts remain readable.',
+        parameters: [{ name: 'request', description: 'project, run, and activation to retry.' }],
+        returns: 'the identity of the attempt the retry created.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/activation-not-found`, `scheduler/activation-not-retryable` for a pending, running, or succeeded activation, and `scheduler/run-state-invalid` for a canceled run.'],
+      },
+      {
+        signature: 'async reconcile(request: ReconcileRequest): Promise<ReconcileResult>',
+        description: 'Recover one project after a backend restart.\n\nEvery attempt still marked running becomes `interrupted`, its activation returns to `pending`, and every running run is parked in `paused`; a human (or the coordinator) then resumes or retries. The pass repairs no Session tail: resuming a node\'s own conversation is the node executor\'s job.',
+        parameters: [{ name: 'request', description: 'project to reconcile.' }],
+        returns: 'the interrupted attempts and the parked runs.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/closed` after disposal.'],
+      },
+      {
+        signature: 'async getRun(request: RunRequest): Promise<RunView | undefined>',
+        description: 'One run as it reads now.',
+        parameters: [{ name: 'request', description: 'project and run to read.' }],
+        returns: 'the run, or `undefined` when the project holds no such run.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/closed` after disposal.'],
+      },
+      {
+        signature: 'async listActivations(request: RunRequest): Promise<ActivationView[]>',
+        description: 'Every activation of one run, in creation order.',
+        parameters: [{ name: 'request', description: 'project and run to read.' }],
+        returns: 'the activations.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/run-not-found` for an unknown run.'],
+      },
+      {
+        signature: 'async listAttempts(request: RunRequest & { readonly activationId?: ActivationId }): Promise<AttemptView[]>',
+        description: 'Attempts of one run, oldest first.',
+        parameters: [{ name: 'request', description: 'project and run to read, optionally narrowed to one activation.' }],
+        returns: 'the attempts.',
+        throws: ['{@link WorkflowSchedulerError} `scheduler/run-not-found` for an unknown run.'],
       },
     ],
   },
@@ -4870,6 +4968,22 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface AccountWallet {\n    readonly currency: \'CNY\' | \'USD\';\n    readonly balance: string;\n}',
   },
   {
+    name: 'ActivationId',
+    declaration: 'export type ActivationId = Branded<\'ActivationId\'>;',
+  },
+  {
+    name: 'ActivationRequest',
+    declaration: 'export interface ActivationRequest extends RunRequest {\n    readonly activationId: ActivationId;\n}',
+  },
+  {
+    name: 'ActivationStatus',
+    declaration: 'export type ActivationStatus = \'pending\' | \'running\' | \'waiting\' | \'succeeded\' | \'failed\' | \'canceled\';',
+  },
+  {
+    name: 'ActivationView',
+    declaration: 'export interface ActivationView {\n    readonly activationId: ActivationId;\n    readonly runId: RunId;\n    readonly nodeId: string;\n    readonly iteration: number;\n    readonly status: ActivationStatus;\n    readonly incoming: readonly IncomingActivation[];\n    readonly createdAt: number;\n    readonly updatedAt: number;\n}',
+  },
+  {
     name: 'AdapterRegistrationHandle',
     declaration: 'export interface AdapterRegistrationHandle {\n    (): void;\n    replace(providers: string[]): void;\n}',
   },
@@ -4896,6 +5010,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'AgentHandle',
     declaration: 'export interface AgentHandle {\n    agent: Agent;\n    dispose(): Promise<void>;\n}',
+  },
+  {
+    name: 'AgentMemory',
+    declaration: 'export type AgentMemory = \'retained\' | \'fresh\';',
+  },
+  {
+    name: 'AgentNodeConfig',
+    declaration: 'export interface AgentNodeConfig {\n    readonly kind: \'agent\';\n    readonly outputSchema: JsonSchemaNode;\n    readonly instructions: string;\n    readonly tools: readonly string[];\n    readonly memory: AgentMemory;\n}',
   },
   {
     name: 'AgentOptions',
@@ -5072,6 +5194,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'AttemptId',
     declaration: 'export type AttemptId = Branded<\'AttemptId\'>;',
+  },
+  {
+    name: 'AttemptStatus',
+    declaration: 'export type AttemptStatus = \'running\' | \'waiting\' | \'succeeded\' | \'failed\' | \'interrupted\' | \'canceled\';',
+  },
+  {
+    name: 'AttemptView',
+    declaration: 'export interface AttemptView {\n    readonly attemptId: AttemptId;\n    readonly activationId: ActivationId;\n    readonly attemptNo: number;\n    readonly status: AttemptStatus;\n    readonly startedAt: number;\n    readonly endedAt: number | null;\n    readonly error: NodeFailure | null;\n}',
   },
   {
     name: 'AuthorizationEntry',
@@ -5440,6 +5570,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'CreateProjectRequest',
     declaration: 'export interface CreateProjectRequest {\n    readonly title: string;\n    readonly path?: string;\n}',
+  },
+  {
+    name: 'CreateRunRequest',
+    declaration: 'export interface CreateRunRequest {\n    readonly projectId: ProjectId;\n    readonly definitionRevision: number;\n    readonly params?: RunParams;\n}',
+  },
+  {
+    name: 'CreateRunResult',
+    declaration: 'export interface CreateRunResult {\n    readonly runId: RunId;\n}',
   },
   {
     name: 'CreateSessionOptions',
@@ -5858,6 +5996,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type ImageVariantId = Branded<\'ImageVariantId\'>;',
   },
   {
+    name: 'IncomingActivation',
+    declaration: 'export interface IncomingActivation {\n    readonly nodeId: string;\n    readonly iteration: number;\n}',
+  },
+  {
     name: 'IncompatiblePlugin',
     declaration: 'export interface IncompatiblePlugin {\n    name: string;\n    version: string;\n    runtimeVersion: string;\n    requirements: Record<string, string>;\n}',
   },
@@ -5868,6 +6010,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'IndexInjectionPlacement',
     declaration: 'export type IndexInjectionPlacement = \'head\' | \'body\';',
+  },
+  {
+    name: 'InputBinding',
+    declaration: 'export interface InputBinding {\n    readonly name: string;\n    readonly source: InputSource;\n}',
+  },
+  {
+    name: 'InputSource',
+    declaration: 'export type InputSource = {\n    readonly kind: \'node\';\n    readonly nodeId: string;\n    readonly field: string;\n} | {\n    readonly kind: \'run\';\n    readonly key: string;\n} | {\n    readonly kind: \'artifact\';\n    readonly name: string;\n};',
   },
   {
     name: 'InspectOptions',
@@ -5912,6 +6062,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'InterpreterSpec',
     declaration: 'export interface InterpreterSpec {\n    readonly path: string;\n    readonly version: string;\n    readonly source: InterpreterSource;\n    readonly virtualEnv?: string;\n}',
+  },
+  {
+    name: 'InterruptedAttempt',
+    declaration: 'export interface InterruptedAttempt {\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly attemptId: AttemptId;\n    readonly nodeId: string;\n    readonly iteration: number;\n}',
   },
   {
     name: 'InvalidPromptError',
@@ -6482,6 +6636,34 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface NativeFileApplication {\n    readonly id: string;\n    readonly name: string;\n    readonly default: boolean;\n    readonly icon: string | null;\n}',
   },
   {
+    name: 'NodeActivation',
+    declaration: 'export interface NodeActivation {\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly node: WorkflowNode;\n    readonly iteration: number;\n    readonly attemptNo: number;\n    readonly params: RunParams;\n}',
+  },
+  {
+    name: 'NodeArtifact',
+    declaration: 'export interface NodeArtifact {\n    readonly name: string;\n    readonly path: string;\n    readonly sha256?: string;\n}',
+  },
+  {
+    name: 'NodeConfig',
+    declaration: 'export type NodeConfig = PythonNodeConfig | AgentNodeConfig;',
+  },
+  {
+    name: 'NodeExecutor',
+    declaration: 'export interface NodeExecutor {\n    readonly kind: WorkflowNode[\'kind\'];\n    execute(activation: NodeActivation, inputs: NodeInputs, signal: AbortSignal): Promise<NodeResult>;\n}',
+  },
+  {
+    name: 'NodeFailure',
+    declaration: 'export interface NodeFailure {\n    readonly code: string;\n    readonly message: string;\n}',
+  },
+  {
+    name: 'NodeInputs',
+    declaration: 'export type NodeInputs = Readonly<Record<string, JsonValue>>;',
+  },
+  {
+    name: 'NodeResult',
+    declaration: 'export type NodeResult = {\n    readonly status: \'succeeded\';\n    readonly value: JsonValue;\n    readonly artifacts?: readonly NodeArtifact[];\n} | {\n    readonly status: \'failed\';\n    readonly error: NodeFailure;\n    readonly retryable: boolean;\n} | {\n    readonly status: \'waiting\';\n    readonly reason: string;\n};',
+  },
+  {
     name: 'NodeRunFailure',
     declaration: 'export interface NodeRunFailure {\n    readonly code: PythonRunnerErrorCode;\n    readonly message: string;\n}',
   },
@@ -6874,6 +7056,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface PtcRunSpec extends PtcRunRequest {\n    cwd: string;\n    timeoutMs: number | null;\n}',
   },
   {
+    name: 'PythonNodeConfig',
+    declaration: 'export interface PythonNodeConfig {\n    readonly kind: \'python\';\n    readonly source: string;\n}',
+  },
+  {
     name: 'PythonRunnerErrorCode',
     declaration: 'export type PythonRunnerErrorCode = \'python/not-found\' | \'python/unsupported-version\' | \'python/free-threaded\' | \'venv/create-failed\' | \'install/failed\' | \'node/invalid-return\' | \'node/exception\' | \'node/timeout\' | \'node/output-too-large\' | \'node/invalid-id\' | \'project/path-too-long\';',
   },
@@ -6900,6 +7086,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ReasoningEffortId',
     declaration: 'export type ReasoningEffortId = Branded<\'ReasoningEffortId\'>;',
+  },
+  {
+    name: 'ReconcileRequest',
+    declaration: 'export interface ReconcileRequest {\n    readonly projectId: ProjectId;\n}',
+  },
+  {
+    name: 'ReconcileResult',
+    declaration: 'export interface ReconcileResult {\n    readonly interrupted: readonly InterruptedAttempt[];\n    readonly paused: readonly RunId[];\n}',
   },
   {
     name: 'RecurringScheduleRecord',
@@ -7078,6 +7272,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ResumeAgentOptions {\n    readonly resumeSessionId: SessionId;\n    readonly parentAgent?: Agent;\n    readonly agentOptions?: AgentOptions;\n    readonly signal?: AbortSignal;\n    readonly setup?: AgentSetup;\n}',
   },
   {
+    name: 'RetryResult',
+    declaration: 'export interface RetryResult {\n    readonly attemptId: AttemptId;\n}',
+  },
+  {
     name: 'RpcId',
     declaration: 'export type RpcId = Branded<\'rpc-id\'>;',
   },
@@ -7098,12 +7296,24 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface RunNodeResult {\n    readonly ok: boolean;\n    readonly value?: unknown;\n    readonly error?: NodeRunFailure;\n    readonly stdout: string;\n    readonly stderr: string;\n    readonly exitCode: number | null;\n    readonly durationMs: number;\n    readonly timedOut: boolean;\n}',
   },
   {
+    name: 'RunParams',
+    declaration: 'export type RunParams = Readonly<Record<string, JsonValue>>;',
+  },
+  {
     name: 'RunRecord',
     declaration: 'export interface RunRecord {\n    readonly runId: RunId;\n    readonly definitionRevision: number;\n    readonly status: RunStatus;\n    readonly createdAt: number;\n    readonly updatedAt: number;\n    readonly reason: string | null;\n}',
   },
   {
+    name: 'RunRequest',
+    declaration: 'export interface RunRequest {\n    readonly projectId: ProjectId;\n    readonly runId: RunId;\n}',
+  },
+  {
     name: 'RunStatus',
-    declaration: 'export type RunStatus = \'pending\' | \'running\' | \'succeeded\' | \'failed\' | \'canceled\';',
+    declaration: 'export type RunStatus = \'pending\' | \'running\' | \'paused\' | \'succeeded\' | \'failed\' | \'canceled\';',
+  },
+  {
+    name: 'RunView',
+    declaration: 'export interface RunView {\n    readonly runId: RunId;\n    readonly definitionRevision: number;\n    readonly status: RunStatus;\n    readonly params: RunParams;\n    readonly createdAt: number;\n    readonly updatedAt: number;\n    readonly reason: string | null;\n}',
   },
   {
     name: 'SandboxEnforcement',
@@ -7188,6 +7398,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ScheduleListRequest',
     declaration: 'export interface ScheduleListRequest {\n    sessionId: SessionId;\n}',
+  },
+  {
+    name: 'SchedulerDiagnostic',
+    declaration: 'export interface SchedulerDiagnostic {\n    readonly code: SchedulerDiagnosticCode;\n    readonly message: string;\n    readonly nodeId?: string;\n    readonly activationId?: ActivationId;\n    readonly attemptId?: AttemptId;\n}',
+  },
+  {
+    name: 'SchedulerDiagnosticCode',
+    declaration: 'export type SchedulerDiagnosticCode = \'scheduler/input-missing\' | \'scheduler/loop-exhausted\' | \'scheduler/stale-result\' | \'scheduler/executor-missing\' | \'scheduler/executor-error\' | \'scheduler/node-failed\' | \'routing/ambiguous\' | \'routing/no-match\';',
   },
   {
     name: 'ScheduleRecord',
@@ -8434,6 +8652,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface TextProps {\n    readonly color?: string | undefined;\n    readonly bold?: boolean | undefined;\n    readonly dimColor?: boolean | undefined;\n    readonly italic?: boolean | undefined;\n    readonly underline?: boolean | undefined;\n    readonly children?: UiNode | undefined;\n}',
   },
   {
+    name: 'TickResult',
+    declaration: 'export interface TickResult {\n    readonly runId: RunId;\n    readonly status: RunStatus;\n    readonly dispatched: number;\n    readonly completed: number;\n    readonly diagnostics: readonly SchedulerDiagnostic[];\n}',
+  },
+  {
     name: 'TimedUserQuestionResult',
     declaration: 'export type TimedUserQuestionResult = AskUserQuestionAnswer | {\n    pending: true;\n    callId: ToolCallId;\n};',
   },
@@ -8966,8 +9188,20 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type WorkflowAgentOutcome = \'completed\' | \'failed\' | \'cancelled\';',
   },
   {
+    name: 'WorkflowJoinPolicy',
+    declaration: 'export type WorkflowJoinPolicy = \'all\' | \'first-success\';',
+  },
+  {
     name: 'WorkflowMeta',
     declaration: 'export interface WorkflowMeta {\n    name: string;\n    description: string;\n    whenToUse?: string;\n    phases?: WorkflowPhase[];\n}',
+  },
+  {
+    name: 'WorkflowNode',
+    declaration: 'export interface WorkflowNode {\n    readonly id: string;\n    readonly kind: WorkflowNodeKind;\n    readonly title: string;\n    readonly config: NodeConfig;\n    readonly inputs: readonly InputBinding[];\n    readonly join: WorkflowJoinPolicy;\n}',
+  },
+  {
+    name: 'WorkflowNodeKind',
+    declaration: 'export type WorkflowNodeKind = \'python\' | \'agent\';',
   },
   {
     name: 'WorkflowPhase',

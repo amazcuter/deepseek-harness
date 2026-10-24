@@ -273,6 +273,24 @@ async appendOutbox( projectId: ProjectId, attemptId: AttemptId, eventSeq: number
 async markAcked(projectId: ProjectId, attemptId: AttemptId, eventSeq: number): Promise<boolean>
 
 /**
+ * Run one synchronous body against one project's connection, inside one
+ * `BEGIN IMMEDIATE` batch and serialized with every other write of that
+ * database.
+ *
+ * This is how a consumer that owns its own rows — the workflow scheduler
+ * writes runs, activations, attempts, artifacts, and the outbox together —
+ * keeps one writer connection per database instead of opening a second one.
+ * The body must be synchronous: an `await` inside it would hold the write
+ * lock across unrelated work.
+ * @param projectId - registered project whose connection the body uses.
+ * @param body - statements to run; returning normally commits, throwing rolls back.
+ * @returns the body's result after the commit.
+ * @throws {@link WorkflowProjectStoreError} `invalid-project-id` or `project-not-found`,
+ * and the body's own error after the batch rolled back.
+ */
+async transact<T>(projectId: ProjectId, body: (db: DatabaseSync) => T): Promise<T>
+
+/**
  * Close every open connection and refuse further work. Idempotent.
  * @returns resolution once every queued write settled and every handle closed.
  */
@@ -341,6 +359,155 @@ async runNode(request: RunNodeRequest): Promise<RunNodeResult>
 ```
 
 Source: [`packages/workflow/python-runner/src/index.ts`](../../packages/workflow/python-runner/src/index.ts)
+
+<a id="ctxmwfscheduler--workflowscheduler"></a>
+
+### `ctx.mwfScheduler` — `WorkflowScheduler`
+
+The workflow scheduler service.
+
+One instance owns the executor registrations, the per-run in-flight abort controllers, and the configuration every call reads; the durable state it schedules from stays in the project database.
+
+```ts cordis-catalog
+/**
+ * Register the executor for one node kind.
+ *
+ * The registration is an effect: disposing the returned disposer, or the
+ * plugin fiber, unregisters the executor.
+ * @param executor - executor to register.
+ * @returns the disposer that unregisters it.
+ * @throws {@link WorkflowSchedulerError} `scheduler/duplicate-executor` when the
+ * kind already has an executor, and `scheduler/closed` after disposal.
+ */
+registerExecutor(executor: NodeExecutor): () => void
+
+/**
+ * Start one run from a stored definition revision.
+ *
+ * The run and its entry activation are written in one transaction, so a run
+ * never exists without the activation that starts it. The definition is
+ * parsed and validated first: a revision that no longer describes an
+ * executable graph is refused instead of recorded.
+ * @param request - project, definition revision, and optional run parameters.
+ * @returns the identity of the created run.
+ * @throws {@link WorkflowSchedulerError} `scheduler/definition-unavailable` or
+ * `scheduler/definition-invalid`, and `scheduler/closed` after disposal.
+ */
+async createRun(request: CreateRunRequest): Promise<CreateRunResult>
+
+/**
+ * Advance one run until nothing else can start.
+ *
+ * Ready activations start in document order, at most `maxConcurrent` at a
+ * time, and each committed outcome immediately re-opens the readiness
+ * question. The call returns when the run settles, pauses, or has only
+ * waiting or in-flight work left. Calling it again on a settled run changes
+ * nothing.
+ * @param request - project and run to advance.
+ * @returns what the call dispatched, committed, and decided.
+ * @throws {@link WorkflowSchedulerError} `scheduler/run-not-found` for an
+ * unknown run, and `scheduler/closed` after disposal.
+ */
+async tick(request: RunRequest): Promise<TickResult>
+
+/**
+ * Execute one named activation and then stop scheduling.
+ *
+ * The activation must be pending and its join must already be satisfied; a
+ * run that settles as a result of the step keeps its settled status instead
+ * of being parked again.
+ * @param request - project, run, and the activation to execute.
+ * @returns what the step dispatched and decided.
+ * @throws {@link WorkflowSchedulerError} `scheduler/activation-not-found` when
+ * the activation belongs to another run, `scheduler/activation-not-ready` when
+ * its join does not fire yet, and `scheduler/run-state-invalid` for a terminal run.
+ */
+async step(request: ActivationRequest): Promise<TickResult>
+
+/**
+ * Stop scheduling one run and abort its in-flight attempts.
+ *
+ * An attempt that was already running becomes `canceled` and its activation
+ * returns to `pending`, so a resumed run re-executes it; a result that
+ * arrives after the abort is stale and commits nothing.
+ * @param request - project and run to pause.
+ * @returns the run as it now reads.
+ * @throws {@link WorkflowSchedulerError} `scheduler/run-not-found` or `scheduler/run-state-invalid`.
+ */
+async pause(request: RunRequest): Promise<RunView>
+
+/**
+ * Allow a paused run to continue.
+ * @param request - project and run to resume.
+ * @returns the run as it now reads.
+ * @throws {@link WorkflowSchedulerError} `scheduler/run-state-invalid` unless the run is paused.
+ */
+async resume(request: RunRequest): Promise<RunView>
+
+/**
+ * Cancel one run and every activation it has not finished.
+ *
+ * Committed results stay readable; a result that arrives after the abort is
+ * stale and commits nothing.
+ * @param request - project and run to cancel.
+ * @returns the run as it now reads.
+ * @throws {@link WorkflowSchedulerError} `scheduler/run-not-found` or `scheduler/run-state-invalid`.
+ */
+async cancel(request: RunRequest): Promise<RunView>
+
+/**
+ * Retry one settled or waiting activation as a new attempt.
+ *
+ * The activation returns to `pending` and is executed once; a run that had
+ * failed reopens so the rest of the graph can continue, while a canceled run
+ * stays canceled. History is kept: the earlier attempts remain readable.
+ * @param request - project, run, and activation to retry.
+ * @returns the identity of the attempt the retry created.
+ * @throws {@link WorkflowSchedulerError} `scheduler/activation-not-found`,
+ * `scheduler/activation-not-retryable` for a pending, running, or succeeded
+ * activation, and `scheduler/run-state-invalid` for a canceled run.
+ */
+async retry(request: ActivationRequest): Promise<RetryResult>
+
+/**
+ * Recover one project after a backend restart.
+ *
+ * Every attempt still marked running becomes `interrupted`, its activation
+ * returns to `pending`, and every running run is parked in `paused`; a human
+ * (or the coordinator) then resumes or retries. The pass repairs no Session
+ * tail: resuming a node's own conversation is the node executor's job.
+ * @param request - project to reconcile.
+ * @returns the interrupted attempts and the parked runs.
+ * @throws {@link WorkflowSchedulerError} `scheduler/closed` after disposal.
+ */
+async reconcile(request: ReconcileRequest): Promise<ReconcileResult>
+
+/**
+ * One run as it reads now.
+ * @param request - project and run to read.
+ * @returns the run, or `undefined` when the project holds no such run.
+ * @throws {@link WorkflowSchedulerError} `scheduler/closed` after disposal.
+ */
+async getRun(request: RunRequest): Promise<RunView | undefined>
+
+/**
+ * Every activation of one run, in creation order.
+ * @param request - project and run to read.
+ * @returns the activations.
+ * @throws {@link WorkflowSchedulerError} `scheduler/run-not-found` for an unknown run.
+ */
+async listActivations(request: RunRequest): Promise<ActivationView[]>
+
+/**
+ * Attempts of one run, oldest first.
+ * @param request - project and run to read, optionally narrowed to one activation.
+ * @returns the attempts.
+ * @throws {@link WorkflowSchedulerError} `scheduler/run-not-found` for an unknown run.
+ */
+async listAttempts(request: RunRequest & { readonly activationId?: ActivationId }): Promise<AttemptView[]>
+```
+
+Source: [`packages/workflow/scheduler/src/index.ts`](../../packages/workflow/scheduler/src/index.ts)
 
 <a id="ctxworkflowengine--workflowengine-abstract-seam"></a>
 

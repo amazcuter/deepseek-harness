@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { openProjectDatabase, runTransaction } from '../src/index.ts'
+import { openProjectDatabase, runTransaction, WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION } from '../src/index.ts'
 import { DatabaseSlot } from '../src/database.ts'
 import { SerialWriteQueue } from '../src/queue.ts'
 
@@ -125,7 +125,7 @@ describe('DatabaseSlot', () => {
       await expect(slot.connection()).rejects.toThrow('first open failed')
       const db = await slot.connection()
       expect(attempts).toBe(2)
-      expect(db.prepare('PRAGMA user_version').get()).toEqual({ user_version: 1 })
+      expect(db.prepare('PRAGMA user_version').get()).toEqual({ user_version: WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION })
     } finally {
       await slot.close()
     }
@@ -154,12 +154,12 @@ describe('DatabaseSlot', () => {
     await slot.close()
     expect(opens).toBe(0)
     const first = await slot.connection()
-    expect(first.prepare('PRAGMA user_version').get()).toEqual({ user_version: 1 })
+    expect(first.prepare('PRAGMA user_version').get()).toEqual({ user_version: WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION })
     await slot.close()
     const second = await slot.connection()
     try {
       expect(opens).toBe(2)
-      expect(second.prepare('PRAGMA user_version').get()).toEqual({ user_version: 1 })
+      expect(second.prepare('PRAGMA user_version').get()).toEqual({ user_version: WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION })
     } finally {
       await slot.close()
     }

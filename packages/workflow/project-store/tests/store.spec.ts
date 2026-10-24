@@ -8,6 +8,7 @@ import { Context } from '@deepseek-ai/cordis'
 import { brandString } from '@metaworkflow/brand'
 import Store, {
   WorkflowProjectStoreError,
+  WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION,
   WORKFLOW_PROJECT_REGISTRY_APPLICATION_ID,
   WORKFLOW_PROJECT_REGISTRY_SCHEMA_VERSION,
   type AttemptId,
@@ -294,6 +295,26 @@ describe('runs', () => {
     ])
   })
 
+  it('accepts a paused run as a declared status', async () => {
+    const { store } = await openStore()
+    const project = await store.createProject({ title: 'paused run' })
+    await store.writeDefinition(project.id, 'graph TD; A')
+    await store.transact(project.id, (db) => {
+      db.prepare('INSERT INTO runs (run_id, definition_revision, status, created_at, updated_at, reason) VALUES (?, ?, ?, ?, ?, ?)')
+        .run('run-paused', 1, 'paused', 10, 11, 'paused by a human')
+    })
+    await expect(store.listRuns(project.id)).resolves.toEqual([
+      {
+        runId: 'run-paused',
+        definitionRevision: 1,
+        status: 'paused',
+        createdAt: 10,
+        updatedAt: 11,
+        reason: 'paused by a human',
+      },
+    ])
+  })
+
   it('refuses a stored status outside the declared vocabulary', async () => {
     const { store } = await openStore()
     const project = await store.createProject({ title: 'unknown status' })
@@ -430,6 +451,54 @@ describe('working directory isolation', () => {
     } finally {
       await rm(project.path, { force: true })
     }
+  })
+})
+
+describe('scheduler transactions', () => {
+  it('commits one synchronous body and returns its result', async () => {
+    const { store } = await openStore()
+    const project = await store.createProject({ title: 'transact' })
+    await store.writeDefinition(project.id, 'graph TD; A')
+
+    const written = await store.transact(project.id, (db) => {
+      db.prepare('INSERT INTO runs (run_id, definition_revision, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?)')
+        .run('run-1', 1, 'running', 10, 10)
+      return db.prepare('SELECT COUNT(*) AS runs FROM runs').get()
+    })
+    expect(written).toEqual({ runs: 1 })
+    await expect(store.listRuns(project.id)).resolves.toMatchObject([{ runId: 'run-1', status: 'running' }])
+  })
+
+  it('rolls the whole batch back when the body throws', async () => {
+    const { store } = await openStore()
+    const project = await store.createProject({ title: 'rollback' })
+    await store.writeDefinition(project.id, 'graph TD; A')
+
+    await expect(store.transact(project.id, (db) => {
+      db.prepare('INSERT INTO runs (run_id, definition_revision, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?)')
+        .run('run-1', 1, 'running', 10, 10)
+      throw new Error('the batch failed')
+    })).rejects.toThrow('the batch failed')
+    await expect(store.listRuns(project.id)).resolves.toEqual([])
+  })
+
+  it('serializes transactions with the store queue and refuses unknown projects', async () => {
+    const { store } = await openStore()
+    const project = await store.createProject({ title: 'serialized' })
+    await store.writeDefinition(project.id, 'graph TD; A')
+
+    const order: string[] = []
+    const first = store.transact(project.id, () => {
+      order.push('first')
+      return 1
+    })
+    const second = store.transact(project.id, () => {
+      order.push('second')
+      return 2
+    })
+    await expect(Promise.all([first, second])).resolves.toEqual([1, 2])
+    expect(order).toEqual(['first', 'second'])
+    await expect(store.transact(ghostId(), () => 1)).rejects.toMatchObject({ code: 'project-not-found' })
   })
 })
 
@@ -605,6 +674,36 @@ describe('durable layout', () => {
     await expect(reopened.openProject(project.id)).rejects.toMatchObject({ code: 'version-mismatch' })
   })
 
+  it('upgrades a v1 project database to the scheduler columns', async () => {
+    const { store, home } = await openStore()
+    const project = await store.createProject({ title: 'v1 project database' })
+    await store.writeDefinition(project.id, 'graph TD; A')
+    await store.close()
+
+    // A project database written before the scheduler columns existed.
+    const db = new DatabaseSync(project.dbPath)
+    db.exec('ALTER TABLE runs DROP COLUMN params_json')
+    db.exec('ALTER TABLE activations DROP COLUMN incoming_json')
+    db.exec('ALTER TABLE attempts DROP COLUMN result_json')
+    db.exec('PRAGMA user_version = 1')
+    db.prepare('UPDATE schema_meta SET value = ? WHERE key = ?').run('workflow-project/1', 'format')
+    db.close()
+
+    const reopened = new Store(new Context(), { mwfHome: home })
+    stores.push(reopened)
+    await expect(reopened.openProject(project.id)).resolves.toMatchObject({ dbPath: project.dbPath })
+    const value = await reopened.transact(project.id, (connection) => {
+      const { user_version: version } = connection.prepare('PRAGMA user_version').get() as { user_version: number }
+      const columns = connection.prepare('PRAGMA table_info(runs)').all().map(row => row.name)
+      const format = connection.prepare("SELECT value FROM schema_meta WHERE key = 'format'").get()
+      return { version, columns, format }
+    })
+    expect(value.version).toEqual(WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION)
+    expect(value.columns).toContain('params_json')
+    expect(value.format).toEqual({ value: 'workflow-project/2' })
+    await expect(reopened.readDefinition(project.id)).resolves.toMatchObject({ document: 'graph TD; A' })
+  })
+
   it('refuses a registry row that records no database path', async () => {
     const { store, home } = await openStore()
     await store.listProjects()
@@ -653,6 +752,7 @@ describe('service lifetime', () => {
       .rejects.toMatchObject({ code: 'closed' })
     await expect(store.markAcked(project.id, brandString<AttemptId>('attempt-1'), 0))
       .rejects.toMatchObject({ code: 'closed' })
+    await expect(store.transact(project.id, () => 1)).rejects.toMatchObject({ code: 'closed' })
     await expect(store.close()).resolves.toBeUndefined()
   })
 

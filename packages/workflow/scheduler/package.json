@@ -1,0 +1,42 @@
+{
+  "name": "@metaworkflow/workflow-scheduler",
+  "description": "Host-side workflow scheduler (ctx.mwfScheduler): turns a stored definition into a durable run of activations, attempts, joins, loop iterations, and committed results, with an executor seam for node kinds",
+  "version": "0.2.1-rc.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/workflow/scheduler"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:~"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "workspace:~",
+    "@metaworkflow/brand": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*",
+    "@metaworkflow/workflow-definition": "workspace:*",
+    "@metaworkflow/workflow-project-store": "workspace:*"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "workspace:~"
+  }
+}

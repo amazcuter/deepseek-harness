@@ -15824,6 +15824,28 @@ importers:
         specifier: workspace:*
         version: link:../../subprocess/subprocess
 
+  packages/workflow/scheduler:
+    dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@metaworkflow/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@metaworkflow/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+      '@metaworkflow/workflow-definition':
+        specifier: workspace:*
+        version: link:../definition
+      '@metaworkflow/workflow-project-store':
+        specifier: workspace:*
+        version: link:../project-store
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
   packages/workflow/tool-workflow:
     dependencies:
       '@deepseek-ai/schemastery':

@@ -12,6 +12,9 @@ export type ProjectId = Branded<'ProjectId'>
 /** Opaque identifier of one workflow run recorded in a project database. */
 export type RunId = Branded<'RunId'>
 
+/** Opaque identifier of one activation of one node in one run. */
+export type ActivationId = Branded<'ActivationId'>
+
 /** Opaque identifier of one attempt of one activation. */
 export type AttemptId = Branded<'AttemptId'>
 
@@ -64,8 +67,13 @@ export interface DefinitionRecord {
   readonly createdAt: number
 }
 
-/** Lifecycle status a run row carries; the workflow runner owns every transition. */
-export type RunStatus = 'pending' | 'running' | 'succeeded' | 'failed' | 'canceled'
+/**
+ * Lifecycle status a run row carries; the workflow scheduler owns every
+ * transition. `paused` holds a run whose scheduling stopped — by a human, by a
+ * single step, or by the recovery pass that parks a run whose attempts were
+ * interrupted.
+ */
+export type RunStatus = 'pending' | 'running' | 'paused' | 'succeeded' | 'failed' | 'canceled'
 
 /** One workflow run row. */
 export interface RunRecord {

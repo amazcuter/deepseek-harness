@@ -37,6 +37,7 @@ export const PRODUCT_PACKAGE_POLICY: Readonly<Record<string, ProductPackagePolic
   'packages/fs/tool-str-replace-editor': { category: 'optional', reason: 'Explicit alternative to the default filesystem editing tools.' },
   'packages/workflow/definition': { category: 'optional', reason: 'Pure definition, validation, routing, and join arithmetic library that the workflow scheduler stage consumes in-process; it has no runtime mount of its own.' },
   'packages/workflow/python-runner': { category: 'optional', reason: 'Host Python execution requires a project directory and an installed interpreter, so the scheduler stage mounts it explicitly.' },
+  'packages/workflow/scheduler': { category: 'optional', reason: 'Runs workflow nodes only when a composition mounts it beside the project store and registers an executor for each node kind.' },
   'packages/sdk/client': { category: 'sdk', reason: 'Published TypeScript embedding client runs in the consumer process.' },
   'packages/typert/generator': { category: 'build', reason: 'Build-time generation of type metadata.' },
   'packages/test-support/agent-loop-testkit': { category: 'test', reason: 'Published agent-loop test harness.' },

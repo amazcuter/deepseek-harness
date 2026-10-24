@@ -22,6 +22,7 @@
 import { randomUUID } from 'node:crypto'
 import { mkdir, rm, stat } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
+import type { DatabaseSync } from 'node:sqlite'
 import { Context, Service } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import { brandString } from '@metaworkflow/brand'
@@ -552,6 +553,30 @@ export default class WorkflowProjectStore extends Service {
     return slot.queue.run(async () => {
       const db = await slot.connection()
       return runTransaction(db, () => ackOutboxRow(db, attemptId, eventSeq, Date.now()))
+    })
+  }
+
+  /**
+   * Run one synchronous body against one project's connection, inside one
+   * `BEGIN IMMEDIATE` batch and serialized with every other write of that
+   * database.
+   *
+   * This is how a consumer that owns its own rows — the workflow scheduler
+   * writes runs, activations, attempts, artifacts, and the outbox together —
+   * keeps one writer connection per database instead of opening a second one.
+   * The body must be synchronous: an `await` inside it would hold the write
+   * lock across unrelated work.
+   * @param projectId - registered project whose connection the body uses.
+   * @param body - statements to run; returning normally commits, throwing rolls back.
+   * @returns the body's result after the commit.
+   * @throws {@link WorkflowProjectStoreError} `invalid-project-id` or `project-not-found`,
+   * and the body's own error after the batch rolled back.
+   */
+  async transact<T>(projectId: ProjectId, body: (db: DatabaseSync) => T): Promise<T> {
+    const { slot } = await this.projectSlotFor(projectId)
+    return slot.queue.run(async () => {
+      const db = await slot.connection()
+      return runTransaction(db, () => body(db))
     })
   }
 

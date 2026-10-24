@@ -885,7 +885,8 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'workflow-project-store',
     title: 'Workflow project persistence',
     mode: 'service',
-    note: 'Owns the global project registry and one database per project; no consumer is wired yet, so the runner and GUI stages attach their reads and writes here.',
+    consumers: ['workflow-scheduler'],
+    note: 'Owns the global project registry and one database per project; the scheduler commits runs, activations, attempts, artifacts, and outbox rows through that connection, and the GUI stages read them there.',
   },
   {
     key: 'mwfPythonRunner',
@@ -893,6 +894,13 @@ const SERVICE_ROLES: ServiceRole[] = [
     title: 'Workflow Python node execution',
     mode: 'service',
     note: 'Owns interpreter resolution, the project .venv, and one isolated node run; no consumer is wired yet, so the scheduler stage attaches its runs here.',
+  },
+  {
+    key: 'mwfScheduler',
+    pkg: 'workflow-scheduler',
+    title: 'Workflow run scheduling',
+    mode: 'service',
+    note: 'Owns readiness, concurrency slots, attempt retries, loop iterations, and the one-batch commit of a node outcome; node kinds attach through executor registration, so the package has no executor of its own.',
   },
   {
     key: 'webhookRuntime',

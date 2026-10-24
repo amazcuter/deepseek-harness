@@ -1,0 +1,61 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/workflow/scheduler/README.md
+/:
+  en: 481cf2000d26582d
+  zh: bbedf22a66138d7c
+/metaworkflow-workflow-scheduler:
+  en: 59ffabe37a328a9e
+  zh: 0b8705e40ed090bf
+/metaworkflow-workflow-scheduler/summary:
+  en: ac6952b0b692d5d4
+  zh: 584299cd2612a6b8
+/metaworkflow-workflow-scheduler/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 7b1f753719e33506
+/metaworkflow-workflow-scheduler/use-this-package:
+  en: aa6099ad3744770d
+  zh: 8dbc95357c75df89
+/metaworkflow-workflow-scheduler/use-this-package/when-to-choose-it:
+  en: 446ed520c0507f3a
+  zh: fbc9bc1e13fda1c5
+/metaworkflow-workflow-scheduler/use-this-package/minimal-configuration:
+  en: ef5b2903a1ad92f7
+  zh: cdbf1e958bef526f
+/metaworkflow-workflow-scheduler/use-this-package/service-api:
+  en: 039c248fe112e849
+  zh: 47cb58e94a65d691
+/metaworkflow-workflow-scheduler/use-this-package/the-executor-seam:
+  en: 4783d8bcb04180be
+  zh: 0a113c1be461e02f
+/metaworkflow-workflow-scheduler/use-this-package/committed-outcomes:
+  en: c9ec05f44eb7294f
+  zh: d29986f2ea46f119
+/metaworkflow-workflow-scheduler/understand-the-implementation:
+  en: 42b15ac6321706aa
+  zh: 43dd0daffdffd075
+/metaworkflow-workflow-scheduler/understand-the-implementation/design-concept:
+  en: 9eaaac9b428c8640
+  zh: 5d98e2c7afe1a01c
+/metaworkflow-workflow-scheduler/understand-the-implementation/scheduling-loop:
+  en: e2cfb9020fe4bd86
+  zh: 776d0488ee5fb2a9
+/metaworkflow-workflow-scheduler/understand-the-implementation/failure-handling:
+  en: b682eea5e39065c1
+  zh: c2d67eb1916de694
+/metaworkflow-workflow-scheduler/further-exploration:
+  en: 16b54c8d12c0c1f0
+  zh: 3d31aed17a8a633a
+/metaworkflow-workflow-scheduler/model-experience:
+  en: d54568d8dadd7bac
+  zh: 005043f41345cc56
+/metaworkflow-workflow-scheduler/model-experience/kv-cache-effect:
+  en: 5a1c2bc32ff6efae
+  zh: 4f2b0c48602b7d6c
+/metaworkflow-workflow-scheduler/known-limitations-and-deferred-work:
+  en: b1a6ff60331679af
+  zh: 2e0358319e87cc24
+/metaworkflow-workflow-scheduler/known-limitations-and-deferred-work/dev-note:
+  en: 6b2dc281f8b81ae6
+  zh: f6a04b4c0d73cb7b

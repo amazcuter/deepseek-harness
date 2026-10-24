@@ -7,8 +7,10 @@
  * working directory, so a working directory holds only the user's code and
  * artifacts and can be moved or deleted without the database.
  *
- * The v1 layout is declared complete in one pass so later stages add behavior,
- * not migrations.
+ * The v2 layout adds the three columns the scheduler needs to make a run
+ * resumable: the run's parameters, the incoming activations one activation
+ * joins, and the committed result of one attempt. A v1 library gains them
+ * through the declared upgrade step.
  *
  * @module @metaworkflow/workflow-project-store/project-database
  */
@@ -16,14 +18,15 @@
 import type { DatabaseSync, SQLOutputValue } from 'node:sqlite'
 import { brandString } from '@metaworkflow/brand'
 import { WorkflowProjectStoreError } from './errors.ts'
-import { openWorkflowDatabase, type WorkflowDatabaseOpenOptions } from './open.ts'
+import { openWorkflowDatabase, type WorkflowDatabaseOpenOptions, type WorkflowDatabaseUpgrade } from './open.ts'
 import type { AttemptId, DefinitionRecord, OutboxRecord, RunId, RunRecord, RunStatus } from './types.ts'
 
 /**
- * Project layout version in `PRAGMA user_version`. A database stamped with any
- * other version is refused instead of migrated in place.
+ * Project layout version in `PRAGMA user_version`. A database stamped with an
+ * older version is upgraded through the declared steps in
+ * {@link PROJECT_UPGRADES}; a version no step leads from is refused.
  */
-export const WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION = 1
+export const WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION = 2
 
 /**
  * Project `PRAGMA application_id` identity (`MWPJ`). It differs from the
@@ -32,7 +35,7 @@ export const WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION = 1
 export const WORKFLOW_PROJECT_DATABASE_APPLICATION_ID = 0x4d57504a
 
 /** Stable `schema_meta` row naming this database's role and version. */
-const PROJECT_FORMAT = 'workflow-project/1'
+const PROJECT_FORMAT = 'workflow-project/2'
 
 /**
  * File name of one project database inside the store's own project directory.
@@ -42,7 +45,15 @@ const PROJECT_FORMAT = 'workflow-project/1'
 export const PROJECT_DATABASE_FILE_NAME = 'project.db'
 
 /** Run statuses the store accepts from the medium. */
-const RUN_STATUSES: ReadonlySet<string> = new Set<RunStatus>(['pending', 'running', 'succeeded', 'failed', 'canceled'])
+const RUN_STATUSES: ReadonlySet<string> = new Set<RunStatus>(['pending', 'running', 'paused', 'succeeded', 'failed', 'canceled'])
+
+/**
+ * Layout upgrades of the project database, applied only when an existing
+ * library is older than {@link WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION}.
+ */
+const PROJECT_UPGRADES: readonly WorkflowDatabaseUpgrade[] = [
+  { from: 1, apply: addSchedulerColumns },
+]
 
 /** One row as `node:sqlite` hands it back: column values keyed by column name. */
 type SqlRow = Record<string, SQLOutputValue>
@@ -94,8 +105,27 @@ export async function openProjectDatabase(
     path,
     applicationId: WORKFLOW_PROJECT_DATABASE_APPLICATION_ID,
     schemaVersion: WORKFLOW_PROJECT_DATABASE_SCHEMA_VERSION,
+    upgrades: PROJECT_UPGRADES,
     materialize: materializeProjectSchema,
   })
+}
+
+/**
+ * Upgrade a v1 project library: add the run parameters, the incoming
+ * activations of each activation, and the committed result of each attempt,
+ * then refresh the format marker.
+ *
+ * Every added column is absent from a v1 row, so the empty defaults a v1
+ * library receives mean "no parameters", "no incoming activation", and "no
+ * result" — the same values the scheduler writes for a fresh run.
+ * @param db - v1 project connection holding the write lock of its upgrade batch.
+ * @returns nothing.
+ */
+function addSchedulerColumns(db: DatabaseSync): void {
+  db.exec("ALTER TABLE runs ADD COLUMN params_json TEXT NOT NULL DEFAULT '{}'")
+  db.exec("ALTER TABLE activations ADD COLUMN incoming_json TEXT NOT NULL DEFAULT '[]'")
+  db.exec('ALTER TABLE attempts ADD COLUMN result_json TEXT')
+  db.prepare('UPDATE schema_meta SET value = ? WHERE key = ?').run(PROJECT_FORMAT, 'format')
 }
 
 /**
@@ -106,6 +136,9 @@ export async function openProjectDatabase(
  * artifacts, and decisions cascade from their run or activation. The session
  * outbox keys on the attempt it delivers for and enforces that the attempt
  * exists.
+ * Runs carry the parameters the run started with; an activation carries the
+ * incoming activations it joins and an attempt carries the result it
+ * committed, so a reopened run rebuilds its inputs instead of restarting work.
  * @param db - connection whose identity and version are already accepted.
  * @returns nothing.
  */
@@ -144,7 +177,8 @@ function materializeProjectSchema(db: DatabaseSync): void {
       status              TEXT NOT NULL,
       created_at          INTEGER NOT NULL,
       updated_at          INTEGER NOT NULL,
-      reason              TEXT
+      reason              TEXT,
+      params_json         TEXT NOT NULL DEFAULT '{}'
     ) STRICT
   `)
   db.exec(`
@@ -156,6 +190,7 @@ function materializeProjectSchema(db: DatabaseSync): void {
       status        TEXT NOT NULL,
       created_at    INTEGER NOT NULL,
       updated_at    INTEGER NOT NULL,
+      incoming_json TEXT NOT NULL DEFAULT '[]',
       UNIQUE (run_id, node_id, iteration)
     ) STRICT
   `)
@@ -168,6 +203,7 @@ function materializeProjectSchema(db: DatabaseSync): void {
       started_at    INTEGER NOT NULL,
       ended_at      INTEGER,
       error_json    TEXT,
+      result_json   TEXT,
       UNIQUE (activation_id, attempt_no)
     ) STRICT
   `)

@@ -510,6 +510,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@metaworkflow/workflow-project-store` | yes | Workflow project persistence (ctx.mwfProjectStore): the global project registry and one SQLite database per project for definitions, runs, activations, attempts, artifacts, decisions, and the session outbox |
 | `@metaworkflow/workflow-ptc` | yes | Workflow orchestration in the shared sandboxed Node PTC runtime |
 | `@metaworkflow/workflow-python-runner` | yes | Host-side Python function runner for workflow nodes (ctx.mwfPythonRunner): interpreter resolution, project virtual environments, dependency installation, and one isolated node run with a UTF-8 JSON result protocol |
+| `@metaworkflow/workflow-scheduler` | yes | Host-side workflow scheduler (ctx.mwfScheduler): turns a stored definition into a durable run of activations, attempts, joins, loop iterations, and committed results, with an executor seam for node kinds |
 
 ## workspace
 
