@@ -304,6 +304,20 @@ Host service backing the generated `ctx.remote.projects` namespace. It serves th
 @Remote('importDefinition') async importDefinition(request: ProjectImportDefinitionRequest): Promise<ProjectImportDefinitionValue>
 
 /**
+ * Import one Mermaid flowchart as the project's newest definition.
+ *
+ * The text is parsed and translated into a validated definition before
+ * anything is written, so a flowchart the importer refuses creates no project
+ * and stores no revision. A request without an `id` registers a project under
+ * `title` first, which is what the import flow offers a first-time author.
+ * @param request - flowchart source plus the target project, or the title of
+ * the project to register.
+ * @returns the project, the stored definition, the node-id mapping, and the
+ * importer's warnings.
+ */
+@Remote('importMermaid') async importMermaid(request: ProjectImportMermaidRequest): Promise<ProjectImportMermaidValue>
+
+/**
  * List one node's tool switches: every tool this Host registers, plus any
  * name the node already declares that the Host no longer registers.
  * @param request - project and node identity.

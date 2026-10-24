@@ -38,6 +38,7 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
   'packages/util/values': 'The package only validates, snapshots, compares, freezes, or rejects caller-owned values; consumers own every model-facing use.',
   'packages/util/code-language': 'The package only maps a filename suffix to a syntax-highlighting language id; the read consumer owns the persisted hint.',
   'packages/workflow/definition': 'The package only defines, validates, routes, and joins workflow graph data; the scheduler and tool consumers own every model-facing rendering.',
+  'packages/workflow/mermaid-import': 'The package only converts flowchart text into workflow graph data; the placeholder instructions it writes are model-visible only after the project owner stores and runs the definition.',
 }
 
 /**

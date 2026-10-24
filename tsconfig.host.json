@@ -503,6 +503,7 @@
     { "path": "./packages/workflow/coordinator" },
     { "path": "./packages/workflow/tool-workflow" },
     { "path": "./packages/workflow/definition" },
+    { "path": "./packages/workflow/mermaid-import" },
     { "path": "./packages/workflow/project-store" },
     { "path": "./packages/workflow/python-runner" },
     { "path": "./packages/workflow/python-executor" },

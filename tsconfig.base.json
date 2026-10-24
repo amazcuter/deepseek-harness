@@ -370,6 +370,7 @@
       // workflow packages carry the workflow- prefix their package names add, so their
       // aliases cannot be generated from the directory names.
       "@metaworkflow/workflow-definition": ["./packages/workflow/definition/src"],
+      "@metaworkflow/workflow-mermaid-import": ["./packages/workflow/mermaid-import/src"],
       "@metaworkflow/workflow-project-store": ["./packages/workflow/project-store/src"],
       "@metaworkflow/workflow-scheduler": ["./packages/workflow/scheduler/src"],
       "@metaworkflow/workflow-python-runner": ["./packages/workflow/python-runner/src"],

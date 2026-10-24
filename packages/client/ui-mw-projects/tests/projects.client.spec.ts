@@ -57,6 +57,7 @@ function bench() {
     coordinator: vi.fn(unused),
     definition: vi.fn(unused),
     importDefinition: vi.fn(unused),
+    importMermaid: vi.fn(unused),
     pause: vi.fn(unused),
     pendingDecisions: vi.fn(unused),
     resume: vi.fn(unused),

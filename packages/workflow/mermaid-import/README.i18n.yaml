@@ -1,0 +1,52 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/workflow/mermaid-import/README.md
+/:
+  en: 94c4e759afab70ae
+  zh: bc6c4735643f8383
+/metaworkflow-workflow-mermaid-import:
+  en: 018eaee196b2f72b
+  zh: ca767caa97742ab8
+/metaworkflow-workflow-mermaid-import/summary:
+  en: 3010cfed7b54b5e4
+  zh: 8ee2305c65e57074
+/metaworkflow-workflow-mermaid-import/table-of-contents:
+  en: 80b31a934611cb4a
+  zh: 05f3f7f9cb2fd881
+/metaworkflow-workflow-mermaid-import/use-this-package:
+  en: bbff250eba0f1b89
+  zh: 0a618f05cc88ee2b
+/metaworkflow-workflow-mermaid-import/use-this-package/when-to-use-it:
+  en: 8ec9e4532924b5de
+  zh: 0cf02004d788f71e
+/metaworkflow-workflow-mermaid-import/use-this-package/entry-point:
+  en: 8d7fac984c5d8c8e
+  zh: df1867466af763c7
+/metaworkflow-workflow-mermaid-import/use-this-package/the-accepted-subset:
+  en: cbe8a95d5773b798
+  zh: eb61b7b484e70af0
+/metaworkflow-workflow-mermaid-import/use-this-package/the-translation:
+  en: 4fbb53ce68b7c598
+  zh: 1381223187329606
+/metaworkflow-workflow-mermaid-import/understand-the-implementation:
+  en: 42b15ac6321706aa
+  zh: c5500056b41ce570
+/metaworkflow-workflow-mermaid-import/understand-the-implementation/source-map:
+  en: 590e0809b9e1e14b
+  zh: 3a18afaad068adaa
+/metaworkflow-workflow-mermaid-import/understand-the-implementation/parsing:
+  en: e93503ce93adad2f
+  zh: 50e74ad4abe8ae3d
+/metaworkflow-workflow-mermaid-import/understand-the-implementation/translation:
+  en: 67070bfb9ef53ebd
+  zh: 8cd1a59a42d148f2
+/metaworkflow-workflow-mermaid-import/further-exploration:
+  en: 305c1410e826c19f
+  zh: f38e172844591250
+/metaworkflow-workflow-mermaid-import/known-limitations-and-deferred-work:
+  en: 82fce0f0abb36d7d
+  zh: dc7948bbf0380a2d
+/metaworkflow-workflow-mermaid-import/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3414649dbbe7d56f

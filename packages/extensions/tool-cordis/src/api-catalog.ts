@@ -1957,6 +1957,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'the revision it was stored under and how many nodes it declares.',
       },
       {
+        signature: '@Remote(\'importMermaid\') async importMermaid(request: ProjectImportMermaidRequest): Promise<ProjectImportMermaidValue>',
+        description: 'Import one Mermaid flowchart as the project\'s newest definition.\n\nThe text is parsed and translated into a validated definition before anything is written, so a flowchart the importer refuses creates no project and stores no revision. A request without an `id` registers a project under `title` first, which is what the import flow offers a first-time author.',
+        parameters: [{ name: 'request', description: 'flowchart source plus the target project, or the title of the project to register.' }],
+        returns: 'the project, the stored definition, the node-id mapping, and the importer\'s warnings.',
+      },
+      {
         signature: '@Remote(\'availableTools\') async availableTools(request: ProjectNodeTargetRequest): Promise<ProjectToolsValue>',
         description: 'List one node\'s tool switches: every tool this Host registers, plus any name the node already declares that the Host no longer registers.',
         parameters: [{ name: 'request', description: 'project and node identity.' }],
@@ -7178,6 +7184,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ProjectImportDefinitionValue {\n    readonly revision: number;\n    readonly nodeCount: number;\n}',
   },
   {
+    name: 'ProjectImportMermaidRequest',
+    declaration: 'export interface ProjectImportMermaidRequest {\n    readonly id?: WorkspaceId;\n    readonly title?: string;\n    readonly mermaid: string;\n}',
+  },
+  {
+    name: 'ProjectImportMermaidValue',
+    declaration: 'export interface ProjectImportMermaidValue {\n    readonly projectId: WorkspaceId;\n    readonly definition: ProjectDefinitionValue;\n    readonly mapping: Readonly<Record<string, string>>;\n    readonly warnings: readonly ProjectMermaidWarningView[];\n}',
+  },
+  {
     name: 'ProjectionChangeListener',
     declaration: 'export type ProjectionChangeListener = (session: Session, key: Extract<keyof SessionProjectionMap, string>, value: unknown, seq: SessionSeq) => void;',
   },
@@ -7200,6 +7214,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ProjectListValue',
     declaration: 'export interface ProjectListValue {\n    readonly items: readonly ProjectSummary[];\n}',
+  },
+  {
+    name: 'ProjectMermaidWarningView',
+    declaration: 'export interface ProjectMermaidWarningView {\n    readonly code: string;\n    readonly message: string;\n}',
   },
   {
     name: 'ProjectNodeInputView',

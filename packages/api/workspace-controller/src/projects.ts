@@ -17,6 +17,7 @@ import {
   parseDefinitionDocument, serializeDefinition, validateDefinition,
 } from '@metaworkflow/workflow-definition'
 import type { WorkflowDefinition, WorkflowNode } from '@metaworkflow/workflow-definition'
+import { parseMermaidFlowchart, toDefinition } from '@metaworkflow/workflow-mermaid-import'
 // Type-only: the coordinator and scheduler plugins declare the `mwfCoordinator`
 // and `mwfScheduler` Context services this Remote reads through `ctx.get`.
 import type {} from '@metaworkflow/workflow-coordinator'
@@ -42,7 +43,10 @@ import type {
   ProjectDefinitionValue,
   ProjectImportDefinitionRequest,
   ProjectImportDefinitionValue,
+  ProjectImportMermaidRequest,
+  ProjectImportMermaidValue,
   ProjectListValue,
+  ProjectMermaidErrorView,
   ProjectNodeTargetRequest,
   ProjectPendingDecisionsValue,
   ProjectRemoveValue,
@@ -243,6 +247,50 @@ export class MwProjectController extends TypertRemoteService {
   }
 
   /**
+   * Import one Mermaid flowchart as the project's newest definition.
+   *
+   * The text is parsed and translated into a validated definition before
+   * anything is written, so a flowchart the importer refuses creates no project
+   * and stores no revision. A request without an `id` registers a project under
+   * `title` first, which is what the import flow offers a first-time author.
+   * @param request - flowchart source plus the target project, or the title of
+   * the project to register.
+   * @returns the project, the stored definition, the node-id mapping, and the
+   * importer's warnings.
+   */
+  @Remote('importMermaid')
+  async importMermaid(request: ProjectImportMermaidRequest): Promise<ProjectImportMermaidValue> {
+    const parsed = parseMermaidFlowchart(request.mermaid)
+    if (!parsed.ok) throw mermaidInvalid({ error: parsed.error })
+    const translated = toDefinition(parsed.graph)
+    if (!translated.ok) {
+      if (translated.error !== null) throw mermaidInvalid({ error: translated.error })
+      throw mermaidInvalid({ violations: translated.violations.map(violation => violation.message) })
+    }
+    const document = serializeDefinition(translated.definition)
+    try {
+      const projectId = request.id === undefined
+        ? await this.registerProject(request.title)
+        : this.requireWorkspace(request.id).id
+      const revision = await this.ctx.mwfProjectStore.writeDefinition(projectId, document)
+      return {
+        projectId,
+        definition: {
+          revision,
+          document,
+          valid: true,
+          violations: [],
+          nodes: nodeViews(translated.definition),
+        },
+        mapping: translated.mapping,
+        warnings: [...parsed.warnings, ...translated.warnings],
+      }
+    } catch (error: unknown) {
+      throw projectFailure(error)
+    }
+  }
+
+  /**
    * List one node's tool switches: every tool this Host registers, plus any
    * name the node already declares that the Host no longer registers.
    * @param request - project and node identity.
@@ -434,6 +482,25 @@ export class MwProjectController extends TypertRemoteService {
     return tools === undefined ? [] : tools.schemas()
   }
 
+  /**
+   * Register the project a flowchart import writes into when the request names
+   * none. The workspace registry owns registration, so the new project appears
+   * in `list` and its Sessions are accounted to it.
+   * @param title - requested project title.
+   * @returns identity of the registered project.
+   */
+  private async registerProject(title: string | undefined): Promise<WorkspaceId> {
+    const trimmed = title?.trim() ?? ''
+    if (trimmed === '') {
+      throw new RemoteError(
+        'gateway/bad-request',
+        'projects.importMermaid requires a non-blank title when it registers a project',
+        {},
+      )
+    }
+    return (await this.ctx.workspaceRegistry.createProject({ title: trimmed })).id
+  }
+
   /** One stored definition with the record it came from. */
   private async requireDefinition(id: WorkspaceId): Promise<{
     readonly record: DefinitionRecord
@@ -543,6 +610,30 @@ function definitionInvalid(violations: readonly string[]): RemoteError<'project/
     'project/definition-invalid',
     `the definition is not executable: ${violations.join('; ')}`,
     { violations },
+  )
+}
+
+/** Why one flowchart import was refused: a parse or graph refusal, or validator messages. */
+type MermaidRefusal =
+  | { readonly error: ProjectMermaidErrorView }
+  | { readonly violations: readonly string[] }
+
+/**
+ * @param refusal - the importer refusal or the validator messages behind it.
+ * @returns the Remote failure to throw.
+ */
+function mermaidInvalid(refusal: MermaidRefusal): RemoteError<'project/mermaid-invalid'> {
+  if ('error' in refusal) {
+    return new RemoteError(
+      'project/mermaid-invalid',
+      `the flowchart cannot be imported: ${refusal.error.message}`,
+      { error: refusal.error },
+    )
+  }
+  return new RemoteError(
+    'project/mermaid-invalid',
+    `the flowchart is not a usable definition: ${refusal.violations.join('; ')}`,
+    { violations: refusal.violations },
   )
 }
 

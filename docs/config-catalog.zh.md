@@ -4944,4 +4944,5 @@ export interface Config {
 | `@metaworkflow/util-workspace-path` | — | [`packages/util/workspace-path/src/index.ts`](../packages/util/workspace-path/src/index.ts) |
 | `@metaworkflow/win32-process` | — | [`packages/subprocess/win32-process/src/index.ts`](../packages/subprocess/win32-process/src/index.ts) |
 | `@metaworkflow/workflow-definition` | — | [`packages/workflow/definition/src/index.ts`](../packages/workflow/definition/src/index.ts) |
+| `@metaworkflow/workflow-mermaid-import` | — | [`packages/workflow/mermaid-import/src/index.ts`](../packages/workflow/mermaid-import/src/index.ts) |
 <!-- END GENERATED config-catalog:library -->

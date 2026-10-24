@@ -455,6 +455,7 @@ flowchart TD
     pkg_workflow_agent_executor["workflow-agent-executor"]
     pkg_workflow_coordinator["workflow-coordinator"]
     pkg_workflow_definition["workflow-definition"]
+    pkg_workflow_mermaid_import["workflow-mermaid-import"]
     pkg_workflow_project_store["workflow-project-store"]
     pkg_workflow_ptc["workflow-ptc"]
     pkg_workflow_python_executor["workflow-python-executor"]
@@ -613,14 +614,6 @@ flowchart TD
   pkg_skill_filesystem --> pkg_fs
   pkg_skill_filesystem --> pkg_home_paths
   pkg_skill_filesystem --> pkg_skill
-  pkg_api_workspace_controller --> pkg_api_gateway
-  pkg_api_workspace_controller --> pkg_client_connection
-  pkg_api_workspace_controller --> pkg_host_directory_picker
-  pkg_api_workspace_controller --> pkg_session
-  pkg_api_workspace_controller --> pkg_storage_domain
-  pkg_api_workspace_controller --> pkg_typert_protocol
-  pkg_api_workspace_controller --> pkg_workflow_project_store
-  pkg_api_workspace_controller --> pkg_workspace
   pkg_experimental_api_speech_to_text --> pkg_experimental_speech_to_text
   pkg_experimental_api_speech_to_text --> pkg_typert_protocol
   pkg_experimental_client_ui_cot_translation --> pkg_experimental_translator
@@ -1201,6 +1194,7 @@ flowchart TD
   pkg_workflow_agent_executor --> pkg_workflow_definition
   pkg_workflow_agent_executor --> pkg_workflow_project_store
   pkg_workflow_agent_executor --> pkg_workflow_scheduler
+  pkg_workflow_mermaid_import --> pkg_workflow_definition
   pkg_workflow_python_executor --> pkg_brand
   pkg_workflow_python_executor --> pkg_util_values
   pkg_workflow_python_executor --> pkg_workflow_definition
@@ -1245,6 +1239,19 @@ flowchart TD
   pkg_acp --> pkg_session_persistence
   pkg_acp --> pkg_token_meter
   pkg_acp --> pkg_user_approval
+  pkg_api_workspace_controller --> pkg_api_gateway
+  pkg_api_workspace_controller --> pkg_client_connection
+  pkg_api_workspace_controller --> pkg_host_directory_picker
+  pkg_api_workspace_controller --> pkg_session
+  pkg_api_workspace_controller --> pkg_storage_domain
+  pkg_api_workspace_controller --> pkg_tools
+  pkg_api_workspace_controller --> pkg_typert_protocol
+  pkg_api_workspace_controller --> pkg_workflow_coordinator
+  pkg_api_workspace_controller --> pkg_workflow_definition
+  pkg_api_workspace_controller --> pkg_workflow_mermaid_import
+  pkg_api_workspace_controller --> pkg_workflow_project_store
+  pkg_api_workspace_controller --> pkg_workflow_scheduler
+  pkg_api_workspace_controller --> pkg_workspace
   pkg_plugin_manager --> pkg_brand
   pkg_plugin_manager --> pkg_hmr
   pkg_plugin_manager --> pkg_host_plugin_inventory
@@ -1687,7 +1694,6 @@ flowchart TD
 | [`fs-local`](../packages/fs/fs-local) | `fs` | [`fs`](../packages/fs/fs) |
 | [`fs-observation-policy`](../packages/fs/fs-observation-policy) | `fs` | [`fs`](../packages/fs/fs) |
 | [`skill-filesystem`](../packages/skill/skill-filesystem) | `skill` | [`fs`](../packages/fs/fs), [`home-paths`](../packages/util/home-paths), [`skill`](../packages/skill/skill) |
-| [`api-workspace-controller`](../packages/api/workspace-controller) | `api` | [`api-gateway`](../packages/api/gateway), [`client-connection`](../packages/client/connection), [`host-directory-picker`](../packages/host/directory-picker), [`session`](../packages/core/session), [`storage-domain`](../packages/storage/storage-domain), [`typert-protocol`](../packages/typert/protocol), [`workflow-project-store`](../packages/workflow/project-store), [`workspace`](../packages/workspace/workspace) |
 | [`experimental-api-speech-to-text`](../packages/experimental/api-speech-to-text) | `experimental` | [`experimental-speech-to-text`](../packages/experimental/speech-to-text), [`typert-protocol`](../packages/typert/protocol) |
 | [`experimental-client-ui-cot-translation`](../packages/experimental/client-ui-cot-translation) | `experimental` | [`experimental-translator`](../packages/experimental/translator) |
 | [`experimental-speech-to-text-sensevoice`](../packages/experimental/speech-to-text-sensevoice) | `experimental` | [`experimental-speech-to-text`](../packages/experimental/speech-to-text), [`subprocess`](../packages/subprocess/subprocess) |
@@ -1803,11 +1809,13 @@ flowchart TD
 | [`subprocess-ssh`](../packages/ssh/subprocess-ssh) | `ssh` | [`ssh`](../packages/ssh/ssh), [`subprocess`](../packages/subprocess/subprocess), [`subprocess-local`](../packages/subprocess/subprocess-local) |
 | [`agent-loop-testkit`](../packages/test-support/agent-loop-testkit) | `test-support` | [`agent`](../packages/core/agent), [`agent-loop`](../packages/core/agent-loop), [`fs-local`](../packages/fs/fs-local), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-projection`](../packages/session/session-projection), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`working-directory`](../packages/session/working-directory) |
 | [`workflow-agent-executor`](../packages/workflow/agent-executor) | `workflow` | [`agent`](../packages/core/agent), [`agent-default-model`](../packages/core/agent-default-model), [`brand`](../packages/util/brand), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`system-prompt`](../packages/core/system-prompt), [`tool-complete-node`](../packages/workflow/tool-complete-node), [`tool-request-decision`](../packages/workflow/tool-request-decision), [`tools`](../packages/core/tools), [`util-values`](../packages/util/values), [`workflow-coordinator`](../packages/workflow/coordinator), [`workflow-definition`](../packages/workflow/definition), [`workflow-project-store`](../packages/workflow/project-store), [`workflow-scheduler`](../packages/workflow/scheduler) |
+| [`workflow-mermaid-import`](../packages/workflow/mermaid-import) | `workflow` | [`workflow-definition`](../packages/workflow/definition) |
 | [`workflow-python-executor`](../packages/workflow/python-executor) | `workflow` | [`brand`](../packages/util/brand), [`util-values`](../packages/util/values), [`workflow-definition`](../packages/workflow/definition), [`workflow-project-store`](../packages/workflow/project-store), [`workflow-python-runner`](../packages/workflow/python-runner), [`workflow-scheduler`](../packages/workflow/scheduler) |
 | [`subagent`](../packages/subagent/subagent) | `subagent` | [`agent`](../packages/core/agent), [`agent-preset-registry`](../packages/preset/agent-preset-registry), [`attachment`](../packages/attachment/attachment), [`llm`](../packages/llm/llm), [`permission-presets`](../packages/interaction/permission-presets), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`session-projection`](../packages/session/session-projection), [`session-query`](../packages/session-query/session-query), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`typert-protocol`](../packages/typert/protocol), [`user-approval`](../packages/interaction/user-approval), [`util-time`](../packages/util/time), [`working-directory`](../packages/session/working-directory), [`workspace`](../packages/workspace/workspace) |
 | [`spill-policy`](../packages/spill/spill-policy) | `spill` | [`attachment`](../packages/attachment/attachment), [`fs`](../packages/fs/fs), [`llm`](../packages/llm/llm), [`output-retention`](../packages/util/output-retention), [`session`](../packages/core/session), [`spill`](../packages/spill/spill), [`token-meter`](../packages/llm/token-meter), [`tools`](../packages/core/tools) |
 | [`session-query-sqlite`](../packages/session-query/session-query-sqlite) | `session-query` | [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`session-query`](../packages/session-query/session-query) |
 | [`acp`](../packages/acp/acp) | `acp` | [`agent`](../packages/core/agent), [`attachment`](../packages/attachment/attachment), [`llm`](../packages/llm/llm), [`mcp-client`](../packages/mcp/mcp-client), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`token-meter`](../packages/llm/token-meter), [`user-approval`](../packages/interaction/user-approval) |
+| [`api-workspace-controller`](../packages/api/workspace-controller) | `api` | [`api-gateway`](../packages/api/gateway), [`client-connection`](../packages/client/connection), [`host-directory-picker`](../packages/host/directory-picker), [`session`](../packages/core/session), [`storage-domain`](../packages/storage/storage-domain), [`tools`](../packages/core/tools), [`typert-protocol`](../packages/typert/protocol), [`workflow-coordinator`](../packages/workflow/coordinator), [`workflow-definition`](../packages/workflow/definition), [`workflow-mermaid-import`](../packages/workflow/mermaid-import), [`workflow-project-store`](../packages/workflow/project-store), [`workflow-scheduler`](../packages/workflow/scheduler), [`workspace`](../packages/workspace/workspace) |
 | [`plugin-manager`](../packages/boot/plugin-manager) | `boot` | [`brand`](../packages/util/brand), [`hmr`](../packages/boot/hmr), [`host-plugin-inventory`](../packages/host/plugin-inventory), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`subprocess`](../packages/subprocess/subprocess), [`tools`](../packages/core/tools), [`typert-protocol`](../packages/typert/protocol), [`user-approval`](../packages/interaction/user-approval) |
 | [`compaction-tool-result-pruner`](../packages/compaction/compaction-tool-result-pruner) | `compaction` | [`compaction`](../packages/compaction/compaction), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`token-meter`](../packages/llm/token-meter) |
 | [`experimental-browser-use-runtime`](../packages/experimental/browser-use-runtime) | `experimental` | [`agent`](../packages/core/agent), [`browser-use`](../packages/browser-use/browser-use), [`mcp-client`](../packages/mcp/mcp-client), [`scope`](../packages/core/scope), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`working-directory`](../packages/session/working-directory) |

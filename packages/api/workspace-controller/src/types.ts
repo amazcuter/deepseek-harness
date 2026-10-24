@@ -68,6 +68,13 @@ declare module '@metaworkflow/typert-protocol' {
     'project/decision-unavailable': { readonly requestId: string }
     /** The Host composition serves no workflow runtime (scheduler or coordinator). */
     'project/workflow-unavailable': { readonly capability: string }
+    /** The flowchart source is not a graph the importer can translate; exactly one field is present. */
+    'project/mermaid-invalid': {
+      /** Parser or translation refusal, located by source line when it names one. */
+      readonly error?: ProjectMermaidErrorView
+      /** Definition validator messages for a graph that translated but cannot run. */
+      readonly violations?: readonly string[]
+    }
     /** The verb needs an interaction the composed backend does not serve. */
     'directory-picker/unavailable': { readonly capability: string }
     /** The target is not fully qualified, or the backend cannot list it. */
@@ -453,6 +460,24 @@ export interface ProjectRunStartValue {
   readonly status: string
 }
 
+/** One flowchart refusal, as the import verb reports it. */
+export interface ProjectMermaidErrorView {
+  /** Stable parser or translation code, such as `mermaid/unsupported-syntax`. */
+  readonly code: string
+  /** Actionable description naming the offending source text. */
+  readonly message: string
+  /** 1-based source line, when the refusal names one. */
+  readonly line?: number
+}
+
+/** One observation the flowchart importer made without refusing the text. */
+export interface ProjectMermaidWarningView {
+  /** Stable importer code, such as `mermaid/implicit-node`. */
+  readonly code: string
+  /** What the importer decided instead. */
+  readonly message: string
+}
+
 /** One hand-written definition document written into a project. */
 export interface ProjectImportDefinitionRequest {
   readonly id: WorkspaceId
@@ -466,4 +491,26 @@ export interface ProjectImportDefinitionValue {
   readonly revision: number
   /** Nodes the stored document declares. */
   readonly nodeCount: number
+}
+
+/** One Mermaid flowchart requested for import into a project. */
+export interface ProjectImportMermaidRequest {
+  /** Project to write into; omitted registers a new project under `title`. */
+  readonly id?: WorkspaceId
+  /** Title of the project to register when `id` is omitted. */
+  readonly title?: string
+  /** Mermaid flowchart source; only the node-and-link subset is accepted. */
+  readonly mermaid: string
+}
+
+/** Receipt of one imported flowchart. */
+export interface ProjectImportMermaidValue {
+  /** Project the definition was written to. */
+  readonly projectId: WorkspaceId
+  /** The stored revision with its canonical document and its nodes, as the inspector lists them. */
+  readonly definition: ProjectDefinitionValue
+  /** Mermaid node id to generated definition node id. */
+  readonly mapping: Readonly<Record<string, string>>
+  /** Observations that adjusted the import without refusing it. */
+  readonly warnings: readonly ProjectMermaidWarningView[]
 }
