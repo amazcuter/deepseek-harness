@@ -1,5 +1,5 @@
 ---
-description: "MetaWorkFlow project surfaces: the dashboard main panel and sidebar entry that list the Host's registered workflow projects, create, open, rename, and remove one, and the project workbench a project opens onto with its canvas, node inspector, coordinator placeholder, and run controls."
+description: "MetaWorkFlow project surfaces: the dashboard main panel and sidebar entry that list the Host's registered workflow projects, and the project workbench a project opens onto with its stored definition, node inspector, tool switches, run controls, and pending decisions."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The MetaWorkFlow profile opens on a project dashboard instead of the previous Session. It lists the projects the Host has registered — one row per independent workflow, with its directory, live directory state, session count, and definition revision — and creates, opens, renames, and removes them through the `projects` Remote namespace. Opening a project switches to its workbench: the canvas, node inspector, and coordinator placeholders, with the switch back to the dashboard and to another project. The package also publishes the startup policy that keeps the first screen on the dashboard.
+The MetaWorkFlow profile opens on a project dashboard instead of the previous Session. It lists the registered projects — one row per independent workflow, with its directory, live directory state, session count, and definition revision — and creates, opens, renames, and removes them through the `projects` Remote namespace. Opening a project switches to its workbench: the nodes of its newest stored definition, the inspector with each node's tool switches and execution record, the run controls, and the decisions the coordinator owes. The package also publishes the startup policy that keeps the first screen on the dashboard.
 
 ## Table of Contents
 
@@ -51,11 +51,11 @@ A narrow frame stacks each card — Host facts first, then the actions on their 
 
 Opening a project selects its workbench panel. The header carries **Back to projects**, the project title and directory, and **Switch project**, which lists every registered project and marks the one on screen; choosing another calls `projects.open` and stays on the workbench. A failed switch keeps the current project on screen and reports the reason in place.
 
-Three regions make up the workbench, each a milestone placeholder:
+Three regions read the project's newest stored definition through `projects.definition`:
 
-- **Workflow canvas** — the canvas title and the empty state that says nodes appear once a Mermaid definition is imported. The run controls (**Run**, **Pause**, **Step**, **Retry**) are all disabled and point at the scheduler milestone in their localized note.
-- **Node details** — the node-list empty state, then the three tabs **Configuration**, **Tool switches**, and **Inputs and results**. Only the selected tab's panel is exposed; each tab has its own empty state.
-- **Project coordinator** — the embedded coordinator's title and the note that its session arrives in a later milestone, above a locked composer: the input and **Send** are disabled.
+- **Workflow canvas** — one row per definition node in document order, each with its kind and the state of its newest activation. **Run** starts a run from the newest revision (the Host validates the stored document, creates the run, and advances it once), **Pause** stops further activations, and **Resume** restarts a paused run. All three are disabled without an executable definition, and the note under them says why; a stored document that no longer validates lists its violations instead of nodes.
+- **Node details** — the inspector for the node selected in the canvas, across three tabs. **Configuration** shows a writable title beside the read-only kind, Python source or agent instructions, memory policy, output schema, and join. **Tool switches** lists one switch per tool the Host registers plus any name the node still declares, each write going back through `projects.updateNode` and re-reading the definition. **Inputs and results** shows the node's input bindings, its output schema, and every attempt of the newest run with the failure each recorded. A Python node has no tool switches, and its own copy says so.
+- **Project coordinator** — the decisions the project waits on: the node that asked, its question, the choices it proposed, and a quick-reply field that answers through `projects.answerDecision`. **Refresh** re-reads them. **Open the coordinator Session** shows that Session in the shared conversation view.
 
 A wide frame puts the canvas and the inspector in the middle column with the coordinator beside them. A narrow frame collapses to one column and shows a **Canvas** / **Details** / **Conversation** switch, so the three columns never squeeze into each other.
 
@@ -75,7 +75,9 @@ The package registers two keyed `main` panels — `projects` and `project` — f
 
 `ProjectsController` is the React-free object layer over `ctx.remote.projects`. It owns one `ProjectsSnapshot` — the list state (`loading`, `ready`, or `error` with its failure), the rows, the selected project, the last mutation failure, and the in-flight flag — and publishes it as a bare observable. Every mutation updates the snapshot from the Host's echo, never from an optimistic local draft; a call that rejects is folded into the same failure codes instead of escaping as an unhandled rejection. `open()` additionally reports whether the Host opened the project, which is what lets the composition navigate only on success. The plugin starts the first load with the composition and hands the observable to both panels through the inject `hooks` compartment, so each component reads `useProjects` and calls its own injected callbacks.
 
-The components keep local state only: which row is being renamed or confirmed on the dashboard, and the narrow-frame section, the node tab, and the project menu on the workbench. Copy lives in the `mw.projects` dictionary registered with `client-locale`, with Chinese as the authored side; the failure-code-to-copy table is shared by both panels in `failures.ts`. The locale files under `locale/` carry only plugin display metadata.
+`WorkbenchController` is the second React-free object layer, over the same namespace. It owns one `WorkbenchSnapshot` — the coordinator Session identity, the definition with its violations, the selected node, that node's tool switches, the pending decisions, the newest run with its activations, and that run's attempts — and publishes it as a bare observable. `open()` replaces the whole snapshot and reads the four verbs in parallel, and a generation counter drops a slower earlier read so a project switch cannot publish stale nodes into the project now on screen. Every edit and every run control goes through `mutate()`, which publishes the in-flight flag, folds the failure into the snapshot, and then re-reads the definition and the node it kept selected.
+
+The components keep local state only: which row is being renamed or confirmed on the dashboard, and the narrow-frame section, the node tab, the title draft, the decision reply drafts, and the project menu on the workbench. Copy lives in the `mw.projects` dictionary registered with `client-locale`, with Chinese as the authored side; the failure-code-to-copy table is shared by both panels in `failures.ts`. The locale files under `locale/` carry only plugin display metadata.
 
 </details>
 
@@ -114,7 +116,7 @@ No effect: the package never adds to, replaces, or reorders model context.
 
 #### What the model sees
 
-No model-visible input. The `project` main panel renders the selected project's browser-only placeholders; the coordinator conversation is static copy, so nothing here reaches a request.
+No model-visible input. The `project` main panel renders the selected project's stored definition, tool switches, decisions, and run state; **Open the coordinator Session** only navigates to a Session another surface already renders, so nothing here reaches a request.
 
 #### Token effect
 
@@ -130,7 +132,10 @@ No effect: no prompt text, tool schema, or request context is added, replaced, o
 
 - **No live list stream** — the dashboard reloads on activation and patches rows from mutation echoes; another window's registration appears only after a reload.
 - **Import does not parse Mermaid yet** — the action ships disabled; parsing, rendering, and the coordinator flow arrive with the workflow-definition milestone.
-- **The workbench renders placeholders only** — the canvas has no nodes, the run controls are disabled until the scheduler exists, the node inspector has no node data, and the coordinator conversation is static copy instead of a live conversation.
+- **The coordinator conversation is not embedded** — the workbench shows the decisions the project waits on and links into the shared conversation view instead of hosting the `conversation.content` factory. That factory needs a session-scoped child slot, which a `main` panel cannot declare: ui-layout owns the `main` SlotMap entry and it carries no children, so declaring one here would mean hand-writing a derived prop share. Open question: a workbench-owned session-scoped slot in ui-layout.
+- **A run start waits for the first tick** — `projects.startRun` returns when the scheduler stops dispatching, so a long agent node keeps the request open instead of streaming progress. A run-state subscription is the follow-up.
+- **Decisions are polled, not pushed** — the workbench re-reads `projects.pendingDecisions` on a four-second timer, after each action, and on **Refresh**, instead of subscribing to `workflow/decision-requested` and `workflow/decision-answered`. A decision therefore appears up to one interval late.
+- **Only the title and the tool list are writable** — instructions, source, schema, inputs, and edges stay read-only in the inspector; the coordinator Session owns those edits.
 - **The workbench keeps no per-project view state** — switching projects preserves the section and node tab on screen, and nothing survives a reload.
 
 <a id="dev-note"></a>

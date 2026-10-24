@@ -8,7 +8,9 @@
  * The dashboard is the profile's home surface, so it selects itself once per
  * activation; the workbench is reached by opening a project, and its own
  * header returns to the dashboard. Both panels render the same Host registry,
- * read and mutated through the generated `projects` Remote namespace.
+ * read and mutated through the generated `projects` Remote namespace; opening a
+ * project also reads its definition, decisions, and newest run, which is what
+ * the workbench renders.
  */
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import type {} from '@metaworkflow/api-remotes/client'
@@ -17,11 +19,13 @@ import type { MainPanelId } from '@metaworkflow/client-ui-layout/client'
 import type {} from '@metaworkflow/client-ui-renderer/client'
 import type {} from '@metaworkflow/client-ui-sidebar/client'
 import type {} from '@metaworkflow/client-ui-workspace/client'
+import type { SessionId } from '@metaworkflow/session/types'
 import { en, zh, type ProjectsKey } from './locales.ts'
 import { ProjectsPage, type ProjectsPageInjected } from './ProjectsPage.tsx'
 import { ProjectsPanelIcon } from './ProjectsPanelIcon.tsx'
 import { ProjectsController, type ProjectId } from './projects.ts'
 import { WorkbenchPage, type WorkbenchPageInjected } from './WorkbenchPage.tsx'
+import { WorkbenchController } from './workbench.ts'
 
 /** Dictionary namespace owned by this plugin. */
 export const NS = 'mw.projects'
@@ -40,7 +44,9 @@ declare module '@metaworkflow/client-ui-slots' {
 }
 
 /** Services required by both panels, their navigation, and the sidebar entry. */
-export const inject = ['slots', 'locale', 'layout', 'remote', 'remote.projects']
+export const inject = [
+  'slots', 'locale', 'layout', 'remote', 'remote.projects', 'uiWorkspace',
+]
 
 /**
  * Contribute the project dashboard, the project workbench, and the sidebar
@@ -54,6 +60,7 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-mw-projects: dictionaries')
   const t = ctx.locale.bind(NS)
   const controller = new ProjectsController(ctx.remote.projects)
+  const workbench = new WorkbenchController(ctx.remote.projects)
   // The dashboard is the home surface, so the first list load starts with the
   // composition instead of waiting for the panel to mount.
   void controller.load()
@@ -65,8 +72,10 @@ export function apply(ctx: ClientContext): void {
     // screen. The panel it targets leaves with this same contribution, so a
     // call settling after teardown must not select it.
     const openProject = (id: ProjectId): void => {
-      void controller.open(id).then((opened) => {
-        if (opened && !disposed) ctx.layout.selectPanel(PROJECT_PANEL_ID)
+      void controller.open(id).then(async (opened) => {
+        if (!opened) return
+        await workbench.open(id)
+        if (!disposed) ctx.layout.selectPanel(PROJECT_PANEL_ID)
       })
     }
     yield ctx.slots.register({
@@ -91,13 +100,28 @@ export function apply(ctx: ClientContext): void {
       key: PROJECT_PANEL_ID,
       locale: NS,
       inject: (): WorkbenchPageInjected => ({
-        hooks: { projects: controller.list },
+        hooks: { projects: controller.list, workbench: workbench.view },
         openProject,
         backToProjects,
+        selectNode: (nodeId) => { void workbench.selectNode(nodeId) },
+        saveNodeTitle: (nodeId, title) => { void workbench.setNodeTitle(nodeId, title) },
+        toggleTool: (nodeId, name, enabled) => { void workbench.toggleTool(nodeId, name, enabled) },
+        startRun: () => { void workbench.startRun() },
+        pauseRun: () => { void workbench.pauseRun() },
+        resumeRun: () => { void workbench.resumeRun() },
+        answerDecision: (requestId, answer) => { void workbench.answerDecision(requestId, answer) },
+        refreshWorkbench: () => { void workbench.refresh() },
+        openCoordinator: (sessionId) => {
+          ctx.uiWorkspace.openSession(sessionId as SessionId)
+        },
       }),
     }, WorkbenchPage)
     yield () => { disposed = true }
   })
+  ctx.effect(
+    () => () => { workbench.reset() },
+    'ui-mw-projects: workbench lifetime',
+  )
   ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
     name: 'sidebar.panellist',
     id: PROJECTS_PANEL_ID,

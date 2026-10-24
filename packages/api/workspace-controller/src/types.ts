@@ -56,6 +56,18 @@ declare module '@metaworkflow/typert-protocol' {
     'project/invalid-path': { readonly path: string }
     /** Another project already claims the requested directory. */
     'project/path-in-use': { readonly path: string }
+    /** The project has no stored definition to read, run, or edit. */
+    'project/definition-missing': {}
+    /** The stored definition rejects execution; `violations` names every reason. */
+    'project/definition-invalid': { readonly violations: readonly string[] }
+    /** No node of the stored definition carries that id. */
+    'project/node-not-found': { readonly nodeId: string }
+    /** The project has no such run. */
+    'project/run-unavailable': { readonly runId: string }
+    /** No pending decision carries that request id. */
+    'project/decision-unavailable': { readonly requestId: string }
+    /** The Host composition serves no workflow runtime (scheduler or coordinator). */
+    'project/workflow-unavailable': { readonly capability: string }
     /** The verb needs an interaction the composed backend does not serve. */
     'directory-picker/unavailable': { readonly capability: string }
     /** The target is not fully qualified, or the backend cannot list it. */
@@ -228,4 +240,230 @@ export interface ProjectTargetRequest {
 /** Project deregistration receipt; the directory and every Session stay. */
 export interface ProjectRemoveValue {
   readonly deleted: true
+}
+
+/** One named input binding of a definition node, as the inspector lists it. */
+export interface ProjectNodeInputView {
+  /** Input name the node's own code receives. */
+  readonly name: string
+  /** Where the value comes from. */
+  readonly kind: 'node' | 'run' | 'artifact'
+  /** Node id, run key, or artifact name the binding reads. */
+  readonly ref: string
+  /** Dot-separated field path inside a node result; empty for the other kinds. */
+  readonly field: string
+}
+
+/** One executable node of a project's stored definition, projected for the inspector. */
+export interface ProjectNodeView {
+  /** Node id, unique within the definition. */
+  readonly id: string
+  readonly title: string
+  readonly kind: 'python' | 'agent'
+  /** Python source of a `python` node; `null` for an agent node. */
+  readonly source: string | null
+  /** Task instructions of an `agent` node; `null` for a python node. */
+  readonly instructions: string | null
+  /** Conversation policy of an `agent` node; `null` for a python node. */
+  readonly memory: 'retained' | 'fresh' | null
+  /** Object-rooted result schema of an `agent` node as JSON text; `null` for a python node. */
+  readonly outputSchema: string | null
+  /** Tool names the agent may use, in declaration order. */
+  readonly tools: readonly string[]
+  readonly inputs: readonly ProjectNodeInputView[]
+  /** How the node waits for its incoming edges. */
+  readonly join: 'all' | 'first-success'
+}
+
+/** One reason a stored definition document is not executable. */
+export interface ProjectDefinitionViolationView {
+  /** Stable validator code, such as `definition/node-title-empty`. */
+  readonly code: string
+  /** Document path the violation names; empty for a whole-document violation. */
+  readonly path: string
+  /** Actionable description. */
+  readonly message: string
+}
+
+/** One project's stored definition as the workbench reads it. */
+export interface ProjectDefinitionValue {
+  /** Newest stored revision, `0` when the project has no definition. */
+  readonly revision: number
+  /** Stored document text, `null` when the project has no definition. */
+  readonly document: string | null
+  /** Whether the stored document parses and validates. */
+  readonly valid: boolean
+  /** Every violation that prevents execution; empty when the document is valid. */
+  readonly violations: readonly ProjectDefinitionViolationView[]
+  /** Nodes in document order; empty when the document does not parse. */
+  readonly nodes: readonly ProjectNodeView[]
+}
+
+/** One project's coordinator Session. */
+export interface ProjectCoordinatorValue {
+  /**
+   * Coordinator Session identity, or `null` when the Host composition serves no
+   * coordinator (`ctx.mwfCoordinator` absent).
+   */
+  readonly sessionId: string | null
+}
+
+/** One question a node asked and the coordinator has not answered yet. */
+export interface ProjectPendingDecisionView {
+  /** Identity an answer is recorded against. */
+  readonly requestId: string
+  readonly runId: string
+  /** Definition node whose attempt waits for the answer. */
+  readonly nodeId: string
+  readonly question: string
+  /** Candidate answers the node proposed; empty when it proposed none. */
+  readonly options: readonly string[]
+  /** Epoch milliseconds of the request. */
+  readonly createdAt: number
+}
+
+/** Every unanswered decision of one project, oldest first. */
+export interface ProjectPendingDecisionsValue {
+  readonly items: readonly ProjectPendingDecisionView[]
+}
+
+/** Answer to one pending decision. */
+export interface ProjectAnswerDecisionRequest {
+  readonly id: WorkspaceId
+  readonly requestId: string
+  /** The answer text the waiting node receives as its next input. */
+  readonly answer: string
+}
+
+/** Receipt of one recorded answer and the run it resumed. */
+export interface ProjectAnswerDecisionValue {
+  readonly answered: true
+  /** Run status once the resumed activation settled or the call returned. */
+  readonly runStatus: string
+}
+
+/** One tool switch of a definition node. */
+export interface ProjectToolView {
+  /** Tool name the node's agent may use. */
+  readonly name: string
+  /** What the tool does, as the Host describes it. */
+  readonly description: string
+  /** Whether the node's current definition lists this tool. */
+  readonly enabled: boolean
+}
+
+/** Every tool switch of one node. */
+export interface ProjectToolsValue {
+  readonly items: readonly ProjectToolView[]
+}
+
+/** Address of one definition node. */
+export interface ProjectNodeTargetRequest {
+  readonly id: WorkspaceId
+  readonly nodeId: string
+}
+
+/** Writable part of one definition node. */
+export interface ProjectNodePatch {
+  /** Replacement title; a blank title is refused. */
+  readonly title?: string
+  /** Complete replacement tool list, in the order it should be stored. */
+  readonly tools?: readonly string[]
+}
+
+/** One node edit. */
+export interface ProjectUpdateNodeRequest extends ProjectNodeTargetRequest {
+  readonly patch: ProjectNodePatch
+}
+
+/** Receipt of one node edit: the definition revision it was stored under. */
+export interface ProjectUpdateNodeValue {
+  /** Revision the patched definition was written as. */
+  readonly revision: number
+}
+
+/** One attempt of the run the workbench shows. */
+export interface ProjectAttemptView {
+  readonly attemptId: string
+  readonly activationId: string
+  /** Definition node the activation runs. */
+  readonly nodeId: string
+  /** 1-based attempt number within its activation. */
+  readonly attemptNo: number
+  readonly status: string
+  readonly startedAt: number
+  /** When the attempt reached a terminal status; `null` while it runs. */
+  readonly endedAt: number | null
+  /** The failure the executor reported; `null` unless the attempt failed. */
+  readonly error: string | null
+}
+
+/** One activation of the run the workbench shows. */
+export interface ProjectActivationView {
+  readonly activationId: string
+  readonly nodeId: string
+  readonly iteration: number
+  readonly status: string
+}
+
+/** One run as the workbench reads it. */
+export interface ProjectRunView {
+  readonly runId: string
+  /** Definition revision the run executes. */
+  readonly definitionRevision: number
+  readonly status: string
+  /** Why the run reached its status, when the scheduler recorded a reason. */
+  readonly reason: string | null
+  readonly createdAt: number
+  readonly updatedAt: number
+  readonly activations: readonly ProjectActivationView[]
+}
+
+/** Which run the workbench reads. */
+export interface ProjectAttemptsRequest {
+  readonly id: WorkspaceId
+  /** Run to read; omitted reads the project's newest run. */
+  readonly runId?: string
+}
+
+/** One project's newest run, or its named run, with that run's attempts. */
+export interface ProjectAttemptsValue {
+  /** The run read; `null` when the project has no run yet. */
+  readonly run: ProjectRunView | null
+  /** Attempts of that run, newest first. */
+  readonly items: readonly ProjectAttemptView[]
+}
+
+/** Address of one run. */
+export interface ProjectRunTargetRequest {
+  readonly id: WorkspaceId
+  readonly runId: string
+}
+
+/** Receipt of one run control call. */
+export interface ProjectRunControlValue {
+  readonly runId: string
+  readonly status: string
+}
+
+/** Receipt of one run start. */
+export interface ProjectRunStartValue {
+  readonly runId: string
+  /** Run status once the first tick returned. */
+  readonly status: string
+}
+
+/** One hand-written definition document written into a project. */
+export interface ProjectImportDefinitionRequest {
+  readonly id: WorkspaceId
+  /** Definition document text; it must parse and validate before it is stored. */
+  readonly document: string
+}
+
+/** Receipt of one imported definition. */
+export interface ProjectImportDefinitionValue {
+  /** Revision the document was stored under. */
+  readonly revision: number
+  /** Nodes the stored document declares. */
+  readonly nodeCount: number
 }

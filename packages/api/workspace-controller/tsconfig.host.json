@@ -12,6 +12,7 @@
     "src/directory-picker.ts",
     "src/feed.ts",
     "src/index.ts",
+    "src/project-workflow.ts",
     "src/projects.ts",
     "src/types.ts"
   ],
@@ -26,6 +27,9 @@
       "path": "../../core/session"
     },
     {
+      "path": "../../core/tools"
+    },
+    {
       "path": "../../host/directory-picker"
     },
     {
@@ -35,19 +39,28 @@
       "path": "../../typert/protocol"
     },
     {
-      "path": "../remote-access/tsconfig.host.json"
-    },
-    {
       "path": "../../util/deque"
     },
     {
       "path": "../../util/native-command"
     },
     {
-      "path": "../../workspace/workspace"
+      "path": "../../workflow/coordinator"
+    },
+    {
+      "path": "../../workflow/definition"
     },
     {
       "path": "../../workflow/project-store"
+    },
+    {
+      "path": "../../workflow/scheduler"
+    },
+    {
+      "path": "../../workspace/workspace"
+    },
+    {
+      "path": "../remote-access/tsconfig.host.json"
     }
   ]
 }

@@ -11,6 +11,7 @@
 import { createSnapshotStore, type SnapshotStore } from '@metaworkflow/client-store'
 import type { HostObservable } from '@metaworkflow/client-ui-slots'
 import type { ClientRemote, RemoteErrorCode, RemoteResult } from '@metaworkflow/api-remotes/client'
+import { settleRemote } from './remote-outcome.ts'
 import type { ProjectSummary, WorkspaceId } from '@metaworkflow/api-workspace-controller/types'
 
 /** Opaque identity of one registered project: the Host id of its Workspace. */
@@ -53,10 +54,6 @@ export interface ProjectFailure {
   readonly message: string
 }
 
-/** One settled Remote call: the Host value or the failure the panel renders. */
-type ProjectOutcome<Value> =
-  | { readonly ok: true; readonly value: Value }
-  | { readonly ok: false; readonly failure: ProjectFailure }
 
 /**
  * Read and mutate the Host project registry for the dashboard.
@@ -94,7 +91,7 @@ export class ProjectsController {
    */
   async load(): Promise<void> {
     this.patch({ view: { status: 'loading' } })
-    const outcome = await this.settle(() => this.remote.list())
+    const outcome = await settleRemote(() => this.remote.list())
     this.patch(outcome.ok
       ? { view: { status: 'ready' }, projects: [...outcome.value.items] }
       : { view: { status: 'error', failure: outcome.failure } })
@@ -175,7 +172,7 @@ export class ProjectsController {
   ): Promise<boolean> {
     this.inFlight += 1
     this.patch({ busy: true, mutationError: null })
-    const outcome = await this.settle(call)
+    const outcome = await settleRemote(call)
     this.inFlight -= 1
     this.patch({ busy: this.inFlight > 0 })
     if (!outcome.ok) {
@@ -184,22 +181,6 @@ export class ProjectsController {
     }
     accept(outcome.value)
     return true
-  }
-
-  /**
-   * Call one Remote method, folding both failure forms into one outcome: the
-   * generated envelope's error branch and the assembly faults that still
-   * reject.
-   */
-  private async settle<Value>(call: () => Promise<RemoteResult<Value>>): Promise<ProjectOutcome<Value>> {
-    try {
-      const result = await call()
-      return result.ok
-        ? { ok: true, value: result.value }
-        : { ok: false, failure: failureOf(result.error) }
-    } catch (error: unknown) {
-      return { ok: false, failure: { code: 'gateway/internal', message: messageOf(error) } }
-    }
   }
 }
 
@@ -219,17 +200,19 @@ function upsertProject(
 }
 
 /**
+ * Reduce one Remote failure branch to what a panel renders.
  * @param failure - the Remote envelope's failure branch.
- * @returns the dashboard's copy-facing failure.
+ * @returns the panel's copy-facing failure.
  */
-function failureOf(failure: { readonly code: RemoteErrorCode; readonly message: string }): ProjectFailure {
+export function failureOf(failure: { readonly code: RemoteErrorCode; readonly message: string }): ProjectFailure {
   return { code: failure.code, message: failure.message }
 }
 
 /**
+ * Read the message of one rejected assembly or carrier call.
  * @param error - a rejected assembly or carrier call.
  * @returns its message, or the stringified value for a non-`Error` rejection.
  */
-function messageOf(error: unknown): string {
+export function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }

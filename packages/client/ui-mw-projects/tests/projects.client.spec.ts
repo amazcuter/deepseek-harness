@@ -42,7 +42,27 @@ function bench() {
   const open = vi.fn<ProjectsRemote['open']>(request => Promise.resolve(ok({ project: summary(request.id, 'A') })))
   const rename = vi.fn<ProjectsRemote['rename']>(request => Promise.resolve(ok({ project: summary('a', request.title) })))
   const remove = vi.fn<ProjectsRemote['delete']>(() => Promise.resolve(ok({ deleted: true })))
-  const remote: ProjectsRemote = { list, create, open, rename, delete: remove }
+  // The dashboard reads five verbs; the workbench verbs exist on the namespace
+  // but this controller never calls them.
+  const unused = (): Promise<never> => Promise.reject(new Error('the dashboard calls no workbench verb'))
+  const remote: ProjectsRemote = {
+    list,
+    create,
+    open,
+    rename,
+    delete: remove,
+    answerDecision: vi.fn(unused),
+    attempts: vi.fn(unused),
+    availableTools: vi.fn(unused),
+    coordinator: vi.fn(unused),
+    definition: vi.fn(unused),
+    importDefinition: vi.fn(unused),
+    pause: vi.fn(unused),
+    pendingDecisions: vi.fn(unused),
+    resume: vi.fn(unused),
+    startRun: vi.fn(unused),
+    updateNode: vi.fn(unused),
+  }
   return { controller: new ProjectsController(remote), list, create, open, rename, remove }
 }
 

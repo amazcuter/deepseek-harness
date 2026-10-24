@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-mw-projects/README.md
 /:
-  en: 860b7a89b4a5d235
-  zh: 6ca9e380d7e3b3f3
+  en: 087889faca07cbd9
+  zh: 4312e8091a537c30
 /metaworkflow-client-ui-mw-projects:
   en: 38f7acb78e1df417
   zh: 5f1a746b5bc4a090
 /metaworkflow-client-ui-mw-projects/summary:
-  en: aed5c4458be0f16d
-  zh: df9df525a0db8430
+  en: 4f7b0d41d0b51ea9
+  zh: 4bdfd0f17bee5cd3
 /metaworkflow-client-ui-mw-projects/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -27,14 +27,14 @@
   en: 076368982401c429
   zh: f7a3fdc081bfd417
 /metaworkflow-client-ui-mw-projects/use-this-package/the-project-workbench:
-  en: 8b65a6a7d2e1a36f
-  zh: db30625ecededd15
+  en: a914f88e33053d56
+  zh: bcef962f52691794
 /metaworkflow-client-ui-mw-projects/use-this-package/startup-policy:
   en: 27baa0780ebe964b
   zh: 43a781955d344061
 /metaworkflow-client-ui-mw-projects/understand-the-implementation:
-  en: 25a8642d0d39fd5e
-  zh: 9e2c84141a0c3c3d
+  en: 59059ada615f0c28
+  zh: 2533a6088a20fd3e
 /metaworkflow-client-ui-mw-projects/further-exploration:
   en: 0daa774915fbc47e
   zh: 716751963b072ed7
@@ -57,8 +57,8 @@
   en: 668cfaa6016a02d1
   zh: 027bace7f8e8cfd4
 /metaworkflow-client-ui-mw-projects/model-experience/project-workbench-panel/what-the-model-sees:
-  en: 414b7827a1a2f372
-  zh: 2a16edc672cc28b9
+  en: 6d4f665244a13616
+  zh: dcdf0b56a5f06331
 /metaworkflow-client-ui-mw-projects/model-experience/project-workbench-panel/token-effect:
   en: e2c3e157d9d4cc3e
   zh: 620977f9f3f58f4a
@@ -66,8 +66,8 @@
   en: 68f74ab98640294e
   zh: 203a252c567d31c3
 /metaworkflow-client-ui-mw-projects/known-limitations-and-deferred-work:
-  en: d0c7ffabf3404ce2
-  zh: aed4c3f896b08804
+  en: 33d6fd33ecfb1f55
+  zh: 4c2da226974a172f
 /metaworkflow-client-ui-mw-projects/known-limitations-and-deferred-work/dev-note:
   en: 629f942e7071c6c9
   zh: 8c65f55e3148a4da

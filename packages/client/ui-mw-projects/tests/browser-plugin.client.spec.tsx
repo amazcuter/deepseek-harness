@@ -64,12 +64,26 @@ async function bench() {
     openRightbar: vi.fn(),
     closeRightbar: vi.fn(),
   })
+  const sessionByProject = vi.fn<(session: string) => void>()
+  ctx.provide('uiWorkspace', { openSession: sessionByProject })
   const mock = RemoteMock.create()
   mock.unary('projects/list', () => ok({ items: [] }))
+  // Opening a project also reads its workbench state.
+  mock.unary('projects/coordinator', () => ok({ sessionId: 'session-coordinator' }))
+  mock.unary('projects/definition', () => ok({
+    revision: 0,
+    document: null,
+    valid: false,
+    violations: [],
+    nodes: [],
+  }))
+  mock.unary('projects/pendingDecisions', () => ok({ items: [] }))
+  mock.unary('projects/attempts', () => ok({ run: null, items: [] }))
+  mock.unary('projects/availableTools', () => ok({ items: [] }))
   onTestFinished(() => { mock.assertNoUnmatched() })
   new TestRemote(ctx, { projects: mock.remote.projects })
   const slots = ctx.get('slots') as SlotRegistry
-  return { ctx, slots, locale, panelInfo, selectPanel, mock }
+  return { ctx, slots, locale, panelInfo, selectPanel, mock, openSession: sessionByProject }
 }
 
 /** The injected face of the main panel registered under `key`. */
@@ -240,6 +254,97 @@ describe('ui-mw-projects browser plugin', () => {
     await vi.waitFor(() => { expect(snapshotOf(face).view.status).toBe('ready') })
     expect(snapshotOf(face).projects).toHaveLength(1)
     expect(b.mock.remote.projects.list).toHaveBeenCalledTimes(2)
+  })
+
+  it('drives every workbench verb through the Remote namespace', async () => {
+    const b = await bench()
+    b.mock.unary('projects/open', (request: { readonly id: string }) => ok({ project: project(request.id) }))
+    b.mock.unary('projects/definition', () => ok({
+      revision: 1,
+      document: '{}',
+      valid: true,
+      violations: [],
+      nodes: [{
+        id: 'fetch',
+        title: 'Fetch',
+        kind: 'python',
+        source: 'def nodemain_fetch(inputs): return {}',
+        instructions: null,
+        memory: null,
+        outputSchema: null,
+        tools: [],
+        inputs: [],
+        join: 'all',
+      }],
+    }))
+    b.mock.unary('projects/updateNode', () => ok({ revision: 2 }))
+    b.mock.unary('projects/startRun', () => ok({ runId: 'run-1', status: 'running' }))
+    b.mock.unary('projects/pause', () => ok({ runId: 'run-1', status: 'paused' }))
+    b.mock.unary('projects/resume', () => ok({ runId: 'run-1', status: 'running' }))
+    b.mock.unary('projects/answerDecision', () => ok({ answered: true, runStatus: 'succeeded' }))
+    b.mock.unary('projects/attempts', () => ok({
+      run: {
+        runId: 'run-1',
+        definitionRevision: 1,
+        status: 'running',
+        reason: null,
+        createdAt: 1,
+        updatedAt: 2,
+        activations: [],
+      },
+      items: [],
+    }))
+    declareRoot(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const face = workbenchOf(b.slots)
+    face.openProject('长夜航线' as ProjectId)
+    await vi.waitFor(() => { expect(b.mock.remote.projects.definition).toHaveBeenCalled() })
+
+    face.selectNode('fetch')
+    await vi.waitFor(() => { expect(b.mock.remote.projects.availableTools).toHaveBeenCalledWith({ id: '长夜航线', nodeId: 'fetch' }) })
+
+    face.saveNodeTitle('fetch', 'Renamed')
+    await vi.waitFor(() => {
+      expect(b.mock.remote.projects.updateNode).toHaveBeenCalledWith({
+        id: '长夜航线', nodeId: 'fetch', patch: { title: 'Renamed' },
+      })
+    })
+
+    face.toggleTool('fetch', 'read', true)
+    await vi.waitFor(() => {
+      expect(b.mock.remote.projects.updateNode).toHaveBeenLastCalledWith({
+        id: '长夜航线', nodeId: 'fetch', patch: { tools: ['read'] },
+      })
+    })
+
+    face.startRun()
+    await vi.waitFor(() => { expect(b.mock.remote.projects.startRun).toHaveBeenCalledWith({ id: '长夜航线' }) })
+
+    face.pauseRun()
+    await vi.waitFor(() => {
+      expect(b.mock.remote.projects.pause).toHaveBeenCalledWith({ id: '长夜航线', runId: 'run-1' })
+    })
+
+    face.resumeRun()
+    await vi.waitFor(() => {
+      expect(b.mock.remote.projects.resume).toHaveBeenCalledWith({ id: '长夜航线', runId: 'run-1' })
+    })
+
+    face.answerDecision('request-1', 'yes')
+    await vi.waitFor(() => {
+      expect(b.mock.remote.projects.answerDecision).toHaveBeenCalledWith({
+        id: '长夜航线', requestId: 'request-1', answer: 'yes',
+      })
+    })
+
+    const reads = b.mock.remote.projects.pendingDecisions.mock.calls.length
+    face.refreshWorkbench()
+    await vi.waitFor(() => {
+      expect(b.mock.remote.projects.pendingDecisions.mock.calls.length).toBeGreaterThan(reads)
+    })
+
+    face.openCoordinator('session-coordinator')
+    expect(b.openSession).toHaveBeenCalledWith('session-coordinator')
   })
 
   it('adds the sidebar entry that returns to the dashboard, and removes both contributions on disposal', async () => {

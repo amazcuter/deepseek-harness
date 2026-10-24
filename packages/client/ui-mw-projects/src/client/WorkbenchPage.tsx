@@ -1,13 +1,13 @@
 /**
  * The project workbench: the panel a project opens onto.
  *
- * Every region here is a milestone placeholder. The canvas renders no nodes
- * (the definition Remote arrives with the workflow milestone), the run
- * controls stay disabled until the scheduler exists, the node inspector shows
- * only its three empty tabs, and the coordinator conversation is static copy
- * instead of an embedded conversation. What is real is the navigation: the
- * panel reads the selected project from the dashboard snapshot, switches to
- * another registered project, and returns to the project list.
+ * Every region reads the Host. The canvas lists the nodes of the project's
+ * newest stored definition and drives the run controls; the inspector shows one
+ * selected node across its three tabs — its configuration (with a writable
+ * title), its tool switches, and its input bindings with the attempts recorded
+ * for the newest run; the coordinator column shows the decisions the project
+ * waits on and hosts the project's coordinator Session as an embedded
+ * Conversation.
  *
  * A wide frame lays the canvas and the inspector in the middle column with the
  * coordinator beside them. A narrow frame collapses to one column, where the
@@ -18,12 +18,14 @@
 import { useState, type ReactNode } from 'react'
 import {
   Button, IconCheckOutlineRegular, IconChevronDownOutlineRegular, Input, Menu, MenuItemButton,
-  SegmentedControl, SegmentedTabs, type SegmentedTab,
+  SegmentedControl, SegmentedTabs, Switch, type SegmentedTab,
 } from '@metaworkflow/client-ui-primitives'
 import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@metaworkflow/client-ui-slots'
+import type { ProjectNodeView } from '@metaworkflow/api-workspace-controller/types'
 import { failureText } from './failures.ts'
 import type { ProjectsKey } from './locales.ts'
 import type { ProjectId, ProjectsSnapshot } from './projects.ts'
+import type { WorkbenchSnapshot } from './workbench.ts'
 import css from './WorkbenchPage.module.css'
 
 /** The three workbench views a narrow frame switches between. */
@@ -58,28 +60,56 @@ const DETAIL_TAB_LABEL: Readonly<Record<NodeDetailTab, ProjectsKey>> = {
   results: 'workbench.detail.tab.results',
 }
 
-/** Empty-state title key per node inspector tab. */
-const DETAIL_EMPTY_TITLE: Readonly<Record<NodeDetailTab, ProjectsKey>> = {
-  configuration: 'workbench.detail.configuration.empty.title',
-  tools: 'workbench.detail.tools.empty.title',
-  results: 'workbench.detail.results.empty.title',
+/** One label per status an activation or attempt can carry. */
+const STATE_LABEL: Readonly<Record<string, ProjectsKey>> = {
+  pending: 'workbench.nodeState.pending',
+  running: 'workbench.nodeState.running',
+  waiting: 'workbench.nodeState.waiting',
+  succeeded: 'workbench.nodeState.succeeded',
+  failed: 'workbench.nodeState.failed',
+  canceled: 'workbench.nodeState.canceled',
+  interrupted: 'workbench.attemptState.interrupted',
 }
 
-/** Empty-state description key per node inspector tab. */
-const DETAIL_EMPTY_DESCRIPTION: Readonly<Record<NodeDetailTab, ProjectsKey>> = {
-  configuration: 'workbench.detail.configuration.empty.description',
-  tools: 'workbench.detail.tools.empty.description',
-  results: 'workbench.detail.results.empty.description',
+/** One label per status a run can carry. */
+const RUN_STATE_LABEL: Readonly<Record<string, ProjectsKey>> = {
+  pending: 'workbench.runState.pending',
+  running: 'workbench.runState.running',
+  paused: 'workbench.runState.paused',
+  succeeded: 'workbench.runState.succeeded',
+  failed: 'workbench.runState.failed',
+  canceled: 'workbench.runState.canceled',
 }
 
 /** Callbacks the workbench needs from the composition that mounts it. */
 export interface WorkbenchPageInjected {
-  /** The dashboard snapshot, bound as the `useProjects` selector hook. */
-  readonly hooks: { readonly projects: HostObservable<ProjectsSnapshot> }
+  /** The dashboard and workbench snapshots, bound as `useProjects` and `useWorkbench`. */
+  readonly hooks: {
+    readonly projects: HostObservable<ProjectsSnapshot>
+    readonly workbench: HostObservable<WorkbenchSnapshot>
+  }
   /** Open one registered project, replacing the one on screen. */
   readonly openProject: (id: ProjectId) => void
   /** Return to the project list panel. */
   readonly backToProjects: () => void
+  /** Select one node in the inspector. */
+  readonly selectNode: (nodeId: string) => void
+  /** Replace one node's title through the Host. */
+  readonly saveNodeTitle: (nodeId: string, title: string) => void
+  /** Add or remove one tool from a node's list. */
+  readonly toggleTool: (nodeId: string, name: string, enabled: boolean) => void
+  /** Start a run from the newest stored definition. */
+  readonly startRun: () => void
+  /** Pause the run the workbench shows. */
+  readonly pauseRun: () => void
+  /** Resume the paused run the workbench shows. */
+  readonly resumeRun: () => void
+  /** Answer one pending decision. */
+  readonly answerDecision: (requestId: string, answer: string) => void
+  /** Re-read the open project's definition, decisions, and run. */
+  readonly refreshWorkbench: () => void
+  /** Show one coordinator Session in the shared conversation panel. */
+  readonly openCoordinator: (sessionId: string) => void
 }
 
 /** Full component props assembled by the main slot renderer. */
@@ -90,6 +120,9 @@ export type WorkbenchPageProps =
 
 /** The bound translator this component hands to its own sections. */
 type Translate = WorkbenchPageProps['t']
+
+/** The callbacks once the hook compartment is bound away. */
+type WorkbenchActions = Omit<WorkbenchPageInjected, 'hooks'>
 
 /**
  * @param section - one workbench section.
@@ -121,6 +154,26 @@ function detailTabItem(t: Translate, value: NodeDetailTab): SegmentedTab<NodeDet
   }
 }
 
+/**
+ * @param t - the panel's translator.
+ * @param status - a status the Host reported.
+ * @returns its localized label, or the raw status when the vocabulary is newer than this panel.
+ */
+function stateLabel(t: Translate, status: string): string {
+  const key = STATE_LABEL[status]
+  return key === undefined ? status : t(key)
+}
+
+/**
+ * @param t - the panel's translator.
+ * @param status - a run status the Host reported.
+ * @returns its localized label, or the raw status when the vocabulary is newer than this panel.
+ */
+function runStateLabel(t: Translate, status: string): string {
+  const key = RUN_STATE_LABEL[status]
+  return key === undefined ? status : t(key)
+}
+
 /** The one-line empty state shared by the canvas and the node inspector. */
 function EmptyState({ title, description }: {
   readonly title: string
@@ -134,8 +187,52 @@ function EmptyState({ title, description }: {
   )
 }
 
-/** The canvas placeholder and the disabled run controls of the future scheduler. */
-function Canvas({ t }: { readonly t: Translate }): ReactNode {
+/** One labelled read-only field of the configuration tab. */
+function Field({ label, children }: {
+  readonly label: string
+  readonly children: ReactNode
+}): ReactNode {
+  return (
+    <div className={css.field}>
+      <span className={css.fieldLabel}>{label}</span>
+      <div className={css.fieldValue}>{children}</div>
+    </div>
+  )
+}
+
+/** One block of read-only source text or JSON. */
+function Source({ label, text }: { readonly label: string; readonly text: string }): ReactNode {
+  return (
+    <div className={css.field}>
+      <span className={css.fieldLabel}>{label}</span>
+      <pre className={css.source}>{text}</pre>
+    </div>
+  )
+}
+
+/**
+ * @param snapshot - the workbench state.
+ * @param node - one node of the stored definition.
+ * @returns the status of that node's newest activation, or `idle`.
+ */
+function nodeStatus(snapshot: WorkbenchSnapshot, node: { readonly id: string }): string {
+  const activations = snapshot.run?.activations ?? []
+  const latest = activations.filter(activation => activation.nodeId === node.id).at(-1)
+  return latest?.status ?? 'idle'
+}
+
+/** The canvas: the node list of the stored definition and the run controls. */
+function Canvas({
+  t, snapshot, disabled, startRun, pauseRun, resumeRun, selectNode,
+}: {
+  readonly t: Translate
+  readonly snapshot: WorkbenchSnapshot
+  readonly disabled: boolean
+} & Pick<WorkbenchActions, 'startRun' | 'pauseRun' | 'resumeRun' | 'selectNode'>): ReactNode {
+  const { definition, run } = snapshot
+  const runnable = definition.valid && definition.nodes.length > 0
+  const paused = run?.status === 'paused'
+  const runNote = runnable ? t('workbench.run.note') : t('workbench.run.unavailable')
   return (
     <>
       <div className={css.sectionHead}>
@@ -146,33 +243,268 @@ function Canvas({ t }: { readonly t: Translate }): ReactNode {
           aria-label={t('workbench.run.group')}
           aria-describedby="workbench-run-note"
         >
-          <Button variant="primary" size="sm" disabled>{t('workbench.run.start')}</Button>
-          <Button variant="outline" size="sm" disabled>{t('workbench.run.pause')}</Button>
-          <Button variant="outline" size="sm" disabled>{t('workbench.run.step')}</Button>
-          <Button variant="outline" size="sm" disabled>{t('workbench.run.retry')}</Button>
+          <Button variant="primary" size="sm" disabled={disabled || !runnable} onClick={startRun}>
+            {t('workbench.run.start')}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={disabled || run === null || paused || !runnable}
+            onClick={pauseRun}
+          >
+            {t('workbench.run.pause')}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={disabled || !paused}
+            onClick={resumeRun}
+          >
+            {t('workbench.run.resume')}
+          </Button>
         </div>
       </div>
-      <p className={css.note} id="workbench-run-note">{t('workbench.run.note')}</p>
+      <p className={css.note} id="workbench-run-note">{runNote}</p>
+      <p className={css.note} data-run-status={run?.status ?? 'none'}>
+        {run === null
+          ? t('workbench.run.none')
+          : `${t('workbench.run.status', { status: runStateLabel(t, run.status) })} · ${t('workbench.canvas.revision', { revision: run.definitionRevision })}`}
+      </p>
+      {run?.reason != null && (
+        <p className={css.note}>{t('workbench.run.reason', { reason: run.reason })}</p>
+      )}
+      {!definition.valid && definition.violations.length > 0 && (
+        <ul className={css.violations} aria-label={t('workbench.canvas.invalid')}>
+          {definition.violations.map(violation => (
+            <li key={`${violation.code}:${violation.path}`} className={css.violation}>
+              <span className={css.violationCode}>{violation.code}</span>
+              {' '}
+              {violation.message}
+            </li>
+          ))}
+        </ul>
+      )}
       <div className={css.canvasSurface}>
-        <EmptyState
-          title={t('workbench.canvas.empty.title')}
-          description={t('workbench.canvas.empty.description')}
-        />
+        {definition.nodes.length === 0
+          ? (
+            <EmptyState
+              title={t('workbench.canvas.empty.title')}
+              description={t('workbench.canvas.empty.description')}
+            />
+          )
+          : (
+            <ul className={css.nodeList} aria-label={t('workbench.canvas.nodes')}>
+              {definition.nodes.map(node => (
+                <li key={node.id}>
+                  <button
+                    type="button"
+                    className={css.nodeRow}
+                    data-node-id={node.id}
+                    data-status={nodeStatus(snapshot, node)}
+                    aria-pressed={snapshot.selectedNodeId === node.id}
+                    aria-label={t('workbench.canvas.selectNode', { name: node.title })}
+                    onClick={() => { selectNode(node.id) }}
+                  >
+                    <span className={css.nodeTitle}>{node.title}</span>
+                    <span className={css.nodeKind}>{node.kind}</span>
+                    <span className={css.nodeState}>{stateLabel(t, nodeStatus(snapshot, node))}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
       </div>
     </>
   )
 }
 
-/** The node inspector: three tabs, each with its own empty state. */
-function NodeDetails({ t }: { readonly t: Translate }): ReactNode {
+/** The configuration tab: the writable title plus every read-only field of the node. */
+function ConfigurationTab({
+  t, node, disabled, saveNodeTitle,
+}: {
+  readonly t: Translate
+  readonly node: ProjectNodeView
+  readonly disabled: boolean
+} & Pick<WorkbenchActions, 'saveNodeTitle'>): ReactNode {
+  const [draft, setDraft] = useState(node.title)
+  const dirty = draft.trim() !== '' && draft.trim() !== node.title
+  return (
+    <>
+      <div className={css.titleRow}>
+        <label className={css.fieldLabel} htmlFor="workbench-node-title">
+          {t('workbench.detail.field.title')}
+        </label>
+        <Input
+          id="workbench-node-title"
+          value={draft}
+          disabled={disabled}
+          aria-label={t('workbench.detail.titleLabel', { name: node.title })}
+          onChange={(event) => { setDraft(event.target.value) }}
+        />
+        <Button
+          variant="primary"
+          size="sm"
+          disabled={disabled || !dirty}
+          onClick={() => { saveNodeTitle(node.id, draft.trim()) }}
+        >
+          {t('action.save')}
+        </Button>
+      </div>
+      <Field label={t('workbench.detail.field.kind')}>
+        {t(node.kind === 'agent' ? 'workbench.detail.kind.agent' : 'workbench.detail.kind.python')}
+      </Field>
+      {node.instructions !== null && <Source label={t('workbench.detail.field.instructions')} text={node.instructions} />}
+      {node.source !== null && <Source label={t('workbench.detail.field.source')} text={node.source} />}
+      {node.memory !== null && (
+        <Field label={t('workbench.detail.field.memory')}>
+          {t(node.memory === 'retained' ? 'workbench.detail.memory.retained' : 'workbench.detail.memory.fresh')}
+        </Field>
+      )}
+      {node.outputSchema !== null && <Source label={t('workbench.detail.field.outputSchema')} text={node.outputSchema} />}
+      <Field label={t('workbench.detail.field.join')}>
+        {t(node.join === 'all' ? 'workbench.detail.join.all' : 'workbench.detail.join.first-success')}
+      </Field>
+      <p className={css.note}>{t('workbench.detail.readOnly')}</p>
+    </>
+  )
+}
+
+/** The tools tab: one switch per tool the Host registers, plus the node's own entries. */
+function ToolsTab({
+  t, snapshot, disabled, toggleTool,
+}: {
+  readonly t: Translate
+  readonly snapshot: WorkbenchSnapshot
+  readonly disabled: boolean
+} & Pick<WorkbenchActions, 'toggleTool'>): ReactNode {
+  const selected = snapshot.definition.nodes.find(node => node.id === snapshot.selectedNodeId)
+  if (selected === undefined || selected.kind !== 'agent') {
+    return (
+      <EmptyState
+        title={t('workbench.detail.tools.empty.title')}
+        description={t('workbench.detail.tools.empty.description')}
+      />
+    )
+  }
+  if (snapshot.tools.status === 'loading') {
+    return <p className={css.note} role="status">{t('workbench.detail.tools.loading')}</p>
+  }
+  return (
+    <ul className={css.toolList}>
+      {snapshot.tools.items.map(tool => (
+        <li key={tool.name} className={css.toolRow}>
+          <div className={css.toolText}>
+            <span className={css.toolName}>{tool.name}</span>
+            {tool.description !== '' && <span className={css.toolDescription}>{tool.description}</span>}
+            {tool.description === '' && (
+              <span className={css.toolDescription}>{t('workbench.detail.tools.unregistered')}</span>
+            )}
+          </div>
+          <Switch
+            checked={tool.enabled}
+            disabled={disabled}
+            label={t('workbench.detail.tools.switchLabel', { name: tool.name })}
+            onChange={(next) => { toggleTool(selected.id, tool.name, next) }}
+          />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** One input binding as localized copy. */
+function inputText(t: Translate, input: ProjectNodeView['inputs'][number]): string {
+  switch (input.kind) {
+    case 'node':
+      return t('workbench.detail.results.inputFrom', { node: input.ref, field: input.field })
+    case 'run':
+      return t('workbench.detail.results.inputRun', { key: input.ref })
+    case 'artifact':
+      return t('workbench.detail.results.inputArtifact', { name: input.ref })
+  }
+}
+
+/** The results tab: input bindings, the output schema, and every attempt of the newest run. */
+function ResultsTab({ t, snapshot }: {
+  readonly t: Translate
+  readonly snapshot: WorkbenchSnapshot
+}): ReactNode {
+  const node = snapshot.definition.nodes.find(candidate => candidate.id === snapshot.selectedNodeId)
+  if (node === undefined) {
+    return (
+      <EmptyState
+        title={t('workbench.detail.results.empty.title')}
+        description={t('workbench.detail.results.empty.description')}
+      />
+    )
+  }
+  const attempts = snapshot.attempts.filter(attempt => attempt.nodeId === node.id)
+  return (
+    <>
+      <h3 className={css.subTitle}>{t('workbench.detail.results.inputs')}</h3>
+      {node.inputs.length === 0
+        ? <p className={css.note}>{t('workbench.detail.results.inputsEmpty')}</p>
+        : (
+          <ul className={css.inputList}>
+            {node.inputs.map(input => (
+              <li key={input.name} className={css.inputRow}>
+                <span className={css.inputName}>{input.name}</span>
+                <span className={css.inputSource}>{inputText(t, input)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      {node.outputSchema !== null && (
+        <Source label={t('workbench.detail.field.outputSchema')} text={node.outputSchema} />
+      )}
+      <h3 className={css.subTitle}>{t('workbench.detail.results.attempts')}</h3>
+      {attempts.length === 0
+        ? <p className={css.note}>{t('workbench.detail.results.attemptsEmpty')}</p>
+        : (
+          <ul className={css.attemptList}>
+            {attempts.map(attempt => (
+              <li key={attempt.attemptId} className={css.attemptRow} data-attempt-status={attempt.status}>
+                <span className={css.attemptTitle}>
+                  {t('workbench.detail.results.attempt', { n: attempt.attemptNo })}
+                </span>
+                <span className={css.attemptState}>{stateLabel(t, attempt.status)}</span>
+                {attempt.error !== null && (
+                  <span className={css.attemptError}>
+                    {t('workbench.detail.results.attemptError', { message: attempt.error })}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+    </>
+  )
+}
+
+/** The node inspector: the selected node across its three tabs. */
+function NodeDetails({
+  t, snapshot, disabled, saveNodeTitle, toggleTool,
+}: {
+  readonly t: Translate
+  readonly snapshot: WorkbenchSnapshot
+  readonly disabled: boolean
+} & Pick<WorkbenchActions, 'saveNodeTitle' | 'toggleTool'>): ReactNode {
   const [tab, setTab] = useState<NodeDetailTab>('configuration')
+  const node = snapshot.definition.nodes.find(candidate => candidate.id === snapshot.selectedNodeId)
   return (
     <>
       <h2 className={css.sectionTitle}>{t('workbench.detail.title')}</h2>
-      <EmptyState
-        title={t('workbench.detail.empty.title')}
-        description={t('workbench.detail.empty.description')}
-      />
+      {snapshot.definition.status === 'loading' && (
+        <p className={css.note} role="status">{t('workbench.detail.loading')}</p>
+      )}
+      {node === undefined
+        ? (
+          <EmptyState
+            title={t('workbench.detail.empty.title')}
+            description={t('workbench.detail.empty.description')}
+          />
+        )
+        : <p className={css.nodeHeading}>{node.title}</p>}
       <SegmentedTabs<NodeDetailTab>
         className={css.detailTabs}
         label={t('workbench.detail.tabs')}
@@ -195,48 +527,175 @@ function NodeDetails({ t }: { readonly t: Translate }): ReactNode {
           hidden={tab !== value}
           tabIndex={0}
         >
-          <EmptyState title={t(DETAIL_EMPTY_TITLE[value])} description={t(DETAIL_EMPTY_DESCRIPTION[value])} />
+          {value === 'configuration' && (node === undefined
+            ? (
+              <EmptyState
+                title={t('workbench.detail.configuration.empty.title')}
+                description={t('workbench.detail.configuration.empty.description')}
+              />
+            )
+            : (
+              <ConfigurationTab
+                key={node.id}
+                t={t}
+                node={node}
+                disabled={disabled}
+                saveNodeTitle={saveNodeTitle}
+              />
+            ))}
+          {value === 'tools' && (
+            <ToolsTab t={t} snapshot={snapshot} disabled={disabled} toggleTool={toggleTool} />
+          )}
+          {value === 'results' && <ResultsTab t={t} snapshot={snapshot} />}
         </div>
       ))}
     </>
   )
 }
 
-/** The embedded coordinator placeholder: static copy plus a locked composer. */
-function Coordinator({ t }: { readonly t: Translate }): ReactNode {
+/** One pending decision with its quick-reply field. */
+function DecisionCard({
+  t, decision, disabled, answerDecision,
+}: {
+  readonly t: Translate
+  readonly decision: WorkbenchSnapshot['decisions'][number]
+  readonly disabled: boolean
+} & Pick<WorkbenchActions, 'answerDecision'>): ReactNode {
+  const [answer, setAnswer] = useState('')
+  const reply = answer.trim()
+  return (
+    <li className={css.decision}>
+      <p className={css.decisionNode}>{t('workbench.decisions.node', { name: decision.nodeId })}</p>
+      <p className={css.decisionQuestion}>{decision.question}</p>
+      {decision.options.length > 0 && (
+        <ul className={css.optionList}>
+          {decision.options.map(option => (
+            <li key={option}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={disabled}
+                onClick={() => { answerDecision(decision.requestId, option) }}
+              >
+                {option}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className={css.answerRow}>
+        <Input
+          value={answer}
+          disabled={disabled}
+          placeholder={t('workbench.decisions.answerPlaceholder')}
+          aria-label={t('workbench.decisions.answerLabel', { question: decision.question })}
+          onChange={(event) => { setAnswer(event.target.value) }}
+        />
+        <Button
+          variant="primary"
+          size="sm"
+          disabled={disabled || reply === ''}
+          onClick={() => { answerDecision(decision.requestId, reply) }}
+        >
+          {t('workbench.decisions.send')}
+        </Button>
+      </div>
+    </li>
+  )
+}
+
+/** The decisions the project waits on, with a manual refresh. */
+function Decisions({
+  t, snapshot, disabled, answerDecision, refreshWorkbench,
+}: {
+  readonly t: Translate
+  readonly snapshot: WorkbenchSnapshot
+  readonly disabled: boolean
+} & Pick<WorkbenchActions, 'answerDecision' | 'refreshWorkbench'>): ReactNode {
+  return (
+    <section className={css.decisions} aria-label={t('workbench.decisions.title')}>
+      <div className={css.sectionHead}>
+        <h3 className={css.subTitle}>{t('workbench.decisions.title')}</h3>
+        <Button variant="outline" size="sm" disabled={disabled} onClick={refreshWorkbench}>
+          {t('workbench.decisions.refresh')}
+        </Button>
+      </div>
+      {snapshot.decisions.length === 0
+        ? <p className={css.note}>{t('workbench.decisions.empty')}</p>
+        : (
+          <ul className={css.decisionList}>
+            {snapshot.decisions.map(decision => (
+              <DecisionCard
+                key={decision.requestId}
+                t={t}
+                decision={decision}
+                disabled={disabled}
+                answerDecision={answerDecision}
+              />
+            ))}
+          </ul>
+        )}
+    </section>
+  )
+}
+
+/** The coordinator column: the pending decisions above the way into the coordinator Session. */
+function Coordinator({
+  t, snapshot, disabled, answerDecision, refreshWorkbench, openCoordinator,
+}: {
+  readonly t: Translate
+  readonly snapshot: WorkbenchSnapshot
+  readonly disabled: boolean
+} & Pick<WorkbenchActions, 'answerDecision' | 'refreshWorkbench' | 'openCoordinator'>): ReactNode {
+  const sessionId = snapshot.coordinator.sessionId
   return (
     <>
       <h2 className={css.sectionTitle}>{t('workbench.chat.title')}</h2>
-      <p className={css.hint} id="workbench-chat-hint">{t('workbench.chat.hint')}</p>
-      <div className={css.composer}>
-        <label className={css.label} htmlFor="workbench-chat-input">{t('workbench.chat.inputLabel')}</label>
-        <Input id="workbench-chat-input" disabled aria-describedby="workbench-chat-hint" />
-        <Button
-          className={css.send}
-          variant="primary"
-          size="sm"
-          disabled
-          aria-describedby="workbench-chat-hint"
-        >
-          {t('workbench.chat.send')}
-        </Button>
-      </div>
+      <Decisions
+        t={t}
+        snapshot={snapshot}
+        disabled={disabled}
+        answerDecision={answerDecision}
+        refreshWorkbench={refreshWorkbench}
+      />
+      {snapshot.coordinator.status === 'loading'
+        ? <p className={css.hint} role="status">{t('workbench.chat.loading')}</p>
+        : sessionId === null
+          ? <p className={css.hint}>{t('workbench.chat.unavailable')}</p>
+          : (
+            <div className={css.chatActions}>
+              <p className={css.hint}>{t('workbench.chat.openHint')}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={disabled}
+                onClick={() => { openCoordinator(sessionId) }}
+              >
+                {t('workbench.chat.open')}
+              </Button>
+            </div>
+          )}
     </>
   )
 }
 
 /**
  * Render the project workbench.
- * @param props - the main slot shares, the dashboard snapshot hook, and the navigation callbacks.
+ * @param props - the main slot shares, both snapshots, and the workbench callbacks.
  * @returns the workbench element tree.
  */
 export function WorkbenchPage({
-  t, useProjects, openProject, backToProjects,
+  t, useProjects, useWorkbench, openProject, backToProjects,
+  selectNode, saveNodeTitle, toggleTool, startRun, pauseRun, resumeRun,
+  answerDecision, refreshWorkbench, openCoordinator,
 }: WorkbenchPageProps): ReactNode {
   const snapshot = useProjects(state => state)
+  const workbench = useWorkbench(state => state)
   const [section, setSection] = useState<WorkbenchSection>('canvas')
   const [switcherOpen, setSwitcherOpen] = useState(false)
   const project = snapshot.projects.find(entry => entry.id === snapshot.openedProjectId)
+  const disabled = workbench.busy
+  const shownFailure = snapshot.mutationError ?? workbench.failure
 
   if (project === undefined) {
     return (
@@ -291,13 +750,13 @@ export function WorkbenchPage({
           ))}
         </Menu>
       </header>
-      {snapshot.mutationError !== null && (
+      {shownFailure !== null && (
         <p className={css.notice} role="status">
           <strong>{t('error.mutation.title')}</strong>
           {' '}
-          {failureText(t, snapshot.mutationError)}
+          {failureText(t, shownFailure)}
           {' '}
-          <span className={css.errorDetail}>{snapshot.mutationError.message}</span>
+          <span className={css.errorDetail}>{shownFailure.message}</span>
         </p>
       )}
       <div className={css.sections}>
@@ -317,7 +776,15 @@ export function WorkbenchPage({
           data-section="canvas"
           data-active={section === 'canvas' ? 'true' : 'false'}
         >
-          <Canvas t={t} />
+          <Canvas
+            t={t}
+            snapshot={workbench}
+            disabled={disabled}
+            startRun={startRun}
+            pauseRun={pauseRun}
+            resumeRun={resumeRun}
+            selectNode={selectNode}
+          />
         </section>
         <section
           id={sectionPanelId('details')}
@@ -326,7 +793,13 @@ export function WorkbenchPage({
           data-section="details"
           data-active={section === 'details' ? 'true' : 'false'}
         >
-          <NodeDetails t={t} />
+          <NodeDetails
+            t={t}
+            snapshot={workbench}
+            disabled={disabled}
+            saveNodeTitle={saveNodeTitle}
+            toggleTool={toggleTool}
+          />
         </section>
         <aside
           id={sectionPanelId('chat')}
@@ -335,7 +808,14 @@ export function WorkbenchPage({
           data-section="chat"
           data-active={section === 'chat' ? 'true' : 'false'}
         >
-          <Coordinator t={t} />
+          <Coordinator
+            t={t}
+            snapshot={workbench}
+            disabled={disabled}
+            answerDecision={answerDecision}
+            refreshWorkbench={refreshWorkbench}
+            openCoordinator={openCoordinator}
+          />
         </aside>
       </div>
     </section>

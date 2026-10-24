@@ -1,6 +1,6 @@
 {
   "name": "@metaworkflow/client-ui-mw-projects",
-  "description": "MetaWorkFlow project dashboard: the home main panel and sidebar entry that list the Host's registered workflow projects, create, open, rename, and remove one, and start a project from a new or imported Mermaid workflow",
+  "description": "MetaWorkFlow project surfaces: the home main panel and sidebar entry that list the Host's registered workflow projects, and the project workbench that shows one project's nodes, node inspector, run controls, pending decisions, and its coordinator Session",
   "version": "0.2.1-rc.2",
   "publishConfig": {
     "access": "public"
@@ -33,8 +33,12 @@
         "@metaworkflow/api-workspace-controller",
         "@metaworkflow/client-locale",
         "@metaworkflow/client-ui-layout",
+        "@metaworkflow/client-ui-primitives",
         "@metaworkflow/client-ui-renderer",
-        "@metaworkflow/client-ui-sidebar"
+        "@metaworkflow/client-ui-sidebar",
+        "@metaworkflow/client-ui-slots",
+        "@metaworkflow/client-ui-workspace",
+        "@metaworkflow/session"
       ],
       "platform": "web"
     }
@@ -61,6 +65,7 @@
     "@metaworkflow/client-ui-slots": "workspace:*",
     "@metaworkflow/client-ui-workspace": "workspace:*",
     "@metaworkflow/remote-mock": "workspace:*",
+    "@metaworkflow/session": "workspace:*",
     "@testing-library/react": "^16.3.3",
     "clsx": "^2.1.1",
     "react": "^18.2.0",

@@ -56,10 +56,21 @@ Documents lookup holds the registry mutation queue, so other Workspace mutations
 | `projects.open({ id })` | project id | `{ project }`, materializing the project database when the directory exists without one |
 | `projects.rename({ id, title })` | project id and non-blank `title` | `{ project }` |
 | `projects.delete({ id })` | project id | `{ deleted: true }`; the registration goes, the directory and its Sessions stay |
+| `projects.coordinator({ id })` | project id | `{ sessionId }`, the project's coordinator Session, or `null` when the composition serves no `ctx.mwfCoordinator` |
+| `projects.definition({ id })` | project id | `{ revision, document, valid, violations, nodes }`, the newest stored definition projected for the inspector; a document that no longer parses is reported, not refused |
+| `projects.importDefinition({ id, document })` | project id and JSON document text | `{ revision, nodeCount }`; the document is validated before it is written and stored in canonical form |
+| `projects.availableTools({ id, nodeId })` | project and node id | `{ items }`, one `{ name, description, enabled }` switch per tool `ctx.tools` registers plus every name the node still declares; a python node lists none |
+| `projects.updateNode({ id, nodeId, patch })` | project, node id, and `{ title?, tools? }` | `{ revision }`, the revision the patched definition was written as; every other field stays read-only |
+| `projects.pendingDecisions({ id })` | project id | `{ items }`, the unanswered decision requests, oldest first |
+| `projects.answerDecision({ id, requestId, answer })` | project, request id, non-blank answer | `{ answered: true, runStatus }`; the answer is recorded and the waiting activation resumed |
+| `projects.attempts({ id, runId? })` | project id and an optional run id | `{ run, items }`, the named run (newest when omitted) with its activations and its attempts; `run` is `null` before the project starts one |
+| `projects.startRun({ id })` | project id | `{ runId, status }`; the stored definition is validated, the run created, and one tick run before the call returns |
+| `projects.pause({ id, runId })` | project and run id | `{ runId, status }` |
+| `projects.resume({ id, runId })` | project and run id | `{ runId, status }` |
 
-A `ProjectSummary` carries `id` (the value the `workspace` namespace calls `workspaceId`), `title`, `path`, the live directory `status`, `sessionCount`, and `definitionRevision` — the project store's latest revision, or `0` while the registry lists no record for it.
+The definition verbs read and write through `@metaworkflow/workflow-definition`, and the run verbs delegate to `ctx.mwfScheduler`, which they reach with `ctx.get` so a composition without a scheduler still serves the dashboard; `projects.coordinator` reads `ctx.mwfCoordinator` the same way. A composition that serves neither answers `project/workflow-unavailable` with the missing service in `details.capability`. A `ProjectSummary` carries `id` (the value the `workspace` namespace calls `workspaceId`), `title`, `path`, the live directory `status`, `sessionCount`, and `definitionRevision` — the project store's latest revision, or `0` while the registry lists no record for it.
 
-Failures are stable codes: `project/not-found` for an id no registration carries, `project/invalid-path` with `details.path` when the requested directory cannot be registered, `project/path-in-use` with `details.path` when another registration claims that directory, `gateway/bad-request` for a blank title, and `gateway/internal` for the store's remaining storage faults.
+Failures are stable codes: `project/not-found` for an id no registration carries, `project/invalid-path` with `details.path` when the requested directory cannot be registered, `project/path-in-use` with `details.path` when another registration claims that directory, `gateway/bad-request` for a blank title or a tool list on a python node, and `gateway/internal` for the store's remaining storage faults. The workflow verbs add `project/definition-missing`, `project/definition-invalid` with `details.violations`, `project/node-not-found` with `details.nodeId`, `project/run-unavailable` with `details.runId`, `project/decision-unavailable` with `details.requestId`, and `project/workflow-unavailable` with `details.capability`.
 
 A Remote method name may not collide with a member of its namespace service: `install`, `remove`, `has`, and `empty` already sit on that prototype, and the Gateway refuses a verb that reuses one, so deregistration is `projects.delete` rather than `projects.remove`. The Client controller still exposes `remove()` for that call.
 

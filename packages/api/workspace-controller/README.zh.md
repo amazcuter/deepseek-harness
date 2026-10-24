@@ -56,10 +56,21 @@ Documents 查询占用注册表变更队列，因此其他 Workspace 变更（�
 | `projects.open({ id })` | 项目 id | `{ project }`，当目录存在但还没有数据库时物化项目数据库 |
 | `projects.rename({ id, title })` | 项目 id 与非空 `title` | `{ project }` |
 | `projects.delete({ id })` | 项目 id | `{ deleted: true }`；只移除注册，目录与其会话保留 |
+| `projects.coordinator({ id })` | 项目 id | `{ sessionId }`，该项目的统筹会话；组合没有 `ctx.mwfCoordinator` 时为 `null` |
+| `projects.definition({ id })` | 项目 id | `{ revision, document, valid, violations, nodes }`，最新保存的定义按详情面板投影；已无法解析的定义会被如实报告而不是拒绝 |
+| `projects.importDefinition({ id, document })` | 项目 id 与 JSON 文档文本 | `{ revision, nodeCount }`；写入前先校验，并以规范化形式保存 |
+| `projects.availableTools({ id, nodeId })` | 项目与节点 id | `{ items }`，`ctx.tools` 注册的每个工具一条 `{ name, description, enabled }` 开关，节点仍声明的名字也保留；Python 节点返回空 |
+| `projects.updateNode({ id, nodeId, patch })` | 项目、节点 id 与 `{ title?, tools? }` | `{ revision }`，修补后定义写入的版本；其余字段保持只读 |
+| `projects.pendingDecisions({ id })` | 项目 id | `{ items }`，尚未答复的决策请求，最旧在前 |
+| `projects.answerDecision({ id, requestId, answer })` | 项目、请求 id 与非空答复 | `{ answered: true, runStatus }`；记录答复并唤醒等待中的激活 |
+| `projects.attempts({ id, runId? })` | 项目 id 与可选运行 id | `{ run, items }`，指定运行（省略时为最新一次）及其激活与尝试；项目还没跑过时 `run` 为 `null` |
+| `projects.startRun({ id })` | 项目 id | `{ runId, status }`；调用返回前校验保存的定义、创建运行并推进一次 tick |
+| `projects.pause({ id, runId })` | 项目与运行 id | `{ runId, status }` |
+| `projects.resume({ id, runId })` | 项目与运行 id | `{ runId, status }` |
 
-`ProjectSummary` 携带 `id`（即 `workspace` 命名空间所称的 `workspaceId`）、`title`、`path`、目录实时 `status`、`sessionCount`，以及 `definitionRevision`——项目存储的最新定义版本；注册表没有对应记录时为 `0`。
+定义动词经 `@metaworkflow/workflow-definition` 读写，运行动词委托给 `ctx.mwfScheduler`，两者都用 `ctx.get` 取用，因此没有调度器的组合仍能服务首页；`projects.coordinator` 同样读取 `ctx.mwfCoordinator`。组合两者都没有时返回 `project/workflow-unavailable`，缺失的服务在 `details.capability` 中。`ProjectSummary` 携带 `id`（即 `workspace` 命名空间所称的 `workspaceId`）、`title`、`path`、目录实时 `status`、`sessionCount`，以及 `definitionRevision`——项目存储的最新定义版本；注册表没有对应记录时为 `0`。
 
-失败码是稳定的：没有任何注册携带该 id 时为 `project/not-found`，请求目录无法注册时为携带 `details.path` 的 `project/invalid-path`，目录已被另一个注册占用时为携带 `details.path` 的 `project/path-in-use`，标题为空是 `gateway/bad-request`，存储自身的其余故障是 `gateway/internal`。
+失败码是稳定的：没有任何注册携带该 id 时为 `project/not-found`，请求目录无法注册时为携带 `details.path` 的 `project/invalid-path`，目录已被另一个注册占用时为携带 `details.path` 的 `project/path-in-use`，标题为空或给 Python 节点写工具列表是 `gateway/bad-request`，存储自身的其余故障是 `gateway/internal`。工作流动词另外会返回 `project/definition-missing`、携带 `details.violations` 的 `project/definition-invalid`、携带 `details.nodeId` 的 `project/node-not-found`、携带 `details.runId` 的 `project/run-unavailable`、携带 `details.requestId` 的 `project/decision-unavailable`，以及携带 `details.capability` 的 `project/workflow-unavailable`。
 
 Remote 方法名不得与它所在 namespace service 的成员冲突：`install`、`remove`、`has` 与 `empty` 已经位于该原型上，网关会拒绝复用这些名字的动词，因此注销动词是 `projects.delete` 而不是 `projects.remove`；Client 控制器仍为这次调用暴露 `remove()`。
 

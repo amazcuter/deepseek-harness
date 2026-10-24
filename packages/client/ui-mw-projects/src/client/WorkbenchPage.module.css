@@ -226,6 +226,277 @@
   min-width: 72px;
 }
 
+
+/* ── node list, inspector fields, decisions ─────────────────────────────── */
+
+.nodeList,
+.toolList,
+.inputList,
+.attemptList,
+.decisionList,
+.violations,
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nodeList {
+  width: 100%;
+}
+
+.nodeRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--dsw-alias-settings-card-stroke);
+  border-radius: var(--dsw-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.nodeRow:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.nodeRow[aria-pressed='true'] {
+  border-color: var(--dsw-alias-state-business-primary);
+}
+
+.nodeTitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nodeKind,
+.nodeState {
+  flex: 0 0 auto;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.nodeRow[data-status='failed'] .nodeState {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.nodeRow[data-status='waiting'] .nodeState {
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+.violations {
+  gap: 4px;
+}
+
+.violation {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-state-error-primary);
+  overflow-wrap: anywhere;
+}
+
+.violationCode {
+  font-family: var(--ds-font-family-code);
+}
+
+.nodeHeading {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.subTitle {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.fieldValue {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.source {
+  max-height: 240px;
+  margin: 0;
+  padding: 8px 10px;
+  overflow: auto;
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-layer-1);
+  font-family: var(--ds-font-family-code);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleInput {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.toolRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--dsw-alias-settings-card-stroke);
+}
+
+.toolText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toolName {
+  font-size: 13px;
+  line-height: 18px;
+  font-family: var(--ds-font-family-code);
+}
+
+.toolDescription {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-caption);
+}
+
+.inputRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.inputName {
+  font-family: var(--ds-font-family-code);
+}
+
+.inputSource {
+  color: var(--dsw-alias-label-secondary);
+  overflow-wrap: anywhere;
+}
+
+.attemptRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--dsw-alias-settings-card-stroke);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.attemptTitle {
+  font-weight: 500;
+}
+
+.attemptState {
+  color: var(--dsw-alias-label-secondary);
+}
+
+.attemptRow[data-attempt-status='failed'] .attemptState {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.attemptError {
+  flex: 1 1 100%;
+  color: var(--dsw-alias-state-error-primary);
+  overflow-wrap: anywhere;
+}
+
+.decisions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.decision {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--dsw-alias-state-warn-primary);
+  border-radius: var(--dsw-radius-sm);
+}
+
+.decisionNode {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.decisionQuestion {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.optionList {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.answerRow {
+  display: flex;
+  gap: 6px;
+}
+
+.answerRow > * {
+  min-width: 0;
+}
+
+.chatActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
 /* One column, one section at a time: the narrow frame trades the three-column
    comparison for a switch, so nothing squeezes. */
 @container (max-width: 880px) {

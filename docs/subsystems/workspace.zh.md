@@ -274,6 +274,92 @@ Host service backing the generated `ctx.remote.projects` namespace. It serves th
  * @returns deletion confirmation.
  */
 @Remote('delete') async delete(request: ProjectTargetRequest): Promise<ProjectRemoveValue>
+
+/**
+ * Read the project's coordinator Session, creating it on first use.
+ * @param request - project identity.
+ * @returns the coordinator Session identity, or `null` when the Host
+ * composition serves no coordinator.
+ */
+@Remote('coordinator') async coordinator(request: ProjectTargetRequest): Promise<ProjectCoordinatorValue>
+
+/**
+ * Read the project's newest stored definition with its nodes and violations.
+ *
+ * A stored document that no longer validates is reported, not refused: the
+ * inspector exists to show what is wrong with it.
+ * @param request - project identity.
+ * @returns the newest revision, its nodes, and every violation.
+ */
+@Remote('definition') async definition(request: ProjectTargetRequest): Promise<ProjectDefinitionValue>
+
+/**
+ * Store one hand-written definition document as a new revision.
+ *
+ * The document is validated before it is written, so an unusable graph never
+ * becomes the project's newest revision. It is stored in canonical form.
+ * @param request - project identity and document text.
+ * @returns the revision it was stored under and how many nodes it declares.
+ */
+@Remote('importDefinition') async importDefinition(request: ProjectImportDefinitionRequest): Promise<ProjectImportDefinitionValue>
+
+/**
+ * List one node's tool switches: every tool this Host registers, plus any
+ * name the node already declares that the Host no longer registers.
+ * @param request - project and node identity.
+ * @returns one switch per tool, sorted by name.
+ */
+@Remote('availableTools') async availableTools(request: ProjectNodeTargetRequest): Promise<ProjectToolsValue>
+
+/**
+ * Edit one node's title or tool list, storing the result as a new definition
+ * revision.
+ * @param request - project, node, and the writable fields to replace.
+ * @returns the revision the edited definition was stored under.
+ */
+@Remote('updateNode') async updateNode(request: ProjectUpdateNodeRequest): Promise<ProjectUpdateNodeValue>
+
+/**
+ * List every decision the project is still waiting on, oldest first.
+ * @param request - project identity.
+ * @returns the unanswered requests.
+ */
+@Remote('pendingDecisions') async pendingDecisions(request: ProjectTargetRequest): Promise<ProjectPendingDecisionsValue>
+
+/**
+ * Record one answer and resume the activation that asked.
+ * @param request - project, request id, and answer text.
+ * @returns the run status once the resumed activation settled or the call returned.
+ */
+@Remote('answerDecision') async answerDecision(request: ProjectAnswerDecisionRequest): Promise<ProjectAnswerDecisionValue>
+
+/**
+ * Read one run of the project with its activations and attempts.
+ * @param request - project identity and the run to read, newest when omitted.
+ * @returns the run and its attempts; `run` is `null` when the project has no run.
+ */
+@Remote('attempts') async attempts(request: ProjectAttemptsRequest): Promise<ProjectAttemptsValue>
+
+/**
+ * Start a run from the newest stored definition and advance it once.
+ * @param request - project identity.
+ * @returns the new run and its status after the first tick.
+ */
+@Remote('startRun') async startRun(request: ProjectTargetRequest): Promise<ProjectRunStartValue>
+
+/**
+ * Pause one run, stopping work from starting further activations.
+ * @param request - project and run identity.
+ * @returns the run status after the transition.
+ */
+@Remote('pause') async pause(request: ProjectRunTargetRequest): Promise<ProjectRunControlValue>
+
+/**
+ * Resume one paused run and advance it once.
+ * @param request - project and run identity.
+ * @returns the run status after the transition.
+ */
+@Remote('resume') async resume(request: ProjectRunTargetRequest): Promise<ProjectRunControlValue>
 ```
 
 Source: [`packages/api/workspace-controller/src/projects.ts`](../../packages/api/workspace-controller/src/projects.ts)

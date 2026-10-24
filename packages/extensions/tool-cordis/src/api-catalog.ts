@@ -1938,6 +1938,72 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         parameters: [{ name: 'request', description: 'project identity.' }],
         returns: 'deletion confirmation.',
       },
+      {
+        signature: '@Remote(\'coordinator\') async coordinator(request: ProjectTargetRequest): Promise<ProjectCoordinatorValue>',
+        description: 'Read the project\'s coordinator Session, creating it on first use.',
+        parameters: [{ name: 'request', description: 'project identity.' }],
+        returns: 'the coordinator Session identity, or `null` when the Host composition serves no coordinator.',
+      },
+      {
+        signature: '@Remote(\'definition\') async definition(request: ProjectTargetRequest): Promise<ProjectDefinitionValue>',
+        description: 'Read the project\'s newest stored definition with its nodes and violations.\n\nA stored document that no longer validates is reported, not refused: the inspector exists to show what is wrong with it.',
+        parameters: [{ name: 'request', description: 'project identity.' }],
+        returns: 'the newest revision, its nodes, and every violation.',
+      },
+      {
+        signature: '@Remote(\'importDefinition\') async importDefinition(request: ProjectImportDefinitionRequest): Promise<ProjectImportDefinitionValue>',
+        description: 'Store one hand-written definition document as a new revision.\n\nThe document is validated before it is written, so an unusable graph never becomes the project\'s newest revision. It is stored in canonical form.',
+        parameters: [{ name: 'request', description: 'project identity and document text.' }],
+        returns: 'the revision it was stored under and how many nodes it declares.',
+      },
+      {
+        signature: '@Remote(\'availableTools\') async availableTools(request: ProjectNodeTargetRequest): Promise<ProjectToolsValue>',
+        description: 'List one node\'s tool switches: every tool this Host registers, plus any name the node already declares that the Host no longer registers.',
+        parameters: [{ name: 'request', description: 'project and node identity.' }],
+        returns: 'one switch per tool, sorted by name.',
+      },
+      {
+        signature: '@Remote(\'updateNode\') async updateNode(request: ProjectUpdateNodeRequest): Promise<ProjectUpdateNodeValue>',
+        description: 'Edit one node\'s title or tool list, storing the result as a new definition revision.',
+        parameters: [{ name: 'request', description: 'project, node, and the writable fields to replace.' }],
+        returns: 'the revision the edited definition was stored under.',
+      },
+      {
+        signature: '@Remote(\'pendingDecisions\') async pendingDecisions(request: ProjectTargetRequest): Promise<ProjectPendingDecisionsValue>',
+        description: 'List every decision the project is still waiting on, oldest first.',
+        parameters: [{ name: 'request', description: 'project identity.' }],
+        returns: 'the unanswered requests.',
+      },
+      {
+        signature: '@Remote(\'answerDecision\') async answerDecision(request: ProjectAnswerDecisionRequest): Promise<ProjectAnswerDecisionValue>',
+        description: 'Record one answer and resume the activation that asked.',
+        parameters: [{ name: 'request', description: 'project, request id, and answer text.' }],
+        returns: 'the run status once the resumed activation settled or the call returned.',
+      },
+      {
+        signature: '@Remote(\'attempts\') async attempts(request: ProjectAttemptsRequest): Promise<ProjectAttemptsValue>',
+        description: 'Read one run of the project with its activations and attempts.',
+        parameters: [{ name: 'request', description: 'project identity and the run to read, newest when omitted.' }],
+        returns: 'the run and its attempts; `run` is `null` when the project has no run.',
+      },
+      {
+        signature: '@Remote(\'startRun\') async startRun(request: ProjectTargetRequest): Promise<ProjectRunStartValue>',
+        description: 'Start a run from the newest stored definition and advance it once.',
+        parameters: [{ name: 'request', description: 'project identity.' }],
+        returns: 'the new run and its status after the first tick.',
+      },
+      {
+        signature: '@Remote(\'pause\') async pause(request: ProjectRunTargetRequest): Promise<ProjectRunControlValue>',
+        description: 'Pause one run, stopping work from starting further activations.',
+        parameters: [{ name: 'request', description: 'project and run identity.' }],
+        returns: 'the run status after the transition.',
+      },
+      {
+        signature: '@Remote(\'resume\') async resume(request: ProjectRunTargetRequest): Promise<ProjectRunControlValue>',
+        description: 'Resume one paused run and advance it once.',
+        parameters: [{ name: 'request', description: 'project and run identity.' }],
+        returns: 'the run status after the transition.',
+      },
     ],
   },
   {
@@ -7064,8 +7130,52 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ProfileReconciliation {\n    warnings: string[];\n    pending: PendingModule[];\n    restartReason?: \'module-comparison\' | \'package-moved\';\n}',
   },
   {
+    name: 'ProjectActivationView',
+    declaration: 'export interface ProjectActivationView {\n    readonly activationId: string;\n    readonly nodeId: string;\n    readonly iteration: number;\n    readonly status: string;\n}',
+  },
+  {
+    name: 'ProjectAnswerDecisionRequest',
+    declaration: 'export interface ProjectAnswerDecisionRequest {\n    readonly id: WorkspaceId;\n    readonly requestId: string;\n    readonly answer: string;\n}',
+  },
+  {
+    name: 'ProjectAnswerDecisionValue',
+    declaration: 'export interface ProjectAnswerDecisionValue {\n    readonly answered: true;\n    readonly runStatus: string;\n}',
+  },
+  {
+    name: 'ProjectAttemptsRequest',
+    declaration: 'export interface ProjectAttemptsRequest {\n    readonly id: WorkspaceId;\n    readonly runId?: string;\n}',
+  },
+  {
+    name: 'ProjectAttemptsValue',
+    declaration: 'export interface ProjectAttemptsValue {\n    readonly run: ProjectRunView | null;\n    readonly items: readonly ProjectAttemptView[];\n}',
+  },
+  {
+    name: 'ProjectAttemptView',
+    declaration: 'export interface ProjectAttemptView {\n    readonly attemptId: string;\n    readonly activationId: string;\n    readonly nodeId: string;\n    readonly attemptNo: number;\n    readonly status: string;\n    readonly startedAt: number;\n    readonly endedAt: number | null;\n    readonly error: string | null;\n}',
+  },
+  {
+    name: 'ProjectCoordinatorValue',
+    declaration: 'export interface ProjectCoordinatorValue {\n    readonly sessionId: string | null;\n}',
+  },
+  {
     name: 'ProjectCreateRequest',
     declaration: 'export interface ProjectCreateRequest {\n    readonly title: string;\n    readonly path?: string;\n}',
+  },
+  {
+    name: 'ProjectDefinitionValue',
+    declaration: 'export interface ProjectDefinitionValue {\n    readonly revision: number;\n    readonly document: string | null;\n    readonly valid: boolean;\n    readonly violations: readonly ProjectDefinitionViolationView[];\n    readonly nodes: readonly ProjectNodeView[];\n}',
+  },
+  {
+    name: 'ProjectDefinitionViolationView',
+    declaration: 'export interface ProjectDefinitionViolationView {\n    readonly code: string;\n    readonly path: string;\n    readonly message: string;\n}',
+  },
+  {
+    name: 'ProjectImportDefinitionRequest',
+    declaration: 'export interface ProjectImportDefinitionRequest {\n    readonly id: WorkspaceId;\n    readonly document: string;\n}',
+  },
+  {
+    name: 'ProjectImportDefinitionValue',
+    declaration: 'export interface ProjectImportDefinitionValue {\n    readonly revision: number;\n    readonly nodeCount: number;\n}',
   },
   {
     name: 'ProjectionChangeListener',
@@ -7092,6 +7202,30 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ProjectListValue {\n    readonly items: readonly ProjectSummary[];\n}',
   },
   {
+    name: 'ProjectNodeInputView',
+    declaration: 'export interface ProjectNodeInputView {\n    readonly name: string;\n    readonly kind: \'node\' | \'run\' | \'artifact\';\n    readonly ref: string;\n    readonly field: string;\n}',
+  },
+  {
+    name: 'ProjectNodePatch',
+    declaration: 'export interface ProjectNodePatch {\n    readonly title?: string;\n    readonly tools?: readonly string[];\n}',
+  },
+  {
+    name: 'ProjectNodeTargetRequest',
+    declaration: 'export interface ProjectNodeTargetRequest {\n    readonly id: WorkspaceId;\n    readonly nodeId: string;\n}',
+  },
+  {
+    name: 'ProjectNodeView',
+    declaration: 'export interface ProjectNodeView {\n    readonly id: string;\n    readonly title: string;\n    readonly kind: \'python\' | \'agent\';\n    readonly source: string | null;\n    readonly instructions: string | null;\n    readonly memory: \'retained\' | \'fresh\' | null;\n    readonly outputSchema: string | null;\n    readonly tools: readonly string[];\n    readonly inputs: readonly ProjectNodeInputView[];\n    readonly join: \'all\' | \'first-success\';\n}',
+  },
+  {
+    name: 'ProjectPendingDecisionsValue',
+    declaration: 'export interface ProjectPendingDecisionsValue {\n    readonly items: readonly ProjectPendingDecisionView[];\n}',
+  },
+  {
+    name: 'ProjectPendingDecisionView',
+    declaration: 'export interface ProjectPendingDecisionView {\n    readonly requestId: string;\n    readonly runId: string;\n    readonly nodeId: string;\n    readonly question: string;\n    readonly options: readonly string[];\n    readonly createdAt: number;\n}',
+  },
+  {
     name: 'ProjectRecord',
     declaration: 'export interface ProjectRecord {\n    readonly id: ProjectId;\n    readonly path: string;\n    readonly dbPath: string;\n    readonly title: string;\n    readonly createdAt: number;\n    readonly updatedAt: number;\n    readonly definitionRevision: number;\n}',
   },
@@ -7104,12 +7238,44 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ProjectRenameRequest {\n    readonly id: WorkspaceId;\n    readonly title: string;\n}',
   },
   {
+    name: 'ProjectRunControlValue',
+    declaration: 'export interface ProjectRunControlValue {\n    readonly runId: string;\n    readonly status: string;\n}',
+  },
+  {
+    name: 'ProjectRunStartValue',
+    declaration: 'export interface ProjectRunStartValue {\n    readonly runId: string;\n    readonly status: string;\n}',
+  },
+  {
+    name: 'ProjectRunTargetRequest',
+    declaration: 'export interface ProjectRunTargetRequest {\n    readonly id: WorkspaceId;\n    readonly runId: string;\n}',
+  },
+  {
+    name: 'ProjectRunView',
+    declaration: 'export interface ProjectRunView {\n    readonly runId: string;\n    readonly definitionRevision: number;\n    readonly status: string;\n    readonly reason: string | null;\n    readonly createdAt: number;\n    readonly updatedAt: number;\n    readonly activations: readonly ProjectActivationView[];\n}',
+  },
+  {
     name: 'ProjectSummary',
     declaration: 'export interface ProjectSummary {\n    readonly id: WorkspaceId;\n    readonly title: string;\n    readonly path: string;\n    readonly status: \'ok\' | \'missing-dir\';\n    readonly definitionRevision: number;\n    readonly sessionCount: number;\n}',
   },
   {
     name: 'ProjectTargetRequest',
     declaration: 'export interface ProjectTargetRequest {\n    readonly id: WorkspaceId;\n}',
+  },
+  {
+    name: 'ProjectToolsValue',
+    declaration: 'export interface ProjectToolsValue {\n    readonly items: readonly ProjectToolView[];\n}',
+  },
+  {
+    name: 'ProjectToolView',
+    declaration: 'export interface ProjectToolView {\n    readonly name: string;\n    readonly description: string;\n    readonly enabled: boolean;\n}',
+  },
+  {
+    name: 'ProjectUpdateNodeRequest',
+    declaration: 'export interface ProjectUpdateNodeRequest extends ProjectNodeTargetRequest {\n    readonly patch: ProjectNodePatch;\n}',
+  },
+  {
+    name: 'ProjectUpdateNodeValue',
+    declaration: 'export interface ProjectUpdateNodeValue {\n    readonly revision: number;\n}',
   },
   {
     name: 'ProjectValue',

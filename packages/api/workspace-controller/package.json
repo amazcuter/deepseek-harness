@@ -83,8 +83,12 @@
     "@metaworkflow/host-directory-picker": "workspace:*",
     "@metaworkflow/session": "workspace:*",
     "@metaworkflow/storage-domain": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
     "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/workflow-coordinator": "workspace:*",
+    "@metaworkflow/workflow-definition": "workspace:*",
     "@metaworkflow/workflow-project-store": "workspace:*",
+    "@metaworkflow/workflow-scheduler": "workspace:*",
     "@metaworkflow/workspace": "workspace:*"
   },
   "devDependencies": {
@@ -98,8 +102,12 @@
     "@metaworkflow/remote-mock": "workspace:*",
     "@metaworkflow/session": "workspace:*",
     "@metaworkflow/storage-domain": "workspace:*",
+    "@metaworkflow/tools": "workspace:*",
     "@metaworkflow/typert-protocol": "workspace:*",
+    "@metaworkflow/workflow-coordinator": "workspace:*",
+    "@metaworkflow/workflow-definition": "workspace:*",
     "@metaworkflow/workflow-project-store": "workspace:*",
+    "@metaworkflow/workflow-scheduler": "workspace:*",
     "@metaworkflow/workspace": "workspace:*"
   }
 }

@@ -1791,12 +1791,24 @@ importers:
       '@metaworkflow/storage-domain':
         specifier: workspace:*
         version: link:../../storage/storage-domain
+      '@metaworkflow/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
       '@metaworkflow/typert-protocol':
         specifier: workspace:*
         version: link:../../typert/protocol
+      '@metaworkflow/workflow-coordinator':
+        specifier: workspace:*
+        version: link:../../workflow/coordinator
+      '@metaworkflow/workflow-definition':
+        specifier: workspace:*
+        version: link:../../workflow/definition
       '@metaworkflow/workflow-project-store':
         specifier: workspace:*
         version: link:../../workflow/project-store
+      '@metaworkflow/workflow-scheduler':
+        specifier: workspace:*
+        version: link:../../workflow/scheduler
       '@metaworkflow/workspace':
         specifier: workspace:*
         version: link:../../workspace/workspace
@@ -4916,6 +4928,9 @@ importers:
       '@metaworkflow/remote-mock':
         specifier: workspace:*
         version: link:../../test-support/remote-mock
+      '@metaworkflow/session':
+        specifier: workspace:*
+        version: link:../../core/session
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

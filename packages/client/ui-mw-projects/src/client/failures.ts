@@ -18,6 +18,12 @@ const FAILURE_KEY: Readonly<Partial<Record<RemoteErrorCode, ProjectsKey>>> = {
   'project/not-found': 'error.project-not-found',
   'project/invalid-path': 'error.project-invalid-path',
   'project/path-in-use': 'error.project-path-in-use',
+  'project/definition-missing': 'error.project-definition-missing',
+  'project/definition-invalid': 'error.project-definition-invalid',
+  'project/node-not-found': 'error.project-node-not-found',
+  'project/run-unavailable': 'error.project-run-unavailable',
+  'project/decision-unavailable': 'error.project-decision-unavailable',
+  'project/workflow-unavailable': 'error.project-workflow-unavailable',
   'gateway/bad-request': 'error.bad-request',
 }
 
