@@ -1,0 +1,58 @@
+# Bilingual-pair consistency record for 2026-10-23-metaworkflow-project-workflows.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-10-23-metaworkflow-project-workflows.md
+/agent-note-metaworkflow-project-workflows:
+  en: ebbc877ffaee35f5
+  zh: 10f154321b03ee41
+/agent-note-metaworkflow-project-workflows/problem:
+  en: 8d8624fbf15e921f
+  zh: e401913b8f889316
+/agent-note-metaworkflow-project-workflows/decision:
+  en: a15c7c13f167e5ac
+  zh: 63bcc2ef60c2f344
+/agent-note-metaworkflow-project-workflows/decision/one-browser-product-with-its-own-home:
+  en: 5c04db01595106af
+  zh: 017a8b02afb32f31
+/agent-note-metaworkflow-project-workflows/decision/project-storage-and-the-registry:
+  en: 636d691f6d8b8c85
+  zh: c3510a34db305b92
+/agent-note-metaworkflow-project-workflows/decision/definition-and-routing:
+  en: a3ad1fa2402a354e
+  zh: 1a03f3dbf46adc14
+/agent-note-metaworkflow-project-workflows/decision/the-scheduler:
+  en: 971dda9a6f12ad12
+  zh: a36928cf36f58877
+/agent-note-metaworkflow-project-workflows/decision/python-nodes:
+  en: 77f63991fa4a5c93
+  zh: a23f69d10d1824cc
+/agent-note-metaworkflow-project-workflows/decision/agent-nodes:
+  en: 7502c008ecc4ecf2
+  zh: c50c901607befb34
+/agent-note-metaworkflow-project-workflows/decision/completion-and-decisions:
+  en: f42df2319457eb0d
+  zh: c2494095269254dc
+/agent-note-metaworkflow-project-workflows/decision/coordinator:
+  en: 0a45c2d7d4be00df
+  zh: 714b4eba11fe5112
+/agent-note-metaworkflow-project-workflows/decision/mermaid-import-and-the-canvas:
+  en: ba0d4db873dfb726
+  zh: 3b31a13600d0f044
+/agent-note-metaworkflow-project-workflows/decision/workbench-inspector-and-run-controls:
+  en: c5d8ffc1add08119
+  zh: 411401bb409e063f
+/agent-note-metaworkflow-project-workflows/decision/verified:
+  en: 9ff26216c16cc00c
+  zh: 859d899b659c3939
+/agent-note-metaworkflow-project-workflows/settled-constraints:
+  en: 82064377437f9962
+  zh: da7a22c70024c75f
+/agent-note-metaworkflow-project-workflows/alternatives-considered:
+  en: f83d255c2befc646
+  zh: 036a7344de1b5517
+/agent-note-metaworkflow-project-workflows/consequences:
+  en: 4f2cd0f0e8c8bc59
+  zh: 31a86a8ba1e9b32a
+/agent-note-metaworkflow-project-workflows/related:
+  en: 52ee67340de42401
+  zh: 9c1bd58bf19478ec
