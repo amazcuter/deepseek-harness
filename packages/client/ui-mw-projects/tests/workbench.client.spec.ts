@@ -1,7 +1,7 @@
 /**
  * The workbench controller: one project's definition, tool switches, decisions,
- * and newest run read through the `projects` Remote namespace, published as one
- * snapshot the panel renders.
+ * newest run, and run history read through the `projects` Remote namespace,
+ * published as one snapshot the panel renders.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { RemoteError } from '@metaworkflow/client-test-runtime'
@@ -11,6 +11,8 @@ import type {
   ProjectDefinitionValue,
   ProjectNodeView,
   ProjectPendingDecisionView,
+  ProjectRunsValue,
+  ProjectRunSummaryView,
   ProjectRunView,
 } from '@metaworkflow/api-workspace-controller/types'
 import type { ProjectId } from '../src/client/projects.ts'
@@ -101,6 +103,24 @@ function attempt(overrides: Partial<ProjectAttemptView> = {}): ProjectAttemptVie
   }
 }
 
+/** One run-history row fixture. */
+function runSummary(overrides: Partial<ProjectRunSummaryView> = {}): ProjectRunSummaryView {
+  return {
+    runId: 'run-1',
+    definitionRevision: 1,
+    status: 'succeeded',
+    startedAt: 1,
+    endedAt: 2,
+    reason: null,
+    ...overrides,
+  }
+}
+
+/** The run history the review bench answers with. */
+function runs(overrides: Partial<ProjectRunsValue> = {}): ProjectRunsValue {
+  return { items: [runSummary()], ...overrides }
+}
+
 /** One pending decision fixture. */
 function decision(overrides: Partial<ProjectPendingDecisionView> = {}): ProjectPendingDecisionView {
   return {
@@ -121,10 +141,11 @@ function bench() {
   mock.unary('projects/definition', () => ok(definition()))
   mock.unary('projects/pendingDecisions', () => ok({ items: [decision()] }))
   mock.unary('projects/attempts', () => ok({ run: run(), items: [attempt()] }))
+  mock.unary('projects/runs', () => ok(runs()))
   mock.unary('projects/availableTools', () => ok({
     items: [
-      { name: 'read', description: 'Read a file', enabled: true },
-      { name: 'write', description: 'Write a file', enabled: false },
+      { name: 'read', description: 'Read a file', enabled: true, registered: true },
+      { name: 'write', description: 'Write a file', enabled: false, registered: true },
     ],
   }))
   mock.unary('projects/updateNode', () => ok({ revision: 2 }))
@@ -149,6 +170,8 @@ describe('WorkbenchController open', () => {
     expect(snapshot.decisions).toEqual([decision()])
     expect(snapshot.run).toMatchObject({ runId: 'run-1', status: 'succeeded' })
     expect(snapshot.attempts).toEqual([attempt()])
+    expect(snapshot.runs).toEqual({ status: 'ready', items: [runSummary()] })
+    expect(snapshot.definition.document).toBe('{}')
     expect(snapshot.failure).toBeNull()
     expect(b.mock.remote.projects.availableTools).toHaveBeenCalledWith({ id: PROJECT, nodeId: 'fetch' })
   })
@@ -261,8 +284,8 @@ describe('WorkbenchController selection and edits', () => {
       nodeId: 'review',
       status: 'ready',
       items: [
-        { name: 'read', description: 'Read a file', enabled: true },
-        { name: 'write', description: 'Write a file', enabled: false },
+        { name: 'read', description: 'Read a file', enabled: true, registered: true },
+        { name: 'write', description: 'Write a file', enabled: false, registered: true },
       ],
     })
   })
@@ -417,6 +440,37 @@ describe('WorkbenchController runs and decisions', () => {
     await vi.advanceTimersByTimeAsync(4000)
     expect(b.mock.remote.projects.pendingDecisions.mock.calls.length).toBeGreaterThan(reads)
     expect(b.snapshot().decisions.map(item => item.requestId)).toEqual(['request-2'])
+  })
+
+  it('re-reads the run history while a project is open', async () => {
+    vi.useFakeTimers()
+    const b = bench()
+    await b.controller.open(PROJECT)
+    b.mock.unary('projects/runs', () => ok(runs({
+      items: [runSummary({ runId: 'run-2', status: 'running', endedAt: null }), runSummary()],
+    })))
+    await vi.advanceTimersByTimeAsync(4000)
+    expect(b.snapshot().runs.items.map(item => [item.runId, item.status])).toEqual([
+      ['run-2', 'running'],
+      ['run-1', 'succeeded'],
+    ])
+  })
+
+  it('keeps the history it already holds when the runs read fails', async () => {
+    const b = bench()
+    await b.controller.open(PROJECT)
+    b.mock.unary('projects/runs', () => ({ ok: false, error: new RemoteError('project/not-found', 'gone', {}) }))
+    await b.controller.refresh()
+    expect(b.snapshot().runs).toEqual({ status: 'ready', items: [runSummary()] })
+  })
+
+  it('keeps the history it already holds when a polled runs read fails', async () => {
+    vi.useFakeTimers()
+    const b = bench()
+    await b.controller.open(PROJECT)
+    b.mock.unary('projects/runs', () => ({ ok: false, error: new RemoteError('project/not-found', 'gone', {}) }))
+    await vi.advanceTimersByTimeAsync(4000)
+    expect(b.snapshot().runs).toEqual({ status: 'ready', items: [runSummary()] })
   })
 
   it('keeps the last decisions when a polled read fails', async () => {

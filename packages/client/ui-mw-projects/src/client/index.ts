@@ -9,23 +9,37 @@
  * activation; the workbench is reached by opening a project, and its own
  * header returns to the dashboard. Both panels render the same Host registry,
  * read and mutated through the generated `projects` Remote namespace; opening a
- * project also reads its definition, decisions, and newest run, which is what
- * the workbench renders.
+ * project also reads its definition, decisions, run history, and newest run,
+ * which is what the workbench renders.
+ *
+ * The workbench's coordinator column renders the Session's Conversation inside
+ * a Session binding the panel retains itself. The retained reference is the one
+ * piece of Client state this composition owns: the renderer's `SessionProvider`
+ * binds a scope from a reference, and only the apply world may retain one.
  */
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import type {} from '@metaworkflow/api-remotes/client'
+import type { ISessions } from '@metaworkflow/api-session-controller/client'
 import type {} from '@metaworkflow/client-locale/client'
 import type { MainPanelId } from '@metaworkflow/client-ui-layout/client'
 import type {} from '@metaworkflow/client-ui-renderer/client'
 import type {} from '@metaworkflow/client-ui-sidebar/client'
 import type {} from '@metaworkflow/client-ui-workspace/client'
 import type { SessionId } from '@metaworkflow/session/types'
+import { CoordinatorConversation } from './CoordinatorConversation.tsx'
 import { en, zh, type ProjectsKey } from './locales.ts'
 import { ProjectsPage, type ProjectsPageInjected } from './ProjectsPage.tsx'
 import { ProjectsPanelIcon } from './ProjectsPanelIcon.tsx'
 import { ProjectsController, type ProjectId } from './projects.ts'
 import { WorkbenchPage, type WorkbenchPageInjected } from './WorkbenchPage.tsx'
 import { WorkbenchController } from './workbench.ts'
+
+declare module '@metaworkflow/api-session-controller/client' {
+  interface SessionReferenceSourceMap {
+    /** One project workbench showing its coordinator Session. */
+    projectWorkbench: unknown
+  }
+}
 
 /** Dictionary namespace owned by this plugin. */
 export const NS = 'mw.projects'
@@ -45,7 +59,7 @@ declare module '@metaworkflow/client-ui-slots' {
 
 /** Services required by both panels, their navigation, and the sidebar entry. */
 export const inject = [
-  'slots', 'locale', 'layout', 'remote', 'remote.projects', 'uiWorkspace',
+  'slots', 'locale', 'layout', 'remote', 'remote.projects', 'uiWorkspace', 'sessions',
 ]
 
 /**
@@ -59,6 +73,7 @@ export function apply(ctx: ClientContext): void {
   ctx.provide('sessionRestorePolicy', { restoreLastSession: false })
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-mw-projects: dictionaries')
   const t = ctx.locale.bind(NS)
+  const sessions: ISessions = ctx.sessions
   const controller = new ProjectsController(ctx.remote.projects)
   const workbench = new WorkbenchController(ctx.remote.projects)
   // The dashboard is the home surface, so the first list load starts with the
@@ -89,6 +104,14 @@ export function apply(ctx: ClientContext): void {
         renameProject: (id, title) => { void controller.rename(id, title) },
         removeProject: (id) => { void controller.remove(id) },
         reloadProjects: () => { void controller.load() },
+        resetImport: () => { controller.resetImport() },
+        importMermaid: (draft) => {
+          // The import registers the project itself, so the panel opens the id
+          // the Host answered instead of a row it guessed.
+          void controller.importMermaid(draft).then((imported) => {
+            if (imported !== null) openProject(imported)
+          })
+        },
       }),
     }, ProjectsPage)
     if (!selectedHome) {
@@ -99,6 +122,7 @@ export function apply(ctx: ClientContext): void {
       name: 'main',
       key: PROJECT_PANEL_ID,
       locale: NS,
+      children: { 'mw.projects.coordinator': { kind: 'single', scope: 'session' } },
       inject: (): WorkbenchPageInjected => ({
         hooks: { projects: controller.list, workbench: workbench.view },
         openProject,
@@ -114,8 +138,13 @@ export function apply(ctx: ClientContext): void {
         openCoordinator: (sessionId) => {
           ctx.uiWorkspace.openSession(sessionId as SessionId)
         },
+        retainSession: sessionId => sessions.retain(sessionId as SessionId, { source: 'projectWorkbench' }),
       }),
     }, WorkbenchPage)
+    yield ctx.slots.register({
+      name: 'mw.projects.coordinator',
+      locale: NS,
+    }, CoordinatorConversation)
     yield () => { disposed = true }
   })
   ctx.effect(

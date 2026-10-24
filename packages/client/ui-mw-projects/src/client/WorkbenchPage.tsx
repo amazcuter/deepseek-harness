@@ -1,13 +1,13 @@
 /**
  * The project workbench: the panel a project opens onto.
  *
- * Every region reads the Host. The canvas lists the nodes of the project's
- * newest stored definition and drives the run controls; the inspector shows one
- * selected node across its three tabs — its configuration (with a writable
- * title), its tool switches, and its input bindings with the attempts recorded
- * for the newest run; the coordinator column shows the decisions the project
- * waits on and hosts the project's coordinator Session as an embedded
- * Conversation.
+ * Every region reads the Host. The canvas draws the nodes and edges of the
+ * project's newest stored definition as a flowchart and drives the run controls,
+ * with the project's run history beneath it; the inspector shows one selected
+ * node across its three tabs — its configuration (with a writable title), its
+ * tool switches, and its input bindings with the attempts recorded for the
+ * newest run; the coordinator column shows the decisions the project waits on
+ * and renders the project's coordinator Session as an embedded Conversation.
  *
  * A wide frame lays the canvas and the inspector in the middle column with the
  * coordinator beside them. A narrow frame collapses to one column, where the
@@ -15,17 +15,22 @@
  * three sections is visible, so the three columns never squeeze into each
  * other.
  */
-import { useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
   Button, IconCheckOutlineRegular, IconChevronDownOutlineRegular, Input, Menu, MenuItemButton,
   SegmentedControl, SegmentedTabs, Switch, type SegmentedTab,
 } from '@metaworkflow/client-ui-primitives'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@metaworkflow/client-ui-slots'
+import type {
+  HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime,
+} from '@metaworkflow/client-ui-slots'
+import type { SessionReference } from '@metaworkflow/api-session-controller/client'
 import type { ProjectNodeView } from '@metaworkflow/api-workspace-controller/types'
+import { readDefinitionGraph } from './definition-graph.ts'
 import { failureText } from './failures.ts'
 import type { ProjectsKey } from './locales.ts'
 import type { ProjectId, ProjectsSnapshot } from './projects.ts'
-import type { WorkbenchSnapshot } from './workbench.ts'
+import { WorkflowCanvas } from './WorkflowCanvas.tsx'
+import type { WorkbenchRunsState, WorkbenchSnapshot } from './workbench.ts'
 import css from './WorkbenchPage.module.css'
 
 /** The three workbench views a narrow frame switches between. */
@@ -110,12 +115,18 @@ export interface WorkbenchPageInjected {
   readonly refreshWorkbench: () => void
   /** Show one coordinator Session in the shared conversation panel. */
   readonly openCoordinator: (sessionId: string) => void
+  /**
+   * Retain one Session as a render reference for the embedded Conversation; the
+   * caller releases it when the panel unmounts or the Session changes.
+   */
+  readonly retainSession: (sessionId: string) => SessionReference
 }
 
 /** Full component props assembled by the main slot renderer. */
 export type WorkbenchPageProps =
   PropsRuntime<'main'>
   & PropsLocale<'mw.projects'>
+  & PropsRenderSlots<'mw.projects.coordinator'>
   & InjectFace<WorkbenchPageInjected>
 
 /** The bound translator this component hands to its own sections. */
@@ -211,17 +222,53 @@ function Source({ label, text }: { readonly label: string; readonly text: string
 }
 
 /**
- * @param snapshot - the workbench state.
- * @param node - one node of the stored definition.
- * @returns the status of that node's newest activation, or `idle`.
+ * @param epoch - one Host instant, in epoch milliseconds.
+ * @returns that instant in the platform's own date and time format.
  */
-function nodeStatus(snapshot: WorkbenchSnapshot, node: { readonly id: string }): string {
-  const activations = snapshot.run?.activations ?? []
-  const latest = activations.filter(activation => activation.nodeId === node.id).at(-1)
-  return latest?.status ?? 'idle'
+function instantText(epoch: number): string {
+  return new Date(epoch).toLocaleString()
 }
 
-/** The canvas: the node list of the stored definition and the run controls. */
+/** The run history: every run the project recorded, newest first. */
+function RunHistory({ t, runs }: {
+  readonly t: Translate
+  readonly runs: WorkbenchRunsState
+}): ReactNode {
+  return (
+    <section className={css.history} aria-label={t('workbench.history.title')}>
+      <h3 className={css.subTitle}>{t('workbench.history.title')}</h3>
+      {runs.status === 'loading'
+        ? <p className={css.note} role="status">{t('workbench.history.loading')}</p>
+        : runs.items.length === 0
+          ? <p className={css.note}>{t('workbench.history.empty')}</p>
+          : (
+            <ul className={css.runList} aria-label={t('workbench.history.list')}>
+              {runs.items.map(run => (
+                <li key={run.runId} className={css.runRow} data-run-id={run.runId} data-run-status={run.status}>
+                  <span className={css.runState}>{runStateLabel(t, run.status)}</span>
+                  <span className={css.runMeta}>
+                    {t('workbench.history.revision', { revision: run.definitionRevision })}
+                  </span>
+                  <span className={css.runMeta}>
+                    {t('workbench.history.started', { time: instantText(run.startedAt) })}
+                  </span>
+                  {run.endedAt !== null && (
+                    <span className={css.runMeta}>
+                      {t('workbench.history.ended', { time: instantText(run.endedAt) })}
+                    </span>
+                  )}
+                  {run.reason !== null && (
+                    <span className={css.runReason}>{t('workbench.run.reason', { reason: run.reason })}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+    </section>
+  )
+}
+
+/** The canvas: the stored definition drawn as a flowchart and the run controls. */
 function Canvas({
   t, snapshot, disabled, startRun, pauseRun, resumeRun, selectNode,
 }: {
@@ -230,6 +277,7 @@ function Canvas({
   readonly disabled: boolean
 } & Pick<WorkbenchActions, 'startRun' | 'pauseRun' | 'resumeRun' | 'selectNode'>): ReactNode {
   const { definition, run } = snapshot
+  const graph = useMemo(() => readDefinitionGraph(definition.document), [definition.document])
   const runnable = definition.valid && definition.nodes.length > 0
   const paused = run?.status === 'paused'
   const runNote = runnable ? t('workbench.run.note') : t('workbench.run.unavailable')
@@ -285,7 +333,7 @@ function Canvas({
         </ul>
       )}
       <div className={css.canvasSurface}>
-        {definition.nodes.length === 0
+        {graph === null || graph.nodes.length === 0
           ? (
             <EmptyState
               title={t('workbench.canvas.empty.title')}
@@ -293,27 +341,16 @@ function Canvas({
             />
           )
           : (
-            <ul className={css.nodeList} aria-label={t('workbench.canvas.nodes')}>
-              {definition.nodes.map(node => (
-                <li key={node.id}>
-                  <button
-                    type="button"
-                    className={css.nodeRow}
-                    data-node-id={node.id}
-                    data-status={nodeStatus(snapshot, node)}
-                    aria-pressed={snapshot.selectedNodeId === node.id}
-                    aria-label={t('workbench.canvas.selectNode', { name: node.title })}
-                    onClick={() => { selectNode(node.id) }}
-                  >
-                    <span className={css.nodeTitle}>{node.title}</span>
-                    <span className={css.nodeKind}>{node.kind}</span>
-                    <span className={css.nodeState}>{stateLabel(t, nodeStatus(snapshot, node))}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <WorkflowCanvas
+              t={t}
+              graph={graph}
+              activations={run?.activations ?? []}
+              selectedNodeId={snapshot.selectedNodeId}
+              selectNode={selectNode}
+            />
           )}
       </div>
+      <RunHistory t={t} runs={snapshot.runs} />
     </>
   )
 }
@@ -369,7 +406,15 @@ function ConfigurationTab({
   )
 }
 
-/** The tools tab: one switch per tool the Host registers, plus the node's own entries. */
+/**
+ * The tools tab: one switch per tool the Host registers, plus the node's own
+ * entries.
+ *
+ * Only a registered tool is writable. A name the node still declares without a
+ * registration stays listed — it is why the scheduler would refuse the run — but
+ * its switch is off-limits, because offering it would let the inspector write a
+ * definition no deployment of this composition can execute.
+ */
 function ToolsTab({
   t, snapshot, disabled, toggleTool,
 }: {
@@ -392,18 +437,22 @@ function ToolsTab({
   return (
     <ul className={css.toolList}>
       {snapshot.tools.items.map(tool => (
-        <li key={tool.name} className={css.toolRow}>
+        <li key={tool.name} className={css.toolRow} data-tool-registered={tool.registered ? 'true' : 'false'}>
           <div className={css.toolText}>
             <span className={css.toolName}>{tool.name}</span>
-            {tool.description !== '' && <span className={css.toolDescription}>{tool.description}</span>}
-            {tool.description === '' && (
+            {tool.registered && tool.description !== '' && (
+              <span className={css.toolDescription}>{tool.description}</span>
+            )}
+            {!tool.registered && (
               <span className={css.toolDescription}>{t('workbench.detail.tools.unregistered')}</span>
             )}
           </div>
           <Switch
             checked={tool.enabled}
-            disabled={disabled}
-            label={t('workbench.detail.tools.switchLabel', { name: tool.name })}
+            disabled={disabled || !tool.registered}
+            label={tool.registered
+              ? t('workbench.detail.tools.switchLabel', { name: tool.name })
+              : t('workbench.detail.tools.unavailableLabel', { name: tool.name })}
             onChange={(next) => { toggleTool(selected.id, tool.name, next) }}
           />
         </li>
@@ -639,14 +688,61 @@ function Decisions({
   )
 }
 
-/** The coordinator column: the pending decisions above the way into the coordinator Session. */
+/**
+ * The coordinator Session, rendered in place as the shared Conversation.
+ *
+ * The Session is retained for as long as the panel shows it, and the retained
+ * reference is what the renderer's `SessionProvider` binds: without a
+ * reference there is no scope binding, and the Conversation would have no
+ * Session to read. Opening the same Session in the shared conversation view
+ * stays available beside it.
+ */
+function CoordinatorChat({
+  t, sessionId, disabled, retainSession, openCoordinator, renderSlot, SessionProvider,
+}: {
+  readonly t: Translate
+  readonly sessionId: string
+  readonly disabled: boolean
+  readonly retainSession: WorkbenchActions['retainSession']
+} & Pick<WorkbenchActions, 'openCoordinator'>
+  & Pick<PropsRenderSlots<'mw.projects.coordinator'>, 'renderSlot' | 'SessionProvider'>): ReactNode {
+  const [reference, setReference] = useState<SessionReference | null>(null)
+  // Acquisition, not synchronization: the reference is the resource this effect
+  // owns, and the state is how the acquired handle reaches render.
+  useEffect(() => {
+    const retained = retainSession(sessionId)
+    setReference(retained)
+    return () => { retained.release() }
+  }, [sessionId, retainSession])
+  return (
+    <section className={css.chatEmbed} aria-label={t('workbench.chat.embedded')}>
+      <div className={css.chatActions}>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={disabled}
+          onClick={() => { openCoordinator(sessionId) }}
+        >
+          {t('workbench.chat.open')}
+        </Button>
+      </div>
+      {reference === null
+        ? <p className={css.hint} role="status">{t('workbench.chat.loading')}</p>
+        : <SessionProvider session={reference}>{renderSlot('mw.projects.coordinator', {})}</SessionProvider>}
+    </section>
+  )
+}
+
+/** The coordinator column: the pending decisions above the embedded coordinator Session. */
 function Coordinator({
-  t, snapshot, disabled, answerDecision, refreshWorkbench, openCoordinator,
+  t, snapshot, disabled, answerDecision, refreshWorkbench, openCoordinator, retainSession,
+  renderSlot, SessionProvider,
 }: {
   readonly t: Translate
   readonly snapshot: WorkbenchSnapshot
   readonly disabled: boolean
-} & Pick<WorkbenchActions, 'answerDecision' | 'refreshWorkbench' | 'openCoordinator'>): ReactNode {
+} & Pick<WorkbenchActions, 'answerDecision' | 'refreshWorkbench' | 'openCoordinator' | 'retainSession'>
+  & Pick<PropsRenderSlots<'mw.projects.coordinator'>, 'renderSlot' | 'SessionProvider'>): ReactNode {
   const sessionId = snapshot.coordinator.sessionId
   return (
     <>
@@ -663,17 +759,15 @@ function Coordinator({
         : sessionId === null
           ? <p className={css.hint}>{t('workbench.chat.unavailable')}</p>
           : (
-            <div className={css.chatActions}>
-              <p className={css.hint}>{t('workbench.chat.openHint')}</p>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={disabled}
-                onClick={() => { openCoordinator(sessionId) }}
-              >
-                {t('workbench.chat.open')}
-              </Button>
-            </div>
+            <CoordinatorChat
+              t={t}
+              sessionId={sessionId}
+              disabled={disabled}
+              retainSession={retainSession}
+              openCoordinator={openCoordinator}
+              renderSlot={renderSlot}
+              SessionProvider={SessionProvider}
+            />
           )}
     </>
   )
@@ -687,7 +781,8 @@ function Coordinator({
 export function WorkbenchPage({
   t, useProjects, useWorkbench, openProject, backToProjects,
   selectNode, saveNodeTitle, toggleTool, startRun, pauseRun, resumeRun,
-  answerDecision, refreshWorkbench, openCoordinator,
+  answerDecision, refreshWorkbench, openCoordinator, retainSession,
+  renderSlot, SessionProvider,
 }: WorkbenchPageProps): ReactNode {
   const snapshot = useProjects(state => state)
   const workbench = useWorkbench(state => state)
@@ -815,6 +910,9 @@ export function WorkbenchPage({
             answerDecision={answerDecision}
             refreshWorkbench={refreshWorkbench}
             openCoordinator={openCoordinator}
+            retainSession={retainSession}
+            renderSlot={renderSlot}
+            SessionProvider={SessionProvider}
           />
         </aside>
       </div>

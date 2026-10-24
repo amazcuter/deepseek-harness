@@ -153,11 +153,13 @@
   color: var(--dsw-alias-label-caption);
 }
 
+/* The drawing, its zoom controls, and its notes stack in this frame; the empty
+   state centers itself through `.empty`. */
 .canvasSurface {
   display: flex;
   flex: 1 1 auto;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
   box-sizing: border-box;
   min-height: 180px;
   padding: 16px;
@@ -229,13 +231,13 @@
 
 /* ── node list, inspector fields, decisions ─────────────────────────────── */
 
-.nodeList,
 .toolList,
 .inputList,
 .attemptList,
 .decisionList,
 .violations,
-.optionList {
+.optionList,
+.runList {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -244,57 +246,57 @@
   list-style: none;
 }
 
-.nodeList {
-  width: 100%;
+/* The run history sits under the diagram as a compact status list. */
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.nodeRow {
+.runRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 8px;
-  box-sizing: border-box;
-  width: 100%;
-  padding: 8px 10px;
+  gap: 4px 10px;
+  padding: 6px 10px;
   border: 1px solid var(--dsw-alias-settings-card-stroke);
   border-radius: var(--dsw-radius-sm);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: start;
-  cursor: pointer;
 }
 
-.nodeRow:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-}
-
-.nodeRow[aria-pressed='true'] {
-  border-color: var(--dsw-alias-state-business-primary);
-}
-
-.nodeTitle {
-  flex: 1 1 auto;
-  min-width: 0;
-  font-size: 14px;
+.runState {
+  font-size: 13px;
+  font-weight: 500;
   line-height: 20px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.nodeKind,
-.nodeState {
-  flex: 0 0 auto;
+.runMeta {
   font-size: 12px;
   line-height: 18px;
   color: var(--dsw-alias-label-secondary);
 }
 
-.nodeRow[data-status='failed'] .nodeState {
+.runReason {
+  flex: 1 1 100%;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+  overflow-wrap: anywhere;
+}
+
+.runRow[data-run-status='running'] .runState {
+  color: var(--dsw-alias-state-business-primary);
+}
+
+.runRow[data-run-status='succeeded'] .runState {
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.runRow[data-run-status='failed'] .runState {
   color: var(--dsw-alias-state-error-primary);
 }
 
-.nodeRow[data-status='waiting'] .nodeState {
+.runRow[data-run-status='paused'] .runState,
+.runRow[data-run-status='pending'] .runState {
   color: var(--dsw-alias-state-warn-primary);
 }
 
@@ -488,6 +490,18 @@
 
 .answerRow > * {
   min-width: 0;
+}
+
+/* The embedded coordinator Conversation fills the rest of its column and
+   scrolls on its own, so the decisions above it stay in place. */
+.chatEmbed {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 240px;
+  margin-top: 8px;
+  overflow: auto;
 }
 
 .chatActions {

@@ -1,7 +1,7 @@
 /**
  * Workbench data: one project's stored definition, its node tool switches, its
- * pending decisions, and its newest run, read through the `projects` Remote
- * namespace and published as one observable snapshot.
+ * pending decisions, its newest run, and its run history, read through the
+ * `projects` Remote namespace and published as one observable snapshot.
  *
  * The dashboard keeps no project data of its own and the workbench keeps none
  * either: every revision, switch, decision, and run status comes from the Host,
@@ -18,6 +18,8 @@ import type {
   ProjectDefinitionViolationView,
   ProjectNodeView,
   ProjectPendingDecisionView,
+  ProjectRunsValue,
+  ProjectRunSummaryView,
   ProjectRunView,
   ProjectToolView,
 } from '@metaworkflow/api-workspace-controller/types'
@@ -32,6 +34,8 @@ export interface WorkbenchDefinitionState {
   readonly status: DefinitionStatus
   /** Newest stored revision; `0` when the project stores none. */
   readonly revision: number
+  /** Canonical document text the canvas draws, or `null` when the project stores none. */
+  readonly document: string | null
   /** Whether the stored document parses and validates. */
   readonly valid: boolean
   /** Every reason the stored document is not executable. */
@@ -48,6 +52,13 @@ export interface WorkbenchToolsState {
   readonly nodeId: string | null
   readonly status: 'idle' | 'loading' | 'ready'
   readonly items: readonly ProjectToolView[]
+}
+
+/** The run history the canvas lists. */
+export interface WorkbenchRunsState {
+  readonly status: 'loading' | 'ready'
+  /** Every run the project recorded, newest first. */
+  readonly items: readonly ProjectRunSummaryView[]
 }
 
 /** Whether the Host serves this project's coordinator Session. */
@@ -72,6 +83,8 @@ export interface WorkbenchSnapshot {
   readonly run: ProjectRunView | null
   /** Attempts of that run, newest first. */
   readonly attempts: readonly ProjectAttemptView[]
+  /** Every run the project recorded, newest first, with the status of each. */
+  readonly runs: WorkbenchRunsState
   /** A mutation is in flight, so its controls stay disabled. */
   readonly busy: boolean
   /** Failure of the most recent mutation, cleared when the next one starts. */
@@ -82,6 +95,7 @@ export interface WorkbenchSnapshot {
 const NO_DEFINITION: WorkbenchDefinitionState = {
   status: 'loading',
   revision: 0,
+  document: null,
   valid: false,
   violations: [],
   nodes: [],
@@ -90,6 +104,9 @@ const NO_DEFINITION: WorkbenchDefinitionState = {
 
 /** The tool state before any node is selected. */
 const NO_TOOLS: WorkbenchToolsState = { nodeId: null, status: 'idle', items: [] }
+
+/** The run history before the project's runs are read. */
+const NO_RUNS: WorkbenchRunsState = { status: 'loading', items: [] }
 
 /**
  * How often an open project re-reads what a running scheduler changes on its
@@ -129,6 +146,7 @@ export class WorkbenchController {
       decisions: [],
       run: null,
       attempts: [],
+      runs: NO_RUNS,
       busy: false,
       failure: null,
     })
@@ -155,6 +173,7 @@ export class WorkbenchController {
       decisions: [],
       run: null,
       attempts: [],
+      runs: NO_RUNS,
       failure: null,
     })
     await this.read(projectId)
@@ -274,6 +293,7 @@ export class WorkbenchController {
       decisions: [],
       run: null,
       attempts: [],
+      runs: NO_RUNS,
       busy: false,
       failure: null,
     })
@@ -307,14 +327,16 @@ export class WorkbenchController {
    * it found that a later open superseded it.
    */
   private async poll(projectId: ProjectId, generation: number): Promise<void> {
-    const [decisions, run] = await Promise.all([
+    const [decisions, run, runs] = await Promise.all([
       settleRemote(() => this.remote.pendingDecisions({ id: projectId })),
       settleRemote(() => this.remote.attempts({ id: projectId })),
+      settleRemote(() => this.remote.runs({ id: projectId })),
     ])
     if (generation !== this.loadGeneration) return
     this.patch({
       ...decisions.ok ? { decisions: [...decisions.value.items] } : {},
       ...run.ok ? { run: run.value.run, attempts: [...run.value.items] } : {},
+      ...runs.ok ? { runs: runsState(runs.value) } : {},
     })
   }
 
@@ -348,11 +370,12 @@ export class WorkbenchController {
    */
   private async read(projectId: ProjectId): Promise<void> {
     const generation = this.loadGeneration
-    const [coordinator, definition, decisions, run] = await Promise.all([
+    const [coordinator, definition, decisions, run, runs] = await Promise.all([
       settleRemote(() => this.remote.coordinator({ id: projectId })),
       settleRemote(() => this.remote.definition({ id: projectId })),
       settleRemote(() => this.remote.pendingDecisions({ id: projectId })),
       settleRemote(() => this.remote.attempts({ id: projectId })),
+      settleRemote(() => this.remote.runs({ id: projectId })),
     ])
     if (generation !== this.loadGeneration) return
     const definitionState = this.definitionState(definition)
@@ -367,7 +390,8 @@ export class WorkbenchController {
       decisions: decisions.ok ? [...decisions.value.items] : [],
       run: run.ok ? run.value.run : null,
       attempts: run.ok ? [...run.value.items] : [],
-      failure: firstFailure([coordinator, definition, decisions, run]),
+      ...runs.ok ? { runs: runsState(runs.value) } : {},
+      failure: firstFailure([coordinator, definition, decisions, run, runs]),
     })
     if (selected !== null) await this.selectNode(selected)
   }
@@ -386,6 +410,7 @@ export class WorkbenchController {
     return {
       status: 'ready',
       revision: outcome.value.revision,
+      document: outcome.value.document,
       valid: outcome.value.valid,
       violations: [...outcome.value.violations],
       nodes: [...outcome.value.nodes],
@@ -418,6 +443,14 @@ export class WorkbenchController {
 
 }
 
+
+/**
+ * @param value - the settled run-history read.
+ * @returns the published history state.
+ */
+function runsState(value: ProjectRunsValue): WorkbenchRunsState {
+  return { status: 'ready', items: [...value.items] }
+}
 
 /**
  * @param outcomes - settled reads of one open.

@@ -836,6 +836,8 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   ProjectAnswerDecisionValue: 'workspace.md',
   ProjectAttemptsRequest: 'workspace.md',
   ProjectAttemptsValue: 'workspace.md',
+  ProjectRunsValue: 'workspace.md',
+  ProjectRunSummaryView: 'workspace.md',
   ProjectRunView: 'workspace.md',
   ProjectActivationView: 'workspace.md',
   ProjectAttemptView: 'workspace.md',

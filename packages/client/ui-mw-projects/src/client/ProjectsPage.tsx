@@ -5,16 +5,19 @@
  * collapses each card to a single column.
  *
  * Every row is Host data read through the injected `useProjects` hook. The
- * only local state is which row the user is renaming or asked to confirm.
+ * local state is which row the user is renaming or asked to confirm, and whether
+ * the Mermaid import dialog is open; the import itself, including its refusal,
+ * is Host state the panel reads back.
  */
 import { clsx } from 'clsx'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { Button, Input } from '@metaworkflow/client-ui-primitives'
 import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@metaworkflow/client-ui-slots'
 import { failureText } from './failures.ts'
+import { ImportDialog } from './ImportDialog.tsx'
 import type { ProjectsKey } from './locales.ts'
 import type {
-  ProjectFailure, ProjectId, ProjectStatus, ProjectSummary, ProjectsSnapshot,
+  ImportDraft, ProjectFailure, ProjectId, ProjectStatus, ProjectSummary, ProjectsSnapshot,
 } from './projects.ts'
 import css from './ProjectsPage.module.css'
 
@@ -44,10 +47,17 @@ export interface ProjectsPageInjected {
   readonly openProject: (id: ProjectId) => void
   /** Reload the list after a load failure. */
   readonly reloadProjects: () => void
+  /** Forget the last flowchart import, so a reopened dialog starts clean. */
+  readonly resetImport: () => void
+  /** Import one flowchart as a new project's definition. */
+  readonly importMermaid: (draft: ImportDraft) => void
 }
 
 /** The injected callbacks once the hook compartment is bound away. */
 type ProjectsActions = Omit<ProjectsPageInjected, 'hooks'>
+
+/** The callbacks the dashboard body renders rows with; the import dialog owns its own two. */
+type ProjectListActions = Omit<ProjectsActions, 'resetImport' | 'importMermaid'>
 
 /** Full component props assembled by the main slot renderer. */
 export type ProjectsPageProps =
@@ -88,7 +98,7 @@ function ProjectsSkeleton({ t }: { readonly t: Translate }): ReactNode {
 function ProjectsLoadError({ t, failure, retry }: {
   readonly t: Translate
   readonly failure: ProjectFailure
-  readonly retry: ProjectsActions['reloadProjects']
+  readonly retry: ProjectListActions['reloadProjects']
 }): ReactNode {
   return (
     <section className={css.error} role="alert" aria-label={t('error.load.title')}>
@@ -103,7 +113,7 @@ function ProjectsLoadError({ t, failure, retry }: {
 /** The state before the registry holds any project. */
 function EmptyState({ t, createProject }: {
   readonly t: Translate
-  readonly createProject: ProjectsActions['createProject']
+  readonly createProject: ProjectListActions['createProject']
 }): ReactNode {
   return (
     <section className={css.empty} aria-label={t('dashboard.empty.title')}>
@@ -130,12 +140,12 @@ function ProjectRow({
   /** The draft being edited, or null when this row is not the renaming one. */
   readonly renaming: RenameDraft | null
   readonly confirming: boolean
-  readonly onOpen: ProjectsActions['openProject']
+  readonly onOpen: ProjectListActions['openProject']
   /** Starts this row's rename draft, or replaces the text being edited. */
   readonly onEditRename: (draft: RenameDraft) => void
   readonly onCommitRename: (draft: RenameDraft) => void
   readonly onStartRemove: (id: ProjectId) => void
-  readonly onRemove: ProjectsActions['removeProject']
+  readonly onRemove: ProjectListActions['removeProject']
   readonly onCancel: () => void
 }): ReactNode {
   const submitRename = (draft: RenameDraft) => (event: FormEvent<HTMLFormElement>): void => {
@@ -232,7 +242,7 @@ function ProjectRow({
 function ProjectList({ t, snapshot, actions }: {
   readonly t: Translate
   readonly snapshot: ProjectsSnapshot
-  readonly actions: ProjectsActions
+  readonly actions: ProjectListActions
 }): ReactNode {
   const [renaming, setRenaming] = useState<RenameDraft | null>(null)
   const [confirming, setConfirming] = useState<ProjectId | null>(null)
@@ -286,7 +296,7 @@ function ProjectList({ t, snapshot, actions }: {
 function ProjectsBody({ t, snapshot, actions }: {
   readonly t: Translate
   readonly snapshot: ProjectsSnapshot
-  readonly actions: ProjectsActions
+  readonly actions: ProjectListActions
 }): ReactNode {
   const view = snapshot.view
   switch (view.status) {
@@ -311,10 +321,14 @@ function ProjectsBody({ t, snapshot, actions }: {
  */
 export function ProjectsPage({
   t, useProjects, createProject, openProject, renameProject, removeProject, reloadProjects,
+  resetImport, importMermaid,
 }: ProjectsPageProps): ReactNode {
   const snapshot = useProjects(state => state)
   const { view } = snapshot
-  const actions: ProjectsActions = { createProject, openProject, renameProject, removeProject, reloadProjects }
+  const [importOpen, setImportOpen] = useState(false)
+  const actions: ProjectListActions = {
+    createProject, openProject, renameProject, removeProject, reloadProjects,
+  }
   const opened = snapshot.projects.find(project => project.id === snapshot.openedProjectId)
   return (
     <section className={css.page} aria-label={t('dashboard.title')}>
@@ -328,7 +342,14 @@ export function ProjectsPage({
           >
             {t('dashboard.create')}
           </Button>
-          <Button variant="outline" disabled title={t('dashboard.importHint')}>
+          <Button
+            variant="outline"
+            disabled={snapshot.busy}
+            onClick={() => {
+              resetImport()
+              setImportOpen(true)
+            }}
+          >
             {t('dashboard.import')}
           </Button>
         </div>
@@ -345,6 +366,13 @@ export function ProjectsPage({
       )}
       {opened !== undefined && <p className={css.hint}>{t('dashboard.opened', { name: opened.title })}</p>}
       <ProjectsBody t={t} snapshot={snapshot} actions={actions} />
+      <ImportDialog
+        t={t}
+        open={importOpen}
+        state={snapshot.import}
+        onClose={() => { setImportOpen(false) }}
+        onSubmit={importMermaid}
+      />
     </section>
   )
 }

@@ -2,6 +2,8 @@
 import { Context } from '@deepseek-ai/cordis'
 import { render } from '@testing-library/react'
 import { onTestFinished, describe, expect, it, vi } from 'vitest'
+import type { SessionRetainOptions } from '@metaworkflow/api-session-controller/client'
+import type { SessionId } from '@metaworkflow/session/types'
 import { LocaleRuntime } from '@metaworkflow/client-locale/client'
 import { createSnapshotStore } from '@metaworkflow/client-store'
 import type { ILayout, PanelInfo } from '@metaworkflow/client-ui-layout/client'
@@ -27,6 +29,9 @@ function declareRoot(slots: SlotRegistry): () => void {
     },
   } as never, () => null)
 }
+
+/** The flowchart one import test submits. */
+const FLOWCHART = 'flowchart TD\n  A --> B'
 
 /** Host row fixture. */
 function project(id: string, overrides: Partial<ProjectSummary> = {}): ProjectSummary {
@@ -66,6 +71,13 @@ async function bench() {
   })
   const sessionByProject = vi.fn<(session: string) => void>()
   ctx.provide('uiWorkspace', { openSession: sessionByProject })
+  // The workbench retains the coordinator Session for its embedded Conversation.
+  const released = vi.fn()
+  const retain = vi.fn((id: string, _options: SessionRetainOptions) => ({
+    sessionId: id as SessionId,
+    release: () => { released() },
+  }))
+  ctx.provide('sessions', { retain } as never)
   const mock = RemoteMock.create()
   mock.unary('projects/list', () => ok({ items: [] }))
   // Opening a project also reads its workbench state.
@@ -79,11 +91,15 @@ async function bench() {
   }))
   mock.unary('projects/pendingDecisions', () => ok({ items: [] }))
   mock.unary('projects/attempts', () => ok({ run: null, items: [] }))
+  mock.unary('projects/runs', () => ok({ items: [] }))
   mock.unary('projects/availableTools', () => ok({ items: [] }))
   onTestFinished(() => { mock.assertNoUnmatched() })
   new TestRemote(ctx, { projects: mock.remote.projects })
   const slots = ctx.get('slots') as SlotRegistry
-  return { ctx, slots, locale, panelInfo, selectPanel, mock, openSession: sessionByProject }
+  return {
+    ctx, slots, locale, panelInfo, selectPanel, mock,
+    openSession: sessionByProject, retain, released,
+  }
 }
 
 /** The injected face of the main panel registered under `key`. */
@@ -238,6 +254,56 @@ describe('ui-mw-projects browser plugin', () => {
     expect(b.mock.remote.projects.delete).toHaveBeenCalledWith({ id: 'created' })
   })
 
+  it('imports a flowchart, refreshes the list, and opens the registered project', async () => {
+    const b = await bench()
+    let rows: readonly ProjectSummary[] = []
+    b.mock.unary('projects/list', () => ok({ items: rows }))
+    b.mock.unary('projects/importMermaid', (request: { readonly title: string }) => {
+      rows = [project('imported', { title: request.title, definitionRevision: 1 })]
+      return ok({
+        projectId: 'imported',
+        definition: { revision: 1, document: '{}', valid: true, violations: [], nodes: [] },
+        mapping: { A: 'a' },
+        warnings: [],
+      })
+    })
+    b.mock.unary('projects/open', (request: { readonly id: string }) => ok({ project: row(rows, request.id) }))
+    declareRoot(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const face = dashboardOf(b.slots)
+    await vi.waitFor(() => { expect(snapshotOf(face).view.status).toBe('ready') })
+
+    face.resetImport()
+    face.importMermaid({ title: '发票处理', mermaid: FLOWCHART })
+    await vi.waitFor(() => { expect(b.selectPanel).toHaveBeenLastCalledWith(PROJECT_PANEL_ID) })
+    expect(b.mock.remote.projects.importMermaid).toHaveBeenCalledWith({
+      title: '发票处理',
+      mermaid: FLOWCHART,
+    })
+    expect(b.mock.remote.projects.open).toHaveBeenCalledWith({ id: 'imported' })
+    expect(snapshotOf(face).projects.map(entry => entry.title)).toEqual(['发票处理'])
+    expect(snapshotOf(face).openedProjectId).toBe('imported')
+    expect(snapshotOf(face).import).toEqual({ status: 'imported', projectId: 'imported' })
+  })
+
+  it('keeps the dashboard on screen when the imported flowchart is refused', async () => {
+    const b = await bench()
+    b.mock.unary('projects/importMermaid', () => ({
+      ok: false,
+      error: new RemoteError('project/mermaid-invalid', 'refused', { violations: ['definition/no-entry-node'] }),
+    }))
+    declareRoot(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const face = dashboardOf(b.slots)
+    face.importMermaid({ title: '发票处理', mermaid: 'flowchart TD' })
+    await vi.waitFor(() => { expect(snapshotOf(face).import.status).toBe('failed') })
+    expect(snapshotOf(face).import).toMatchObject({
+      failure: { code: 'project/mermaid-invalid', violations: ['definition/no-entry-node'] },
+    })
+    expect(b.mock.remote.projects.open).not.toHaveBeenCalled()
+    expect(b.selectPanel).toHaveBeenCalledExactlyOnceWith(PROJECTS_PANEL_ID)
+  })
+
   it('publishes the load failure and retries on the injected reload', async () => {
     const b = await bench()
     b.mock.unary('projects/list', () => ({ ok: false, error: new RemoteError('project/not-found', 'gone', {}) }))
@@ -345,6 +411,11 @@ describe('ui-mw-projects browser plugin', () => {
 
     face.openCoordinator('session-coordinator')
     expect(b.openSession).toHaveBeenCalledWith('session-coordinator')
+
+    const reference = face.retainSession('session-coordinator')
+    expect(b.retain).toHaveBeenCalledWith('session-coordinator', { source: 'projectWorkbench' })
+    reference.release()
+    expect(b.released).toHaveBeenCalledOnce()
   })
 
   it('adds the sidebar entry that returns to the dashboard, and removes both contributions on disposal', async () => {

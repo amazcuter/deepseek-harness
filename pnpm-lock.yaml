@@ -4898,6 +4898,9 @@ importers:
       '@metaworkflow/api-remotes':
         specifier: workspace:*
         version: link:../../api/remotes
+      '@metaworkflow/api-session-controller':
+        specifier: workspace:*
+        version: link:../../api/session-controller
       '@metaworkflow/api-workspace-controller':
         specifier: workspace:*
         version: link:../../api/workspace-controller
@@ -4910,6 +4913,9 @@ importers:
       '@metaworkflow/client-test-runtime':
         specifier: workspace:*
         version: link:../../test-support/client-runtime
+      '@metaworkflow/client-ui-conversation':
+        specifier: workspace:*
+        version: link:../ui-conversation
       '@metaworkflow/client-ui-layout':
         specifier: workspace:*
         version: link:../ui-layout
@@ -4940,6 +4946,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      mermaid:
+        specifier: 11.17.2
+        version: 11.17.2
       react:
         specifier: ^18.2.0
         version: 18.3.1

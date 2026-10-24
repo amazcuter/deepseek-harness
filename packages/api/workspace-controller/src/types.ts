@@ -353,10 +353,17 @@ export interface ProjectAnswerDecisionValue {
 export interface ProjectToolView {
   /** Tool name the node's agent may use. */
   readonly name: string
-  /** What the tool does, as the Host describes it. */
+  /** What the tool does, as the Host describes it; empty for a name it does not register. */
   readonly description: string
   /** Whether the node's current definition lists this tool. */
   readonly enabled: boolean
+  /**
+   * Whether this Host composition registers the tool. A name the node still
+   * declares without a registration stays listed so the stale entry is
+   * visible, but it is not writable: the scheduler refuses a run whose node
+   * names a tool the composition cannot mount.
+   */
+  readonly registered: boolean
 }
 
 /** Every tool switch of one node. */
@@ -411,6 +418,29 @@ export interface ProjectActivationView {
   readonly nodeId: string
   readonly iteration: number
   readonly status: string
+}
+
+/** One run as the workbench's history lists it. */
+export interface ProjectRunSummaryView {
+  readonly runId: string
+  /** Definition revision the run executes. */
+  readonly definitionRevision: number
+  readonly status: string
+  /** Epoch milliseconds when the run was created. */
+  readonly startedAt: number
+  /**
+   * Epoch milliseconds when the run reached a terminal status; `null` while it
+   * is still pending, running, or paused.
+   */
+  readonly endedAt: number | null
+  /** Why the run reached its status, when the scheduler recorded a reason. */
+  readonly reason: string | null
+}
+
+/** Every recorded run of one project. */
+export interface ProjectRunsValue {
+  /** Runs, newest first. */
+  readonly items: readonly ProjectRunSummaryView[]
 }
 
 /** One run as the workbench reads it. */

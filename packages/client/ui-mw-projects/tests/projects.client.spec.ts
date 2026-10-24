@@ -2,7 +2,8 @@
  * The project dashboard controller against a scripted `projects` Remote
  * namespace: initial state, the loading/ready/error view with retry, the
  * mutation echoes for create/open/rename/remove, the in-flight flag, the
- * mutation failure notice, and the folded assembly rejection.
+ * mutation failure notice, the folded assembly rejection, and the flowchart
+ * import with its structured refusal.
  */
 import { describe, expect, it, vi } from 'vitest'
 import type { RemoteFailure, RemoteResult } from '@metaworkflow/api-remotes/client'
@@ -42,6 +43,12 @@ function bench() {
   const open = vi.fn<ProjectsRemote['open']>(request => Promise.resolve(ok({ project: summary(request.id, 'A') })))
   const rename = vi.fn<ProjectsRemote['rename']>(request => Promise.resolve(ok({ project: summary('a', request.title) })))
   const remove = vi.fn<ProjectsRemote['delete']>(() => Promise.resolve(ok({ deleted: true })))
+  const importMermaid = vi.fn<ProjectsRemote['importMermaid']>(() => Promise.resolve(ok({
+    projectId: 'imported' as ProjectId,
+    definition: { revision: 1, document: '{}', valid: true, violations: [], nodes: [] },
+    mapping: {},
+    warnings: [],
+  })))
   // The dashboard reads five verbs; the workbench verbs exist on the namespace
   // but this controller never calls them.
   const unused = (): Promise<never> => Promise.reject(new Error('the dashboard calls no workbench verb'))
@@ -57,14 +64,15 @@ function bench() {
     coordinator: vi.fn(unused),
     definition: vi.fn(unused),
     importDefinition: vi.fn(unused),
-    importMermaid: vi.fn(unused),
+    importMermaid,
     pause: vi.fn(unused),
     pendingDecisions: vi.fn(unused),
+    runs: vi.fn(unused),
     resume: vi.fn(unused),
     startRun: vi.fn(unused),
     updateNode: vi.fn(unused),
   }
-  return { controller: new ProjectsController(remote), list, create, open, rename, remove }
+  return { controller: new ProjectsController(remote), list, create, open, rename, remove, importMermaid }
 }
 
 describe('ProjectsController', () => {
@@ -75,6 +83,7 @@ describe('ProjectsController', () => {
       projects: [],
       openedProjectId: null,
       mutationError: null,
+      import: { status: 'idle' },
       busy: false,
     })
   })
@@ -216,5 +225,106 @@ describe('ProjectsController', () => {
     second.settle(ok({ project: summary('b', 'B') }))
     await renamed
     expect(b.controller.list.getSnapshot().busy).toBe(false)
+  })
+})
+
+describe('ProjectsController import', () => {
+  /** The flowchart and project name one dialog submission carries. */
+  const DRAFT = { title: '发票处理', mermaid: 'flowchart TD -> A' }
+
+  it('registers the project, refreshes the list, and reports the identity the panel opens', async () => {
+    const b = bench()
+    b.list.mockResolvedValue(ok({ items: [summary('imported', '发票处理', { definitionRevision: 1 })] }))
+    const projectId = await b.controller.importMermaid(DRAFT)
+    expect(b.importMermaid).toHaveBeenCalledExactlyOnceWith(DRAFT)
+    expect(projectId).toBe('imported')
+    expect(b.controller.list.getSnapshot().import).toEqual({ status: 'imported', projectId: 'imported' })
+    expect(b.controller.list.getSnapshot().projects.map(project => project.title)).toEqual(['发票处理'])
+    expect(b.list).toHaveBeenCalledOnce()
+  })
+
+  it('publishes the importing state before the Host answers', async () => {
+    const b = bench()
+    const pending = deferred<Awaited<ReturnType<ProjectsRemote['importMermaid']>>>()
+    b.importMermaid.mockReturnValueOnce(pending.promise)
+    const importing = b.controller.importMermaid(DRAFT)
+    expect(b.controller.list.getSnapshot()).toMatchObject({ busy: true, import: { status: 'importing' } })
+    pending.settle(ok({
+      projectId: 'imported' as ProjectId,
+      definition: { revision: 1, document: '{}', valid: true, violations: [], nodes: [] },
+      mapping: {},
+      warnings: [],
+    }))
+    await importing
+    expect(b.controller.list.getSnapshot().busy).toBe(false)
+  })
+
+  it('keeps the parser line, refusal code, and validator messages of a refused flowchart', async () => {
+    const b = bench()
+    b.importMermaid.mockResolvedValueOnce(fail(new RemoteError('project/mermaid-invalid', 'the flowchart cannot be imported', {
+      error: { code: 'mermaid/unsupported-syntax', message: 'unexpected token', line: 2 },
+    })))
+    await expect(b.controller.importMermaid(DRAFT)).resolves.toBeNull()
+    expect(b.controller.list.getSnapshot().import).toEqual({
+      status: 'failed',
+      failure: {
+        code: 'project/mermaid-invalid',
+        message: 'the flowchart cannot be imported',
+        refusalCode: 'mermaid/unsupported-syntax',
+        line: 2,
+      },
+    })
+    // A refused import registers nothing, so the list is not re-read.
+    expect(b.list).not.toHaveBeenCalled()
+  })
+
+  it('reports the validator messages of a graph that translated but cannot run', async () => {
+    const b = bench()
+    b.importMermaid.mockResolvedValueOnce(fail(new RemoteError('project/mermaid-invalid', 'not usable', {
+      violations: ['definition/no-entry-node'],
+    })))
+    await b.controller.importMermaid(DRAFT)
+    expect(b.controller.list.getSnapshot().import).toEqual({
+      status: 'failed',
+      failure: {
+        code: 'project/mermaid-invalid',
+        message: 'not usable',
+        violations: ['definition/no-entry-node'],
+      },
+    })
+  })
+
+  it('folds any other refusal into the plain failure', async () => {
+    const b = bench()
+    b.importMermaid.mockResolvedValueOnce(fail(new RemoteError('project/not-found', 'gone', {})))
+    await b.controller.importMermaid(DRAFT)
+    expect(b.controller.list.getSnapshot().import).toEqual({
+      status: 'failed',
+      failure: { code: 'project/not-found', message: 'gone' },
+    })
+  })
+
+  it('folds a rejected import call into the generic failure', async () => {
+    const b = bench()
+    b.importMermaid.mockRejectedValueOnce(new Error('no Context adapter'))
+    await b.controller.importMermaid(DRAFT)
+    expect(b.controller.list.getSnapshot().import).toEqual({
+      status: 'failed',
+      failure: { code: 'gateway/internal', message: 'no Context adapter' },
+    })
+  })
+
+  it('forgets the last import so a reopened dialog starts clean', async () => {
+    const b = bench()
+    await b.controller.importMermaid(DRAFT)
+    expect(b.controller.list.getSnapshot().import.status).toBe('imported')
+    b.controller.resetImport()
+    expect(b.controller.list.getSnapshot().import).toEqual({ status: 'idle' })
+    // A reset on an already-idle dashboard publishes nothing.
+    const seen: string[] = []
+    const stop = b.controller.list.subscribe(() => { seen.push('changed') })
+    b.controller.resetImport()
+    stop()
+    expect(seen).toEqual([])
   })
 })

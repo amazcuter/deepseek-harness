@@ -355,6 +355,17 @@ Host service backing the generated `ctx.remote.projects` namespace. It serves th
 @Remote('attempts') async attempts(request: ProjectAttemptsRequest): Promise<ProjectAttemptsValue>
 
 /**
+ * List every run the project recorded, newest first.
+ *
+ * The rows come from the project store rather than the scheduler, so the
+ * history survives a run the composition no longer advances. Each row carries
+ * the status the store last recorded and the instant it reached it.
+ * @param request - project identity.
+ * @returns every run of the project, newest first.
+ */
+@Remote('runs') async runs(request: ProjectTargetRequest): Promise<ProjectRunsValue>
+
+/**
  * Start a run from the newest stored definition and advance it once.
  * @param request - project identity.
  * @returns the new run and its status after the first tick.

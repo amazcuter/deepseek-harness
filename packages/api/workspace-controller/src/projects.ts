@@ -26,7 +26,7 @@ import type Scheduler from '@metaworkflow/workflow-scheduler'
 import { WorkflowSchedulerError } from '@metaworkflow/workflow-scheduler'
 import type { ActivationView, AttemptView, RunView } from '@metaworkflow/workflow-scheduler'
 import { WorkflowProjectStoreError } from '@metaworkflow/workflow-project-store'
-import type { DefinitionRecord, ProjectRecord, RunId } from '@metaworkflow/workflow-project-store'
+import type { DefinitionRecord, ProjectRecord, RunId, RunRecord } from '@metaworkflow/workflow-project-store'
 import type { Workspace, WorkspaceId } from '@metaworkflow/workspace'
 import {
   nodeViews, patchNode, pendingDecisionView, violationView,
@@ -52,7 +52,9 @@ import type {
   ProjectRemoveValue,
   ProjectRenameRequest,
   ProjectRunControlValue,
+  ProjectRunsValue,
   ProjectRunStartValue,
+  ProjectRunSummaryView,
   ProjectRunTargetRequest,
   ProjectRunView,
   ProjectSummary,
@@ -404,6 +406,22 @@ export class MwProjectController extends TypertRemoteService {
   }
 
   /**
+   * List every run the project recorded, newest first.
+   *
+   * The rows come from the project store rather than the scheduler, so the
+   * history survives a run the composition no longer advances. Each row carries
+   * the status the store last recorded and the instant it reached it.
+   * @param request - project identity.
+   * @returns every run of the project, newest first.
+   */
+  @Remote('runs')
+  async runs(request: ProjectTargetRequest): Promise<ProjectRunsValue> {
+    this.requireWorkspace(request.id)
+    const records = await this.ctx.mwfProjectStore.listRuns(request.id)
+    return { items: records.map(runSummaryView) }
+  }
+
+  /**
    * Start a run from the newest stored definition and advance it once.
    * @param request - project identity.
    * @returns the new run and its status after the first tick.
@@ -747,11 +765,27 @@ function attemptViews(
 }
 
 /**
+ * Project one stored run row for the workbench history.
+ * @param record - the run record the project store holds.
+ * @returns the run with the instants the history lists.
+ */
+function runSummaryView(record: RunRecord): ProjectRunSummaryView {
+  return {
+    runId: record.runId,
+    definitionRevision: record.definitionRevision,
+    status: record.status,
+    startedAt: record.createdAt,
+    endedAt: RUN_TERMINAL_STATUSES.has(record.status) ? record.updatedAt : null,
+    reason: record.reason,
+  }
+}
+
+/**
  * Project one node's tool switches.
  * @param declared - tool names the node's definition lists.
  * @param registered - schemas of the tools this Host registers.
  * @returns one switch per name, sorted, declaring unregistered names too so a
- * stale entry stays visible and switchable.
+ * stale entry stays visible without being offered as writable.
  */
 function toolViews(
   declared: readonly string[],
@@ -762,13 +796,20 @@ function toolViews(
     name: schema.name,
     description: schema.description,
     enabled: enabled.has(schema.name),
+    registered: true,
   }))
   const known = new Set(items.map(item => item.name))
   for (const name of declared) {
-    if (!known.has(name)) items.push({ name, description: '', enabled: true })
+    if (!known.has(name)) items.push({ name, description: '', enabled: true, registered: false })
   }
   return items.sort((left, right) => left.name.localeCompare(right.name))
 }
+
+/**
+ * Statuses a run never leaves; every other status can still advance, so its
+ * row reports no end instant.
+ */
+const RUN_TERMINAL_STATUSES: ReadonlySet<string> = new Set(['succeeded', 'failed', 'canceled'])
 
 /** The part of one registered tool schema a switch needs. */
 interface ToolSwitchSchema {

@@ -1,16 +1,26 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSnapshotStore } from '@metaworkflow/client-store'
 import { allowAllAccess, bindSnapshotSelector } from '@metaworkflow/client-test-runtime'
-import type { ProjectNodeView } from '@metaworkflow/api-workspace-controller/types'
+import type { SessionReference } from '@metaworkflow/api-session-controller/client'
+import type { SessionId } from '@metaworkflow/session/types'
+import type {
+  ProjectNodeView, ProjectRunSummaryView,
+} from '@metaworkflow/api-workspace-controller/types'
 import { zh } from '../src/client/locales.ts'
 import type { ProjectId, ProjectSummary, ProjectsSnapshot } from '../src/client/projects.ts'
 import type { WorkbenchSnapshot } from '../src/client/workbench.ts'
 import { WorkbenchPage, type WorkbenchPageProps } from '../src/client/WorkbenchPage.tsx'
+import {
+  render as mermaidRender, resetFakeMermaid, useRenderMode,
+} from './support/fake-mermaid.ts'
+
+vi.mock('mermaid', async () => ({ default: await import('./support/fake-mermaid.ts') }))
 
 afterEach(cleanup)
+beforeEach(() => { resetFakeMermaid() })
 
 /** Translate from the shipped dictionary, matching the locale runtime's placeholder form. */
 const translate = (dict: typeof zh): WorkbenchPageProps['t'] => ((key: keyof typeof zh, params?: Record<string, unknown>): string =>
@@ -84,10 +94,21 @@ function ready(overrides: Partial<ProjectsSnapshot> = {}): ProjectsSnapshot {
     projects: [],
     openedProjectId: null,
     mutationError: null,
+    import: { status: 'idle' },
     busy: false,
     ...overrides,
   }
 }
+
+/** The stored document the canvas fixture draws: fetch, then review. */
+const DEFINITION_DOCUMENT = JSON.stringify({
+  version: 1,
+  edges: [{ id: 'fetch-review', from: 'fetch', to: 'review', condition: null, mode: 'exclusive' }],
+  nodes: [
+    { id: 'fetch', kind: 'python', title: '抓取', config: { kind: 'python', source: 'x' }, inputs: [], join: 'all' },
+    { id: 'review', kind: 'agent', title: '评审', config: { kind: 'agent' }, inputs: [], join: 'all' },
+  ],
+})
 
 /** One open project, the state the composition reaches after `open` succeeds. */
 function opened(overrides: Partial<ProjectsSnapshot> = {}): ProjectsSnapshot {
@@ -102,6 +123,7 @@ function workbench(overrides: Partial<WorkbenchSnapshot> = {}): WorkbenchSnapsho
     definition: {
       status: 'ready',
       revision: 1,
+      document: DEFINITION_DOCUMENT,
       valid: true,
       violations: [],
       nodes: [pythonNode(), agentNode()],
@@ -112,8 +134,22 @@ function workbench(overrides: Partial<WorkbenchSnapshot> = {}): WorkbenchSnapsho
     decisions: [],
     run: null,
     attempts: [],
+    runs: { status: 'ready', items: [runSummary()] },
     busy: false,
     failure: null,
+    ...overrides,
+  }
+}
+
+/** One run-history row fixture. */
+function runSummary(overrides: Partial<ProjectRunSummaryView> = {}): ProjectRunSummaryView {
+  return {
+    runId: 'run-1',
+    definitionRevision: 1,
+    status: 'succeeded',
+    startedAt: 1,
+    endedAt: 2,
+    reason: null,
     ...overrides,
   }
 }
@@ -131,6 +167,15 @@ function run(status: string, overrides: Partial<NonNullable<WorkbenchSnapshot['r
     ...overrides,
   }
 }
+
+/** Counts the releases of the reference fixture. */
+const released = vi.fn()
+
+/** The reference fixture: the panel only forwards it to `SessionProvider`. */
+const reference = {
+  sessionId: 'session-coordinator' as SessionId,
+  release: () => { released() },
+} as SessionReference
 
 function bench(
   projectsSnapshot: ProjectsSnapshot = opened(),
@@ -150,7 +195,11 @@ function bench(
     answerDecision: vi.fn(),
     refreshWorkbench: vi.fn(),
     openCoordinator: vi.fn(),
+    retainSession: vi.fn(() => reference),
   }
+  /** The child slot the workbench renders the coordinator Conversation through. */
+  const renderSlot: WorkbenchPageProps['renderSlot'] = () => <div data-chat-slot="">统筹对话</div>
+  const SessionProvider = ({ children }: { readonly children: ReactNode }): ReactNode => <>{children}</>
   const props: WorkbenchPageProps = {
     useProjects: bindSnapshotSelector({ getSnapshot: () => store.getSnapshot(), subscribe: listener => store.subscribe(listener) }),
     useWorkbench: bindSnapshotSelector({
@@ -165,6 +214,8 @@ function bench(
     useResource: unusedStandardHook,
     ...allowAllAccess,
     t: translate(zh),
+    renderSlot,
+    SessionProvider,
     ...actions,
   }
   const element = (): ReactNode => <WorkbenchPage {...props} />
@@ -246,7 +297,13 @@ describe('WorkbenchPage layout', () => {
 })
 
 describe('WorkbenchPage canvas', () => {
-  it('lists the definition nodes with their activation state and selects one', () => {
+  /** The drawn diagram nodes of the canvas, in document order. */
+  const drawnNodes = async (): Promise<Element[]> => {
+    await waitFor(() => { expect(canvasRegion().querySelectorAll('[data-node-id]')).toHaveLength(2) })
+    return [...canvasRegion().querySelectorAll('[data-node-id]')]
+  }
+
+  it('draws the definition, states each node activation status, and selects one', async () => {
     const b = bench(opened(), workbench({
       run: run('running', {
         activations: [
@@ -255,33 +312,130 @@ describe('WorkbenchPage canvas', () => {
         ],
       }),
     }))
-    const list = within(canvasRegion()).getByRole('list', { name: zh['workbench.canvas.nodes'] })
-    const rows = within(list).getAllByRole('button')
-    expect(rows.map(row => row.getAttribute('data-node-id'))).toEqual(['fetch', 'review'])
-    expect(rows[0]?.getAttribute('data-status')).toBe('succeeded')
-    expect(rows[1]?.getAttribute('data-status')).toBe('waiting')
-    expect(rows[0]?.getAttribute('aria-pressed')).toBe('true')
-    expect(rows[1]?.getAttribute('aria-pressed')).toBe('false')
-    expect(within(rows[1] as HTMLElement).getByText(zh['workbench.nodeState.waiting'])).toBeTruthy()
-    expect(canvasRegion().textContent).toContain(copy('workbench.run.status', { status: zh['workbench.runState.running'] }))
+    const nodes = await drawnNodes()
+    expect(nodes.map(node => node.getAttribute('data-node-id'))).toEqual(['fetch', 'review'])
+    expect(nodes[0]?.getAttribute('data-status')).toBe('succeeded')
+    expect(nodes[1]?.getAttribute('data-status')).toBe('waiting')
+    expect(nodes[0]?.getAttribute('aria-pressed')).toBe('true')
+    expect(nodes[1]?.getAttribute('aria-pressed')).toBe('false')
+    expect(nodes[1]?.getAttribute('aria-label')).toBe(copy('workbench.canvas.selectNode', { name: '评审' }))
+    expect(canvasRegion().textContent).toContain(
+      copy('workbench.run.status', { status: zh['workbench.runState.running'] }),
+    )
+    // The generated source reaches Mermaid with both node ids and the link between them.
+    const source = mermaidRender.mock.calls.at(-1)?.[1] ?? ''
+    expect(source).toContain('flowchart TD')
+    expect(source).toContain('fetch["抓取"]')
+    expect(source).toContain('fetch --> review')
 
-    fireEvent.click(rows[1] as HTMLElement)
+    fireEvent.click(nodes[1] as Element)
     expect(b.actions.selectNode).toHaveBeenCalledExactlyOnceWith('review')
   })
 
-  it('falls back to the raw status of a vocabulary newer than this panel', () => {
+  it('selects a node from the keyboard', async () => {
+    const b = bench()
+    const nodes = await drawnNodes()
+    fireEvent.keyDown(nodes[0] as Element, { key: 'Enter' })
+    expect(b.actions.selectNode).toHaveBeenCalledExactlyOnceWith('fetch')
+    fireEvent.keyDown(nodes[0] as Element, { key: 'Tab' })
+    expect(b.actions.selectNode).toHaveBeenCalledOnce()
+  })
+
+  it('reads a node id from the group id on a Mermaid without data-id', async () => {
+    useRenderMode('id-only')
+    bench()
+    const nodes = await drawnNodes()
+    expect(nodes.map(node => node.getAttribute('data-node-id'))).toEqual(['fetch', 'review'])
+  })
+
+  it('falls back to the raw status of a vocabulary newer than this panel', async () => {
     bench(opened(), workbench({
       run: run('draining', {
         activations: [{ activationId: 'a1', nodeId: 'fetch', iteration: 0, status: 'throttled' }],
       }),
     }))
+    const nodes = await drawnNodes()
+    expect(nodes[0]?.getAttribute('data-status')).toBe('throttled')
     expect(within(canvasRegion()).getByText(/draining/)).toBeTruthy()
-    expect(within(canvasRegion()).getByText('throttled')).toBeTruthy()
+  })
+
+  it('keeps the generated source and a retry on screen when Mermaid refuses it', async () => {
+    useRenderMode('refused')
+    bench()
+    const alert = await within(canvasRegion()).findByRole('alert')
+    expect(within(alert).getByText(zh['workbench.canvas.renderedFailed'])).toBeTruthy()
+    expect(within(alert).getByText(/Parse error on line 2/)).toBeTruthy()
+    expect(within(alert).getByText(zh['workbench.canvas.sourceHint'])).toBeTruthy()
+    expect(alert.querySelector('pre')?.textContent).toContain('flowchart TD')
+    fireEvent.click(within(alert).getByRole('button', { name: zh['error.retry'] }))
+    await waitFor(() => { expect(mermaidRender).toHaveBeenCalledTimes(2) })
+  })
+
+  it('zooms the diagram and restores the initial scale', async () => {
+    bench()
+    await drawnNodes()
+    const scale = (): string | null =>
+      canvasRegion().querySelector('[data-canvas-scale]')?.getAttribute('data-canvas-scale') ?? null
+    expect(scale()).toBe('1')
+    fireEvent.click(within(canvasRegion()).getByRole('button', { name: zh['workbench.canvas.zoomIn'] }))
+    expect(scale()).toBe('1.25')
+    fireEvent.click(within(canvasRegion()).getByRole('button', { name: zh['workbench.canvas.zoomOut'] }))
+    fireEvent.click(within(canvasRegion()).getByRole('button', { name: zh['workbench.canvas.zoomOut'] }))
+    expect(scale()).toBe('0.75')
+    fireEvent.click(within(canvasRegion()).getByRole('button', { name: zh['workbench.canvas.zoomReset'] }))
+    expect(scale()).toBe('1')
+  })
+
+  it('shows the raw status of an attempt the panel vocabulary does not know', () => {
+    bench(opened(), workbench({
+      attempts: [{
+        attemptId: 'attempt-1',
+        activationId: 'a1',
+        nodeId: 'fetch',
+        attemptNo: 1,
+        status: 'throttled',
+        startedAt: 1,
+        endedAt: null,
+        error: null,
+      }],
+    }))
+    detailsTab('workbench.detail.tab.results')
+    expect(within(activePanel()).getByText('throttled')).toBeTruthy()
+  })
+
+  it('lists the runs the project recorded, with their status', async () => {
+    bench(opened(), workbench({
+      runs: {
+        status: 'ready',
+        items: [
+          runSummary({ runId: 'run-2', status: 'running', endedAt: null }),
+          runSummary({ runId: 'run-1', status: 'failed', reason: '抓取超时' }),
+        ],
+      },
+    }))
+    const list = within(canvasRegion()).getByRole('list', { name: zh['workbench.history.list'] })
+    const rows = within(list).getAllByRole('listitem')
+    expect(rows.map(row => row.getAttribute('data-run-id'))).toEqual(['run-2', 'run-1'])
+    expect(within(rows[0] as HTMLElement).getByText(zh['workbench.runState.running'])).toBeTruthy()
+    expect(within(rows[1] as HTMLElement).getByText(zh['workbench.runState.failed'])).toBeTruthy()
+    expect(within(rows[1] as HTMLElement).getByText(copy('workbench.run.reason', { reason: '抓取超时' }))).toBeTruthy()
+  })
+
+  it('says the run history is empty, and that it is still loading', () => {
+    bench(opened(), workbench({ runs: { status: 'ready', items: [] } }))
+    expect(within(canvasRegion()).getByText(zh['workbench.history.empty'])).toBeTruthy()
+  })
+
+  it('shows the loading history while the runs are read', () => {
+    bench(opened(), workbench({ runs: { status: 'loading', items: [] } }))
+    expect(within(canvasRegion()).getByText(zh['workbench.history.loading'])).toBeTruthy()
   })
 
   it('shows the empty canvas and disables every run control without a definition', () => {
     bench(opened(), workbench({
-      definition: { status: 'ready', revision: 0, valid: false, violations: [], nodes: [], failure: null },
+      definition: {
+        status: 'ready', revision: 0, document: null, valid: false, violations: [], nodes: [], failure: null,
+      },
       selectedNodeId: null,
     }))
     expect(within(canvasRegion()).getByText(zh['workbench.canvas.empty.title'])).toBeTruthy()
@@ -298,6 +452,7 @@ describe('WorkbenchPage canvas', () => {
       definition: {
         status: 'ready',
         revision: 3,
+        document: null,
         valid: false,
         violations: [{ code: 'definition/node-title-empty', path: 'nodes[0]', message: '标题为空' }],
         nodes: [],
@@ -403,8 +558,8 @@ describe('WorkbenchPage node inspector', () => {
         nodeId: 'review',
         status: 'ready',
         items: [
-          { name: 'read', description: '读一个文件', enabled: true },
-          { name: 'retired', description: '', enabled: false },
+          { name: 'read', description: '读一个文件', enabled: true, registered: true },
+          { name: 'retired', description: '', enabled: true, registered: false },
         ],
       },
     }))
@@ -413,17 +568,37 @@ describe('WorkbenchPage node inspector', () => {
     expect(within(activePanel()).getByText(zh['workbench.detail.tools.unregistered'])).toBeTruthy()
     const read = within(activePanel()).getByRole('switch', { name: copy('workbench.detail.tools.switchLabel', { name: 'read' }) })
     expect(read.getAttribute('aria-checked')).toBe('true')
-    fireEvent.click(within(activePanel()).getByRole('switch', {
-      name: copy('workbench.detail.tools.switchLabel', { name: 'retired' }),
+    fireEvent.click(read)
+    expect(b.actions.toggleTool).toHaveBeenCalledExactlyOnceWith('review', 'read', false)
+  })
+
+  it('marks a tool the deployment does not register as unavailable and unwritable', () => {
+    const b = bench(opened(), workbench({
+      selectedNodeId: 'review',
+      tools: {
+        nodeId: 'review',
+        status: 'ready',
+        items: [{ name: 'retired', description: '', enabled: true, registered: false }],
+      },
     }))
-    expect(b.actions.toggleTool).toHaveBeenCalledExactlyOnceWith('review', 'retired', true)
+    detailsTab('workbench.detail.tab.tools')
+    const retired = within(activePanel()).getByRole('switch', {
+      name: copy('workbench.detail.tools.unavailableLabel', { name: 'retired' }),
+    })
+    expect(retired).toHaveProperty('disabled', true)
+    fireEvent.click(retired)
+    expect(b.actions.toggleTool).not.toHaveBeenCalled()
   })
 
   it('keeps the tool switches disabled while a mutation is in flight', () => {
     bench(opened(), workbench({
       selectedNodeId: 'review',
       busy: true,
-      tools: { nodeId: 'review', status: 'ready', items: [{ name: 'read', description: '', enabled: true }] },
+      tools: {
+        nodeId: 'review',
+        status: 'ready',
+        items: [{ name: 'read', description: '', enabled: true, registered: true }],
+      },
     }))
     detailsTab('workbench.detail.tab.tools')
     expect(within(activePanel()).getByRole('switch')).toHaveProperty('disabled', true)
@@ -507,7 +682,9 @@ describe('WorkbenchPage node inspector', () => {
 
   it('shows the node-list and configuration empty states while the definition loads', () => {
     bench(opened(), workbench({
-      definition: { status: 'loading', revision: 0, valid: false, violations: [], nodes: [], failure: null },
+      definition: {
+        status: 'loading', revision: 0, document: null, valid: false, violations: [], nodes: [], failure: null,
+      },
       selectedNodeId: null,
     }))
     expect(within(detailsRegion()).getByText(zh['workbench.detail.loading'])).toBeTruthy()
@@ -563,9 +740,10 @@ describe('WorkbenchPage decisions', () => {
 })
 
 describe('WorkbenchPage coordinator', () => {
-  it('opens the coordinator Session in the conversation view', () => {
+  it('embeds the coordinator Session and keeps the way to its own tab', () => {
     const b = bench()
-    expect(within(chatRegion()).getByText(zh['workbench.chat.openHint'])).toBeTruthy()
+    expect(within(chatRegion()).getByText('统筹对话')).toBeTruthy()
+    expect(b.actions.retainSession).toHaveBeenCalledWith('session-coordinator')
     fireEvent.click(within(chatRegion()).getByRole('button', { name: zh['workbench.chat.open'] }))
     expect(b.actions.openCoordinator).toHaveBeenCalledExactlyOnceWith('session-coordinator')
   })

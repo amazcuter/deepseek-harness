@@ -24,6 +24,7 @@ const FAILURE_KEY: Readonly<Partial<Record<RemoteErrorCode, ProjectsKey>>> = {
   'project/run-unavailable': 'error.project-run-unavailable',
   'project/decision-unavailable': 'error.project-decision-unavailable',
   'project/workflow-unavailable': 'error.project-workflow-unavailable',
+  'project/mermaid-invalid': 'error.project-mermaid-invalid',
   'gateway/bad-request': 'error.bad-request',
 }
 

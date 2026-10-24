@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Projects",
-    "description": "The MetaWorkFlow home page: list the Host's registered workflow projects and create, open, rename, or delete one. Opening a project shows its workbench: the nodes of its newest stored definition, the node inspector with tool switches and execution records, the run controls, and the decisions its coordinator owes."
+    "description": "The MetaWorkFlow home page: list the Host's registered workflow projects, create one, import a Mermaid flowchart as a new project, or open, rename, and delete a project. Opening a project shows its workbench: the definition drawn as a flowchart with its run history, the node inspector with tool switches and execution records, the run controls, and the decisions its coordinator owes with that Session rendered in place."
   }
 }

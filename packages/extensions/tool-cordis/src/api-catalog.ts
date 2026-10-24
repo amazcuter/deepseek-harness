@@ -1993,6 +1993,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'the run and its attempts; `run` is `null` when the project has no run.',
       },
       {
+        signature: '@Remote(\'runs\') async runs(request: ProjectTargetRequest): Promise<ProjectRunsValue>',
+        description: 'List every run the project recorded, newest first.\n\nThe rows come from the project store rather than the scheduler, so the history survives a run the composition no longer advances. Each row carries the status the store last recorded and the instant it reached it.',
+        parameters: [{ name: 'request', description: 'project identity.' }],
+        returns: 'every run of the project, newest first.',
+      },
+      {
         signature: '@Remote(\'startRun\') async startRun(request: ProjectTargetRequest): Promise<ProjectRunStartValue>',
         description: 'Start a run from the newest stored definition and advance it once.',
         parameters: [{ name: 'request', description: 'project identity.' }],
@@ -7264,6 +7270,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ProjectRunStartValue {\n    readonly runId: string;\n    readonly status: string;\n}',
   },
   {
+    name: 'ProjectRunSummaryView',
+    declaration: 'export interface ProjectRunSummaryView {\n    readonly runId: string;\n    readonly definitionRevision: number;\n    readonly status: string;\n    readonly startedAt: number;\n    readonly endedAt: number | null;\n    readonly reason: string | null;\n}',
+  },
+  {
+    name: 'ProjectRunsValue',
+    declaration: 'export interface ProjectRunsValue {\n    readonly items: readonly ProjectRunSummaryView[];\n}',
+  },
+  {
     name: 'ProjectRunTargetRequest',
     declaration: 'export interface ProjectRunTargetRequest {\n    readonly id: WorkspaceId;\n    readonly runId: string;\n}',
   },
@@ -7285,7 +7299,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ProjectToolView',
-    declaration: 'export interface ProjectToolView {\n    readonly name: string;\n    readonly description: string;\n    readonly enabled: boolean;\n}',
+    declaration: 'export interface ProjectToolView {\n    readonly name: string;\n    readonly description: string;\n    readonly enabled: boolean;\n    readonly registered: boolean;\n}',
   },
   {
     name: 'ProjectUpdateNodeRequest',

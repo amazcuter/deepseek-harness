@@ -327,21 +327,21 @@ describe('projects.availableTools', () => {
     await writeValidDefinition(projects, id)
     await expect(projects.availableTools({ id, nodeId: 'review' })).resolves.toEqual({
       items: [
-        { name: 'read', description: 'Read a file', enabled: true },
-        { name: 'write', description: 'Write a file', enabled: false },
+        { name: 'read', description: 'Read a file', enabled: true, registered: true },
+        { name: 'write', description: 'Write a file', enabled: false, registered: true },
       ],
     })
   })
 
-  it('keeps a declared tool the Host no longer registers switchable', async () => {
+  it('lists a declared tool the Host no longer registers as unwritable', async () => {
     const { projects, id } = await harness({
       tools: [{ name: 'read', description: 'Read a file' }],
     })
     await writeValidDefinition(projects, id, { tools: ['read', 'retired'] })
     await expect(projects.availableTools({ id, nodeId: 'review' })).resolves.toEqual({
       items: [
-        { name: 'read', description: 'Read a file', enabled: true },
-        { name: 'retired', description: '', enabled: true },
+        { name: 'read', description: 'Read a file', enabled: true, registered: true },
+        { name: 'retired', description: '', enabled: true, registered: false },
       ],
     })
   })
@@ -350,7 +350,7 @@ describe('projects.availableTools', () => {
     const { projects, id } = await harness({ tools: false })
     await writeValidDefinition(projects, id)
     await expect(projects.availableTools({ id, nodeId: 'review' })).resolves.toEqual({
-      items: [{ name: 'read', description: '', enabled: true }],
+      items: [{ name: 'read', description: '', enabled: true, registered: false }],
     })
   })
 
@@ -543,6 +543,47 @@ describe('project runs', () => {
     ]) {
       await expect(call()).rejects.toMatchObject({ code: 'project/workflow-unavailable' })
     }
+  })
+})
+
+describe('projects.runs', () => {
+  it('reports no run before the project has started one', async () => {
+    const { projects, id } = await harness()
+    await expect(projects.runs({ id })).resolves.toEqual({ items: [] })
+  })
+
+  it('lists every settled run newest first with the instants it reached', async () => {
+    const { projects, id } = await harness()
+    await writeValidDefinition(projects, id)
+    const first = await projects.startRun({ id })
+    const second = await projects.startRun({ id })
+    const { items } = await projects.runs({ id })
+    expect(items.map(item => [item.runId, item.status, item.reason])).toEqual([
+      [second.runId, 'succeeded', null],
+      [first.runId, 'succeeded', null],
+    ])
+    expect(items[0]).toMatchObject({
+      definitionRevision: 1,
+      startedAt: expect.any(Number),
+      endedAt: expect.any(Number),
+    })
+  })
+
+  it('reports no end instant for a run that can still advance', async () => {
+    const { projects, id } = await harness({ executors: { python: waitForDecision } })
+    await writeValidDefinition(projects, id)
+    const started = await projects.startRun({ id })
+    const running = await projects.runs({ id })
+    expect(running.items[0]).toMatchObject({ runId: started.runId, endedAt: null })
+    await projects.pause({ id, runId: started.runId })
+    await expect(projects.runs({ id })).resolves.toMatchObject({
+      items: [{ runId: started.runId, status: 'paused', endedAt: null }],
+    })
+  })
+
+  it('reports an unknown project', async () => {
+    const { projects } = await harness()
+    await expect(projects.runs({ id: UNKNOWN_PROJECT })).rejects.toMatchObject({ code: 'project/not-found' })
   })
 })
 

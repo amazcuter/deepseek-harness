@@ -6,7 +6,9 @@ import { createSnapshotStore } from '@metaworkflow/client-store'
 import { allowAllAccess, bindSnapshotSelector } from '@metaworkflow/client-test-runtime'
 import { ProjectsPage, type ProjectsPageProps } from '../src/client/ProjectsPage.tsx'
 import { zh } from '../src/client/locales.ts'
-import type { ProjectId, ProjectSummary, ProjectsSnapshot } from '../src/client/projects.ts'
+import type {
+  ImportDraft, ProjectId, ProjectSummary, ProjectsSnapshot,
+} from '../src/client/projects.ts'
 
 afterEach(cleanup)
 
@@ -40,13 +42,15 @@ function ready(overrides: Partial<ProjectsSnapshot> = {}): ProjectsSnapshot {
     projects: [],
     openedProjectId: null,
     mutationError: null,
+    import: { status: 'idle' },
     busy: false,
     ...overrides,
   }
 }
 
 function bench(snapshot: ProjectsSnapshot = ready(), injected: Partial<Pick<ProjectsPageProps,
-  'createProject' | 'openProject' | 'renameProject' | 'removeProject' | 'reloadProjects'>> = {}) {
+  'createProject' | 'openProject' | 'renameProject' | 'removeProject' | 'reloadProjects'
+  | 'resetImport' | 'importMermaid'>> = {}) {
   const store = createSnapshotStore<ProjectsSnapshot>(snapshot)
   const actions = {
     createProject: vi.fn(),
@@ -54,6 +58,8 @@ function bench(snapshot: ProjectsSnapshot = ready(), injected: Partial<Pick<Proj
     renameProject: vi.fn(),
     removeProject: vi.fn(),
     reloadProjects: vi.fn(),
+    resetImport: vi.fn(),
+    importMermaid: vi.fn<(draft: ImportDraft) => void>(),
     ...injected,
   }
   const props: ProjectsPageProps = {
@@ -120,11 +126,53 @@ describe('ProjectsPage empty state', () => {
     expect(b.actions.createProject).toHaveBeenCalledExactlyOnceWith(zh['project.untitled'])
   })
 
-  it('keeps the Mermaid import as a disabled placeholder', () => {
-    bench()
-    const importButton = screen.getByRole('button', { name: zh['dashboard.import'] })
-    expect(importButton).toHaveProperty('disabled', true)
-    expect(importButton.getAttribute('title')).toBe(zh['dashboard.importHint'])
+  it('opens the Mermaid import dialog from the header action', () => {
+    const b = bench()
+    fireEvent.click(screen.getByRole('button', { name: zh['dashboard.import'] }))
+    expect(b.actions.resetImport).toHaveBeenCalledOnce()
+    expect(screen.getByRole('dialog', { name: zh['import.title'] })).toBeTruthy()
+  })
+
+  it('closes the dialog again without importing', () => {
+    const b = bench()
+    fireEvent.click(screen.getByRole('button', { name: zh['dashboard.import'] }))
+    fireEvent.click(screen.getByRole('button', { name: zh['action.cancel'] }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(b.actions.importMermaid).not.toHaveBeenCalled()
+  })
+
+  it('submits the typed flowchart through the injected import', () => {
+    const b = bench()
+    fireEvent.click(screen.getByRole('button', { name: zh['dashboard.import'] }))
+    fireEvent.change(screen.getByLabelText(zh['import.name']), { target: { value: '发票处理' } })
+    fireEvent.change(screen.getByLabelText(zh['import.source']), { target: { value: 'flowchart TD' } })
+    fireEvent.click(screen.getByRole('button', { name: zh['import.submit'] }))
+    expect(b.actions.importMermaid).toHaveBeenCalledExactlyOnceWith({
+      title: '发票处理',
+      mermaid: 'flowchart TD',
+    })
+  })
+
+  it('shows the Host refusal inside the open dialog', () => {
+    const b = bench()
+    fireEvent.click(screen.getByRole('button', { name: zh['dashboard.import'] }))
+    b.rerender({
+      ...ready(),
+      import: {
+        status: 'failed',
+        failure: { code: 'project/mermaid-invalid', message: 'bad', line: 3 },
+      },
+    })
+    const alert = screen.getByRole('alert', { name: zh['import.failed'] })
+    expect(within(alert).getByText(zh['error.project-mermaid-invalid'])).toBeTruthy()
+    expect(within(alert).getByText('第 3 行')).toBeTruthy()
+  })
+
+  it('hides the dialog once the Host stored the import', () => {
+    const b = bench()
+    fireEvent.click(screen.getByRole('button', { name: zh['dashboard.import'] }))
+    b.rerender({ ...ready(), import: { status: 'imported', projectId: 'imported' as ProjectId } })
+    expect(screen.queryByRole('dialog')).toBeNull()
   })
 })
 

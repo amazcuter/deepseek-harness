@@ -10,7 +10,9 @@
 
 import { createSnapshotStore, type SnapshotStore } from '@metaworkflow/client-store'
 import type { HostObservable } from '@metaworkflow/client-ui-slots'
-import type { ClientRemote, RemoteErrorCode, RemoteResult } from '@metaworkflow/api-remotes/client'
+import type {
+  ClientRemote, RemoteErrorCode, RemoteFailure, RemoteResult,
+} from '@metaworkflow/api-remotes/client'
 import { settleRemote } from './remote-outcome.ts'
 import type { ProjectSummary, WorkspaceId } from '@metaworkflow/api-workspace-controller/types'
 
@@ -32,6 +34,32 @@ export type ProjectsView =
   | { readonly status: 'ready' }
   | { readonly status: 'error'; readonly failure: ProjectFailure }
 
+/** One flowchart the import dialog submits. */
+export interface ImportDraft {
+  /** Title of the project the import registers. */
+  readonly title: string
+  /** Mermaid flowchart source. */
+  readonly mermaid: string
+}
+
+/** One refused flowchart import, with every structured part the Host returned. */
+export interface ImportFailure extends ProjectFailure {
+  /** 1-based source line the parser blamed, when it blamed one. */
+  readonly line?: number
+  /** Stable parser or translation code, such as `mermaid/unsupported-syntax`. */
+  readonly refusalCode?: string
+  /** Definition validator messages for a graph that translated but cannot run. */
+  readonly violations?: readonly string[]
+}
+
+/** State of the dashboard's flowchart import. */
+export type ImportState =
+  | { readonly status: 'idle' }
+  | { readonly status: 'importing' }
+  /** The Host stored the definition; the dialog hides itself and the panel opens the project. */
+  | { readonly status: 'imported'; readonly projectId: ProjectId }
+  | { readonly status: 'failed'; readonly failure: ImportFailure }
+
 /** Immutable dashboard state. */
 export interface ProjectsSnapshot {
   /** The list state the panel renders, with the failure when it has one. */
@@ -42,6 +70,8 @@ export interface ProjectsSnapshot {
   readonly openedProjectId: ProjectId | null
   /** Failure of the most recent mutation, cleared when the next one starts. */
   readonly mutationError: ProjectFailure | null
+  /** State of the flowchart import the dialog drives. */
+  readonly import: ImportState
   /** A mutation is in flight, so its controls stay disabled. */
   readonly busy: boolean
 }
@@ -77,6 +107,7 @@ export class ProjectsController {
       projects: [],
       openedProjectId: null,
       mutationError: null,
+      import: { status: 'idle' },
       busy: false,
     })
     this.list = {
@@ -95,6 +126,42 @@ export class ProjectsController {
     this.patch(outcome.ok
       ? { view: { status: 'ready' }, projects: [...outcome.value.items] }
       : { view: { status: 'error', failure: outcome.failure } })
+  }
+
+  /**
+   * Import one flowchart as a new project's first definition.
+   *
+   * The Host registers the project, parses and translates the flowchart, and
+   * stores the definition, so a refusal registers nothing. A successful import
+   * refreshes the list — the row is the Host's own projection, which the import
+   * response does not carry — and reports the project for the panel to open.
+   * @param draft - project title and flowchart source.
+   * @returns the registered project, or `null` once the refusal is published as
+   * the snapshot's import state.
+   */
+  async importMermaid(draft: ImportDraft): Promise<ProjectId | null> {
+    this.inFlight += 1
+    this.patch({ busy: true, mutationError: null, import: { status: 'importing' } })
+    const outcome = await settleImport(() => this.remote.importMermaid({
+      title: draft.title,
+      mermaid: draft.mermaid,
+    }))
+    this.inFlight -= 1
+    this.patch({ busy: this.inFlight > 0 })
+    if (!outcome.ok) {
+      this.patch({ import: { status: 'failed', failure: outcome.failure } })
+      return null
+    }
+    const { projectId } = outcome.value
+    this.patch({ import: { status: 'imported', projectId } })
+    await this.load()
+    return projectId
+  }
+
+  /** Forget the last import, so a reopened dialog starts from a clean state. */
+  resetImport(): void {
+    if (this.current().import.status === 'idle') return
+    this.patch({ import: { status: 'idle' } })
   }
 
   /**
@@ -215,4 +282,45 @@ export function failureOf(failure: { readonly code: RemoteErrorCode; readonly me
  */
 export function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
+}
+
+/** One settled flowchart import: the stored project, or the refusal the dialog renders. */
+type ImportOutcome =
+  | { readonly ok: true; readonly value: { readonly projectId: ProjectId } }
+  | { readonly ok: false; readonly failure: ImportFailure }
+
+/**
+ * Call the import verb and fold both failure forms into one outcome, keeping the
+ * structured refusal a plain failure fold would drop.
+ * @param call - the Remote call to perform.
+ * @returns the settled outcome; a rejection becomes a `gateway/internal` failure.
+ */
+async function settleImport(
+  call: () => Promise<RemoteResult<{ readonly projectId: ProjectId }>>,
+): Promise<ImportOutcome> {
+  try {
+    const result = await call()
+    return result.ok
+      ? { ok: true, value: result.value }
+      : { ok: false, failure: importFailureOf(result.error) }
+  } catch (error: unknown) {
+    return { ok: false, failure: { code: 'gateway/internal', message: messageOf(error) } }
+  }
+}
+
+/**
+ * @param failure - the import verb's failure branch.
+ * @returns the refusal with the source line, refusal code, and validator
+ * messages the flowchart importer reported; empty of those for any other code.
+ */
+function importFailureOf(failure: RemoteFailure): ImportFailure {
+  if (failure.code !== 'project/mermaid-invalid') return failureOf(failure)
+  const refusal = failure.details.error
+  const violations = failure.details.violations
+  return {
+    ...failureOf(failure),
+    ...refusal === undefined ? {} : { refusalCode: refusal.code },
+    ...refusal?.line === undefined ? {} : { line: refusal.line },
+    ...violations === undefined ? {} : { violations: [...violations] },
+  }
 }
