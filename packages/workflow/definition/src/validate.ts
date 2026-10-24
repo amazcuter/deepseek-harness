@@ -68,7 +68,7 @@ type Violations = DefinitionViolation[]
  *
  * The rules cover the document envelope, node and edge identity, node
  * configuration, the agent output-schema subset, conditions, edge semantics,
- * loop back edges, graph structure, and input provenance. Violations are reported in
+ * loop back edges, graph structure, and input sources. Violations are reported in
  * document order per pass; validation never throws.
  *
  * @param value - a value of unknown origin, such as parsed document text.
@@ -886,7 +886,7 @@ function validateConditionValue(op: string, value: unknown, path: string, violat
 
 /**
  * Validate graph-level rules: entry node, reachability, acyclicity, loop back
- * edges, join eligibility, and input provenance.
+ * edges, join eligibility, and node input sources naming an ancestor.
  * @param nodes - decoded nodes in document order.
  * @param edges - decoded edges in document order.
  * @param violations - accumulator for reported violations.

@@ -107,7 +107,7 @@ const VALID: readonly { readonly name: string; readonly document: unknown }[] = 
     ),
   },
   {
-    name: 'input provenance from every source kind',
+    name: 'input sources of every source kind',
     document: documentOf(
       [
         pythonNode('source', { inputs: [{ name: 'seed', source: { kind: 'run', key: 'seed' } }] }),
