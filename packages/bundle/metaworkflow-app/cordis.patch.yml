@@ -96,6 +96,20 @@
     - id: workflow-project-store
       name: '@metaworkflow/workflow-project-store'
 
+    # Workflow runs: the durable state machine over that store, one Python child
+    # process per node, and the executor that registers the `python` node kind
+    # with the scheduler. The scheduler injects the store above; the executor
+    # injects all three, so it activates last and a python activation never
+    # reaches the scheduler without an executor behind it.
+    - id: workflow-scheduler
+      name: '@metaworkflow/workflow-scheduler'
+
+    - id: workflow-python-runner
+      name: '@metaworkflow/workflow-python-runner'
+
+    - id: workflow-python-executor
+      name: '@metaworkflow/workflow-python-executor'
+
     # Workspace registry: registered projects as Session groups (ordered
     # accounts, display order, first-use identity, archive and pin sets).
     - id: workspace

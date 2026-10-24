@@ -39,6 +39,10 @@ export interface NodeActivation {
   readonly activationId: ActivationId
   /** The definition node being executed, including its kind-specific config. */
   readonly node: WorkflowNode
+  /** Project that owns the run, its definition revisions, and its working directory. */
+  readonly projectId: ProjectId
+  /** Stored definition revision the run executes; the node above belongs to it. */
+  readonly definitionRevision: number
   /** Loop iteration this activation belongs to; `0` before any loop re-entry. */
   readonly iteration: number
   /** 1-based attempt number of this execution. */

@@ -109,6 +109,8 @@ describe('tick', () => {
     expect(python.calls.map(call => call.activation.node.id)).toEqual(['a', 'b'])
     expect(python.calls.map(call => call.activation.attemptNo)).toEqual([1, 1])
     expect(python.calls[1]?.activation.iteration).toEqual(0)
+    // The activation names the project and revision an executor resolves its resources from.
+    expect(python.calls[0]?.activation).toMatchObject({ projectId: h.projectId, definitionRevision: revision })
 
     const activations = await h.scheduler.listActivations({ projectId: h.projectId, runId })
     expect(activations.map(activation => [activation.nodeId, activation.status])).toEqual([['a', 'succeeded'], ['b', 'succeeded']])

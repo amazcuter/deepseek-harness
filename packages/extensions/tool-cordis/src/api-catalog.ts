@@ -1678,6 +1678,20 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'mwfPythonExecutor',
+    summary: 'Runs workflow python nodes for the scheduler.',
+    description: 'Runs workflow python nodes for the scheduler.\n\nOne instance owns one executor registration for the `python` kind, which is an effect: disposing the plugin unregisters it, so a replaced plugin never leaves a duplicate executor behind.',
+    methods: [
+      {
+        signature: 'async execute(activation: NodeActivation, inputs: NodeInputs, signal: AbortSignal): Promise<NodeResult>',
+        description: 'Run one activation\'s python node.\n\nThe stored definition revision is authoritative for what the run executes: the executor reads the revision the run was created from and takes the node\'s source from it, so a scheduler-provided node object never supplies code this run did not store.',
+        parameters: [{ name: 'activation', description: 'the node, its iteration and attempt number, and the run\'s parameters.' }, { name: 'inputs', description: 'the assembled input values, keyed by binding name.' }, { name: 'signal', description: 'aborted when the run is paused or canceled.' }],
+        returns: 'the node\'s JSON value, or a structured failure.',
+        throws: ['the abort reason when `signal` aborted, because that outcome is not a node failure.'],
+      },
+    ],
+  },
+  {
     key: 'mwfPythonRunner',
     summary: 'Runs node functions on a host Python interpreter.',
     description: 'Runs node functions on a host Python interpreter.\n\nOne service instance owns the `.venv` serialization of every project it touches and the termination bindings of the platform it runs on; it holds no other state, so a disposed instance leaves nothing behind.',
@@ -6637,7 +6651,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'NodeActivation',
-    declaration: 'export interface NodeActivation {\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly node: WorkflowNode;\n    readonly iteration: number;\n    readonly attemptNo: number;\n    readonly params: RunParams;\n}',
+    declaration: 'export interface NodeActivation {\n    readonly runId: RunId;\n    readonly activationId: ActivationId;\n    readonly node: WorkflowNode;\n    readonly projectId: ProjectId;\n    readonly definitionRevision: number;\n    readonly iteration: number;\n    readonly attemptNo: number;\n    readonly params: RunParams;\n}',
   },
   {
     name: 'NodeArtifact',

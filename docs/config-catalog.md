@@ -4589,6 +4589,27 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@metaworkflow/workflow-ptc -->
 
+<!-- BEGIN GENERATED config-catalog:@metaworkflow/workflow-python-executor -->
+<a id="metaworkflowworkflow-python-executor"></a>
+
+## `@metaworkflow/workflow-python-executor`
+
+- `inject`: `mwfScheduler` · `mwfPythonRunner` · `mwfProjectStore`
+- `source`: [`packages/workflow/python-executor/src/types.ts:13`](../packages/workflow/python-executor/src/types.ts)
+
+```ts config-catalog
+/** Plugin configuration. */
+export interface Config {
+  /**
+   * Wall-clock deadline of one node run, in milliseconds. Omitted leaves the
+   * deadline to `@metaworkflow/workflow-python-runner`'s own configuration, so a
+   * deployment sets it in one place.
+   */
+  readonly timeoutMs?: number
+}
+```
+<!-- END GENERATED config-catalog:@metaworkflow/workflow-python-executor -->
+
 <!-- BEGIN GENERATED config-catalog:@metaworkflow/workflow-python-runner -->
 <a id="metaworkflowworkflow-python-runner"></a>
 

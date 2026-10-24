@@ -1,0 +1,49 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/workflow/python-executor/README.md
+/:
+  en: 0c902f059b06b3be
+  zh: a80ec239643cd840
+/metaworkflow-workflow-python-executor:
+  en: 766bd94a7a99f2e4
+  zh: 5cdbf0dad67ebbe2
+/metaworkflow-workflow-python-executor/summary:
+  en: 369b32e8c962b442
+  zh: 303387ed3e8d7408
+/metaworkflow-workflow-python-executor/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: bda879a892f240f0
+/metaworkflow-workflow-python-executor/use-this-package:
+  en: 9cb49399eb431550
+  zh: 07009f1f4185c485
+/metaworkflow-workflow-python-executor/use-this-package/when-to-choose-it:
+  en: 94930b889366cd17
+  zh: 0adc06259b849784
+/metaworkflow-workflow-python-executor/use-this-package/minimal-configuration:
+  en: bcd8faf6965f1265
+  zh: 377dadf67ccc3444
+/metaworkflow-workflow-python-executor/use-this-package/service-api:
+  en: 81c4e76133257db3
+  zh: 82c1266ae2d8d965
+/metaworkflow-workflow-python-executor/use-this-package/what-one-execution-reports:
+  en: 29d55dd9a4d06efa
+  zh: 3bc538dea0bd4a73
+/metaworkflow-workflow-python-executor/understand-the-implementation:
+  en: bd295588ef035d9f
+  zh: 54e4a0bf63f5208a
+/metaworkflow-workflow-python-executor/further-exploration:
+  en: a1a230bb4d233bfe
+  zh: 3991337e7879dafa
+/metaworkflow-workflow-python-executor/model-experience:
+  en: 04ea37c1d15a71f1
+  zh: 15036bd376c8c706
+/metaworkflow-workflow-python-executor/model-experience/kv-cache-effect:
+  en: ab820830ae2606fa
+  zh: fa97fc69f1d3ba44
+/metaworkflow-workflow-python-executor/known-limitations-and-deferred-work:
+  en: 1eafa3017250d8d0
+  zh: e1a38988a559d7f0
+/metaworkflow-workflow-python-executor/known-limitations-and-deferred-work/dev-note:
+  en: 231e7bf78cdbdab7
+  zh: 697e37dd0afc71f5

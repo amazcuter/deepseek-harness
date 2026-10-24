@@ -893,7 +893,16 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'workflow-python-runner',
     title: 'Workflow Python node execution',
     mode: 'service',
-    note: 'Owns interpreter resolution, the project .venv, and one isolated node run; no consumer is wired yet, so the scheduler stage attaches its runs here.',
+    consumers: ['workflow-python-executor'],
+    note: 'Owns interpreter resolution, the project .venv, and one isolated node run; the python executor is its one consumer, so a node never resolves an interpreter or writes a project environment itself.',
+  },
+  {
+    key: 'mwfPythonExecutor',
+    pkg: 'workflow-python-executor',
+    title: 'Workflow python node execution adapter',
+    mode: 'service',
+    consumers: ['workflow-scheduler'],
+    note: 'Registers the python node kind with the scheduler and runs one activation per call through the python runner inside the project working directory; it keeps no scheduling state and takes the node source from the stored definition revision.',
   },
   {
     key: 'mwfScheduler',

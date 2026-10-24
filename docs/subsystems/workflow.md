@@ -299,6 +299,33 @@ async close(): Promise<void>
 
 Source: [`packages/workflow/project-store/src/index.ts`](../../packages/workflow/project-store/src/index.ts)
 
+<a id="ctxmwfpythonexecutor--pythonexecutor"></a>
+
+### `ctx.mwfPythonExecutor` — `PythonExecutor`
+
+Runs workflow python nodes for the scheduler.
+
+One instance owns one executor registration for the `python` kind, which is an effect: disposing the plugin unregisters it, so a replaced plugin never leaves a duplicate executor behind.
+
+```ts cordis-catalog
+/**
+ * Run one activation's python node.
+ *
+ * The stored definition revision is authoritative for what the run executes:
+ * the executor reads the revision the run was created from and takes the
+ * node's source from it, so a scheduler-provided node object never supplies
+ * code this run did not store.
+ * @param activation - the node, its iteration and attempt number, and the run's parameters.
+ * @param inputs - the assembled input values, keyed by binding name.
+ * @param signal - aborted when the run is paused or canceled.
+ * @returns the node's JSON value, or a structured failure.
+ * @throws the abort reason when `signal` aborted, because that outcome is not a node failure.
+ */
+async execute(activation: NodeActivation, inputs: NodeInputs, signal: AbortSignal): Promise<NodeResult>
+```
+
+Source: [`packages/workflow/python-executor/src/index.ts`](../../packages/workflow/python-executor/src/index.ts)
+
 <a id="ctxmwfpythonrunner--pythonrunner"></a>
 
 ### `ctx.mwfPythonRunner` — `PythonRunner`

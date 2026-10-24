@@ -2956,6 +2956,15 @@ importers:
       '@metaworkflow/workflow-ptc':
         specifier: workspace:*
         version: link:../../workflow/workflow-ptc
+      '@metaworkflow/workflow-python-executor':
+        specifier: workspace:*
+        version: link:../../workflow/python-executor
+      '@metaworkflow/workflow-python-runner':
+        specifier: workspace:*
+        version: link:../../workflow/python-runner
+      '@metaworkflow/workflow-scheduler':
+        specifier: workspace:*
+        version: link:../../workflow/scheduler
       '@metaworkflow/workspace':
         specifier: workspace:*
         version: link:../../workspace/workspace
@@ -15810,6 +15819,31 @@ importers:
       '@metaworkflow/home-paths':
         specifier: workspace:*
         version: link:../../util/home-paths
+
+  packages/workflow/python-executor:
+    dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@metaworkflow/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+      '@metaworkflow/workflow-definition':
+        specifier: workspace:*
+        version: link:../definition
+      '@metaworkflow/workflow-project-store':
+        specifier: workspace:*
+        version: link:../project-store
+      '@metaworkflow/workflow-python-runner':
+        specifier: workspace:*
+        version: link:../python-runner
+      '@metaworkflow/workflow-scheduler':
+        specifier: workspace:*
+        version: link:../scheduler
 
   packages/workflow/python-runner:
     dependencies:

@@ -62,6 +62,8 @@ The generated [configuration catalog](../../../docs/config-catalog.md#metaworkfl
 ### The executor seam
 
 ```ts
+import type { NodeActivation, NodeInputs, NodeResult } from '@metaworkflow/workflow-scheduler'
+
 interface NodeExecutor {
   readonly kind: 'python' | 'agent'
   execute(activation: NodeActivation, inputs: NodeInputs, signal: AbortSignal): Promise<NodeResult>

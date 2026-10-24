@@ -886,6 +886,8 @@ export default class WorkflowScheduler extends Service {
         runId: context.runId,
         activationId: context.activation.activationId,
         node: context.node,
+        projectId: context.projectId,
+        definitionRevision: context.runRevision,
         iteration: context.activation.iteration,
         attemptNo,
         params: context.params,

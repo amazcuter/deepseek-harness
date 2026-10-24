@@ -31,6 +31,7 @@ The workflow group lets an agent run orchestration scripts that delegate work to
 | [`python-runner`](python-runner/README.md) | Runs one AI-written Python node function on the host and returns its JSON value | `ctx.mwfPythonRunner` |
 | [`definition`](definition/README.md) | Defines, validates, and routes the workflow graph document | pure library (no `ctx` key) |
 | [`scheduler`](scheduler/README.md) | Turns a stored definition into a durable, resumable run and drives node executors | `ctx.mwfScheduler` |
+| [`python-executor`](python-executor/README.md) | Runs the scheduler's `python` activations on the real interpreter in the project working directory | `ctx.mwfPythonExecutor` |
 
 -----
 

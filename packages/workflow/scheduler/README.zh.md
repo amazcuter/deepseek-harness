@@ -7,11 +7,11 @@ kind: "package-reference"
 
 [English](README.md) | 中文
 
-## Summary
+## 概述
 
 `ctx.mwfScheduler` 把一份已存储的定义修订变成可暂停、继续、单步、重试、取消并在重启后恢复的运行。它决定哪些激活就绪、由哪个执行器执行节点、同时跑几个、失败重试几次，以及循环何时耗尽。每个决定都与 attempt 的结果、它的 outbox 事件和它路由出的激活在同一个事务里落到项目库。执行器是一处接缝：本包不自带任何实现。
 
-## Table of Contents
+## 目录
 
 - [使用本包](#use-this-package)
 - [理解实现](#understand-the-implementation)
@@ -62,6 +62,8 @@ kind: "package-reference"
 ### 执行器接缝
 
 ```ts
+import type { NodeActivation, NodeInputs, NodeResult } from '@metaworkflow/workflow-scheduler'
+
 interface NodeExecutor {
   readonly kind: 'python' | 'agent'
   execute(activation: NodeActivation, inputs: NodeInputs, signal: AbortSignal): Promise<NodeResult>
@@ -148,7 +150,7 @@ interface NodeExecutor {
 - **产物只是引用** —— 发布的产物按名称、版本与相对路径记录；调度器既不写也不校验该文件。
 
 <a id="dev-note"></a>
-### 开发者笔记
+### 开发备注
 
 <details>
 <summary>维护者工作上下文 —— 点击展开</summary>

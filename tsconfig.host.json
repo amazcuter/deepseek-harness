@@ -502,6 +502,7 @@
     { "path": "./packages/workflow/definition" },
     { "path": "./packages/workflow/project-store" },
     { "path": "./packages/workflow/python-runner" },
+    { "path": "./packages/workflow/python-executor" },
     { "path": "./packages/workflow/scheduler" },
     { "path": "./packages/experimental/tool-ralph" },
     { "path": "./packages/experimental/webhook" },
