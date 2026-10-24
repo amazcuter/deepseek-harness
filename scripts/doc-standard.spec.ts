@@ -88,6 +88,7 @@ const PACKAGE_LIBRARIES: Readonly<Record<string, string>> = {
   'packages/test-support/remote-mock': 'Browser-side test infrastructure; mounts nothing into a product composition.',
   'packages/typert/generator': 'Build-time generator run outside any agent runtime.',
   'packages/typert/protocol': 'Compiler-independent protocol declarations.',
+  'packages/workflow/definition': 'Pure workflow graph document, validator, and routing library with no plugin entry.',
   'packages/util/atomic-write': 'Zero-dependency filesystem write utility.',
   'packages/util/brand': 'Stateless nominal-string and canonical-key constructors.',
   'packages/util/crypto': 'Zero-dependency identifier minting utility.',

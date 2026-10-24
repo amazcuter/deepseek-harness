@@ -35,6 +35,7 @@ export const PRODUCT_PACKAGE_POLICY: Readonly<Record<string, ProductPackagePolic
   'packages/web/web-search-perplexity': { category: 'optional', reason: 'Alternative search provider requiring its own API credentials.' },
   'packages/context/tmux-context': { category: 'optional', reason: 'Context contribution requiring a tmux pane.' },
   'packages/fs/tool-str-replace-editor': { category: 'optional', reason: 'Explicit alternative to the default filesystem editing tools.' },
+  'packages/workflow/definition': { category: 'optional', reason: 'Pure definition, validation, routing, and join arithmetic library that the workflow scheduler stage consumes in-process; it has no runtime mount of its own.' },
   'packages/workflow/python-runner': { category: 'optional', reason: 'Host Python execution requires a project directory and an installed interpreter, so the scheduler stage mounts it explicitly.' },
   'packages/sdk/client': { category: 'sdk', reason: 'Published TypeScript embedding client runs in the consumer process.' },
   'packages/typert/generator': { category: 'build', reason: 'Build-time generation of type metadata.' },

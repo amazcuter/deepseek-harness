@@ -1,0 +1,55 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/workflow/definition/README.md
+/:
+  en: 1ce820cfc54a6c01
+  zh: b7e6cea3b0c1c035
+/metaworkflow-workflow-definition:
+  en: b1618dd45e93c96d
+  zh: 6e04b2610c2f39a7
+/metaworkflow-workflow-definition/summary:
+  en: 9ef51542cd866247
+  zh: e7f9cdcc5209d704
+/metaworkflow-workflow-definition/table-of-contents:
+  en: 80b31a934611cb4a
+  zh: 05f3f7f9cb2fd881
+/metaworkflow-workflow-definition/use-this-package:
+  en: bbff250eba0f1b89
+  zh: 0a618f05cc88ee2b
+/metaworkflow-workflow-definition/use-this-package/when-to-use-it:
+  en: 79c83e7652cf6961
+  zh: 300053cb50ef95e2
+/metaworkflow-workflow-definition/use-this-package/entry-point:
+  en: 75cbf41a64e821cd
+  zh: 20f49720dd3ebb1d
+/metaworkflow-workflow-definition/use-this-package/the-document:
+  en: 41a23232122ce96c
+  zh: 142e607ae8060d50
+/metaworkflow-workflow-definition/use-this-package/validation:
+  en: b0ce3689e5909568
+  zh: c1a81437127ea9f6
+/metaworkflow-workflow-definition/understand-the-implementation:
+  en: 42b15ac6321706aa
+  zh: 4ed0861911abaf5d
+/metaworkflow-workflow-definition/understand-the-implementation/source-map:
+  en: 8d99594a4e0b98b9
+  zh: 7f366e54742bcadc
+/metaworkflow-workflow-definition/understand-the-implementation/routing:
+  en: e98fddc3f22c799c
+  zh: 2259bd06f3932789
+/metaworkflow-workflow-definition/understand-the-implementation/conditions:
+  en: c9e1b78ed633cb29
+  zh: 43b600cc2ac30919
+/metaworkflow-workflow-definition/understand-the-implementation/joining:
+  en: 1b9723f42f2bc713
+  zh: 2bece0639fc25c7a
+/metaworkflow-workflow-definition/further-exploration:
+  en: 775ec17e3278d243
+  zh: 55c4a2bc8264efc3
+/metaworkflow-workflow-definition/known-limitations-and-deferred-work:
+  en: 5695fe8a1beff26a
+  zh: d9c026cd50aefd18
+/metaworkflow-workflow-definition/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

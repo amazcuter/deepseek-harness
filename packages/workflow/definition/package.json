@@ -1,0 +1,39 @@
+{
+  "name": "@metaworkflow/workflow-definition",
+  "description": "Pure workflow graph model: the JSON definition document, its validator, predicate routing, and join arithmetic for the workflow scheduler",
+  "version": "0.2.1-rc.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/workflow/definition"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:~",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "workspace:~",
+    "@metaworkflow/tools": "workspace:*",
+    "@metaworkflow/util-values": "workspace:*"
+  }
+}
