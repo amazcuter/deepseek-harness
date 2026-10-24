@@ -76,7 +76,7 @@ describe('WorkflowCanvas rendering', () => {
     expect(initialize).toHaveBeenCalledWith(expect.objectContaining({
       startOnLoad: false,
       securityLevel: 'strict',
-      flowchart: expect.objectContaining({ htmlLabels: false }),
+      flowchart: expect.objectContaining({ htmlLabels: false }) as Readonly<Record<string, unknown>>,
     }))
     const [id, source] = renderSvg.mock.calls.at(-1) ?? []
     expect(id).toMatch(/^mwf-flowchart-\d+$/)

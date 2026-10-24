@@ -141,7 +141,10 @@ export function conditionExpression(condition: unknown): string {
  * @returns the value as expression text; strings lose their surrounding quotes.
  */
 function literalText(value: unknown): string {
-  return typeof value === 'string' ? value : JSON.stringify(value) ?? ''
+  if (typeof value === 'string') return value
+  // `JSON.stringify` answers `undefined` for values JSON cannot represent.
+  const encoded = JSON.stringify(value) as string | undefined
+  return encoded ?? ''
 }
 
 /**

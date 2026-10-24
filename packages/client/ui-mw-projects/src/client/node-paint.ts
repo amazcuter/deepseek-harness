@@ -46,6 +46,7 @@ const BASE_STROKE_WIDTH = 1
 const SELECTED_STROKE_WIDTH = 2.5
 
 /**
+ * Paint one drawn node from its newest activation status and the inspector selection.
  * @param status - activation status of the node's newest activation, or `idle`
  * when the node has none.
  * @param selected - whether the inspector shows this node.

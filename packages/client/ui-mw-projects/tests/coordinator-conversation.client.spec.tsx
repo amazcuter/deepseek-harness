@@ -77,7 +77,8 @@ describe('CoordinatorConversation', () => {
     const [name, inputs, options] = renderFactorySlot.mock.calls[0] ?? []
     expect(name).toBe('conversation.content')
     expect(inputs).toEqual({ variant: 'embedded', phase: 'active', hero: false })
-    expect((options as FactoryCallOptions | undefined)?.slots?.['views']).toBe(CoordinatorChatView)
+    const selections: FactoryCallOptions | undefined = options
+    expect(selections?.slots?.['views']).toBe(CoordinatorChatView)
   })
 
   it('says the composition serves no Conversation when the Factory is missing', () => {

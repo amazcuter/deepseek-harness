@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The MetaWorkFlow profile opens on a project dashboard instead of the previous Session. It lists the registered projects — one row per independent workflow, with its directory, live directory state, session count, and definition revision — and creates, opens, renames, and removes them through the `projects` Remote namespace. Opening a project switches to its workbench: that definition drawn as a flowchart, the run controls with the project's run history, the inspector with each node's tool switches and execution record, the decisions the coordinator owes, and the coordinator Session rendered in place as the shared Conversation. The package also publishes the startup policy that keeps the first screen on the dashboard.
+The MetaWorkFlow profile opens on a project dashboard rather than a Session. It lists the registered projects, one row each with its directory, live state, session count, and definition revision, and creates, opens, renames, and removes them through the `projects` Remote namespace. Opening a project switches to its workbench: the stored definition as a flowchart, run controls and run history, the inspector with each node's tool switches and execution record, decisions the coordinator owes, and the coordinator Session rendered in place as the shared Conversation. The package also publishes the startup policy keeping the first screen on the dashboard.
 
 ## Table of Contents
 
